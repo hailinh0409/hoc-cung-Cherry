@@ -258,3 +258,10 @@ textarea.code.light{background:#fff;color:#12313a;font:14px/1.5 "Be Vietnam Pro"
 .ftx{flex:1;min-width:0;font-size:14px;line-height:1.35}.ftx small{display:block;color:#7a9399;font-size:12px}.fic svg{width:28px;height:28px}.fic{font-size:24px}
 .fsearch{margin-top:8px}.newb{font-style:normal;background:#ff4d6d;color:#fff;padding:0 6px;border-radius:99px;font-size:11px;font-weight:800}
 .pfol{font-size:13px;color:#4c6a70;margin-bottom:6px}
+
+/* ===== bản đồ theo bài ===== */
+.tnode .tlab{display:flex;flex-direction:column;align-items:center;max-width:150px;white-space:normal;text-align:center;line-height:1.15;padding:2px 8px;border-radius:10px}
+.tnode .tlab b{font-size:12px}.tnode .tlab i{font-style:normal;font-weight:600;font-size:11px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.tnode .coin{width:58px;height:58px;font-size:26px}
+.hwn{font-style:normal;font-size:10px;font-weight:800;background:#fff3c4;color:#7a5a00;padding:1px 7px;border-radius:99px;margin-top:2px;white-space:nowrap}.hwn.late{background:#ffe3e6;color:#a1202f}.hwn.st{background:#e3e3e3;color:#444}
+.plank{min-height:70px}

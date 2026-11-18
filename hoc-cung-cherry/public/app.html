@@ -531,6 +531,13 @@ textarea.code.light{background:#fff;color:#12313a;font:14px/1.5 "Be Vietnam Pro"
 .fsearch{margin-top:8px}.newb{font-style:normal;background:#ff4d6d;color:#fff;padding:0 6px;border-radius:99px;font-size:11px;font-weight:800}
 .pfol{font-size:13px;color:#4c6a70;margin-bottom:6px}
 
+/* ===== bản đồ theo bài ===== */
+.tnode .tlab{display:flex;flex-direction:column;align-items:center;max-width:150px;white-space:normal;text-align:center;line-height:1.15;padding:2px 8px;border-radius:10px}
+.tnode .tlab b{font-size:12px}.tnode .tlab i{font-style:normal;font-weight:600;font-size:11px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.tnode .coin{width:58px;height:58px;font-size:26px}
+.hwn{font-style:normal;font-size:10px;font-weight:800;background:#fff3c4;color:#7a5a00;padding:1px 7px;border-radius:99px;margin-top:2px;white-space:nowrap}.hwn.late{background:#ffe3e6;color:#a1202f}.hwn.st{background:#e3e3e3;color:#444}
+.plank{min-height:70px}
+
 .gvlink{margin-top:4px;font-size:13px;color:#7a9399;text-decoration:underline;align-self:center}
 .figmiss{display:inline-block;padding:6px 10px;border-radius:8px;background:#fff3c4;color:#7a5a00;font-size:13px}
 img.fig{display:block;max-width:100%;height:auto;margin:8px auto;background:#fff;border-radius:8px}
@@ -1208,31 +1215,70 @@ function emblem(t,sz=48){const T=TIERS[t];const gem=t>=4;return `<svg viewBox="0
   ${t===7?`<path d="M18 9l6 7 8-10 8 10 6-7-2 12H20z" fill="#fff3b0" stroke="${T.d}" stroke-width="1.5"/>`:''}</svg>`}
 $('#sky').innerHTML=Array.from({length:34},()=>`<i style="left:${Math.random()*100}%;top:${Math.random()*70}%;animation-delay:${Math.random()*3}s"></i>`).join('');
 
-/* ---------- chương trình cả năm (SGK Kết nối tri thức) ---------- */
+/* ---------- chương trình cả năm: mỗi chặng là một bài trong SGK Kết nối tri thức ---------- */
+/* mỗi chương: [tên, phần, [các bài]]; 'LT' = Luyện tập chung; số bài đánh liên tục cả năm như SGK */
 const CURR={
- '6':[['k6-c1','Tập hợp các số tự nhiên','dai-so'],['k6-c2','Tính chia hết trong tập hợp các số tự nhiên','dai-so',['lop6-uoc-va-boi']],['k6-c3','Số nguyên','dai-so'],['k6-c4','Một số hình phẳng trong thực tiễn','hinh-hoc'],['k6-c5','Tính đối xứng của hình phẳng trong tự nhiên','hinh-hoc'],'HK1',
-      ['k6-c6','Phân số','dai-so'],['k6-c7','Số thập phân','dai-so'],['k6-c8','Những hình hình học cơ bản','hinh-hoc'],['k6-c9','Dữ liệu và xác suất thực nghiệm','thong-ke']],
- '7':[['k7-c1','Số hữu tỉ','dai-so',['lop7-so-huu-ti']],['k7-c2','Số thực','dai-so'],['k7-c3','Góc và đường thẳng song song','hinh-hoc'],['k7-c4','Tam giác bằng nhau','hinh-hoc'],['k7-c5','Thu thập và biểu diễn dữ liệu','thong-ke'],'HK1',
-      ['k7-c6','Tỉ lệ thức và đại lượng tỉ lệ','dai-so'],['k7-c7','Biểu thức đại số và đa thức một biến','dai-so'],['k7-c8','Làm quen với biến cố và xác suất của biến cố','thong-ke'],['k7-c9','Quan hệ giữa các yếu tố trong một tam giác','hinh-hoc'],['k7-c10','Một số hình khối trong thực tiễn','hinh-hoc']],
- '8':[['k8-c1','Đa thức','dai-so'],['k8-c2','Hằng đẳng thức đáng nhớ và ứng dụng','dai-so',['lop8-hang-dang-thuc']],['k8-c3','Tứ giác','hinh-hoc'],['k8-c4','Định lí Thalès','hinh-hoc'],['k8-c5','Dữ liệu và biểu đồ','thong-ke'],'HK1',
-      ['k8-c6','Phân thức đại số','dai-so'],['k8-c7','Phương trình bậc nhất và hàm số bậc nhất','dai-so'],['k8-c8','Mở đầu về tính xác suất của biến cố','thong-ke'],['k8-c9','Tam giác đồng dạng','hinh-hoc'],['k8-c10','Một số hình khối trong thực tiễn','hinh-hoc']],
- '9':[['k9-c1','Phương trình và hệ hai phương trình bậc nhất hai ẩn','dai-so'],['k9-c2','Phương trình và bất phương trình bậc nhất một ẩn','dai-so'],['k9-c3','Căn bậc hai và căn bậc ba','dai-so',['lop9-can-bac-hai']],['k9-c4','Hệ thức lượng trong tam giác vuông','hinh-hoc'],['k9-c5','Đường tròn','hinh-hoc'],'HK1',
-      ['k9-c6','Hàm số y = ax² (a ≠ 0). Phương trình bậc hai một ẩn','dai-so'],['k9-c7','Tần số và tần số tương đối','thong-ke'],['k9-c8','Xác suất của biến cố trong một số mô hình xác suất đơn giản','thong-ke'],['k9-c9','Đường tròn ngoại tiếp và đường tròn nội tiếp','hinh-hoc'],['k9-c10','Một số hình khối trong thực tiễn','hinh-hoc']]};
-const currOf=k=>(CURR[k]||[]).map((c,i)=>c==='HK1'?{hk:1}:{id:c[0],n:(CURR[k].slice(0,i+1).filter(x=>x!=='HK1').length),title:c[1],phan:c[2],alias:c[3]||[]});
+ '6':[['Tập hợp các số tự nhiên','dai-so',['Tập hợp','Cách ghi số tự nhiên','Thứ tự trong tập hợp các số tự nhiên','Phép cộng và phép trừ số tự nhiên','Phép nhân và phép chia số tự nhiên','LT','Luỹ thừa với số mũ tự nhiên','Thứ tự thực hiện các phép tính','LT']],
+  ['Tính chia hết trong tập hợp các số tự nhiên','dai-so',['Quan hệ chia hết và tính chất','Dấu hiệu chia hết','Số nguyên tố','LT','Ước chung. Ước chung lớn nhất','Bội chung. Bội chung nhỏ nhất','LT']],
+  ['Số nguyên','dai-so',['Tập hợp các số nguyên','Phép cộng và phép trừ số nguyên','Quy tắc dấu ngoặc','LT','Phép nhân số nguyên','Ước và bội của một số nguyên','LT']],
+  ['Một số hình phẳng trong thực tiễn','hinh-hoc',['Hình tam giác đều. Hình vuông. Hình lục giác đều','Hình chữ nhật. Hình thoi. Hình bình hành. Hình thang cân','Chu vi và diện tích của một số tứ giác đã học','LT']],
+  ['Tính đối xứng của hình phẳng trong tự nhiên','hinh-hoc',['Hình có trục đối xứng','Hình có tâm đối xứng','LT']],'HK1',
+  ['Phân số','dai-so',['Mở rộng phân số. Phân số bằng nhau','So sánh phân số. Hỗn số dương','LT','Phép cộng và phép trừ phân số','Phép nhân và phép chia phân số','Hai bài toán về phân số','LT']],
+  ['Số thập phân','dai-so',['Số thập phân','Tính toán với số thập phân','Làm tròn và ước lượng','Một số bài toán về tỉ số và tỉ số phần trăm','LT']],
+  ['Những hình hình học cơ bản','hinh-hoc',['Điểm và đường thẳng','Điểm nằm giữa hai điểm. Tia','Đoạn thẳng. Độ dài đoạn thẳng','Trung điểm của đoạn thẳng','LT','Góc','Số đo góc','LT']],
+  ['Dữ liệu và xác suất thực nghiệm','thong-ke',['Dữ liệu và thu thập dữ liệu','Bảng thống kê và biểu đồ tranh','Biểu đồ cột','Biểu đồ cột kép','LT','Kết quả có thể và sự kiện trong trò chơi, thí nghiệm','Xác suất thực nghiệm','LT']]],
+ '7':[['Số hữu tỉ','dai-so',['Tập hợp các số hữu tỉ','Cộng, trừ, nhân, chia số hữu tỉ','LT','Luỹ thừa với số mũ tự nhiên của một số hữu tỉ','Thứ tự thực hiện các phép tính. Quy tắc chuyển vế','LT']],
+  ['Số thực','dai-so',['Làm quen với số thập phân vô hạn tuần hoàn','Số vô tỉ. Căn bậc hai số học','Tập hợp các số thực','LT']],
+  ['Góc và đường thẳng song song','hinh-hoc',['Góc ở vị trí đặc biệt. Tia phân giác của một góc','Hai đường thẳng song song và dấu hiệu nhận biết','Tiên đề Euclid. Tính chất của hai đường thẳng song song','Định lí và chứng minh định lí','LT']],
+  ['Tam giác bằng nhau','hinh-hoc',['Tổng các góc trong một tam giác','Hai tam giác bằng nhau. Trường hợp bằng nhau thứ nhất của tam giác','LT','Trường hợp bằng nhau thứ hai và thứ ba của tam giác','LT','Các trường hợp bằng nhau của tam giác vuông','Tam giác cân. Đường trung trực của đoạn thẳng','LT']],
+  ['Thu thập và biểu diễn dữ liệu','thong-ke',['Thu thập và phân loại dữ liệu','Biểu đồ hình quạt tròn','Biểu đồ đoạn thẳng','LT']],'HK1',
+  ['Tỉ lệ thức và đại lượng tỉ lệ','dai-so',['Tỉ lệ thức','Tính chất của dãy tỉ số bằng nhau','LT','Đại lượng tỉ lệ thuận','Đại lượng tỉ lệ nghịch','LT']],
+  ['Biểu thức đại số và đa thức một biến','dai-so',['Biểu thức đại số','Đa thức một biến','Phép cộng và phép trừ đa thức một biến','LT','Phép nhân đa thức một biến','Phép chia đa thức một biến','LT']],
+  ['Làm quen với biến cố và xác suất của biến cố','thong-ke',['Làm quen với biến cố','Làm quen với xác suất của biến cố','LT']],
+  ['Quan hệ giữa các yếu tố trong một tam giác','hinh-hoc',['Quan hệ giữa góc và cạnh đối diện trong một tam giác','Quan hệ giữa đường vuông góc và đường xiên','Quan hệ giữa ba cạnh của một tam giác','LT','Sự đồng quy của ba đường trung tuyến, ba đường phân giác trong một tam giác','Sự đồng quy của ba đường trung trực, ba đường cao trong một tam giác','LT']],
+  ['Một số hình khối trong thực tiễn','hinh-hoc',['Hình hộp chữ nhật và hình lập phương','Hình lăng trụ đứng tam giác và hình lăng trụ đứng tứ giác','LT']]],
+ '8':[['Đa thức','dai-so',['Đơn thức','Đa thức','Phép cộng và phép trừ đa thức','LT','Phép nhân đa thức','Phép chia đa thức cho đơn thức','LT']],
+  ['Hằng đẳng thức đáng nhớ và ứng dụng','dai-so',['Hiệu hai bình phương. Bình phương của một tổng hay một hiệu','Lập phương của một tổng. Lập phương của một hiệu','Tổng và hiệu hai lập phương','LT','Phân tích đa thức thành nhân tử','LT']],
+  ['Tứ giác','hinh-hoc',['Tứ giác','Hình thang cân','LT','Hình bình hành','Hình chữ nhật','Hình thoi và hình vuông','LT']],
+  ['Định lí Thalès','hinh-hoc',['Định lí Thalès trong tam giác','Đường trung bình của tam giác','Tính chất đường phân giác của tam giác','LT']],
+  ['Dữ liệu và biểu đồ','thong-ke',['Thu thập và phân loại dữ liệu','Biểu diễn dữ liệu bằng bảng, biểu đồ','Phân tích số liệu thống kê dựa vào biểu đồ','LT']],'HK1',
+  ['Phân thức đại số','dai-so',['Phân thức đại số','Tính chất cơ bản của phân thức đại số','LT','Phép cộng và phép trừ phân thức đại số','Phép nhân và phép chia phân thức đại số','LT']],
+  ['Phương trình bậc nhất và hàm số bậc nhất','dai-so',['Phương trình bậc nhất một ẩn','Giải bài toán bằng cách lập phương trình','LT','Khái niệm hàm số và đồ thị của hàm số','Hàm số bậc nhất và đồ thị của hàm số bậc nhất','Hệ số góc của đường thẳng','LT']],
+  ['Mở đầu về tính xác suất của biến cố','thong-ke',['Kết quả có thể và kết quả thuận lợi','Cách tính xác suất của biến cố bằng tỉ số','Mối liên hệ giữa xác suất thực nghiệm với xác suất và ứng dụng','LT']],
+  ['Tam giác đồng dạng','hinh-hoc',['Hai tam giác đồng dạng','Ba trường hợp đồng dạng của hai tam giác','LT','Định lí Pythagore và ứng dụng','Các trường hợp đồng dạng của hai tam giác vuông','Hình đồng dạng','LT']],
+  ['Một số hình khối trong thực tiễn','hinh-hoc',['Hình chóp tam giác đều','Hình chóp tứ giác đều','LT']]],
+ '9':[['Phương trình và hệ hai phương trình bậc nhất hai ẩn','dai-so',['Khái niệm phương trình và hệ hai phương trình bậc nhất hai ẩn','Giải hệ hai phương trình bậc nhất hai ẩn','LT','Giải bài toán bằng cách lập hệ phương trình']],
+  ['Phương trình và bất phương trình bậc nhất một ẩn','dai-so',['Phương trình quy về phương trình bậc nhất một ẩn','Bất đẳng thức và tính chất','LT','Bất phương trình bậc nhất một ẩn']],
+  ['Căn bậc hai và căn bậc ba','dai-so',['Căn bậc hai và căn thức bậc hai','Khai căn bậc hai với phép nhân và phép chia','LT','Biến đổi đơn giản và rút gọn biểu thức chứa căn thức bậc hai','Căn bậc ba và căn thức bậc ba','LT']],
+  ['Hệ thức lượng trong tam giác vuông','hinh-hoc',['Tỉ số lượng giác của góc nhọn','Một số hệ thức giữa cạnh, góc trong tam giác vuông và ứng dụng','LT']],
+  ['Đường tròn','hinh-hoc',['Mở đầu về đường tròn','Cung và dây của một đường tròn','Độ dài của cung tròn. Diện tích hình quạt tròn và hình vành khuyên','LT','Vị trí tương đối của đường thẳng và đường tròn','Vị trí tương đối của hai đường tròn','LT']],'HK1',
+  ['Hàm số y = ax² (a ≠ 0). Phương trình bậc hai một ẩn','dai-so',['Hàm số y = ax² (a ≠ 0)','Phương trình bậc hai một ẩn','LT','Định lí Viète và ứng dụng','Giải bài toán bằng cách lập phương trình','LT']],
+  ['Tần số và tần số tương đối','thong-ke',['Bảng tần số và biểu đồ tần số','Bảng tần số tương đối và biểu đồ tần số tương đối','LT','Bảng tần số, tần số tương đối ghép nhóm và biểu đồ']],
+  ['Xác suất của biến cố trong một số mô hình xác suất đơn giản','thong-ke',['Phép thử ngẫu nhiên và không gian mẫu','Xác suất của biến cố liên quan tới phép thử','LT']],
+  ['Đường tròn ngoại tiếp và đường tròn nội tiếp','hinh-hoc',['Góc nội tiếp','Đường tròn ngoại tiếp và đường tròn nội tiếp của một tam giác','LT','Tứ giác nội tiếp','Đa giác đều','LT']],
+  ['Một số hình khối trong thực tiễn','hinh-hoc',['Hình trụ và hình nón','Hình cầu','LT']]]};
+/* chủ đề mẫu có sẵn được gắn vào bài tương ứng */
+const ALIAS={'lop6-uoc-va-boi':'k6-b11','lop7-so-huu-ti':'k7-b1','lop8-hang-dang-thuc':'k8-b6','lop9-can-bac-hai':'k9-b7'};
+/* danh sách phẳng: {hk} | {ch:{n,title,phan}} | {id,num,title,lt,ch} */
+const currOf=k=>{const out=[];let num=0,cn=0;for(const c of CURR[k]||[]){if(c==='HK1'){out.push({hk:1});continue}
+  cn++;const ch={n:cn,title:c[0],phan:c[1]};out.push({ch});let lt=0;
+  for(const b of c[2]){if(b==='LT'){lt++;out.push({id:`k${k}-c${cn}-lt${lt}`,num:0,title:'Luyện tập chung',lt:true,ch})}else{num++;out.push({id:`k${k}-b${num}`,num,title:b,ch})}}}return out};
+const lessonName=L=>L.lt?`Luyện tập chung · Chương ${L.ch.n}`:`Bài ${L.num}. ${L.title}`;
 function mapItems(k){const all=gradeTopics(k).filter(t=>!isDe(t)),used=new Set(),items=[];
-  for(const c of currOf(k)){if(c.hk){items.push(c);continue}
-    const ts=all.filter(t=>!used.has(t)&&(t.chuong===c.id||(!t.chuong&&c.alias.includes(t.id))));ts.forEach(t=>used.add(t));
-    if(ts.length)ts.forEach((t,i)=>items.push({c,t,sub:ts.length>1?i+1:0}));else items.push({c,t:null})}
-  all.filter(t=>!used.has(t)).forEach(t=>items.push({c:null,t}));return items}
+  for(const c of currOf(k)){if(!c.id){items.push(c);continue}
+    const ts=all.filter(t=>!used.has(t)&&((t.chuong||ALIAS[t.id])===c.id));ts.forEach(t=>used.add(t));
+    if(ts.length)ts.forEach((t,i)=>items.push({L:c,t,sub:ts.length>1?i+1:0}));else items.push({L:c,t:null})}
+  const rest=all.filter(t=>!used.has(t));if(rest.length){items.push({ch:{n:0,title:'Chủ đề bổ sung',phan:'dai-so'}});rest.forEach(t=>items.push({L:{id:'',num:0,title:t.title,ch:null},t}))}
+  return items}
 /* ---------- tiến độ ---------- */
 const save=()=>{if(ACC)store.set('ltt:p:'+ACC.id,P)};
 const key=(t,i)=>t.id+'|'+i;
 const GV=()=>TEACHER&&!!ACC&&!!ACC.teacher;
 const bestOf=(t,i)=>(P&&P.best[key(t,i)])||0;
 const isDe=t=>t.phan==='on-tap';
-const nMan=t=>isDe(t)?1:Math.max(1,Math.min(3,t.levels.length));
+const nMan=t=>1; // mỗi bài (hoặc đề) là một chặng
 const MAN_NAME=['Nhận biết','Thông hiểu','Vận dụng'];
-const MAN_PLAN=[[6,0,0],[2,5,0],[1,2,4]];
+const LESSON_PLAN=[3,3,2]; // số câu mức 1, 2, 3 trong một bài (khoảng 10 phút)
 const topicStars=t=>{let s=0;for(let i=0;i<nMan(t);i++)s+=bestOf(t,i);return s};
 const topicPassed=t=>{let s=0;for(let i=0;i<nMan(t);i++)if(bestOf(t,i)>0)s++;return s};
 const visible=t=>GV()?true:(t.status==='giao'&&!t.errors.length);
@@ -1240,7 +1286,7 @@ const gradeTopics=k=>TOPICS.filter(t=>t.khoi===k&&visible(t)).sort((a,b)=>(a.sta
 const routeTopics=k=>mapItems(k).filter(x=>x.t).map(x=>x.t);
 const deTopics=k=>gradeTopics(k).filter(isDe);
 const deDone=t=>!!(P.pt&&P.pt[key(t,0)]);
-function topicOpen(ts,j){const t=ts[j];return j===0||GV()||!!asgFor(t)||topicPassed(t)>0||topicPassed(ts[j-1])>=Math.min(2,nMan(ts[j-1]))}
+function topicOpen(ts,j){const t=ts[j];return j===0||GV()||!!asgFor(t)||topicPassed(t)>0||topicPassed(ts[j-1])>=1}
 const lvlOpen=(ts,j,i)=>topicOpen(ts,j)&&(i===0||GV()||bestOf(ts[j],i-1)>0);
 const G0=k=>GRADES.find(g=>g.k===k)||GRADES[0];
 const level=xp=>Math.floor(Math.sqrt((xp||0)/60))+1;
@@ -1364,7 +1410,7 @@ function area(){show('area');const g=G0(curK),c=counts(),T=TIERS[tierOf(P.lp)],r
   const mine=g.k===ACC.khoi&&!ACC.teacher;
   $('#areaBody').innerHTML=`${mine?questCard():''}<div class="aband"><div class="abig">${g.k}</div><div><div class="ak">Khu vực</div><h1>Khối ${g.k}</h1><div class="asub">${ACC.khoi===g.k?'Khối của em':'Em đang xem khối khác'}</div></div></div>
    <div class="ptiles">
-    <button class="ptile wide hunt" data-go="journey">${chestSVG(done>=tot&&tot>0,64)}<div><b>Hành trình kho báu</b><span>Cả năm lớp ${g.k} · ${done}/${tot} màn · ${rt.length}/${currOf(g.k).filter(c=>!c.hk).length} chương đã mở</span><i class="hbar"><i style="width:${tot?done/tot*100:0}%"></i></i></div>${pr?`<i class="dot">${pr} bài thầy giao</i>`:''}</button>
+    <button class="ptile wide hunt" data-go="journey">${chestSVG(done>=tot&&tot>0,64)}<div><b>Hành trình kho báu</b><span>Cả năm lớp ${g.k} · đã qua ${done}/${currOf(g.k).filter(c=>c.id).length} bài · ${rt.length} bài đã có câu hỏi</span><i class="hbar"><i style="width:${tot?done/tot*100:0}%"></i></i></div>${pr?`<i class="dot">${pr} bài thầy giao</i>`:''}</button>
     <button class="ptile" data-go="ontap" style="--c:#8d7bff;--d:#6a57e0"><b>Ôn tập</b><span>${de.length} đề · đã làm ${de.filter(deDone).length}</span>${pd?`<i class="dot">${pd} đề thầy giao</i>`:''}</button>
     <button class="ptile" data-go="redo" style="--c:#ff7a59;--d:#e85a3a"><b>Làm lại câu sai</b><span>${c.nb} câu sai · ${c.saved} câu đã lưu</span></button>
     <button class="ptile wide shopt" data-go="shop"><span class="shav">${avatarOf(P,64)}</span><div><b>Cửa hàng Cherry</b><span>Ví ${bal()} XP · đã sưu tầm ${Object.keys(P.own||{}).length}/${ITEMS.length}</span></div><i class="go">Mua sắm ›</i></button>
@@ -1388,41 +1434,41 @@ const wave=(x,y)=>`<svg class="deco" style="left:${x}px;top:${y}px" width="44" h
 const flag=(x,y,txt)=>`<div class="hkflag" style="top:${y}px"><svg width="40" height="52" viewBox="0 0 40 52"><path d="M6 50V4" stroke="#6e3c16" stroke-width="3.5" stroke-linecap="round"/><path d="M7 5h26l-6 8 6 8H7z" fill="#ef3b55"/></svg><b>${txt}</b></div>`;
 function journey(){show('journey');const items=mapItems(curK),ts=items.filter(x=>x.t).map(x=>x.t),el=$('#tmap');
   if(!items.length){el.innerHTML=`<div class="empty dark"><div style="width:110px;margin:0 auto">${owlSVG}</div><p>Khối ${curK} chưa có bản đồ.</p></div>`;return}
-  const W=Math.min(el.clientWidth||390,480),BAN=74,STEP=118,TOP=210,BOT=90,HKH=96;
-  const H=BOT+TOP+items.reduce((s,x)=>s+(x.hk?HKH:BAN+36+(x.t?nMan(x.t):3)*STEP),0);
-  let y=H-BOT,pts=[],html='',deco='',cur=null,k=0;
+  const W=Math.min(el.clientWidth||390,480),BAN=86,STEP=112,TOP=210,BOT=90,HKH=96;
+  const H=BOT+TOP+items.reduce((s,x)=>s+(x.hk?HKH:x.ch&&!x.L?BAN+30:STEP),0);
+  let y=H-BOT,pts=[],html='',deco='',cur=null,k=0,ni=0;
+  const chStat=ch=>{const L=items.filter(x=>x.L&&x.L.ch===ch);const has=L.filter(x=>x.t);return {n:L.length,done:has.filter(x=>topicPassed(x.t)>0).length,st:has.reduce((s,x)=>s+topicStars(x.t),0),has:has.length}};
   items.forEach(x=>{
     if(x.hk){const fy=y-HKH/2;pts.push([W/2,fy]);html+=flag(W/2,fy,'Hết học kì I · Sang học kì II');y-=HKH;return}
-    const t=x.t,c=x.c,by=y-BAN/2,odd=k++%2;
-    pts.push([W/2,by]);deco+=(odd?palm(W-60,by-80,1):palm(8,by-84))+wave(odd?20:W-70,by+30);
-    if(!t){const ph=PHAN[c.phan]||PHAN['dai-so'];
-      html+=`<button class="plank wait" data-c="${c.id}" style="top:${by}px;--c:${ph.c}"><span class="ptag">${ph.name}</span><span class="cno">Chương ${c.n}</span><b>${esc(c.title)}</b><span class="pinfo">Sắp mở · đang chờ câu hỏi</span></button>`;
-      y-=BAN+36;for(let i=0;i<3;i++){const x2=(odd?[.7,.3,.66]:[.3,.7,.34])[i]*W,ny=y-STEP/2;pts.push([x2,ny]);
-        html+=`<div class="tnode ghost" style="left:${x2}px;top:${ny}px"><span class="coin">?</span><span class="tlab">Màn ${i+1} · ${MAN_NAME[i]}</span></div>`;y-=STEP}
-      return}
-    const j=ts.indexOf(t),a=asgFor(t),as=a&&asgStatus(a,myPt),open=topicOpen(ts,j),ph=PHAN[t.phan]||PHAN[c?c.phan:'dai-so'];
-    html+=`<button class="plank${open?'':' locked'}" data-t="${j}" style="top:${by}px;--c:${ph.c}"><span class="ptag">${ph.name}</span>${c?`<span class="cno">Chương ${c.n}${x.sub?' · phần '+x.sub:''}</span>`:''}<b>${esc(t.title)}</b>
-      <span class="pinfo">${star(1)} ${topicStars(t)}/${nMan(t)*3}${a?` · <i class="hwp ${as.complete?'ok':as.overdue?'late':''}">Thầy giao · ${dueLabel(a,as)}</i>`:''}${GV()?` · <i class="hwp st">${({nhap:'Nháp',giao:'Đã duyệt',an:'Đã ẩn'})[t.status]||t.status}${t.errors.length?' · lỗi':''}</i>`:''}</span></button>`;
-    y-=BAN+36;
-    for(let i=0;i<nMan(t);i++){const x2=(odd?[.7,.3,.66]:[.3,.7,.34])[i]*W,ny=y-STEP/2,lo=lvlOpen(ts,j,i),b=bestOf(t,i);
-      const st=!lo?'lock':b?'done':'open';if(st==='open'&&!cur)cur={x:x2,y:ny};pts.push([x2,ny]);
-      html+=`<button class="tnode ${st}" data-t="${j}" data-i="${i}" style="left:${x2}px;top:${ny}px"><span class="coin">${st==='lock'?lockSVG:i+1}</span><span class="tlab">Màn ${i+1} · ${MAN_NAME[i]}</span>${stars(b)}</button>`;
-      y-=STEP}});
-  const allDone=ts.length>0&&ts.every(t=>topicPassed(t)>=nMan(t))&&!items.some(x=>x.c&&!x.t),cy=y-TOP/2+20;pts.push([W/2,cy+78]);
+    if(x.ch&&!x.L){const c=x.ch,by=y-BAN/2,odd=k++%2,ph=PHAN[c.phan]||PHAN['dai-so'],S=chStat(c);pts.push([W/2,by]);
+      deco+=(odd?palm(W-60,by-80,1):palm(8,by-84))+wave(odd?20:W-70,by+34);
+      html+=`<div class="plank${S.has?'':' wait'}" style="top:${by}px;--c:${ph.c}"><span class="ptag">${ph.name}</span>${c.n?`<span class="cno">Chương ${c.n}</span>`:''}<b>${esc(c.title)}</b>
+        <span class="pinfo">${S.has?`${star(1)} ${S.st}/${S.has*3} · đã qua ${S.done}/${S.n} bài`:'Sắp mở · đang chờ câu hỏi'}</span></div>`;
+      y-=BAN+30;return}
+    const L=x.L,t=x.t,side=[.3,.7,.62,.38][ni++%4],x2=side*W,ny=y-STEP/2;pts.push([x2,ny]);
+    const lab=`<span class="tlab"><b>${L.lt?'Luyện tập chung':L.num?'Bài '+L.num:'Bổ sung'}</b>${L.lt?'':`<i>${esc(t&&!L.num?t.title:L.title)}</i>`}</span>`;
+    if(!t){html+=`<div class="tnode ghost${x2<W/2?' l':' r'}" style="left:${x2}px;top:${ny}px"><span class="coin">${L.lt?'LT':L.num||'?'}</span>${lab}</div>`;y-=STEP;return}
+    const j=ts.indexOf(t),lo=topicOpen(ts,j),b=bestOf(t,0),a=asgFor(t),as=a&&asgStatus(a,myPt),st=!lo?'lock':b?'done':'open';
+    if(st==='open'&&!cur)cur={x:x2,y:ny};
+    html+=`<button class="tnode ${st}${x2<W/2?' l':' r'}" data-t="${j}" style="left:${x2}px;top:${ny}px"><span class="coin">${st==='lock'?lockSVG:L.lt?'LT':L.num||'★'}</span>${lab}${stars(b)}
+      ${a&&!as.complete?`<em class="hwn ${as.overdue?'late':''}">Thầy giao · ${dueLabel(a,as)}</em>`:''}${GV()&&t.status!=='giao'?`<em class="hwn st">${({nhap:'Nháp',an:'Đã ẩn'})[t.status]||t.status}</em>`:''}</button>`;
+    y-=STEP});
+  const allDone=ts.length>0&&ts.every(t=>topicPassed(t)>0)&&!items.some(x=>x.L&&x.L.id&&!x.t),cy=y-TOP/2+20;pts.push([W/2,cy+78]);
   if(!cur)cur=ts.length?{x:W/2,y:cy}:{x:pts[1]?pts[1][0]:W/2,y:pts[1]?pts[1][1]:H-200};
-  let d=`M${pts[0][0]} ${pts[0][1]}`;for(let q=1;q<pts.length;q++){const p=pts[q-1],n=pts[q];d+=` C${p[0]} ${p[1]-STEP*.45} ${n[0]} ${n[1]+STEP*.45} ${n[0]} ${n[1]}`}
+  let d=`M${pts[0][0]} ${pts[0][1]}`;for(let q=1;q<pts.length;q++){const p=pts[q-1],n=pts[q];d+=` C${p[0]} ${p[1]-STEP*.42} ${n[0]} ${n[1]+STEP*.42} ${n[0]} ${n[1]}`}
   el.innerHTML=`<div class="tmapin" style="height:${H}px;width:${W}px"><svg class="tpath" width="${W}" height="${H}"><path d="${d}" stroke="#8a5a2b" stroke-width="4" fill="none" stroke-dasharray="2 11" stroke-linecap="round"/></svg>
-    ${deco}${xmark(W/2+52,cy-44)}<div class="tchest" style="top:${cy}px">${chestSVG(allDone,104)}<b>${allDone?'Đã mở kho báu!':'Kho báu cuối năm'}</b><small>Hoàn thành mọi chủ đề lớp ${curK} để mở</small></div>
+    ${deco}${xmark(W/2+52,cy-44)}<div class="tchest" style="top:${cy}px">${chestSVG(allDone,104)}<b>${allDone?'Đã mở kho báu!':'Kho báu cuối năm'}</b><small>Qua mọi bài của lớp ${curK} để mở</small></div>
     <div class="tstart" style="top:${H-34}px">Khởi hành · Lớp ${curK}</div>
     <svg class="deco compass" style="left:${W-78}px;top:${H-96}px" width="64" height="64" viewBox="0 0 64 64"><circle cx="32" cy="32" r="28" fill="#f6e7c4" stroke="#8a5a2b" stroke-width="2"/><path d="M32 8l5 24-5 24-5-24z" fill="#c0392b"/><path d="M8 32l24-5 24 5-24 5z" fill="#8a5a2b"/><text x="32" y="7" font-size="8" text-anchor="middle" fill="#8a5a2b" font-weight="700">B</text></svg>
-    ${html}<div class="girl" style="left:${cur.x+(cur.x<W/2?62:-62)}px;top:${cur.y+30}px">${owlSVG}</div></div>`;
+    ${html}<div class="girl" style="left:${cur.x+(cur.x<W/2?66:-66)}px;top:${cur.y+30}px">${owlSVG}</div></div>`;
   el.scrollTop=Math.max(0,cur.y-el.clientHeight*.55);
-  $$('#tmap .tnode[data-t]').forEach(n=>n.onclick=()=>{const j=+n.dataset.t,i=+n.dataset.i;sfx.tap();
-    if(!lvlOpen(ts,j,i)){n.animate([{transform:'translate(-50%,-50%) translateX(-6px)'},{transform:'translate(-50%,-50%) translateX(6px)'},{transform:'translate(-50%,-50%)'}],{duration:300});
-      toast(topicOpen(ts,j)?'Qua màn trước để mở màn này nhé.':'Qua màn 2 của chủ đề trước để mở chủ đề này.');return}
-    curT=ts[j];startLevel(i)});
-  $$('#tmap .plank[data-t]').forEach(b=>b.onclick=()=>{const t=ts[+b.dataset.t];sfx.tap();if(GV())tOpts(t);else if(!topicOpen(ts,+b.dataset.t))toast('Qua màn 2 của chủ đề trước để mở chủ đề này.')});
-  $$('#tmap .plank.wait').forEach(b=>b.onclick=()=>{sfx.tap();toast(GV()?'Chương này chưa có câu hỏi. Thầy nhờ Claude soạn rồi gán vào chương này.':'Chủ đề này thầy đang chuẩn bị câu hỏi. Em quay lại sau nhé!')})}
+  $$('#tmap .tnode[data-t]').forEach(n=>n.onclick=()=>{const j=+n.dataset.t,t=ts[j];sfx.tap();
+    if(GV()){overlay(`<h2 style="font-size:24px">${esc(t.title)}</h2><button class="btn" id="g1">Chơi thử</button><button class="btn alt" id="g2">Cài đặt & sửa câu hỏi</button><button class="btn alt" id="g3">Đóng</button>`);
+      $('#g1').onclick=()=>{closeOvl();curT=t;startLevel()};$('#g2').onclick=()=>{closeOvl();tOpts(t)};$('#g3').onclick=closeOvl;return}
+    if(!topicOpen(ts,j)){n.animate([{transform:'translate(-50%,-50%) translateX(-6px)'},{transform:'translate(-50%,-50%) translateX(6px)'},{transform:'translate(-50%,-50%)'}],{duration:300});
+      return toast('Qua bài trước để mở bài này nhé.')}
+    curT=t;startLevel()});
+  $$('#tmap .tnode.ghost').forEach(b=>b.onclick=()=>{sfx.tap();toast(GV()?'Bài này chưa có câu hỏi. Thầy nhờ Claude soạn rồi gán vào bài này.':'Bài này thầy đang chuẩn bị câu hỏi. Em làm các bài khác trước nhé!')})}
 
 /* ---------- ôn tập: danh sách đề ---------- */
 function onTap(){show('ontap');const de=deTopics(curK);
@@ -1444,8 +1490,8 @@ function tOpts(t){overlay(`<h2 style="font-size:26px">${esc(t.title)}</h2><div c
    <div><span class="chip ${t.status}">${({nhap:'Nháp',giao:'Đã duyệt',an:'Đã ẩn'})[t.status]}</span> <small>${t.levels.reduce((a,l)=>a+l.qs.length,0)} câu · ${t.levels.length} mức${t.nguon?' · '+esc(t.nguon):''}</small></div>
    ${t.errors.length?`<div class="err">${t.errors.map(esc).join('<br>')}</div>`:''}
    <label>Thuộc phần<select class="name" id="oPh">${Object.entries(PHAN).map(([k,v])=>`<option value="${k}" ${k===t.phan?'selected':''}>${v.name}${k==='on-tap'?' (đề)':''}</option>`).join('')}</select></label>
-   <label>Vị trí trên bản đồ<select class="name" id="oCh"><option value="">Tự xếp (cuối bản đồ)</option>${currOf(t.khoi).filter(c=>!c.hk).map(c=>`<option value="${c.id}" ${(t.chuong||(c.alias.includes(t.id)?c.id:''))===c.id?'selected':''}>Chương ${c.n}. ${esc(c.title)}</option>`).join('')}</select></label>
-   <label>Thứ tự trong cùng chương (số nhỏ đứng trước)<input class="name" id="oOrd" type="number" value="${t.order}"></label>
+   <label>Bài trên bản đồ<select class="name" id="oCh"><option value="">Chủ đề bổ sung (cuối bản đồ)</option>${currOf(t.khoi).filter(c=>c.ch&&!c.id).map(c=>`<optgroup label="Chương ${c.ch.n}. ${esc(c.ch.title)}">${currOf(t.khoi).filter(x=>x.id&&x.ch===c.ch).map(x=>`<option value="${x.id}" ${(t.chuong||ALIAS[t.id])===x.id?'selected':''}>${esc(x.lt?'Luyện tập chung':'Bài '+x.num+'. '+x.title)}</option>`).join('')}</optgroup>`).join('')}</select></label>
+   <label>Thứ tự nếu nhiều chủ đề cùng một bài<input class="name" id="oOrd" type="number" value="${t.order}"></label>
    <button class="btn" id="oSave">Lưu</button>${t.status!=='giao'?`<button class="btn" id="oGiao" ${t.errors.length?'disabled':''}>Duyệt cho học sinh</button>`:''}${t.status!=='an'?`<button class="btn alt" id="oAn">Ẩn khỏi học sinh</button>`:''}
    <button class="btn" id="oQ">Sửa câu hỏi</button><button class="btn alt" id="oC">Đóng</button></div>`);
   const up=async v=>{try{await DB.doc('topics/'+t.id).update({...v,capnhat:new Date().toISOString()});sfx.ok();closeOvl()}catch(e){msgBox('Chưa lưu được',esc(e&&e.message||'Lỗi kết nối'))}};
@@ -1551,7 +1597,7 @@ function profile(id){show('profile');const own=ACC&&id===ACC.id;const p=own?{...
    <div class="pstats"><div>${flame(!st.last_day,26)}<b>${liveStreak(st,vnDay())}</b><small>chuỗi ngày (kỷ lục ${st.best_streak||0})</small></div>
      <div><span class="lvb">${lv}</span><b>${p.xp||0}</b><small>XP · cấp ${lv}</small><i class="xpb"><i style="width:${Math.min(100,((p.xp||0)-a)/(b-a)*100)}%"></i></i></div>
      <div style="--c:${T.c}">${emblem(t,30)}<b>${p.lp||0}</b><small>${T.n} · ${p.matches||0} trận</small></div></div>
-   <div class="tbox"><div class="row2"><span>Câu làm đúng</span><b>${stats.correct||0}</b></div><div class="row2"><span>Chuỗi đúng dài nhất</span><b>${stats.maxCombo||0}</b></div><div class="row2"><span>Màn đã qua</span><b>${stats.levels||0}</b></div></div>
+   <div class="tbox"><div class="row2"><span>Câu làm đúng</span><b>${stats.correct||0}</b></div><div class="row2"><span>Chuỗi đúng dài nhất</span><b>${stats.maxCombo||0}</b></div><div class="row2"><span>Bài đã qua</span><b>${stats.levels||0}</b></div></div>
    <h2 class="sect">Thành tích (${Object.keys(ach).length}/${ACH.length})</h2>
    <div class="achs">${ACH.map(x=>`<div class="ach${ach[x.id]?' on':''}">${medal(!!ach[x.id])}<b>${x.n}</b><small>${x.d}</small></div>`).join('')}</div>
    ${(p.seasons||[]).length?`<h2 class="sect">Các mùa thi đấu</h2><div class="tbox">${p.seasons.slice().reverse().map(x=>`<div class="row2"><span>${esc(x.s)}</span><b>${TIERS[tierOf(x.lp)].n} · ${x.lp}</b></div>`).join('')}</div>`:''}
@@ -1586,8 +1632,8 @@ function setMute(v){muted=v;store.set('ltt:mute',v);$('#snd').innerHTML=sndIco()
 $('#snd').innerHTML=sndIco();
 
 /* ---------- nhiệm vụ hằng ngày ---------- */
-const QUESTS=[{id:'man',n:'Qua 1 màn trên bản đồ',t:1},{id:'sao3',n:'Đạt 3 sao ở một màn',t:1},{id:'dung10',n:'Trả lời đúng 10 câu',t:10},{id:'chuoi5',n:'Đúng liên tiếp 5 câu',t:5},
-  {id:'sua3',n:'Làm đúng 3 câu trong Làm lại câu sai',t:3},{id:'rank',n:'Chơi 1 trận thi đấu',t:1},{id:'kogoiy',n:'Qua 1 màn không dùng gợi ý',t:1},{id:'de',n:'Làm xong 1 đề ôn tập',t:1}];
+const QUESTS=[{id:'man',n:'Qua 1 bài trên bản đồ',t:1},{id:'sao3',n:'Đạt 3 sao ở một bài',t:1},{id:'dung10',n:'Trả lời đúng 10 câu',t:10},{id:'chuoi5',n:'Đúng liên tiếp 5 câu',t:5},
+  {id:'sua3',n:'Làm đúng 3 câu trong Làm lại câu sai',t:3},{id:'rank',n:'Chơi 1 trận thi đấu',t:1},{id:'kogoiy',n:'Qua 1 bài không dùng gợi ý',t:1},{id:'de',n:'Làm xong 1 đề ôn tập',t:1}];
 function dq(){const d=vnDay();if(!P.dq||P.dq.d!==d){let pool=QUESTS.map(q=>q.id);const k=ACC.khoi;
     if(counts().nb<3)pool=pool.filter(x=>x!=='sua3');if(!deTopics(k).length)pool=pool.filter(x=>x!=='de');if(!routeTopics(k).length)pool=pool.filter(x=>!['man','sao3','kogoiy'].includes(x));
     let h=7;for(const ch of d+ACC.id)h=(h*31+ch.charCodeAt(0))>>>0;const ids=[];while(ids.length<3&&pool.length){ids.push(pool.splice(h%pool.length,1)[0]);h=(Math.floor(h/7)+101)>>>0}
@@ -1660,9 +1706,9 @@ function teacherExtra(kh,st,ix){const today=vnDay(),real=st.filter(v=>!v.mau);
   const mm=s=>`${Math.floor(s/60)}:${String(Math.round(s%60)).padStart(2,'0')}`;
   return `<h2 class="sect">Cần chú ý</h2><div class="tbox">${idle.length||stuck.length?
      idle.map(x=>`<div class="row2"><span>${esc(x.v.name)}</span><b class="n">${x.d>=999?'Chưa học lần nào':`Nghỉ ${x.d} ngày`}</b></div>`).join('')+
-     stuck.map(x=>`<div class="row2"><span>${esc(x.v.name)}<br><small>${esc(x.t.title)} · Màn ${x.lv+1}</small></span><b class="n">Hết tim ${x.n} lần</b></div>`).join('')
+     stuck.map(x=>`<div class="row2"><span>${esc(x.v.name)}<br><small>${esc(x.t.title)}</small></span><b class="n">Hết tim ${x.n} lần</b></div>`).join('')
     :'<p class="tnote">Chưa có em nào nghỉ từ 3 ngày hoặc kẹt màn.</p>'}</div>
-   <h2 class="sect">Thời gian trung bình mỗi màn</h2><div class="tbox">${tms.length?tms.slice(0,12).map(x=>`<div class="row2"><span>${esc(x.t.title)} · Màn ${x.lv+1}<br><small>${x.n} lượt</small></span><b class="${x.avg>600?'n':''}">${mm(x.avg)}</b></div>`).join('')+'<p class="tnote">Đỏ: quá 10 phút, nên bớt câu hoặc tách màn.</p>':'<p class="tnote">Chưa có dữ liệu.</p>'}</div>`}
+   <h2 class="sect">Thời gian trung bình mỗi bài</h2><div class="tbox">${tms.length?tms.slice(0,12).map(x=>`<div class="row2"><span>${esc(x.t.title)}<br><small>${x.n} lượt</small></span><b class="${x.avg>600?'n':''}">${mm(x.avg)}</b></div>`).join('')+'<p class="tnote">Đỏ: quá 10 phút, nên bớt câu hoặc chia nhỏ bài.</p>':'<p class="tnote">Chưa có dữ liệu.</p>'}</div>`}
 function parentReport(v){const w=weekId(),wk=v.wk&&v.wk.w===w?v.wk:{xp:0,c:0,lv:0},today=vnDay(),A=ASG.filter(a=>a.khoi===v.khoi);
   const ptOf=k=>{const b=v.best&&v.best[k];return b&&b.st>0?(b.t||'1970'):null};
   const lines=[`BÁO CÁO TUẦN · Học cùng Cherry`,`Học sinh: ${v.name} (khối ${v.khoi})`,`Tuần từ ${w.split('-').reverse().join('/')}`,``,
@@ -1692,7 +1738,7 @@ function feedItems(){const ids=Object.keys(myFollow()),lim=Date.now()-14*864e5,o
   for(const id of ids){const p=PLAYERS.find(x=>x.id===id);if(!p)continue;
     for(const [k,at] of Object.entries(p.ach||{})){const a=ACH.find(x=>x.id===k);if(a&&Date.parse(at)>lim)out.push({p,at,ico:medal(true,30),txt:`đạt thành tích <b>${esc(a.n)}</b>`})}
     for(const [k,b] of Object.entries(p.best||{})){if(!b||!b.t||Date.parse(b.t)<lim)continue;const [tid,i]=k.split('|'),t=TOPICS.find(x=>x.id===tid);if(!t)continue;
-      out.push({p,at:b.t,ico:`<span class="fic">${star(1)}</span>`,txt:isDe(t)?`làm xong đề <b>${esc(t.title)}</b>`:`qua <b>Màn ${+i+1}</b> · ${esc(t.title)} ${'★'.repeat(b.st||0)}`})}
+      out.push({p,at:b.t,ico:`<span class="fic">${star(1)}</span>`,txt:isDe(t)?`làm xong đề <b>${esc(t.title)}</b>`:`qua bài <b>${esc(t.title)}</b> ${'★'.repeat(b.st||0)}`})}
     for(const h of (p.hist||[]).slice(-5))if(h.d>0&&Date.parse(h.at)>lim)out.push({p,at:h.at,ico:emblem(tierOf(p.lp),28),txt:`thắng trận thi đấu <b>+${h.d}</b> điểm`});
     for(const [k,at] of Object.entries(p.own||{})){const it=ITEM[k];if(it&&typeof at==='string'&&Date.parse(at)>lim&&it.rar>=1)out.push({p,at,ico:`<span class="fic">🎁</span>`,txt:`sưu tầm <b>${esc(it.name)}</b> <i style="color:${RAR[it.rar].c};font-style:normal">${RAR[it.rar].n}</i>`})}}
   return out.sort((a,b)=>b.at.localeCompare(a.at)).slice(0,60)}
@@ -1733,17 +1779,19 @@ const cur=()=>G.twin||G.qs[G.k];
 function inst(q,meta){const x=instantiate(q);return {...x,key:q.key,raw:q.params?q:null,...meta}}
 function newG(mode,qs,extra){clearInterval(TM);G={mode,qs,k:0,hearts:mode==='man'?3:99,score:0,combo:0,miss:0,t0:Date.now(),twin:null,twinUsed:{},hu:0,over:false,...extra};
   $('#hearts').style.display=mode==='man'?'':'none';$('#modeLbl').style.display=mode==='man'?'none':'';$('#modeLbl').textContent=MODE[mode]||'';$('#timer').style.display=mode==='rank'?'':'none'}
-function buildMan(t,i){const plan=MAN_PLAN[i]||MAN_PLAN[2],out=[],used=new Set();
-  plan.forEach((n,m)=>shuffle((t.levels[m]||{qs:[]}).qs).slice(0,n).forEach(q=>{out.push({q,m});used.add(q)}));
-  const want=plan.reduce((a,b)=>a+b,0),extra=[];for(let m=0;m<=Math.min(i,2);m++)((t.levels[m]||{}).qs||[]).forEach(q=>{if(!used.has(q))extra.push({q,m})});
+function buildMan(t){const out=[],used=new Set();
+  LESSON_PLAN.forEach((n,m)=>shuffle((t.levels[m]||{qs:[]}).qs).slice(0,n).forEach(q=>{out.push({q,m});used.add(q)}));
+  const want=LESSON_PLAN.reduce((a,b)=>a+b,0),extra=[];for(let m=0;m<3;m++)((t.levels[m]||{}).qs||[]).forEach(q=>{if(!used.has(q))extra.push({q,m})});
   shuffle(extra).slice(0,Math.max(0,want-out.length)).forEach(x=>out.push(x));
   return out.sort((a,b)=>a.m-b.m)}
-function startLevel(i){const t=curT,items=buildMan(t,i);
-  if(!items.length)return msgBox('Màn trống','Màn này chưa có câu hỏi.');
-  try{newG('man',items.map(x=>inst(x.q,{tid:t.id,level:x.m,title:t.title})),{t,i});hud()}catch(e){return msgBox('Câu hỏi lỗi',esc(e.message))}
-  if(i===0){G.hearts=99;$('#hearts').style.display='none';$('#modeLbl').style.display='';$('#modeLbl').textContent='Không mất tim'}
+const lessonOf=t=>{const it=mapItems(t.khoi).find(x=>x.t===t||x.t&&x.t.id===t.id);return it&&it.L&&it.L.id?it.L:null};
+function startLevel(i=0){const t=curT,items=buildMan(t),L=lessonOf(t);
+  if(!items.length)return msgBox('Bài trống','Bài này chưa có câu hỏi.');
+  try{newG('man',items.map(x=>inst(x.q,{tid:t.id,level:x.m,title:t.title})),{t,i:0});hud()}catch(e){return msgBox('Câu hỏi lỗi',esc(e.message))}
   show('play');$('#stage').innerHTML='';$('#dock').innerHTML='';
-  overlay(`<div class="lvlcard"><p style="margin:0">${esc(t.title)} · Màn</p><div class="num">${i+1}</div><h2>${MAN_NAME[i]}</h2><p>${items.length} câu ${i?'mức 1 đến '+(i+1)+' · 3 tim. Hết tim vẫn được hồi để làm tiếp.':'mức 1 · không mất tim, cứ thoải mái thử!'}</p><button class="btn" id="go">Bắt đầu</button></div>`);
+  const cnt=[0,1,2].map(m=>items.filter(x=>x.m===m).length);
+  overlay(`<div class="lvlcard"><p style="margin:0">${L&&L.ch?'Chương '+L.ch.n+' · '+esc(L.ch.title):esc(t.title)}</p><div class="num">${L?(L.lt?'LT':L.num):'★'}</div><h2 style="font-size:26px">${esc(L?(L.lt?'Luyện tập chung':L.title):t.title)}</h2>
+    <p>${items.length} câu, khó dần: ${cnt[0]} nhận biết · ${cnt[1]} thông hiểu · ${cnt[2]} vận dụng<br>3 tim, hết tim vẫn được hồi để làm tiếp.</p><button class="btn" id="go">Bắt đầu</button></div>`);
   $('#go').onclick=()=>{sfx.tap();closeOvl();renderQ()}}
 function startReview(){const ix=qIndex();const e=Object.entries(P.rev||{}).filter(([k,r])=>ix[k]&&r.in_notebook).sort((a,b)=>a[1].due.localeCompare(b[1].due)).slice(0,10);
   if(!e.length)return msgBox('Làm lại câu sai','Chưa có câu sai nào cần làm lại.');
@@ -1866,17 +1914,17 @@ function finish(){clearInterval(TM);const sec=Math.round((Date.now()-G.t0)/1000)
      <button class="btn" id="r3">Về danh sách</button>`);$('#r3').onclick=()=>{closeOvl();redo()};return}
   const {t,i}=G,pass=G.hearts>0;const st=pass?(G.revived?1:G.miss===0?3:G.miss===1?2:1):0;const k=key(t,i);let s=null;
   const lt=P.lvt[k]||{n:0,s:0};P.lvt[k]={n:lt.n+1,s:lt.s+sec};
-  if(pass){qev('man');if(st===3)qev('sao3');if(!G.htot)qev('kogoiy');wkE().lv++;const rt=routeTopics(t.khoi);if(!P.stats.treasure&&rt.length&&rt.every(x=>x===t?Math.max(topicPassed(x),i+1)>=nMan(x):topicPassed(x)>=nMan(x))&&!mapItems(t.khoi).some(x=>x.c&&!x.t))P.stats.treasure=1}
+  if(pass){qev('man');if(st===3)qev('sao3');if(!G.htot)qev('kogoiy');wkE().lv++;const rt=routeTopics(t.khoi);if(!P.stats.treasure&&rt.length&&rt.every(x=>x===t||topicPassed(x)>=1)&&!mapItems(t.khoi).some(x=>x.L&&x.L.id&&!x.t))P.stats.treasure=1}
   if(pass){const first=!(P.best[k]>0);if(st>(P.best[k]||0))P.best[k]=st;if(G.score>(P.score[k]||0))P.score[k]=G.score;P.pt[k]=P.pt[k]||new Date().toISOString();
     if(first){P.stats.levels++;addXP(20*st)}if(st===3)P.stats.perfect++;if(i===nMan(t)-1)P.stats.top++;
     save();sfx.win();confetti(140,.3);s=bumpStreak();syncMine();checkAch()}
-  const next=i+1<nMan(t);
-  overlay(`<h2>${pass?(st===3?'Hoàn hảo!':'Qua màn!'):'Thử lại nhé!'}</h2><p>${esc(t.title)} · Màn ${i+1}</p>
+  const rt=routeTopics(t.khoi),nj=rt.findIndex(x=>x.id===t.id)+1,nt=pass&&nj>0&&nj<rt.length&&topicOpen(rt,nj)?rt[nj]:null,L0=lessonOf(t);
+  overlay(`<h2>${pass?(st===3?'Hoàn hảo!':'Qua bài!'):'Thử lại nhé!'}</h2><p>${esc(L0?lessonName(L0):t.title)}</p>
    <div class="bigstars">${[1,2,3].map(x=>star(x<=st)).join('')}</div>
    <div class="stat"><div><b>${G.score}</b>điểm</div><div><b>${nOk}/${G.qs.length}</b>câu đúng</div>${tm}</div>${streakLine(s)}
-   ${pass&&next?`<button class="btn" id="r1">Lên màn ${i+2}</button>`:''}
-   ${!pass||st<3?`<button class="btn ${pass?'alt':''}" id="r2">Chơi lại màn này</button>`:''}<button class="btn alt" id="r3">Về bản đồ</button>`);
-  $('#r1')&&($('#r1').onclick=()=>{closeOvl();startLevel(i+1)});$('#r2')&&($('#r2').onclick=()=>{closeOvl();startLevel(i)});$('#r3').onclick=()=>{closeOvl();journey()}}
+   ${nt?`<button class="btn" id="r1">Bài tiếp theo ›</button>`:''}
+   ${!pass||st<3?`<button class="btn ${pass?'alt':''}" id="r2">Làm lại bài này</button>`:''}<button class="btn alt" id="r3">Về bản đồ</button>`);
+  $('#r1')&&($('#r1').onclick=()=>{closeOvl();curT=nt;startLevel()});$('#r2')&&($('#r2').onclick=()=>{closeOvl();startLevel(i)});$('#r3').onclick=()=>{closeOvl();journey()}}
 $('#quit').onclick=()=>{const m=G&&G.mode;overlay(`<h2>Thoát?</h2><p>${m==='rank'?'Thoát giữa trận: các câu chưa làm tính là sai.':m==='man'||m==='de'?'Kết quả lượt này sẽ không được lưu.':'Các câu đã làm vẫn được ghi nhận.'}</p><button class="btn co" id="q1">Thoát</button><button class="btn alt" id="q2">Làm tiếp</button>`);
   $('#q1').onclick=()=>{closeOvl();$('#sheet').classList.remove('on');clearInterval(TM);
     if(m==='rank'&&G.started){G.miss+=G.qs.length-G.k;G.k=G.qs.length;finish();return}
@@ -1909,7 +1957,7 @@ function asgForm(){const ts=gradeTopics(curK).filter(t=>t.status==='giao'&&!t.er
     <button class="btn" id="fS">Giao bài</button></div>`:'<p>Khối này chưa có chủ đề nào đã duyệt.</p>'}
     ${mine.length?`<div class="cert" style="margin-top:12px">${mine.map(a=>`<div class="row"><span>${esc((TOPICS.find(t=>t.id===a.topicId)||{}).title||'?')}<br><small>${a.due?'Hạn '+fmtDue(a.due):'Không hạn'}</small></span><button class="btn sm alt" data-del="${a.id}">Xóa</button></div>`).join('')}</div>`:''}
     <button class="btn alt" id="fC">Đóng</button>`);
-  const setL=()=>{const t=ts.find(x=>x.id===$('#fT').value),n=nMan(t);$('#fL').innerHTML=isDe(t)?'<option value="1">Làm đề 1 lần</option>':Array.from({length:n},(_,i)=>`<option value="${i+1}" ${i===n-1?'selected':''}>${i===n-1&&n>1?`Cả ${n} màn`:i?`Màn 1 → ${i+1}`:'Màn 1'}</option>`).join('')};
+  const setL=()=>{const t=ts.find(x=>x.id===$('#fT').value),n=nMan(t);$('#fL').innerHTML=isDe(t)?'<option value="1">Làm đề 1 lần</option>':n===1?'<option value="1">Hoàn thành bài</option>':Array.from({length:n},(_,i)=>`<option value="${i+1}" ${i===n-1?'selected':''}>${i===n-1&&n>1?`Cả ${n} màn`:i?`Màn 1 → ${i+1}`:'Màn 1'}</option>`).join('')};
   if(ts.length){setL();$('#fT').onchange=setL;$('#fH').onchange=()=>{$('#fDw').style.display=$('#fH').checked?'':'none'};
     $('#fS').onclick=async()=>{try{await DB.collection('assignments').doc().set({khoi:curK,topicId:$('#fT').value,levels:+$('#fL').value,due:$('#fH').checked?new Date($('#fD').value).toISOString():null,note:$('#fN').value.trim(),created:new Date().toISOString()});sfx.ok();closeOvl();area()}catch(e){msgBox('Chưa lưu được',esc(e.message))}}}
   $$('#panel [data-del]').forEach(b=>b.onclick=async()=>{try{await DB.doc('assignments/'+b.dataset.del).delete();asgForm()}catch(e){msgBox('Chưa lưu được',esc(e.message))}});
