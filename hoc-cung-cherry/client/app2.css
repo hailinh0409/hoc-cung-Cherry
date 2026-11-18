@@ -269,3 +269,20 @@ textarea.code.light{background:#fff;color:#12313a;font:14px/1.5 "Be Vietnam Pro"
 /* Ngân hàng câu hỏi */
 .tbox .qbtn{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}.bkgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}.bkgrid select.name,#bkQ{width:100%;padding:0 10px}
 .bksum{font-size:13px;color:var(--mute);margin:10px 2px 6px}.bktd summary{cursor:pointer}.bktd summary small{color:#7a9399}.foot{flex-wrap:wrap}
+
+/* Bản đồ là màn chính của khối: các mục khác thu gọn thành biểu tượng ở góc */
+.jbtns{position:absolute;right:10px;bottom:calc(14px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:10px;z-index:6}
+.jbtn{position:relative;width:58px;height:58px;border-radius:50%;background:var(--c);box-shadow:inset 0 -4px 0 var(--d),0 6px 14px #0005;border:2px solid var(--b,#fff6);display:flex;align-items:center;justify-content:center;transition:transform .15s}
+.jbtn .jico{display:flex;font-style:normal}.jbtn .jico svg{display:block}
+.jbtn small{position:absolute;top:100%;left:50%;transform:translate(-50%,-3px);font-size:10px;font-weight:800;color:#fff;white-space:nowrap;text-shadow:0 1px 3px #000c}
+.jbtn em{position:absolute;top:-5px;right:-5px;min-width:20px;height:20px;padding:0 5px;border-radius:99px;background:#ef3b55;color:#fff;font:800 11px/20px "Be Vietnam Pro",sans-serif;font-style:normal;box-shadow:0 0 0 2px #fff;animation:pulse 1.6s infinite}
+.jbtn.on{transform:scale(1.12);box-shadow:inset 0 -4px 0 var(--d),0 0 0 4px #ffd23f,0 6px 14px #0005}
+.jbtns .jbtn+.jbtn{margin-top:8px}
+.jshade{position:absolute;inset:0;background:#0006;z-index:5;animation:fade .2s}
+.jpanel{position:absolute;left:10px;right:80px;bottom:calc(14px + env(safe-area-inset-bottom));max-height:72%;overflow-y:auto;z-index:6;animation:rise .25s both;padding-top:20px}
+.jpanel .ptile{margin:0}.jpanel .qcard,.jpanel .ccard{margin:0 0 10px}
+.jx{position:absolute;top:-4px;right:0;width:34px;height:34px;border-radius:50%;background:#fff;color:#12313a;font:800 22px/1 sans-serif;z-index:2;box-shadow:0 3px 8px #0004}
+/* Cửa hàng cạnh Toán, Tiếng Anh */
+.mon.shopm{background:linear-gradient(120deg,#ff7eb6,#a55cff);box-shadow:inset 0 -8px 0 #7a3bc8,0 10px 20px #0004}
+.mon.shopm b{display:flex;flex-direction:column}.mon.shopm b small{font:700 13px "Be Vietnam Pro",sans-serif;opacity:.92;white-space:normal}
+.mon.shopm .shav .ava{border:3px solid #fff;border-radius:50%}

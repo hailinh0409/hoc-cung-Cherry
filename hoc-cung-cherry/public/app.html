@@ -542,6 +542,23 @@ textarea.code.light{background:#fff;color:#12313a;font:14px/1.5 "Be Vietnam Pro"
 .tbox .qbtn{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}.bkgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}.bkgrid select.name,#bkQ{width:100%;padding:0 10px}
 .bksum{font-size:13px;color:var(--mute);margin:10px 2px 6px}.bktd summary{cursor:pointer}.bktd summary small{color:#7a9399}.foot{flex-wrap:wrap}
 
+/* Bản đồ là màn chính của khối: các mục khác thu gọn thành biểu tượng ở góc */
+.jbtns{position:absolute;right:10px;bottom:calc(14px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:10px;z-index:6}
+.jbtn{position:relative;width:58px;height:58px;border-radius:50%;background:var(--c);box-shadow:inset 0 -4px 0 var(--d),0 6px 14px #0005;border:2px solid var(--b,#fff6);display:flex;align-items:center;justify-content:center;transition:transform .15s}
+.jbtn .jico{display:flex;font-style:normal}.jbtn .jico svg{display:block}
+.jbtn small{position:absolute;top:100%;left:50%;transform:translate(-50%,-3px);font-size:10px;font-weight:800;color:#fff;white-space:nowrap;text-shadow:0 1px 3px #000c}
+.jbtn em{position:absolute;top:-5px;right:-5px;min-width:20px;height:20px;padding:0 5px;border-radius:99px;background:#ef3b55;color:#fff;font:800 11px/20px "Be Vietnam Pro",sans-serif;font-style:normal;box-shadow:0 0 0 2px #fff;animation:pulse 1.6s infinite}
+.jbtn.on{transform:scale(1.12);box-shadow:inset 0 -4px 0 var(--d),0 0 0 4px #ffd23f,0 6px 14px #0005}
+.jbtns .jbtn+.jbtn{margin-top:8px}
+.jshade{position:absolute;inset:0;background:#0006;z-index:5;animation:fade .2s}
+.jpanel{position:absolute;left:10px;right:80px;bottom:calc(14px + env(safe-area-inset-bottom));max-height:72%;overflow-y:auto;z-index:6;animation:rise .25s both;padding-top:20px}
+.jpanel .ptile{margin:0}.jpanel .qcard,.jpanel .ccard{margin:0 0 10px}
+.jx{position:absolute;top:-4px;right:0;width:34px;height:34px;border-radius:50%;background:#fff;color:#12313a;font:800 22px/1 sans-serif;z-index:2;box-shadow:0 3px 8px #0004}
+/* Cửa hàng cạnh Toán, Tiếng Anh */
+.mon.shopm{background:linear-gradient(120deg,#ff7eb6,#a55cff);box-shadow:inset 0 -8px 0 #7a3bc8,0 10px 20px #0004}
+.mon.shopm b{display:flex;flex-direction:column}.mon.shopm b small{font:700 13px "Be Vietnam Pro",sans-serif;opacity:.92;white-space:normal}
+.mon.shopm .shav .ava{border:3px solid #fff;border-radius:50%}
+
 .gvlink{margin-top:4px;font-size:13px;color:#7a9399;text-decoration:underline;align-self:center}
 .figmiss{display:inline-block;padding:6px 10px;border-radius:8px;background:#fff3c4;color:#7a5a00;font-size:13px}
 img.fig{display:block;max-width:100%;height:auto;margin:8px auto;background:#fff;border-radius:8px}
@@ -593,6 +610,7 @@ startup:{typeset:false,ready(){MathJax.startup.defaultReady();MathJax.startup.pr
   <section class="scr" id="journey">
     <div class="ubar" data-ubar></div>
     <div class="tmap" id="tmap"></div>
+    <div class="jdock" id="jdock"></div>
   </section>
 
   <section class="scr" id="ontap">
@@ -1311,7 +1329,7 @@ function ubar(el){if(!ACC||!P){el.innerHTML='';return}
    <button class="me" data-me>${avatarOf(P,40)}<span><b>${esc(P.nick||ACC.name)}</b><small>Cấp ${lv} · ${P.xp} XP</small><i class="xpb"><i style="width:${Math.min(100,(P.xp-a)/(b-a)*100)}%"></i></i></span></button>
    <div class="stk${learned?'':' off'}" title="Chuỗi ngày học">${flame(!learned,26)}<b>${sk}</b><span class="shl">${shieldSVG.repeat(S.shields??1)}</span></div>`;
   el.querySelector('[data-me]').onclick=()=>{sfx.tap();profFrom=id;profile(ACC.id)};
-  const bk=el.querySelector('[data-back]');if(bk)bk.onclick=()=>{sfx.tap();id==='grades'||id==='anh'?subjects():id==='area'?grades():area()}}
+  const bk=el.querySelector('[data-back]');if(bk)bk.onclick=()=>{sfx.tap();id==='grades'||id==='anh'?subjects():id==='area'||id==='journey'?grades():journey()}}
 
 /* ---------- đăng nhập ---------- */
 const normName=s=>String(s||'').normalize('NFC').toLowerCase().replace(/\s+/g,' ').trim();
@@ -1381,12 +1399,14 @@ const hasMon=m=>!!ACC&&(ACC.teacher||(ACC.mon||['toan']).includes(m));
 function subjects(){show('subj');
   $('#subjBody').innerHTML=`<div class="shead"><div style="width:96px">${owlSVG}</div><div><h1>Chào ${esc((P.nick||ACC.name).split(' ').slice(-1)[0])}!</h1><p>Hôm nay em học môn nào?</p></div></div>
    <div class="mons">${Object.entries(MON).map(([k,m],i)=>{const on=hasMon(k);return `<button class="mon${on?'':' off'}" data-m="${k}" style="--c:${m.c};--d:${m.d};animation-delay:${i*.1}s" ${on?'':'aria-disabled="true"'}>
-     ${m.ico}<b>${m.n}</b><span>${on?(k==='anh'?'Sắp ra mắt':'Vào học ›'):'Chưa đăng kí'}</span>${on?'':'<i class="mlock">'+lockSVG+'</i>'}</button>`}).join('')}</div>
+     ${m.ico}<b>${m.n}</b><span>${on?(k==='anh'?'Sắp ra mắt':'Vào học ›'):'Chưa đăng kí'}</span>${on?'':'<i class="mlock">'+lockSVG+'</i>'}</button>`}).join('')}
+    ${GV()?'':`<button class="mon shopm" id="sShop" style="animation-delay:${Object.keys(MON).length*.1}s"><span class="shav">${avatarOf(P,64)}</span><b>Cửa hàng<small>Ví ${bal()} XP · đã sưu tầm ${Object.keys(P.own||{}).length}/${ITEMS.length}</small></b><span>Mua sắm ›</span></button>`}</div>
    ${GV()?'':`<button class="frtile" id="sFr"><span class="frava">${followingOf(P).slice(0,4).map(id=>avatarOf(PLAYERS.find(x=>x.id===id),34)).join('')||avatarOf(P,34)}</span><span><b>Bạn bè</b><small>${followingOf(P).length} đang theo dõi · ${followersOf(ACC.id).length} người theo dõi</small></span>${newFollowers()?`<i class="dot">${newFollowers()} mới</i>`:'<i class="go">›</i>'}</button>`}
    ${GV()?`<div class="foot"><button class="btn alt" id="sBank">Ngân hàng câu hỏi</button><button class="btn alt" id="sAcc">Tài khoản học sinh${ACCS.some(a=>a.reset)?' ●':''}</button><button class="btn alt" id="sOut">Thoát</button></div>`:`<div class="foot"><button class="btn alt" id="sOut">Đăng xuất</button></div>`}`;
   $$('#subjBody .mon').forEach(b=>b.onclick=()=>{const m=b.dataset.m;
     if(!hasMon(m)){sfx.no();b.animate([{transform:'translateX(-6px)'},{transform:'translateX(6px)'},{transform:'none'}],{duration:300});return toast(`Em chưa đăng kí môn ${MON[m].n}. Em hỏi thầy để đăng kí nhé.`)}
     sfx.tap();m==='toan'?grades():anh()});
+  $('#sShop')&&($('#sShop').onclick=()=>{sfx.tap();shopFrom='subj';shop()});
   $('#sFr')&&($('#sFr').onclick=()=>{sfx.tap();frTab=newFollowers()?'followers':'feed';friends()});
   $('#sAcc')&&($('#sAcc').onclick=()=>{sfx.tap();accounts()});$('#sBank')&&($('#sBank').onclick=()=>{sfx.tap();bank()});$('#sOut').onclick=()=>{sfx.tap();logout()}}
 function anh(){show('anh');$('#anhBody').innerHTML=`<div class="empty"><div style="width:130px;margin:0 auto">${owlSVG}</div><h2 style="margin-top:8px">Tiếng Anh</h2><p>Bản đồ môn Tiếng Anh đang được chuẩn bị. Cherry sẽ báo em khi mở nhé!</p></div>`}
@@ -1408,22 +1428,37 @@ function dueLabel(a,s){if(s.complete)return s.late?'Xong (muộn)':'Đã xong';i
 const myPt=k=>(P.pt&&P.pt[k])||(P.best[k]>0?'1970':null);
 const asgFor=t=>ASG.filter(a=>a.topicId===t.id&&a.khoi===t.khoi).sort((a,b)=>(a.due||'9').localeCompare(b.due||'9'))[0];
 function counts(){const ix=qIndex();let nb=0;for(const [k,r] of Object.entries(P.rev||{}))if(ix[k]&&r.in_notebook)nb++;return {nb,saved:Object.keys(P.saved||{}).length}}
-function area(){show('area');const g=G0(curK),c=counts(),T=TIERS[tierOf(P.lp)],rt=routeTopics(curK),de=deTopics(curK);
-  const tot=rt.reduce((s,t)=>s+nMan(t),0),done=rt.reduce((s,t)=>s+topicPassed(t),0);
-  const pend=x=>x.filter(t=>{const a=asgFor(t);return a&&!asgStatus(a,myPt).complete}).length,pr=pend(rt),pd=pend(de);
-  const mine=g.k===ACC.khoi&&!ACC.teacher;
-  $('#areaBody').innerHTML=`${mine?questCard():''}<div class="aband"><div class="abig">${g.k}</div><div><div class="ak">Khu vực</div><h1>Khối ${g.k}</h1><div class="asub">${ACC.khoi===g.k?'Khối của em':'Em đang xem khối khác'}</div></div></div>
-   <div class="ptiles">
-    <button class="ptile wide hunt" data-go="journey">${chestSVG(done>=tot&&tot>0,64)}<div><b>Hành trình kho báu</b><span>Cả năm lớp ${g.k} · đã qua ${done}/${currOf(g.k).filter(c=>c.id).length} bài · ${rt.length} bài đã có câu hỏi</span><i class="hbar"><i style="width:${tot?done/tot*100:0}%"></i></i></div>${pr?`<i class="dot">${pr} bài thầy giao</i>`:''}</button>
-    <button class="ptile" data-go="ontap" style="--c:#8d7bff;--d:#6a57e0"><b>Ôn tập</b><span>${de.length} đề · đã làm ${de.filter(deDone).length}</span>${pd?`<i class="dot">${pd} đề thầy giao</i>`:''}</button>
-    <button class="ptile" data-go="redo" style="--c:#ff7a59;--d:#e85a3a"><b>Làm lại câu sai</b><span>${c.nb} câu sai · ${c.saved} câu đã lưu</span></button>
-    <button class="ptile wide shopt" data-go="shop"><span class="shav">${avatarOf(P,64)}</span><div><b>Cửa hàng Cherry</b><span>Ví ${bal()} XP · đã sưu tầm ${Object.keys(P.own||{}).length}/${ITEMS.length}</span></div><i class="go">Mua sắm ›</i></button>
-    <button class="ptile wide rk" data-go="ranked" style="--c:${T.c};--d:${T.d}">${emblem(tierOf(P.lp),56)}<div><b>Thi đấu</b><span>${T.n} · ${P.lp||0} điểm</span></div><i class="go">Vào trận ›</i></button></div>
-   ${mine?classCard():''}
-   ${GV()?`<div class="tbtns2"><button class="btn sm" id="tAsg">Giao bài khối ${g.k}</button><button class="btn sm alt" id="tTrack">Theo dõi khối ${g.k}</button></div>`:''}`;
-  $$('#areaBody [data-go]').forEach(b=>b.onclick=()=>{sfx.tap();({journey,ontap:onTap,redo,ranked,shop:()=>{shopFrom='area';shop()}})[b.dataset.go]()});
-  bindQuest();if(mine&&!P.tut)setTimeout(tutorial,400);
-  $('#tAsg')&&($('#tAsg').onclick=()=>{sfx.tap();asgForm()});$('#tTrack')&&($('#tTrack').onclick=()=>{sfx.tap();track()})}
+// Khu vực khối = bản đồ kho báu (các mục khác thu gọn thành biểu tượng nhỏ ở góc bản đồ)
+function area(){journey()}
+let JOPEN='';
+const JICO={
+  ontap:'<svg viewBox="0 0 24 24" width="28" height="28"><path d="M5 4h10l4 4v12H5z" fill="#fff"/><path d="M15 4v4h4" fill="#d9d2ff"/><path d="M8 11h8M8 14h8M8 17h5" stroke="#6a57e0" stroke-width="1.8" stroke-linecap="round"/></svg>',
+  redo:'<svg viewBox="0 0 24 24" width="28" height="28"><path d="M19 12a7 7 0 11-2.05-4.95" stroke="#fff" stroke-width="2.8" fill="none" stroke-linecap="round"/><path d="M19 4v5h-5" stroke="#fff" stroke-width="2.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  asg:'<svg viewBox="0 0 24 24" width="26" height="26"><rect x="5" y="4" width="14" height="17" rx="2" fill="#fff"/><rect x="9" y="2.5" width="6" height="3.5" rx="1" fill="#ffd23f"/><path d="M8.5 13l2.3 2.3 4.7-5" stroke="#2584b8" stroke-width="2.2" fill="none" stroke-linecap="round"/></svg>',
+  track:'<svg viewBox="0 0 24 24" width="26" height="26"><path d="M5 19V11M10 19V6M15 19v-6M20 19V9" stroke="#fff" stroke-width="3" stroke-linecap="round"/></svg>'};
+function jdock(){const el=$('#jdock');if(!el)return;const g=G0(curK),c=counts(),T=TIERS[tierOf(P.lp)],de=deTopics(curK),mine=g.k===ACC.khoi&&!ACC.teacher;
+  const pend=x=>x.filter(t=>{const a=asgFor(t);return a&&!asgStatus(a,myPt).complete}).length,pd=pend(de);
+  const q=mine?dq():null,qleft=q?q.ids.filter(id=>!q.c[id]).length+(q.ids.every(id=>q.c[id])&&!q.chest?1:0):0;
+  const items=[
+    mine&&{k:'quest',n:'Nhiệm vụ',ico:chestSVG(q.chest,34),c:'#ffb703',d:'#d98e00',badge:qleft,
+      big:()=>questCard()+classCard()},
+    {k:'ontap',n:'Ôn tập',ico:JICO.ontap,c:'#8d7bff',d:'#6a57e0',badge:pd,
+      big:()=>`<button class="ptile wide" data-go="ontap" style="--c:#8d7bff;--d:#6a57e0">${JICO.ontap.replace(/28/g,'56')}<div><b>Ôn tập</b><span>${de.length} đề · đã làm ${de.filter(deDone).length}${pd?` · ${pd} đề thầy giao`:''}</span></div><i class="go">Vào ›</i></button>`},
+    {k:'redo',n:'Câu sai',ico:JICO.redo,c:'#ff7a59',d:'#e85a3a',badge:c.nb,
+      big:()=>`<button class="ptile wide" data-go="redo" style="--c:#ff7a59;--d:#e85a3a">${JICO.redo.replace(/28/g,'56')}<div><b>Làm lại câu sai</b><span>${c.nb} câu sai · ${c.saved} câu đã lưu</span></div><i class="go">Vào ›</i></button>`},
+    {k:'ranked',n:'Thi đấu',ico:emblem(tierOf(P.lp),38),c:'#20374a',d:'#120f24',bd:T.c,
+      big:()=>`<button class="ptile wide rk" data-go="ranked" style="--c:${T.c};--d:${T.d}">${emblem(tierOf(P.lp),56)}<div><b>Thi đấu</b><span>${T.n} · ${P.lp||0} điểm</span></div><i class="go">Vào trận ›</i></button>`},
+    GV()&&{k:'asg',n:'Giao bài',ico:JICO.asg,c:'#3aa8e0',d:'#2584b8',act:asgForm},
+    GV()&&{k:'track',n:'Theo dõi',ico:JICO.track,c:'#2fb787',d:'#1f8a63',act:track}].filter(Boolean);
+  if(!items.some(x=>x.k===JOPEN&&x.big))JOPEN='';
+  const op=items.find(x=>x.k===JOPEN);
+  el.innerHTML=(op?`<div class="jshade" data-close></div><div class="jpanel"><button class="jx" data-close aria-label="Thu gọn">×</button>${op.big()}</div>`:'')+
+    `<div class="jbtns">${items.map(x=>`<button class="jbtn${x.k===JOPEN?' on':''}" data-j="${x.k}" style="--c:${x.c};--d:${x.d}${x.bd?';--b:'+x.bd:''}" aria-label="${x.n}"><i class="jico">${x.ico}</i><small>${x.n}</small>${x.badge?`<em>${x.badge>99?'99+':x.badge}</em>`:''}</button>`).join('')}</div>`;
+  $$('#jdock [data-j]').forEach(b=>b.onclick=()=>{sfx.tap();const x=items.find(y=>y.k===b.dataset.j);if(x.act){JOPEN='';x.act();return}JOPEN=JOPEN===x.k?'':x.k;jdock()});
+  $$('#jdock [data-close]').forEach(b=>b.onclick=()=>{sfx.tap();JOPEN='';jdock()});
+  $$('#jdock [data-go]').forEach(b=>b.onclick=()=>{sfx.tap();JOPEN='';({ontap:onTap,redo,ranked})[b.dataset.go]()});
+  if(op&&op.k==='quest')bindQuest();
+  typeset(el)}
 
 /* ---------- bản đồ kho báu: Đại số + Hình học xen kẽ ---------- */
 const chestSVG=(open,sz=60)=>`<svg viewBox="0 0 64 56" width="${sz}" height="${sz*56/64}" class="chest">${open?'<path d="M10 20L32 4 54 20" fill="#ffd23f" opacity=".5"/><circle cx="32" cy="14" r="9" fill="#ffe98a"/>':''}
@@ -1436,7 +1471,7 @@ const palm=(x,y,f)=>`<svg class="deco" style="left:${x}px;top:${y}px${f?';transf
 const xmark=(x,y)=>`<svg class="deco" style="left:${x}px;top:${y}px" width="26" height="26" viewBox="0 0 24 24"><path d="M5 5l14 14M19 5L5 19" stroke="#c0392b" stroke-width="3.5" stroke-linecap="round"/></svg>`;
 const wave=(x,y)=>`<svg class="deco" style="left:${x}px;top:${y}px" width="44" height="14" viewBox="0 0 44 14"><path d="M2 8q5-6 10 0t10 0 10 0 10 0" stroke="#5aa6b8" stroke-width="2.4" fill="none" stroke-linecap="round"/></svg>`;
 const flag=(x,y,txt)=>`<div class="hkflag" style="top:${y}px"><svg width="40" height="52" viewBox="0 0 40 52"><path d="M6 50V4" stroke="#6e3c16" stroke-width="3.5" stroke-linecap="round"/><path d="M7 5h26l-6 8 6 8H7z" fill="#ef3b55"/></svg><b>${txt}</b></div>`;
-function journey(){show('journey');const items=mapItems(curK),ts=items.filter(x=>x.t).map(x=>x.t),el=$('#tmap');
+function journey(){show('journey');jdock();if(curK===ACC.khoi&&!ACC.teacher&&!P.tut)setTimeout(tutorial,400);const items=mapItems(curK),ts=items.filter(x=>x.t).map(x=>x.t),el=$('#tmap');
   if(!items.length){el.innerHTML=`<div class="empty dark"><div style="width:110px;margin:0 auto">${owlSVG}</div><p>Khối ${curK} chưa có bản đồ.</p></div>`;return}
   const W=Math.min(el.clientWidth||390,480),BAN=86,STEP=112,TOP=210,BOT=90,HKH=96;
   const H=BOT+TOP+items.reduce((s,x)=>s+(x.hk?HKH:x.ch&&!x.L?BAN+30:STEP),0);
@@ -1665,7 +1700,7 @@ function questCard(){const q=dq(),all=q.ids.every(id=>q.c[id]);
   return `<div class="qcard"><div class="qhd"><b>Nhiệm vụ hôm nay</b><small>Làm mới lúc 0 giờ</small></div>
    ${q.ids.map(id=>{const Q=QUESTS.find(x=>x.id===id),p=q.p[id]||0,done=p>=Q.t;return `<div class="qrow2${q.c[id]?' got':''}"><div class="qtx"><span>${Q.n}</span><i class="qbar"><i style="width:${p/Q.t*100}%"></i></i></div>${q.c[id]?'<span class="qok">✓</span>':done?`<button class="btn sm" data-claim="${id}">+30 XP</button>`:`<small>${p}/${Q.t}</small>`}</div>`}).join('')}
    <button class="qchest${all&&!q.chest?' ready':''}" id="qChest" ${all&&!q.chest?'':'disabled'}>${chestSVG(q.chest,46)}<span>${q.chest?'Đã mở rương hôm nay. Mai quay lại nhé!':all?'Mở rương thưởng!':'Nhận đủ 3 nhiệm vụ để mở rương'}</span></button></div>`}
-function bindQuest(){$$('#areaBody [data-claim]').forEach(b=>b.onclick=()=>{const q=dq(),id=b.dataset.claim;if(q.c[id])return;q.c[id]=1;addXP(30);sfx.ok();floatText('+30 XP',b);save();syncMine();setTimeout(area,500)});
+function bindQuest(){$$('#jdock [data-claim]').forEach(b=>b.onclick=()=>{const q=dq(),id=b.dataset.claim;if(q.c[id])return;q.c[id]=1;addXP(30);sfx.ok();floatText('+30 XP',b);save();syncMine();setTimeout(area,500)});
   $('#qChest')&&($('#qChest').onclick=()=>{const q=dq();if(q.chest||!q.ids.every(id=>q.c[id]))return;q.chest=true;P.stats.chests=(P.stats.chests||0)+1;addXP(80);
     const pool=ITEMS.filter(x=>!x.special&&x.price<900&&!P.own[x.id]);let gift=null;if(pool.length&&Math.random()<.35){gift=pool[Math.random()*pool.length|0];P.own[gift.id]=new Date().toISOString()}
     save();syncMine();checkAch();sfx.win();confetti(140,.35);
@@ -1691,7 +1726,7 @@ function tutorial(){const S=[['Chào em, mình là Cherry!','Mình sẽ đồng 
   const end=()=>{P.tut=1;save();syncMine();closeOvl()};go()}
 
 /* ---------- cửa hàng ---------- */
-let shopTab='hat',shopF='all',tryEq=null,shopSel=null,shopFrom='area';
+let shopTab='hat',shopF='all',tryEq=null,shopSel=null,shopFrom='subj';
 const fmtXP=n=>Number(n).toLocaleString('vi-VN');
 function shop(){show('shop');if(!tryEq)tryEq={...(P.eq||{})};const own=P.own||{},nOwn=Object.keys(own).length;
   const list=ITEMS.filter(x=>shopTab==='special'?x.special:x.slot===shopTab&&!x.special).filter(x=>shopF==='all'||(shopF==='own')===!!own[x.id]);
@@ -1716,7 +1751,7 @@ function shop(){show('shop');if(!tryEq)tryEq={...(P.eq||{})};const own=P.own||{}
   $$('#shopBody [data-st]').forEach(b=>b.onclick=()=>{sfx.tap();shopTab=b.dataset.st;shopSel=null;tryEq={...P.eq};shop()});
   $$('#shopBody [data-sf]').forEach(b=>b.onclick=()=>{sfx.tap();shopF=b.dataset.sf;shop()});
   $$('#shopBody [data-it]').forEach(b=>b.onclick=()=>{sfx.tap();const x=ITEM[b.dataset.it];shopSel=x.id;tryEq={...P.eq,[x.slot]:x.id};const y=$('#shopBody').scrollTop;shop();$('#shopBody').scrollTop=y});
-  $('#shBack').onclick=()=>{sfx.tap();shopSel=null;tryEq=null;$('#shopBar').classList.remove('on');shopFrom==='profile'?profile(ACC.id):area()}}
+  $('#shBack').onclick=()=>{sfx.tap();shopSel=null;tryEq=null;$('#shopBar').classList.remove('on');shopFrom==='profile'?profile(ACC.id):shopFrom==='subj'?subjects():area()}}
 
 /* ---------- giáo viên: chú ý, báo cáo phụ huynh, thời gian màn ---------- */
 function teacherExtra(kh,st,ix){const today=vnDay(),real=st.filter(v=>!v.mau);
