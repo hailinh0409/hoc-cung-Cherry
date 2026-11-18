@@ -66,9 +66,15 @@ export function parseBank(raw) {
   const topic = tg ? tg[0].trim() : '';
   if (!topic) errors.push({ msg: 'Thiếu \\chude{Tên chủ đề}' });
 
+  // Tóm tắt lý thuyết: \begin{lythuyet} ... \end{lythuyet} (một khối, thường đặt trước \man{1})
+  let theory = null;
+  const lt = raw.match(/\\begin\{lythuyet\}([\s\S]*?)\\end\{lythuyet\}/);
+  if (lt) { theory = parseTheory(lt[1], errors); raw = raw.slice(0, lt.index) + raw.slice(lt.index + lt[0].length); }
+  else if (/\\begin\{lythuyet\}/.test(raw)) errors.push({ msg: 'Khối lý thuyết chưa đóng \\end{lythuyet}' });
+
   const marks = []; const re = /\\man\s*\{/g; let m;
   while ((m = re.exec(raw))) marks.push(m.index);
-  if (!marks.length) errors.push({ msg: 'Chưa có màn nào. Mỗi màn bắt đầu bằng \\man{số}{tên mức}' });
+  if (!marks.length && !theory) errors.push({ msg: 'Chưa có màn nào. Mỗi màn bắt đầu bằng \\man{số}{tên mức}' });
 
   const levels = [];
   marks.forEach((at, x) => {
@@ -137,7 +143,24 @@ export function parseBank(raw) {
     if (!qs.length && !errors.some(er => er.level === n)) errors.push({ level: n, msg: 'Màn này chưa có câu hỏi nào' });
     levels.push({ n, title: g2[0].trim(), qs });
   });
-  return { topic, levels, errors };
+  return { topic, levels, errors, theory };
+}
+
+// Các mục của khối lý thuyết. Hai đối số {tiêu đề}{nội dung}, riêng \luuy{nội dung}; \vidu{đề}{lời giải}.
+export const THEORY_KINDS = { dinhnghia: 'Định nghĩa', quytac: 'Quy tắc', congthuc: 'Công thức', dinhly: 'Định lý', tinhchat: 'Tính chất', luuy: 'Lưu ý', vidu: 'Ví dụ' };
+function parseTheory(body, errors) {
+  const items = [], re = /\\(dinhnghia|quytac|congthuc|dinhly|tinhchat|luuy|vidu)\b/g; let m;
+  while ((m = re.exec(body))) {
+    const k = m[1], g1 = group(body, m.index + m[0].length);
+    if (!g1) { errors.push({ msg: `Lý thuyết: \\${k} thiếu {…}` }); continue; }
+    if (k === 'luuy') { items.push({ k, title: '', body: g1[0].trim() }); re.lastIndex = g1[1]; continue; }
+    const g2 = group(body, g1[1]);
+    if (!g2) { errors.push({ msg: `Lý thuyết: \\${k} cần hai cặp {…}{…}` }); re.lastIndex = g1[1]; continue; }
+    items.push(k === 'vidu' ? { k, title: '', body: g1[0].trim(), sol: g2[0].trim() } : { k, title: g1[0].trim(), body: g2[0].trim() });
+    re.lastIndex = g2[1];
+  }
+  if (!items.length) errors.push({ msg: 'Khối lý thuyết chưa có mục nào (\\dinhnghia, \\quytac, \\congthuc, \\dinhly, \\tinhchat, \\luuy, \\vidu)' });
+  return items;
 }
 
 export function errorText(e) {

@@ -559,6 +559,19 @@ textarea.code.light{background:#fff;color:#12313a;font:14px/1.5 "Be Vietnam Pro"
 .mon.shopm b{display:flex;flex-direction:column}.mon.shopm b small{font:700 13px "Be Vietnam Pro",sans-serif;opacity:.92;white-space:normal}
 .mon.shopm .shav .ava{border:3px solid #fff;border-radius:50%}
 
+/* Tóm tắt lý thuyết */
+.thhead{padding:6px 2px 4px}.thhead span{display:inline-flex;align-items:center;gap:6px;font-weight:800;font-size:13px;color:#ffd23f}
+.thhead h1{font:800 28px/1.1 "Baloo 2",sans-serif;margin:6px 0 2px}.thhead small{color:var(--mute)}
+.thc{background:var(--card);color:var(--cink);border-radius:18px;padding:12px 14px;margin-top:12px;border-left:7px solid var(--c);box-shadow:0 6px 14px #0003;animation:rise .35s both}
+.thc .thk{display:inline-block;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:#fff;background:var(--c);padding:2px 9px;border-radius:99px}
+.thc h3{font:800 19px/1.2 "Baloo 2",sans-serif;margin:6px 0 2px}.thc .thb2{font-size:16px;line-height:1.55;margin-top:4px;overflow-x:auto}
+.thc details{margin-top:8px}.thc summary{cursor:pointer;font-weight:800;color:#2584b8;font-size:14px}.thc details .thb2{background:#eef6f6;border-radius:12px;padding:8px 10px}
+.thend{margin:16px 0 24px;display:flex;flex-direction:column;gap:10px}
+.tnode .thb{position:absolute;top:-8px;right:-8px;width:26px;height:26px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px #0004;font-style:normal}
+.tnode.ghost.thy{opacity:1;cursor:pointer}
+.thbtn{display:flex;align-items:center;justify-content:center;gap:8px}.thnote{display:block;margin-top:8px;color:#5f7d82;font-size:12px}
+.thpv .thc{box-shadow:none;border:1px solid #d4e3e3;border-left:7px solid var(--c)}
+
 .gvlink{margin-top:4px;font-size:13px;color:#7a9399;text-decoration:underline;align-self:center}
 .figmiss{display:inline-block;padding:6px 10px;border-radius:8px;background:#fff3c4;color:#7a5a00;font-size:13px}
 img.fig{display:block;max-width:100%;height:auto;margin:8px auto;background:#fff;border-radius:8px}
@@ -611,6 +624,11 @@ startup:{typeset:false,ready(){MathJax.startup.defaultReady();MathJax.startup.pr
     <div class="ubar" data-ubar></div>
     <div class="tmap" id="tmap"></div>
     <div class="jdock" id="jdock"></div>
+  </section>
+
+  <section class="scr" id="theory">
+    <div class="ubar" data-ubar></div>
+    <div class="scrollv" id="thBody"></div>
   </section>
 
   <section class="scr" id="ontap">
@@ -926,9 +944,15 @@ function parseBank(raw) {
   const topic = tg ? tg[0].trim() : '';
   if (!topic) errors.push({ msg: 'Thiếu \\chude{Tên chủ đề}' });
 
+  // Tóm tắt lý thuyết: \begin{lythuyet} ... \end{lythuyet} (một khối, thường đặt trước \man{1})
+  let theory = null;
+  const lt = raw.match(/\\begin\{lythuyet\}([\s\S]*?)\\end\{lythuyet\}/);
+  if (lt) { theory = parseTheory(lt[1], errors); raw = raw.slice(0, lt.index) + raw.slice(lt.index + lt[0].length); }
+  else if (/\\begin\{lythuyet\}/.test(raw)) errors.push({ msg: 'Khối lý thuyết chưa đóng \\end{lythuyet}' });
+
   const marks = []; const re = /\\man\s*\{/g; let m;
   while ((m = re.exec(raw))) marks.push(m.index);
-  if (!marks.length) errors.push({ msg: 'Chưa có màn nào. Mỗi màn bắt đầu bằng \\man{số}{tên mức}' });
+  if (!marks.length && !theory) errors.push({ msg: 'Chưa có màn nào. Mỗi màn bắt đầu bằng \\man{số}{tên mức}' });
 
   const levels = [];
   marks.forEach((at, x) => {
@@ -997,7 +1021,24 @@ function parseBank(raw) {
     if (!qs.length && !errors.some(er => er.level === n)) errors.push({ level: n, msg: 'Màn này chưa có câu hỏi nào' });
     levels.push({ n, title: g2[0].trim(), qs });
   });
-  return { topic, levels, errors };
+  return { topic, levels, errors, theory };
+}
+
+// Các mục của khối lý thuyết. Hai đối số {tiêu đề}{nội dung}, riêng \luuy{nội dung}; \vidu{đề}{lời giải}.
+const THEORY_KINDS = { dinhnghia: 'Định nghĩa', quytac: 'Quy tắc', congthuc: 'Công thức', dinhly: 'Định lý', tinhchat: 'Tính chất', luuy: 'Lưu ý', vidu: 'Ví dụ' };
+function parseTheory(body, errors) {
+  const items = [], re = /\\(dinhnghia|quytac|congthuc|dinhly|tinhchat|luuy|vidu)\b/g; let m;
+  while ((m = re.exec(body))) {
+    const k = m[1], g1 = group(body, m.index + m[0].length);
+    if (!g1) { errors.push({ msg: `Lý thuyết: \\${k} thiếu {…}` }); continue; }
+    if (k === 'luuy') { items.push({ k, title: '', body: g1[0].trim() }); re.lastIndex = g1[1]; continue; }
+    const g2 = group(body, g1[1]);
+    if (!g2) { errors.push({ msg: `Lý thuyết: \\${k} cần hai cặp {…}{…}` }); re.lastIndex = g1[1]; continue; }
+    items.push(k === 'vidu' ? { k, title: '', body: g1[0].trim(), sol: g2[0].trim() } : { k, title: g1[0].trim(), body: g2[0].trim() });
+    re.lastIndex = g2[1];
+  }
+  if (!items.length) errors.push({ msg: 'Khối lý thuyết chưa có mục nào (\\dinhnghia, \\quytac, \\congthuc, \\dinhly, \\tinhchat, \\luuy, \\vidu)' });
+  return items;
 }
 
 function errorText(e) {
@@ -1046,7 +1087,7 @@ function liveStreak(p, today = vnDay()) {
   return gap <= 1 || (gap === 2 && (p.shields || 0) > 0) ? p.streak || 0 : 0;
 }
 
-function parseTopic(raw){const P=parseBank(raw);return {title:P.topic,levels:P.levels,errors:P.errors.map(errorText)}}
+function parseTopic(raw){const P=parseBank(raw);return {title:P.topic,levels:P.levels,errors:P.errors.map(errorText),theory:P.theory}}
 
 /* ---------- hằng số ---------- */
 const GRADES=[{k:'6',c:'#ff7a59',d:'#e85a3a'},{k:'7',c:'#3aa8e0',d:'#2584b8'},{k:'8',c:'#ffd23f',d:'#d6a90b',dark:1},{k:'9',c:'#ff5d8f',d:'#d93e70'}];
@@ -1064,7 +1105,7 @@ let TOPICS=[],ACCS=[],PLAYERS=[],ASG=[],TEACHER=false,DBSTATE='loading',DB=null;
 let ACC=null,P=null,curK='',curPhan='',curT=null,profFrom='grades';
 const newP=()=>({xp:0,lp:0,matches:0,hist:[],st:{},best:{},score:{},pt:{},rev:{},saved:{},wst:{},stats:{correct:0,maxCombo:0,levels:0,perfect:0,top:0,cleared:0,chests:0},own:{},eq:{},spent:0,dq:null,wk:{},season:'',seasons:[],fails:{},lvt:{},ccl:{},tut:0,follow:{},fseen:'',rseen:{},ach:{},avatar:0,nick:''});
 function fromDoc(d){const v=d.data()||{};const P=parseTopic(v.text);
-  return {id:d.id,khoi:String(v.khoi||'?'),phan:PHAN[v.phan]?v.phan:'dai-so',title:v.title||P.title||d.id,status:v.trangthai||'nhap',order:Number(v.thutu)||0,levels:P.levels,errors:P.errors,nguon:v.nguon||'',chuong:v.chuong||'',raw:v.text||'',prev:v.banTruoc||'',upd:v.capnhat||''}}
+  return {id:d.id,khoi:String(v.khoi||'?'),phan:PHAN[v.phan]?v.phan:'dai-so',title:v.title||P.title||d.id,status:v.trangthai||'nhap',order:Number(v.thutu)||0,levels:P.levels,errors:P.errors,nguon:v.nguon||'',chuong:v.chuong||'',raw:v.text||'',prev:v.banTruoc||'',upd:v.capnhat||'',theory:P.theory||null}}
 const tex=s=>figImg(esc(figSwap(s))).replace(/\\\\/g,'<br>').replace(/\\textbf\{([^}]*)\}/g,'<b>$1</b>').replace(/&quot;/g,'"');
 const typeset=el=>{if(window.__mjReady)MathJax.typesetPromise([el]).catch(()=>{})};
 
@@ -1305,7 +1346,8 @@ const topicStars=t=>{let s=0;for(let i=0;i<nMan(t);i++)s+=bestOf(t,i);return s};
 const topicPassed=t=>{let s=0;for(let i=0;i<nMan(t);i++)if(bestOf(t,i)>0)s++;return s};
 const visible=t=>GV()?true:(t.status==='giao'&&!t.errors.length);
 const gradeTopics=k=>TOPICS.filter(t=>t.khoi===k&&visible(t)).sort((a,b)=>(a.status==='an')-(b.status==='an')||a.order-b.order||a.title.localeCompare(b.title,'vi'));
-const routeTopics=k=>mapItems(k).filter(x=>x.t).map(x=>x.t);
+const hasQ=t=>t.levels.some(l=>l.qs.length); // bài chỉ có lý thuyết thì không tính vào đường đi
+const routeTopics=k=>mapItems(k).filter(x=>x.t&&hasQ(x.t)).map(x=>x.t);
 const deTopics=k=>gradeTopics(k).filter(isDe);
 const deDone=t=>!!(P.pt&&P.pt[key(t,0)]);
 function topicOpen(ts,j){const t=ts[j];return j===0||GV()||!!asgFor(t)||topicPassed(t)>0||topicPassed(ts[j-1])>=1}
@@ -1324,7 +1366,7 @@ function msgBox(t,m){overlay(`<h2>${t}</h2><p>${m}</p><button class="btn" id="eo
 /* ---------- thanh trên cùng: avatar, tên, chuỗi, XP ---------- */
 function ubar(el){if(!ACC||!P){el.innerHTML='';return}
   const today=vnDay(),S=P.st||{},sk=liveStreak(S,today),learned=S.last_day===today,lv=level(P.xp),[a,b]=lvBounds(lv),id=$$('.scr.on')[0]?.id;
-  const back=['grades','anh','area','journey','ontap','redo','ranked'].includes(id);
+  const back=['grades','anh','area','journey','ontap','redo','ranked','theory'].includes(id);
   el.innerHTML=`${back?`<button class="ico" data-back aria-label="Quay lại">${backIco}</button>`:''}
    <button class="me" data-me>${avatarOf(P,40)}<span><b>${esc(P.nick||ACC.name)}</b><small>Cấp ${lv} · ${P.xp} XP</small><i class="xpb"><i style="width:${Math.min(100,(P.xp-a)/(b-a)*100)}%"></i></i></span></button>
    <div class="stk${learned?'':' off'}" title="Chuỗi ngày học">${flame(!learned,26)}<b>${sk}</b><span class="shl">${shieldSVG.repeat(S.shields??1)}</span></div>`;
@@ -1471,7 +1513,7 @@ const palm=(x,y,f)=>`<svg class="deco" style="left:${x}px;top:${y}px${f?';transf
 const xmark=(x,y)=>`<svg class="deco" style="left:${x}px;top:${y}px" width="26" height="26" viewBox="0 0 24 24"><path d="M5 5l14 14M19 5L5 19" stroke="#c0392b" stroke-width="3.5" stroke-linecap="round"/></svg>`;
 const wave=(x,y)=>`<svg class="deco" style="left:${x}px;top:${y}px" width="44" height="14" viewBox="0 0 44 14"><path d="M2 8q5-6 10 0t10 0 10 0 10 0" stroke="#5aa6b8" stroke-width="2.4" fill="none" stroke-linecap="round"/></svg>`;
 const flag=(x,y,txt)=>`<div class="hkflag" style="top:${y}px"><svg width="40" height="52" viewBox="0 0 40 52"><path d="M6 50V4" stroke="#6e3c16" stroke-width="3.5" stroke-linecap="round"/><path d="M7 5h26l-6 8 6 8H7z" fill="#ef3b55"/></svg><b>${txt}</b></div>`;
-function journey(){show('journey');jdock();if(curK===ACC.khoi&&!ACC.teacher&&!P.tut)setTimeout(tutorial,400);const items=mapItems(curK),ts=items.filter(x=>x.t).map(x=>x.t),el=$('#tmap');
+function journey(){show('journey');jdock();if(curK===ACC.khoi&&!ACC.teacher&&!P.tut)setTimeout(tutorial,400);const items=mapItems(curK),ts=items.filter(x=>x.t&&hasQ(x.t)).map(x=>x.t),el=$('#tmap');
   if(!items.length){el.innerHTML=`<div class="empty dark"><div style="width:110px;margin:0 auto">${owlSVG}</div><p>Khối ${curK} chưa có bản đồ.</p></div>`;return}
   const W=Math.min(el.clientWidth||390,480),BAN=86,STEP=112,TOP=210,BOT=90,HKH=96;
   const H=BOT+TOP+items.reduce((s,x)=>s+(x.hk?HKH:x.ch&&!x.L?BAN+30:STEP),0);
@@ -1487,9 +1529,10 @@ function journey(){show('journey');jdock();if(curK===ACC.khoi&&!ACC.teacher&&!P.
     const L=x.L,t=x.t,side=[.3,.7,.62,.38][ni++%4],x2=side*W,ny=y-STEP/2;pts.push([x2,ny]);
     const lab=`<span class="tlab"><b>${L.lt?'Luyện tập chung':L.num?'Bài '+L.num:'Bổ sung'}</b>${L.lt?'':`<i>${esc(t&&!L.num?t.title:L.title)}</i>`}</span>`;
     if(!t){html+=`<div class="tnode ghost${x2<W/2?' l':' r'}" style="left:${x2}px;top:${ny}px"><span class="coin">${L.lt?'LT':L.num||'?'}</span>${lab}</div>`;y-=STEP;return}
+    if(!hasQ(t)){html+=`<button class="tnode ghost thy${x2<W/2?' l':' r'}" data-th="${esc(t.id)}" style="left:${x2}px;top:${ny}px"><span class="coin">${L.lt?'LT':L.num||'?'}</span>${lab}<i class="thb">${bookSVG}</i>${GV()&&t.status!=='giao'?`<em class="hwn st">${({nhap:'Nháp',an:'Đã ẩn'})[t.status]||t.status}</em>`:''}</button>`;y-=STEP;return}
     const j=ts.indexOf(t),lo=topicOpen(ts,j),b=bestOf(t,0),a=asgFor(t),as=a&&asgStatus(a,myPt),st=!lo?'lock':b?'done':'open';
     if(st==='open'&&!cur)cur={x:x2,y:ny};
-    html+=`<button class="tnode ${st}${x2<W/2?' l':' r'}" data-t="${j}" style="left:${x2}px;top:${ny}px"><span class="coin">${st==='lock'?lockSVG:L.lt?'LT':L.num||'★'}</span>${lab}${stars(b)}
+    html+=`<button class="tnode ${st}${x2<W/2?' l':' r'}" data-t="${j}" style="left:${x2}px;top:${ny}px"><span class="coin">${st==='lock'?lockSVG:L.lt?'LT':L.num||'★'}</span>${lab}${stars(b)}${t.theory?`<i class="thb">${bookSVG}</i>`:''}
       ${a&&!as.complete?`<em class="hwn ${as.overdue?'late':''}">Thầy giao · ${dueLabel(a,as)}</em>`:''}${GV()&&t.status!=='giao'?`<em class="hwn st">${({nhap:'Nháp',an:'Đã ẩn'})[t.status]||t.status}</em>`:''}</button>`;
     y-=STEP});
   const allDone=ts.length>0&&ts.every(t=>topicPassed(t)>0)&&!items.some(x=>x.L&&x.L.id&&!x.t),cy=y-TOP/2+20;pts.push([W/2,cy+78]);
@@ -1507,7 +1550,39 @@ function journey(){show('journey');jdock();if(curK===ACC.khoi&&!ACC.teacher&&!P.
     if(!topicOpen(ts,j)){n.animate([{transform:'translate(-50%,-50%) translateX(-6px)'},{transform:'translate(-50%,-50%) translateX(6px)'},{transform:'translate(-50%,-50%)'}],{duration:300});
       return toast('Qua bài trước để mở bài này nhé.')}
     curT=t;startLevel()});
-  $$('#tmap .tnode.ghost').forEach(b=>b.onclick=()=>{sfx.tap();toast(GV()?'Bài này chưa có câu hỏi. Thầy nhờ Claude soạn rồi gán vào bài này.':'Bài này thầy đang chuẩn bị câu hỏi. Em làm các bài khác trước nhé!')})}
+  $$('#tmap .tnode.thy').forEach(b=>b.onclick=()=>{sfx.tap();const t=TOPICS.find(x=>x.id===b.dataset.th);if(!t)return;
+    if(GV()){overlay(`<h2 style="font-size:24px">${esc(t.title)}</h2><p>Bài này mới có lý thuyết, chưa có câu hỏi.</p><button class="btn" id="g1">Xem lý thuyết</button><button class="btn alt" id="g2">Cài đặt & sửa</button><button class="btn alt" id="g3">Đóng</button>`);
+      $('#g1').onclick=()=>{closeOvl();theory(t)};$('#g2').onclick=()=>{closeOvl();tOpts(t)};$('#g3').onclick=closeOvl;return}
+    theory(t)});
+  $$('#tmap .tnode.ghost:not(.thy)').forEach(b=>b.onclick=()=>{sfx.tap();toast(GV()?'Bài này chưa có câu hỏi. Thầy nhờ Claude soạn rồi gán vào bài này.':'Bài này thầy đang chuẩn bị câu hỏi. Em làm các bài khác trước nhé!')})}
+
+/* ---------- tóm tắt lý thuyết của bài ---------- */
+const bookSVG='<svg viewBox="0 0 24 24" width="18" height="18"><path d="M3 5.5C5.5 4 8.5 4 12 6c3.5-2 6.5-2 9-.5V19c-2.5-1.3-5.5-1.3-9 .7-3.5-2-6.5-2-9-.7z" fill="#fff" stroke="#2584b8" stroke-width="1.6" stroke-linejoin="round"/><path d="M12 6v13.7" stroke="#2584b8" stroke-width="1.6"/></svg>';
+const THK={dinhnghia:['Định nghĩa','#3aa8e0'],quytac:['Quy tắc','#2fb787'],congthuc:['Công thức','#ffb703'],dinhly:['Định lý','#8d7bff'],tinhchat:['Tính chất','#8d7bff'],luuy:['Lưu ý','#ef3b55'],vidu:['Ví dụ','#7a9399']};
+function theoryHTML(items){let nv=0;return (items||[]).map(it=>{const [n,c]=THK[it.k]||['',  '#7a9399'];
+  if(it.k==='vidu'){nv++;return `<div class="thc vd" style="--c:${c}"><span class="thk">Ví dụ ${nv}</span><div class="thb2">${tex(it.body)}</div><details><summary>Xem lời giải</summary><div class="thb2">${tex(it.sol)}</div></details></div>`}
+  return `<div class="thc" style="--c:${c}"><span class="thk">${n}</span>${it.title?`<h3>${tex(it.title)}</h3>`:''}<div class="thb2">${tex(it.body)}</div></div>`}).join('')}
+let thT=null;
+function theory(t){thT=t;curT=t;show('theory');const L=lessonOf(t),q=hasQ(t);
+  $('#thBody').innerHTML=`<div class="thhead"><span>${bookSVG} Tóm tắt lý thuyết</span><h1>${esc(L?lessonName(L):t.title)}</h1>${L&&L.ch?`<small>Chương ${L.ch.n} · ${esc(L.ch.title)}</small>`:''}</div>
+   ${theoryHTML(t.theory)||'<div class="tbox"><p>Bài này chưa có tóm tắt lý thuyết.</p></div>'}
+   <div class="thend">${q?'<button class="btn" id="thGo">Làm bài ngay</button>':`<p class="tnote2">${GV()?'Bài này chưa có câu hỏi.':'Bài này thầy đang chuẩn bị câu hỏi.'}</p>`}${GV()?'<button class="btn alt" id="thEd">Sửa lý thuyết</button>':''}<button class="btn alt" id="thBack">Về bản đồ</button></div>`;
+  typeset($('#thBody'));
+  $('#thGo')&&($('#thGo').onclick=()=>{sfx.tap();curT=t;startLevel()});$('#thEd')&&($('#thEd').onclick=()=>{sfx.tap();editTheory(t)});$('#thBack').onclick=()=>{sfx.tap();thT=null;journey()}}
+const TH_TPL='\\begin{lythuyet}\n\\dinhnghia{Tên khái niệm}{Nội dung, công thức viết trong $...$}\n\\quytac{Tên quy tắc}{Nội dung}\n\\luuy{Lỗi hay gặp}\n\\vidu{Đề ví dụ}{Lời giải}\n\\end{lythuyet}';
+function editTheory(t){t=TOPICS.find(x=>x.id===t.id)||t;const m=t.raw.match(/\\begin\{lythuyet\}[\s\S]*?\\end\{lythuyet\}/);
+  overlay(`<h2 style="font-size:24px">Lý thuyết · ${esc(t.title)}</h2><textarea class="code" id="tx" spellcheck="false">${esc(m?m[0]:TH_TPL)}</textarea>
+    <p class="tnote" style="text-align:left">Mục: <b>\\dinhnghia</b>, <b>\\quytac</b>, <b>\\congthuc</b>, <b>\\dinhly</b>, <b>\\tinhchat</b> dạng {tiêu đề}{nội dung}; <b>\\luuy{…}</b>; <b>\\vidu{đề}{lời giải}</b>. Xuống dòng: <b>\\\\</b>.</p>
+    <div class="qpv thpv" id="tpv"></div><button class="btn" id="tS">Lưu lý thuyết</button>${m?'<button class="btn alt" id="tD">Xóa lý thuyết</button>':''}<button class="btn alt" id="tC">Hủy</button>`);
+  const pv=()=>{const v=$('#tx').value,P=parseBank('\\chude{x}\n'+v);let h=P.errors.length?`<div class="err">${P.errors.map(e=>esc(errorText(e))).join('<br>')}</div>`:'';
+    if(!/\\begin\{lythuyet\}[\s\S]*\\end\{lythuyet\}/.test(v))h=`<div class="err">Cần bọc trong \\begin{lythuyet} … \\end{lythuyet}</div>`;
+    $('#tpv').innerHTML=h+theoryHTML(P.theory);typeset($('#tpv'));return !h};
+  let tm=null;$('#tx').oninput=()=>{clearTimeout(tm);tm=setTimeout(pv,500)};pv();$('#tC').onclick=closeOvl;
+  const put=blk=>{let text;if(m)text=t.raw.replace(m[0],()=>blk);else{const c=t.raw.match(/\\chude\s*\{[^}]*\}[^\n]*\n?/);const at=c?c.index+c[0].length:0;text=t.raw.slice(0,at)+(blk?'\n'+blk+'\n\n':'')+t.raw.slice(at)}
+    return text.replace(/\n{3,}/g,'\n\n')};
+  $('#tS').onclick=()=>{if(!pv())return;const text=put($('#tx').value.trim());if(parseTopic(text).errors.length>t.errors.length)return $('#tpv').insertAdjacentHTML('afterbegin','<div class="err">Lưu như vậy làm bài phát sinh lỗi.</div>');
+    saveText(t,text,'Đã lưu lý thuyết.').then(()=>{const x=TOPICS.find(y=>y.id===t.id)||t;x.theory=parseTopic(x.raw).theory;if($$('.scr.on')[0]?.id==='theory')theory(x)})};
+  $('#tD')&&($('#tD').onclick=()=>saveText(t,put(''),'Đã xóa lý thuyết.').then(()=>{const x=TOPICS.find(y=>y.id===t.id)||t;x.theory=null;if($$('.scr.on')[0]?.id==='theory')theory(x)}))}
 
 /* ---------- ôn tập: danh sách đề ---------- */
 function onTap(){show('ontap');const de=deTopics(curK);
@@ -1847,8 +1922,8 @@ function startLevel(i=0){const t=curT,items=buildMan(t),L=lessonOf(t);
   show('play');$('#stage').innerHTML='';$('#dock').innerHTML='';
   const cnt=[0,1,2].map(m=>items.filter(x=>x.m===m).length);
   overlay(`<div class="lvlcard"><p style="margin:0">${L&&L.ch?'Chương '+L.ch.n+' · '+esc(L.ch.title):esc(t.title)}</p><div class="num">${L?(L.lt?'LT':L.num):'★'}</div><h2 style="font-size:26px">${esc(L?(L.lt?'Luyện tập chung':L.title):t.title)}</h2>
-    <p>${items.length} câu, khó dần: ${cnt[0]} nhận biết · ${cnt[1]} thông hiểu · ${cnt[2]} vận dụng<br>3 tim, hết tim vẫn được hồi để làm tiếp.</p><button class="btn" id="go">Bắt đầu</button></div>`);
-  $('#go').onclick=()=>{sfx.tap();closeOvl();renderQ()}}
+    <p>${items.length} câu, khó dần: ${cnt[0]} nhận biết · ${cnt[1]} thông hiểu · ${cnt[2]} vận dụng<br>3 tim, hết tim vẫn được hồi để làm tiếp.</p><button class="btn" id="go">Bắt đầu</button>${t.theory?`<button class="btn alt thbtn" id="th">${bookSVG} Tóm tắt lý thuyết</button><small class="thnote">Trong lúc làm bài không mở được lý thuyết, em đọc trước nhé.</small>`:''}</div>`);
+  $('#go').onclick=()=>{sfx.tap();closeOvl();renderQ()};$('#th')&&($('#th').onclick=()=>{sfx.tap();closeOvl();G=null;theory(t)})}
 function startReview(){const ix=qIndex();const e=Object.entries(P.rev||{}).filter(([k,r])=>ix[k]&&r.in_notebook).sort((a,b)=>a[1].due.localeCompare(b[1].due)).slice(0,10);
   if(!e.length)return msgBox('Làm lại câu sai','Chưa có câu sai nào cần làm lại.');
   let items;try{items=shuffle(e.map(([k])=>{const {q,t,li}=ix[k];return inst(q,{tid:t.id,level:li,title:t.title})}))}catch(err){return msgBox('Câu hỏi lỗi',esc(err.message))}
@@ -1979,7 +2054,8 @@ function finish(){clearInterval(TM);const sec=Math.round((Date.now()-G.t0)/1000)
    <div class="bigstars">${[1,2,3].map(x=>star(x<=st)).join('')}</div>
    <div class="stat"><div><b>${G.score}</b>điểm</div><div><b>${nOk}/${G.qs.length}</b>câu đúng</div>${tm}</div>${streakLine(s)}
    ${nt?`<button class="btn" id="r1">Bài tiếp theo ›</button>`:''}
-   ${!pass||st<3?`<button class="btn ${pass?'alt':''}" id="r2">Làm lại bài này</button>`:''}<button class="btn alt" id="r3">Về bản đồ</button>`);
+   ${!pass||st<3?`<button class="btn ${pass?'alt':''}" id="r2">Làm lại bài này</button>`:''}${t.theory&&(!pass||st<3)?`<button class="btn alt thbtn" id="r4">${bookSVG} Xem lại lý thuyết</button>`:''}<button class="btn alt" id="r3">Về bản đồ</button>`);
+  $('#r4')&&($('#r4').onclick=()=>{closeOvl();theory(t)});
   $('#r1')&&($('#r1').onclick=()=>{closeOvl();curT=nt;startLevel()});$('#r2')&&($('#r2').onclick=()=>{closeOvl();startLevel(i)});$('#r3').onclick=()=>{closeOvl();journey()}}
 $('#quit').onclick=()=>{const m=G&&G.mode;overlay(`<h2>Thoát?</h2><p>${m==='rank'?'Thoát giữa trận: các câu chưa làm tính là sai.':m==='man'||m==='de'?'Kết quả lượt này sẽ không được lưu.':'Các câu đã làm vẫn được ghi nhận.'}</p><button class="btn co" id="q1">Thoát</button><button class="btn alt" id="q2">Làm tiếp</button>`);
   $('#q1').onclick=()=>{closeOvl();$('#sheet').classList.remove('on');clearInterval(TM);
@@ -2053,7 +2129,7 @@ let QE=null;
 function qedit(t){QE=t.id;t=TOPICS.find(x=>x.id===QE)||t;show('track');$('#trTitle').textContent='Sửa câu hỏi';const bs=qBlocks(t.raw);let no=0;
   $('#trk').innerHTML=`<div class="tbox"><b>${esc(t.title)}</b><p class="tnote">Bấm <b>Sửa</b> để chỉnh LaTeX của từng câu, có xem trước trước khi lưu. Mức 4 chỉ dùng cho Thi đấu.</p>
      ${t.errors.length?`<div class="err">Chủ đề đang có lỗi:<br>${t.errors.map(esc).join('<br>')}</div>`:''}
-     <div class="tbtns2" style="margin:8px 0 0"><button class="btn sm alt" id="qAll">Sửa toàn bộ LaTeX</button>${t.prev?'<button class="btn sm alt" id="qUndo">Hoàn tác lần lưu trước</button>':''}</div></div>`+
+     <div class="tbtns2" style="margin:8px 0 0"><button class="btn sm alt" id="qTh">${t.theory?'Sửa lý thuyết':'+ Thêm lý thuyết'}</button><button class="btn sm alt" id="qAll">Sửa toàn bộ LaTeX</button>${t.prev?'<button class="btn sm alt" id="qUndo">Hoàn tác lần lưu trước</button>':''}</div></div>`+
    bs.map((b,i)=>{if(b.man)return `<h2 class="sect">Mức ${esc(b.n)} · ${esc(b.name)}<button class="btn sm" data-add="${b.lv}">+ Thêm câu</button></h2>`;
      const {q,errors}=parseOne(b.raw);let q2=q;try{if(q)q2=instantiate(q)}catch(e){}no++;
      return `<div class="tbox qrow${errors.length?' bad':''}"><div class="hqh"><span class="chip">Câu ${no}</span><span class="chip nhap">${TYPE[b.type]}</span>${q&&q.params?'<span class="chip">có tham số</span>':''}${q&&q.hints?`<span class="chip">${q.hints.length} gợi ý</span>`:''}</div>
@@ -2065,11 +2141,12 @@ function qedit(t){QE=t.id;t=TOPICS.find(x=>x.id===QE)||t;show('track');$('#trTit
   $$('#trk [data-add]').forEach(b=>b.onclick=()=>{sfx.tap();editQ(t,null,+b.dataset.add)});
   $$('#trk [data-d]').forEach(b=>b.onclick=()=>{const blk=bs[+b.dataset.d];overlay(`<h2>Xóa câu này?</h2><p>Câu sẽ bị xóa khỏi chủ đề. Thầy có thể bấm "Hoàn tác lần lưu trước" nếu xóa nhầm.</p><button class="btn co" id="dy">Xóa</button><button class="btn alt" id="dn">Thôi</button>`);
     $('#dn').onclick=closeOvl;$('#dy').onclick=()=>saveText(t,t.raw.slice(0,blk.start).replace(/[ \t]*\n?$/,'')+t.raw.slice(blk.end),'Đã xóa câu.')});
+  $('#qTh').onclick=()=>{sfx.tap();editTheory(t)};
   $('#qAll').onclick=()=>{overlay(`<h2>LaTeX của chủ đề</h2><textarea class="code" id="qa" spellcheck="false">${esc(t.raw)}</textarea><div id="qaErr"></div><button class="btn" id="qaS">Lưu</button><button class="btn alt" id="qaC">Hủy</button>`);
     $('#qaC').onclick=closeOvl;$('#qaS').onclick=()=>{const v=$('#qa').value,P=parseTopic(v);if(P.errors.length){$('#qaErr').innerHTML=`<div class="err">${P.errors.map(esc).join('<br>')}</div>`;return}saveText(t,v,'Đã lưu chủ đề.')}};
   $('#qUndo')&&($('#qUndo').onclick=()=>saveText(t,t.prev,'Đã hoàn tác.'))}
 function journeyOr(){const t=TOPICS.find(x=>x.id===curT?.id);if(t&&isDe(t))onTap();else journey()}
-async function saveText(t,text,msg){try{const r=await DB.doc('topics/'+t.id).update({text,banTruoc:t.raw,capnhat:new Date().toISOString(),base:t.upd});if(r&&r.updated_at){t.upd=r.updated_at;t.prev=t.raw;t.raw=text}closeOvl();sfx.ok();toast(msg);const on=$$('.scr.on')[0]?.id;if(QE&&on==='track')qedit(TOPICS.find(x=>x.id===QE)||t);else if(BANKON&&on==='track')bank(true)}
+async function saveText(t,text,msg){try{const r=await DB.doc('topics/'+t.id).update({text,banTruoc:t.raw,capnhat:new Date().toISOString(),base:t.upd});if(r&&r.updated_at){t.upd=r.updated_at;t.prev=t.raw;t.raw=text;t.theory=parseTopic(text).theory||null}closeOvl();sfx.ok();toast(msg);const on=$$('.scr.on')[0]?.id;if(QE&&on==='track')qedit(TOPICS.find(x=>x.id===QE)||t);else if(BANKON&&on==='track')bank(true)}
   catch(e){msgBox('Chưa lưu được',esc(e&&e.message||'Lỗi kết nối'));if(e&&e.status===409&&typeof loadAll==='function')loadAll().then(()=>{const on=$$('.scr.on')[0]?.id;if(on!=='track')return;if(QE){const x=TOPICS.find(y=>y.id===QE);if(x)qedit(x)}else if(BANKON)bank(true)}).catch(()=>{})}}
 function editQ(t,bi,lvNew){const bs=qBlocks(t.raw),b=bi!=null?bs[bi]:null;let raw=b?b.raw:QT.ex;
   overlay(`<h2 style="font-size:26px">${b?'Sửa câu hỏi':'Thêm câu mới'}</h2>${b?'':`<div class="seg qtype">${Object.entries(TYPE).map(([k,v])=>`<button data-qt="${k}" class="${k==='ex'?'on':''}">${v}</button>`).join('')}</div>`}
@@ -2292,7 +2369,7 @@ if('serviceWorker' in navigator)navigator.serviceWorker.register('/sw.js').catch
 async function changePin(o,n){await api('/api/me/pin',{old:o,pin:n})}
 
 function refresh(){const on=$$('.scr.on')[0]?.id;
-  if(on==='login'&&!$('#lName')?.value)login();else if(on==='grades')grades();else if(on==='subj')subjects();else if(on==='shop')shop();else if(on==='friends'&&!$('#fq'))friends();else if(on==='area')area();else if(on==='journey')journey();else if(on==='ontap')onTap();else if(on==='redo')redo();else if(on==='ranked')ranked();else if(on==='board')board();
+  if(on==='login'&&!$('#lName')?.value)login();else if(on==='grades')grades();else if(on==='subj')subjects();else if(on==='shop')shop();else if(on==='friends'&&!$('#fq'))friends();else if(on==='area')area();else if(on==='journey')journey();else if(on==='theory'&&thT){const x=TOPICS.find(y=>y.id===thT.id);if(x)theory(x)}else if(on==='ontap')onTap();else if(on==='redo')redo();else if(on==='ranked')ranked();else if(on==='board')board();
 }
 
 }
