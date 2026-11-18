@@ -10,6 +10,6 @@ export async function POST(req) {
   if (r.choose) return json({ choose: r.choose });
   const v = await verify(r.acc, pin);
   if (!v.ok) return fail(v.msg, 401);
-  setSession(r.acc);
+  try { setSession(r.acc); } catch (e) { return fail(e.message, 500); }
   return json({ acc: accPublic(r.acc), data: await loadPlayer(r.acc.id), isDefault: r.acc.is_default });
 }

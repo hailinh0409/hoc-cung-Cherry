@@ -40,3 +40,7 @@ test('gói tin thiếu trường không xoá dữ liệu cũ', () => {
   const b = sanitize(a, { xp: 120 }, acc, 60000);
   assert.deepEqual(b.best, { 'x|0': { st: 3 } }); assert.equal(b.tut, 1);
 });
+test('theo dõi: không tự theo dõi mình, giữ danh sách', () => {
+  const a = sanitize(null, { follow: { me: 'x', b: '2026-11-18' } }, { ...acc, id: 'me' }, 0);
+  assert.deepEqual(Object.keys(a.follow), ['b']);
+});

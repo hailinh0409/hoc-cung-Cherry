@@ -24,6 +24,7 @@ js = must(js, '@@SVG@@', R('client/svg.js'));
 js = must(js, '@@ART@@', R('client/art.js') + R('client/items.js'));
 js = must(js, "function login(view='in',msg=''){", "function login_artifact(view='in',msg=''){");
 js = must(js, 'function start(){', 'function start_artifact(){');
+js = must(js, 'async function changePin(o,n){', 'async function changePin_artifact(o,n){');
 js = must(js, "const doc=PLAYERS.find(x=>x.id===ACC.id);if(doc)mergeP(doc);", "const doc=SERVERP||PLAYERS.find(x=>x.id===ACC.id);SERVERP=null;if(doc)mergeP(doc);");
 js = must(js, 'function logout(view){ACC=null;', "function logout(view){api('/api/auth/logout',{}).catch(()=>{});TEACHER=false;ACC=null;");
 js = must(js, 'const tex=s=>esc(s)', 'const tex=s=>figImg(esc(figSwap(s)))');

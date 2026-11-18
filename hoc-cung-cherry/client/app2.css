@@ -241,3 +241,20 @@ h2.sect{display:flex;align-items:center;justify-content:space-between;gap:8px}h2
 .shbar .btn{flex:none;min-height:48px;padding:0 16px;font-size:15px}.shbar .btn[disabled]{opacity:.55}
 textarea.code.light{background:#fff;color:#12313a;font:14px/1.5 "Be Vietnam Pro";min-height:260px}
 .lnk{color:#2584b8;font-weight:700;text-decoration:underline;text-align:left}
+
+/* ===== bạn bè ===== */
+.frtile{display:flex;align-items:center;gap:12px;width:100%;margin-top:14px;padding:12px 14px;border-radius:20px;background:var(--card);color:var(--cink);text-align:left;box-shadow:0 6px 0 #0003;position:relative;animation:rise .45s both}
+.frtile b{display:block;font:800 20px "Baloo 2"}.frtile small{color:#7a9399;font-size:13px}.frtile>span:nth-child(2){flex:1}
+.frava{display:flex}.frava .ava{border:2px solid #fff;margin-left:-10px}.frava .ava:first-child{margin-left:0}
+.frtile .dot{font-style:normal;font-size:12px;font-weight:800;background:#ff4d6d;color:#fff;padding:3px 10px;border-radius:99px}.frtile .go{font-style:normal;font-size:26px;color:#7a9399}
+.fhead{display:flex;align-items:center;gap:12px;background:var(--card);color:var(--cink);border-radius:20px;padding:10px 14px;margin-top:6px}
+.fhead b{display:block;font:800 20px "Baloo 2"}.fhead small{font-size:13px;color:#7a9399}.fhead a,.pfol a{cursor:pointer;text-decoration:underline}
+.frow{display:flex;align-items:center;gap:8px;background:var(--card);color:var(--cink);border-radius:16px;padding:6px 8px;margin-top:8px;animation:rise .35s both}
+.fmain{flex:1;min-width:0;display:flex;align-items:center;gap:10px;text-align:left;color:inherit}
+.fmeta{display:flex;flex-direction:column;align-items:center;font-size:11px;font-weight:800;color:#ff7a59}.fmeta i{font-style:normal;display:flex;align-items:center;gap:2px}
+.fbtn{flex:none;padding:8px 12px;border-radius:12px;font-weight:800;font-size:13px;background:var(--coral);color:#fff;box-shadow:0 3px 0 var(--coral2)}
+.fbtn.on{background:#e3eeee;color:#4c6a70;box-shadow:0 3px 0 #b9c9c9}.fbtn.big{margin:8px auto 0;display:block;padding:10px 26px;font-size:15px}
+.fitem{display:flex;align-items:center;gap:10px;width:100%;background:var(--card);color:var(--cink);border-radius:16px;padding:8px 10px;margin-top:8px;text-align:left;animation:rise .35s both}
+.ftx{flex:1;min-width:0;font-size:14px;line-height:1.35}.ftx small{display:block;color:#7a9399;font-size:12px}.fic svg{width:28px;height:28px}.fic{font-size:24px}
+.fsearch{margin-top:8px}.newb{font-style:normal;background:#ff4d6d;color:#fff;padding:0 6px;border-radius:99px;font-size:11px;font-weight:800}
+.pfol{font-size:13px;color:#4c6a70;margin-bottom:6px}

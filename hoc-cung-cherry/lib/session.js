@@ -7,7 +7,7 @@ const NAME = 'cherry_s';
 const DAYS = 60;
 const key = () => {
   const k = process.env.SESSION_SECRET;
-  if (!k || k.length < 32) throw new Error('Thiếu SESSION_SECRET (ít nhất 32 ký tự)');
+  if (!k || k.length < 32) throw Object.assign(new Error('Máy chủ chưa cấu hình SESSION_SECRET (cần ít nhất 32 ký tự) trong Vercel → Settings → Environment Variables.'), { config: true });
   return k;
 };
 const sign = s => crypto.createHmac('sha256', key()).update(s).digest('base64url');

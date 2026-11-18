@@ -48,6 +48,10 @@ export function sanitize(old, doc, acc, now = Date.now()) {
 
   if (typeof n.nick === 'string') n.nick = n.nick.slice(0, 20); else n.nick = '';
   n.avatar = Math.max(0, Math.min(11, Math.floor(num(n.avatar))));
+  // theo dõi: tối đa 300 người, không tự theo dõi mình
+  const fol = {};
+  for (const [k, v] of Object.entries(n.follow || {}).slice(0, 300)) if (typeof k === 'string' && k !== acc.id && k.length < 64) fol[k] = String(v).slice(0, 30);
+  n.follow = fol;
   n._saved = new Date(now).toISOString();
   return n;
 }
@@ -58,7 +62,8 @@ export function publicOf(id, d, mau) {
   return {
     id, mau: !!mau, name: d.name, khoi: d.khoi, nick: d.nick || '', avatar: d.avatar || 0, eq: d.eq || {},
     xp: d.xp || 0, lp: d.lp || 0, matches: d.matches || 0, season: d.season || '', seasons: d.seasons || [],
-    wk: d.wk || {}, st: d.st || {}, stats: d.stats || {}, ach: d.ach || {}, own: Object.fromEntries(Object.keys(d.own || {}).map(k => [k, 1])),
+    wk: d.wk || {}, st: d.st || {}, stats: d.stats || {}, ach: d.ach || {}, own: d.own || {}, follow: d.follow || {},
+    best: Object.fromEntries(Object.entries(d.best || {}).map(([k, b]) => [k, { st: b && b.st || 0, t: b && b.t || null }])), hist: (d.hist || []).slice(-5),
   };
 }
 export const itemCount = () => ITEMS.length;

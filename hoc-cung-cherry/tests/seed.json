@@ -167,7 +167,100 @@
    "active": true
   }
  ],
- "ltt_players": [],
+ "ltt_players": [
+  {
+   "account_id": "21466239-8ec2-48f8-aaa1-887816b9db78",
+   "mau": false,
+   "saved_at": "2026-11-18T04:56:51.261Z",
+   "data": {
+    "name": "Trần Thị Bình",
+    "khoi": "8",
+    "nick": "Bình Cute",
+    "avatar": 2,
+    "xp": 1800,
+    "lp": 260,
+    "matches": 6,
+    "season": "Mùa HK1 2026–2027",
+    "st": {
+     "streak": 6,
+     "best_streak": 9,
+     "last_day": "2026-11-18"
+    },
+    "stats": {
+     "correct": 120
+    },
+    "ach": {
+     "start": "2026-11-16T23:56:51.261Z",
+     "combo5": "2026-11-18T00:56:51.261Z",
+     "gold": "2026-11-18T03:56:51.261Z"
+    },
+    "best": {
+     "lop8-hang-dang-thuc|0": {
+      "st": 3,
+      "s": 900,
+      "t": "2026-11-17T01:56:51.261Z"
+     },
+     "lop8-hang-dang-thuc|1": {
+      "st": 2,
+      "s": 700,
+      "t": "2026-11-18T01:56:51.261Z"
+     }
+    },
+    "own": {
+     "hat-tiara-6": "2026-11-18T02:56:51.261Z",
+     "frame-sao-2": "2026-11-18T02:56:51.261Z"
+    },
+    "eq": {
+     "hat": "hat-tiara-6",
+     "frame": "frame-sao-2"
+    },
+    "spent": 1700,
+    "follow": {
+     "fdbbf2d6-0c7e-4398-8ed8-05619306ce0d": "2026-11-18T04:56:51.261Z"
+    },
+    "hist": [
+     {
+      "at": "2026-11-17T23:56:51.261Z",
+      "s": 150,
+      "c": 8,
+      "n": 10,
+      "d": 22
+     }
+    ],
+    "wk": {
+     "w": "2026-11-16",
+     "xp": 420,
+     "c": 30
+    },
+    "_saved": "2026-11-18T04:56:51.261Z"
+   }
+  },
+  {
+   "account_id": "1865d599-2ae8-44ed-bfb7-040bbbd8c053",
+   "mau": false,
+   "saved_at": "2026-11-18T03:56:51.261Z",
+   "data": {
+    "name": "Lê Minh Châu",
+    "khoi": "9",
+    "nick": "",
+    "avatar": 5,
+    "xp": 600,
+    "lp": 90,
+    "st": {
+     "streak": 2,
+     "last_day": "2026-11-17"
+    },
+    "ach": {
+     "start": "2026-11-17T09:56:51.261Z"
+    },
+    "best": {},
+    "own": {},
+    "eq": {},
+    "follow": {},
+    "_saved": "2026-11-18T03:56:51.261Z"
+   }
+  }
+ ],
  "ltt_assignments": [
   {
    "id": "8dda8fa0-bd4f-4895-8a99-c306f88e1b12",

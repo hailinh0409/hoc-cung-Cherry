@@ -65,3 +65,6 @@ function start(){started=true;if(SESS){const s=SESS;SESS=null;onLogin(s)}else lo
 setInterval(()=>{if(ACC&&!document.hidden)loadAll().then(softRefresh).catch(e=>{if(e.status===401){ACC=null;P=null;login('in','Phiên đăng nhập đã hết, em đăng nhập lại nhé.')}})},60000);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&ACC)loadAll().then(softRefresh).catch(()=>{})});
 if('serviceWorker' in navigator)navigator.serviceWorker.register('/sw.js').catch(()=>{});
+
+/* đổi mật khẩu trong app: máy chủ kiểm tra mật khẩu cũ */
+async function changePin(o,n){await api('/api/me/pin',{old:o,pin:n})}

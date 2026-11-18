@@ -9,6 +9,6 @@ export async function POST(req) {
   if (!acc || !acc.active) return fail('Sai tên đăng nhập hoặc mật khẩu.', 401);
   const v = await verify(acc, String(password || ''));
   if (!v.ok) return fail(v.msg.replace('Nếu quên, bấm "Quên mật khẩu" để báo thầy.', ''), 401);
-  setSession(acc);
+  try { setSession(acc); } catch (e) { return fail(e.message, 500); }
   return json({ acc: accPublic(acc) });
 }

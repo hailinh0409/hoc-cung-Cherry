@@ -23,7 +23,7 @@ const MPC=[['#ffe1d6','#ff7a59'],['#d8eeff','#2b9bd6'],['#e8e0ff','#8d7bff'],['#
 /* ---------- kho dữ liệu ---------- */
 let TOPICS=[],ACCS=[],PLAYERS=[],ASG=[],TEACHER=false,DBSTATE='loading',DB=null;
 let ACC=null,P=null,curK='',curPhan='',curT=null,profFrom='grades';
-const newP=()=>({xp:0,lp:0,matches:0,hist:[],st:{},best:{},score:{},pt:{},rev:{},saved:{},wst:{},stats:{correct:0,maxCombo:0,levels:0,perfect:0,top:0,cleared:0,chests:0},own:{},eq:{},spent:0,dq:null,wk:{},season:'',seasons:[],fails:{},lvt:{},ccl:{},tut:0,ach:{},avatar:0,nick:''});
+const newP=()=>({xp:0,lp:0,matches:0,hist:[],st:{},best:{},score:{},pt:{},rev:{},saved:{},wst:{},stats:{correct:0,maxCombo:0,levels:0,perfect:0,top:0,cleared:0,chests:0},own:{},eq:{},spent:0,dq:null,wk:{},season:'',seasons:[],fails:{},lvt:{},ccl:{},tut:0,follow:{},fseen:'',ach:{},avatar:0,nick:''});
 function fromDoc(d){const v=d.data()||{};const P=parseTopic(v.text);
   return {id:d.id,khoi:String(v.khoi||'?'),phan:PHAN[v.phan]?v.phan:'dai-so',title:v.title||P.title||d.id,status:v.trangthai||'nhap',order:Number(v.thutu)||0,levels:P.levels,errors:P.errors,nguon:v.nguon||'',chuong:v.chuong||'',raw:v.text||'',prev:v.banTruoc||''}}
 const tex=s=>esc(s).replace(/\\\\/g,'<br>').replace(/\\textbf\{([^}]*)\}/g,'<b>$1</b>').replace(/&quot;/g,'"');
@@ -31,7 +31,7 @@ const typeset=el=>{if(window.__mjReady)MathJax.typesetPromise([el]).catch(()=>{}
 
 /* ---------- âm thanh & hiệu ứng ---------- */
 @@FX@@
-function toast(html){const t=$('#toast');t.innerHTML=html;t.classList.add('on');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('on'),3200)}
+function toast(html){const t=$('#toast');t.innerHTML=/^\s*<svg/.test(html)?html:'<span>'+html+'</span>';t.classList.add('on');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('on'),3200)}
 
 /* ---------- hình vẽ ---------- */
 @@SVG@@
@@ -168,10 +168,12 @@ function subjects(){show('subj');
   $('#subjBody').innerHTML=`<div class="shead"><div style="width:96px">${owlSVG}</div><div><h1>Chào ${esc((P.nick||ACC.name).split(' ').slice(-1)[0])}!</h1><p>Hôm nay em học môn nào?</p></div></div>
    <div class="mons">${Object.entries(MON).map(([k,m],i)=>{const on=hasMon(k);return `<button class="mon${on?'':' off'}" data-m="${k}" style="--c:${m.c};--d:${m.d};animation-delay:${i*.1}s" ${on?'':'aria-disabled="true"'}>
      ${m.ico}<b>${m.n}</b><span>${on?(k==='anh'?'Sắp ra mắt':'Vào học ›'):'Chưa đăng kí'}</span>${on?'':'<i class="mlock">'+lockSVG+'</i>'}</button>`}).join('')}</div>
+   ${GV()?'':`<button class="frtile" id="sFr"><span class="frava">${followingOf(P).slice(0,4).map(id=>avatarOf(PLAYERS.find(x=>x.id===id),34)).join('')||avatarOf(P,34)}</span><span><b>Bạn bè</b><small>${followingOf(P).length} đang theo dõi · ${followersOf(ACC.id).length} người theo dõi</small></span>${newFollowers()?`<i class="dot">${newFollowers()} mới</i>`:'<i class="go">›</i>'}</button>`}
    ${GV()?`<div class="foot"><button class="btn alt" id="sAcc">Tài khoản học sinh${ACCS.some(a=>a.reset)?' ●':''}</button><button class="btn alt" id="sOut">Thoát</button></div>`:`<div class="foot"><button class="btn alt" id="sOut">Đăng xuất</button></div>`}`;
   $$('#subjBody .mon').forEach(b=>b.onclick=()=>{const m=b.dataset.m;
     if(!hasMon(m)){sfx.no();b.animate([{transform:'translateX(-6px)'},{transform:'translateX(6px)'},{transform:'none'}],{duration:300});return toast(`Em chưa đăng kí môn ${MON[m].n}. Em hỏi thầy để đăng kí nhé.`)}
     sfx.tap();m==='toan'?grades():anh()});
+  $('#sFr')&&($('#sFr').onclick=()=>{sfx.tap();frTab=newFollowers()?'followers':'feed';friends()});
   $('#sAcc')&&($('#sAcc').onclick=()=>{sfx.tap();accounts()});$('#sOut').onclick=()=>{sfx.tap();logout()}}
 function anh(){show('anh');$('#anhBody').innerHTML=`<div class="empty"><div style="width:130px;margin:0 auto">${owlSVG}</div><h2 style="margin-top:8px">Tiếng Anh</h2><p>Bản đồ môn Tiếng Anh đang được chuẩn bị. Cherry sẽ báo em khi mở nhé!</p></div>`}
 
@@ -337,9 +339,9 @@ function board(){show('board');const me=ACC.id,ses=seasonName();
   const meDoc={...(PLAYERS.find(p=>p.id===me)||{}),id:me,name:ACC.name,khoi:ACC.khoi,nick:P.nick,avatar:P.avatar,eq:P.eq,lp:P.lp||0,wk:P.wk,season:P.season,matches:P.matches};
   const all=[...PLAYERS.filter(p=>p.id!==me),...(ACC.teacher?[]:[meDoc])];
   const tabs=`<div class="seg"><button data-bt="rank" class="${boardTab==='rank'?'on':''}">Thi đấu · ${esc(ses)}</button><button data-bt="week" class="${boardTab==='week'?'on':''}">Tiến bộ tuần</button></div>`;
-  if(boardTab==='week'){const w=weekId(),rows=all.filter(p=>p.wk&&p.wk.w===w&&(p.wk.xp||0)>0&&(boardK==='all'||p.khoi===(ACC.khoi||curK))).sort((a,b)=>(b.wk.xp||0)-(a.wk.xp||0));
+  if(boardTab==='week'){const w=weekId(),rows=all.filter(p=>p.wk&&p.wk.w===w&&(p.wk.xp||0)>0&&(boardK==='all'||(boardK==='friends'?(p.id===ACC.id||isFollow(p.id)):p.khoi===(ACC.khoi||curK)))).sort((a,b)=>(b.wk.xp||0)-(a.wk.xp||0));
     if(!ACC.teacher&&rows[0]&&rows[0].id===me&&(P.wk.xp||0)>=300&&boardK==='mine'&&!P.stats.weekTop){P.stats.weekTop=1;save();syncMine()}
-    $('#boardBody').innerHTML=tabs+`<div class="seg sm"><button data-bk="mine" class="${boardK==='mine'?'on':''}">Khối ${esc(ACC.khoi||curK)}</button><button data-bk="all" class="${boardK==='all'?'on':''}">Toàn CLB</button></div>
+    $('#boardBody').innerHTML=tabs+`<div class="seg sm"><button data-bk="mine" class="${boardK==='mine'?'on':''}">Khối ${esc(ACC.khoi||curK)}</button>${ACC.teacher?'':`<button data-bk="friends" class="${boardK==='friends'?'on':''}">Bạn bè</button>`}<button data-bk="all" class="${boardK==='all'?'on':''}">Toàn CLB</button></div>
       <p class="tnote2">XP kiếm được từ thứ Hai tuần này. Ai cũng có cơ hội đứng đầu, làm mới mỗi tuần!</p>`+
       (rows.length?rows.map((p,i)=>`<button class="brow${p.id===me?' me':''}${i<3?' top'+i:''}" data-p="${p.id}"><span class="bno">${i<3?['🥇','🥈','🥉'][i]:i+1}</span>${avatarOf(p,36)}<span class="bn"><b>${esc(p.nick||p.name||'?')}</b><small>Khối ${esc(p.khoi||'?')} · ${p.wk.c||0} câu đúng</small></span><b class="blp">+${p.wk.xp}</b></button>`).join(''):'<div class="tempty">Tuần này chưa ai kiếm XP. Em mở màn đầu tiên nhé!</div>')}
   else{const ps=all.filter(p=>(p.lp>0||p.id===me||p.matches)&&(!p.season||p.season===ses));const myT=tierOf(P.lp);if(boardT==null)boardT=myT;
@@ -381,7 +383,7 @@ function checkAch(){let n=0;for(const a of ACH)if(!P.ach[a.id]&&a.t(P)){P.ach[a.
 function profile(id){show('profile');const own=ACC&&id===ACC.id;const p=own?{...P,name:ACC.name,khoi:ACC.khoi}:(PLAYERS.find(x=>x.id===id)||{});
   const st=p.st||{},t=tierOf(p.lp),T=TIERS[t],lv=level(p.xp),[a,b]=lvBounds(lv),ach=p.ach||{},stats=p.stats||{};
   $('#profBody').innerHTML=`<div class="pcard"><button class="pava" ${own?'id="pAva"':''}>${avatarOf(p,96)}${own?'<i>Đổi</i>':''}</button>
-     <h2>${esc(p.nick||p.name)}</h2>${titleOf(p)?`<div class="ttlb">${esc(titleOf(p))}</div>`:''}<div class="preal">${esc(p.name||'')} · Khối ${esc(p.khoi||'?')}</div>${own?'<div class="pbtns"><button class="btn sm alt" id="pNick">Đặt nickname</button><button class="btn sm" id="pShop">Tủ đồ & cửa hàng</button></div>':`<small class="pcol">Bộ sưu tập: ${Object.keys(p.own||{}).length} vật phẩm</small>`}</div>
+     <h2>${esc(p.nick||p.name)}</h2>${titleOf(p)?`<div class="ttlb">${esc(titleOf(p))}</div>`:''}<div class="preal">${esc(p.name||'')} · Khối ${esc(p.khoi||'?')}</div><div class="pfol"><a data-pf="following">${followingOf(p).length} đang theo dõi</a> · <a data-pf="followers">${followersOf(id).length} người theo dõi</a></div>${!own&&ACC&&!ACC.teacher?`<button class="fbtn big${isFollow(id)?' on':''}" id="pFol">${isFollow(id)?'Đang theo dõi':p.follow&&p.follow[ACC.id]?'Theo dõi lại':'Theo dõi'}</button>`:''}${own?'<div class="pbtns"><button class="btn sm alt" id="pNick">Đặt nickname</button><button class="btn sm" id="pShop">Tủ đồ & cửa hàng</button></div>':`<small class="pcol">Bộ sưu tập: ${Object.keys(p.own||{}).length} vật phẩm</small>`}</div>
    <div class="pstats"><div>${flame(!st.last_day,26)}<b>${liveStreak(st,vnDay())}</b><small>chuỗi ngày (kỷ lục ${st.best_streak||0})</small></div>
      <div><span class="lvb">${lv}</span><b>${p.xp||0}</b><small>XP · cấp ${lv}</small><i class="xpb"><i style="width:${Math.min(100,((p.xp||0)-a)/(b-a)*100)}%"></i></i></div>
      <div style="--c:${T.c}">${emblem(t,30)}<b>${p.lp||0}</b><small>${T.n} · ${p.matches||0} trận</small></div></div>
@@ -389,10 +391,13 @@ function profile(id){show('profile');const own=ACC&&id===ACC.id;const p=own?{...
    <h2 class="sect">Thành tích (${Object.keys(ach).length}/${ACH.length})</h2>
    <div class="achs">${ACH.map(x=>`<div class="ach${ach[x.id]?' on':''}">${medal(!!ach[x.id])}<b>${x.n}</b><small>${x.d}</small></div>`).join('')}</div>
    ${(p.seasons||[]).length?`<h2 class="sect">Các mùa thi đấu</h2><div class="tbox">${p.seasons.slice().reverse().map(x=>`<div class="row2"><span>${esc(x.s)}</span><b>${TIERS[tierOf(x.lp)].n} · ${x.lp}</b></div>`).join('')}</div>`:''}
-   ${own?`<div class="tbox"><div class="row2"><span>Âm thanh</span><button class="btn sm alt" id="pSnd">${muted?'Đang tắt · Bật':'Đang bật · Tắt'}</button></div></div>`:''}
+   ${own?`<h2 class="sect">Tài khoản của em</h2><div class="tbox"><div class="row2"><span>Họ và tên<br><small>Theo đăng kí với thầy, không đổi được</small></span><b>${esc(ACC.name)}</b></div><div class="row2"><span>Khối · Môn</span><b>${esc(ACC.khoi||'')} · ${(ACC.mon||['toan']).map(m=>MON[m].n).join(', ')}</b></div>${ACC.teacher?'':`<div class="row2"><span>Mật khẩu</span><button class="btn sm alt" id="pPin">Đổi mật khẩu</button></div>`}<div class="row2"><span>Âm thanh</span><button class="btn sm alt" id="pSnd">${muted?'Đang tắt · Bật':'Đang bật · Tắt'}</button></div></div>`:''}
    ${own&&!ACC.teacher?'<button class="btn alt" id="pOut" style="margin-top:14px">Đăng xuất</button>':''}`;
-  $('#pBack').onclick=()=>{sfx.tap();(({board,area,grades,subj:subjects,anh,journey,ontap:onTap,redo,ranked,shop})[profFrom]||area)()};
+  $('#pBack').onclick=()=>{sfx.tap();(({board,area,grades,subj:subjects,anh,journey,ontap:onTap,redo,ranked,shop,friends})[profFrom]||area)()};
+  $$('#profBody [data-pf]').forEach(b=>b.onclick=()=>{if(!own||ACC.teacher)return;sfx.tap();frTab=b.dataset.pf;friends()});
+  $('#pFol')&&($('#pFol').onclick=()=>{toggleFollow(id);profile(id)});
   if(!own)return;
+  $('#pPin')&&($('#pPin').onclick=()=>{sfx.tap();pinForm()});
   $('#pAva').onclick=()=>{overlay(`<h2>Chọn avatar</h2><div class="avas">${ANIMALS.map((a,i)=>`<button data-a="${i}" class="${i===P.avatar?'on':''}">${avatar(i,64,P.eq)}<small>${a.n}</small></button>`).join('')}</div><button class="btn alt" id="ac">Đóng</button>`);
     $$('#panel [data-a]').forEach(b=>b.onclick=()=>{P.avatar=+b.dataset.a;save();syncMine();closeOvl();profile(id)});$('#ac').onclick=closeOvl};
   $('#pNick').onclick=()=>{overlay(`<h2>Nickname</h2><p>Bạn bè thấy nickname cùng họ tên thật của em.</p><form id="nf"><input class="name" id="nm" maxlength="20" value="${esc(P.nick)}" placeholder="Ví dụ: Cherry 8A"><button class="btn" type="submit">Lưu</button></form><button class="btn alt" id="nc">Hủy</button>`);
@@ -505,6 +510,58 @@ function parentReport(v){const w=weekId(),wk=v.wk&&v.wk.w===w?v.wk:{xp:0,c:0,lv:
     ``,`Nhận xét của thầy: `];
   overlay(`<h2 style="font-size:26px">Báo cáo phụ huynh</h2><p>Thầy sửa nhận xét rồi bấm sao chép để gửi qua Zalo.</p><textarea class="code light" id="rp">${esc(lines.join('\n'))}</textarea><button class="btn" id="rpC">Sao chép</button><button class="btn alt" id="rpX">Đóng</button>`);
   $('#rpX').onclick=closeOvl;$('#rpC').onclick=async()=>{const t=$('#rp');try{await navigator.clipboard.writeText(t.value);toast('Đã sao chép báo cáo.')}catch(e){t.select();document.execCommand&&document.execCommand('copy');toast('Đã chọn sẵn, thầy nhấn giữ để sao chép.')}}}
+
+/* ---------- bạn bè: theo dõi, tìm kiếm, bảng tin ---------- */
+let frTab='feed',frQ='',frK='';
+const myFollow=()=>(P&&P.follow)||{};
+const isFollow=id=>!!myFollow()[id];
+const followersOf=id=>PLAYERS.filter(p=>p.id!==id&&p.follow&&p.follow[id]);
+const followingOf=p=>Object.keys((p&&p.follow)||{}).filter(id=>PLAYERS.some(x=>x.id===id));
+const newFollowers=()=>ACC&&!ACC.teacher?followersOf(ACC.id).filter(p=>(p.follow[ACC.id]||'')>(P.fseen||'')).length:0;
+function toggleFollow(id){if(!P.follow)P.follow={};const on=!P.follow[id];if(on)P.follow[id]=new Date().toISOString();else delete P.follow[id];save();syncMine();sfx[on?'ok':'tap']();if(on)toast('Đã theo dõi! Hoạt động của bạn sẽ hiện trong <b>Bảng tin</b>.');return on}
+const ago=iso=>{const m=(Date.now()-Date.parse(iso))/6e4;return m<1?'vừa xong':m<60?Math.floor(m)+' phút trước':m<1440?Math.floor(m/60)+' giờ trước':Math.floor(m/1440)+' ngày trước'};
+function personRow(p,sub){const me=ACC&&p.id===ACC.id,f=isFollow(p.id),back=p.follow&&ACC&&p.follow[ACC.id],t=tierOf(p.lp);
+  return `<div class="frow"><button class="fmain" data-p="${p.id}">${avatarOf(p,44)}<span class="bn"><b>${esc(p.nick||p.name||'?')}</b><small>${p.nick?esc(p.name)+' · ':''}Khối ${esc(p.khoi||'?')}${sub?' · '+sub:''}</small></span>
+    <span class="fmeta">${emblem(t,22)}<i>${flame(!(p.st&&p.st.last_day),14)}${liveStreak(p.st||{},vnDay())}</i></span></button>
+    ${me||!ACC||ACC.teacher?'':`<button class="fbtn${f?' on':''}" data-f="${p.id}">${f?'Đang theo dõi':back?'Theo dõi lại':'Theo dõi'}</button>`}</div>`}
+function feedItems(){const ids=Object.keys(myFollow()),lim=Date.now()-14*864e5,out=[];
+  for(const id of ids){const p=PLAYERS.find(x=>x.id===id);if(!p)continue;
+    for(const [k,at] of Object.entries(p.ach||{})){const a=ACH.find(x=>x.id===k);if(a&&Date.parse(at)>lim)out.push({p,at,ico:medal(true,30),txt:`đạt thành tích <b>${esc(a.n)}</b>`})}
+    for(const [k,b] of Object.entries(p.best||{})){if(!b||!b.t||Date.parse(b.t)<lim)continue;const [tid,i]=k.split('|'),t=TOPICS.find(x=>x.id===tid);if(!t)continue;
+      out.push({p,at:b.t,ico:`<span class="fic">${star(1)}</span>`,txt:isDe(t)?`làm xong đề <b>${esc(t.title)}</b>`:`qua <b>Màn ${+i+1}</b> · ${esc(t.title)} ${'★'.repeat(b.st||0)}`})}
+    for(const h of (p.hist||[]).slice(-5))if(h.d>0&&Date.parse(h.at)>lim)out.push({p,at:h.at,ico:emblem(tierOf(p.lp),28),txt:`thắng trận thi đấu <b>+${h.d}</b> điểm`});
+    for(const [k,at] of Object.entries(p.own||{})){const it=ITEM[k];if(it&&typeof at==='string'&&Date.parse(at)>lim&&it.rar>=1)out.push({p,at,ico:`<span class="fic">🎁</span>`,txt:`sưu tầm <b>${esc(it.name)}</b> <i style="color:${RAR[it.rar].c};font-style:normal">${RAR[it.rar].n}</i>`})}}
+  return out.sort((a,b)=>b.at.localeCompare(a.at)).slice(0,60)}
+function friends(){show('friends');const me=ACC.id,fl=followingOf(P),fw=followersOf(me),nf=newFollowers();
+  const tabs=[['feed','Bảng tin'],['following',`Đang theo dõi (${fl.length})`],['followers',`Người theo dõi (${fw.length})${nf?' ●':''}`],['search','Tìm bạn']];
+  let body='';
+  if(frTab==='feed'){const it=feedItems();body=it.length?it.map(x=>`<button class="fitem" data-p="${x.p.id}">${avatarOf(x.p,40)}<span class="ftx"><b>${esc(x.p.nick||x.p.name)}</b> ${x.txt}<small>${ago(x.at)}</small></span>${x.ico}</button>`).join('')
+      :`<div class="empty"><div style="width:100px;margin:0 auto">${owlSVG}</div><p>${fl.length?'Bạn bè của em chưa có hoạt động mới trong 2 tuần qua.':'Em chưa theo dõi ai. Vào <b>Tìm bạn</b> để theo dõi các bạn trong CLB nhé!'}</p></div>`}
+  if(frTab==='following')body=fl.length?fl.map(id=>personRow(PLAYERS.find(x=>x.id===id))).join(''):'<div class="tempty">Em chưa theo dõi ai.</div>';
+  if(frTab==='followers'){body=fw.length?fw.sort((a,b)=>(b.follow[me]||'').localeCompare(a.follow[me]||'')).map(p=>personRow(p,(p.follow[me]||'')>(P.fseen||'')?'<em class="newb">mới</em>':ago(p.follow[me]))).join(''):'<div class="tempty">Chưa có ai theo dõi em. Chăm học, lên bậc cao là sẽ có nhiều bạn chú ý đó!</div>';
+    if(nf){P.fseen=new Date().toISOString();save();syncMine()}}
+  if(frTab==='search'){const q=plain(frQ);let L=PLAYERS.filter(p=>p.id!==me&&(!frK||p.khoi===frK));
+    if(q)L=L.filter(p=>plain(p.name).includes(q)||plain(p.nick||'').includes(q));else L=L.filter(p=>!isFollow(p.id)).sort((a,b)=>(b.khoi===ACC.khoi)-(a.khoi===ACC.khoi)||(b.xp||0)-(a.xp||0));
+    body=`<div class="fsearch"><input class="name" id="fq" placeholder="Gõ tên hoặc nickname…" value="${esc(frQ)}" autocomplete="off"></div>
+      <div class="seg sm">${['','6','7','8','9'].map(k=>`<button data-fk="${k}" class="${k===frK?'on':''}">${k?'Khối '+k:'Tất cả'}</button>`).join('')}</div>
+      <p class="tnote2">${q?`${L.length} kết quả`:'Gợi ý cho em'}</p>${L.slice(0,40).map(p=>personRow(p)).join('')||'<div class="tempty">Không tìm thấy bạn nào.</div>'}`}
+  $('#frBody').innerHTML=`<div class="fhead">${avatarOf(P,56)}<div><b>${esc(P.nick||ACC.name)}</b><small><a data-ft="following">${fl.length} đang theo dõi</a> · <a data-ft="followers">${fw.length} người theo dõi</a></small></div></div>
+    <div class="shtabs">${tabs.map(([k,n])=>`<button data-ft="${k}" class="${k===frTab?'on':''}">${n}</button>`).join('')}</div>${body}`;
+  $$('#frBody [data-ft]').forEach(b=>b.onclick=()=>{sfx.tap();frTab=b.dataset.ft;friends()});
+  $$('#frBody [data-fk]').forEach(b=>b.onclick=()=>{sfx.tap();frK=b.dataset.fk;friends()});
+  $$('#frBody [data-p]').forEach(b=>b.onclick=()=>{sfx.tap();profFrom='friends';profile(b.dataset.p)});
+  $$('#frBody [data-f]').forEach(b=>b.onclick=()=>{toggleFollow(b.dataset.f);const y=$('#frBody').scrollTop;friends();$('#frBody').scrollTop=y});
+  const fq=$('#fq');if(fq){let tm;fq.oninput=()=>{clearTimeout(tm);tm=setTimeout(()=>{frQ=fq.value;friends();const n=$('#fq');n.focus();n.setSelectionRange(n.value.length,n.value.length)},250)}}
+  $('#frBack').onclick=()=>{sfx.tap();subjects()}}
+/* đổi mật khẩu ngay trong app (bản artifact: kiểm tra trên máy) */
+async function changePin(o,n){const a=ACCS.find(x=>x.id===ACC.id);if(!a)throw new Error('Không tìm thấy tài khoản');
+  if(await hashPin(a.salt,o)!==a.ph)throw new Error('Mật khẩu hiện tại chưa đúng.');await DB.doc('accounts/'+a.id).update({ph:await hashPin(a.salt,n),reset:false,isDefault:false})}
+function pinForm(){overlay(`<h2>Đổi mật khẩu</h2><form id="pf" class="form"><label>Mật khẩu hiện tại${pinInput('pO')}</label><label>Mật khẩu mới (4 chữ số)${pinInput('pN','')}</label><label>Nhập lại mật khẩu mới${pinInput('pN2','')}</label><div id="pE"></div>
+    <button class="btn" type="submit">Lưu mật khẩu mới</button></form><button class="btn alt" id="pC">Hủy</button>`);
+  $$('#panel .pin').forEach(i=>i.oninput=()=>{i.value=i.value.replace(/\D/g,'').slice(0,4)});$('#pC').onclick=closeOvl;
+  $('#pf').onsubmit=async e=>{e.preventDefault();const o=$('#pO').value,n=$('#pN').value,n2=$('#pN2').value,E=m=>$('#pE').innerHTML=`<div class="err">${m}</div>`;
+    if(!pinOk(o)||!pinOk(n))return E('Mật khẩu gồm đúng 4 chữ số.');if(n!==n2)return E('Hai lần nhập mật khẩu mới chưa khớp.');if(n==='0000')return E('Em chọn mật khẩu khác 0000 nhé.');if(n===o)return E('Mật khẩu mới phải khác mật khẩu cũ.');
+    try{await changePin(o,n);closeOvl();sfx.ok();toast('Đã đổi mật khẩu. Lần sau em đăng nhập bằng mật khẩu mới.')}catch(err){E(esc(err.message))}}}
 
 /* ---------- chơi ---------- */
 let G=null,TM=null;
@@ -768,7 +825,7 @@ let syncT=null,wq=Promise.resolve();
 function syncMine(){if(!DB||!ACC||ACC.teacher||DBSTATE!=='ok')return;clearTimeout(syncT);syncT=setTimeout(()=>{syncT=null;pushMine()},1200)}
 function pushMine(){if(!DB||!ACC||ACC.teacher||DBSTATE!=='ok')return;wq=wq.then(async()=>{const lim=addDays(vnDay(),-30),w={};for(const [k,v] of Object.entries(P.wst||{}))if(v.d>=lim)w[k]=v;
   const doc={name:ACC.name,khoi:ACC.khoi,nick:P.nick||'',avatar:P.avatar||0,xp:P.xp||0,lp:P.lp||0,matches:P.matches||0,hist:P.hist||[],st:P.st||{},stats:P.stats,ach:P.ach,
-    best:Object.fromEntries(Object.entries(P.best).map(([k,s])=>[k,{st:s,s:P.score[k]||0,t:P.pt[k]||null}])),rev:P.rev,saved:P.saved,wst:w,eq:P.eq||{},own:P.own||{},spent:P.spent||0,dq:P.dq,wk:P.wk||{},season:P.season||'',seasons:P.seasons||[],fails:P.fails||{},lvt:P.lvt||{},ccl:P.ccl||{},tut:P.tut||0,capnhat:new Date().toISOString()};
+    best:Object.fromEntries(Object.entries(P.best).map(([k,s])=>[k,{st:s,s:P.score[k]||0,t:P.pt[k]||null}])),rev:P.rev,saved:P.saved,wst:w,eq:P.eq||{},own:P.own||{},spent:P.spent||0,dq:P.dq,wk:P.wk||{},season:P.season||'',seasons:P.seasons||[],fails:P.fails||{},lvt:P.lvt||{},ccl:P.ccl||{},tut:P.tut||0,follow:P.follow||{},fseen:P.fseen||'',capnhat:new Date().toISOString()};
   await DB.doc('players/'+ACC.id).set(doc)}).catch(()=>{})}
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&syncT){clearTimeout(syncT);syncT=null;pushMine()}});
 function mergeP(d){
@@ -787,7 +844,7 @@ function mergeP(d){
   if(d.dq&&d.dq.d===vnDay()&&(!P.dq||P.dq.d!==d.dq.d))P.dq=d.dq;
   if(d.season&&!P.season)P.season=d.season;if(d.seasons&&d.seasons.length>(P.seasons||[]).length)P.seasons=d.seasons;
   for(const f of ['fails','lvt','ccl'])if(d[f])for(const [k,v] of Object.entries(d[f]))if(!P[f][k])P[f][k]=v;
-  if(d.tut)P.tut=1;
+  if(d.tut)P.tut=1;if(d.follow&&!Object.keys(P.follow||{}).length)P.follow=d.follow;if((d.fseen||'')>(P.fseen||''))P.fseen=d.fseen;
   save()}
 
 /* ---------- mở đầu ---------- */
@@ -798,7 +855,7 @@ function start(){started=true;const a=store.get('ltt:acc',null);
   if(a&&(a.teacher?TEACHER:ACCS.some(x=>x.id===a.id))){enter(ACCS.find(x=>x.id===a.id)||a,false)}else if(DBSTATE==='ok'||DBSTATE==='off')login();else login()}
 $('#intro').onclick=()=>{sfx.win();start()};
 function refresh(){const on=$$('.scr.on')[0]?.id;
-  if(on==='login'&&!$('#lName')?.value)login();else if(on==='grades')grades();else if(on==='subj')subjects();else if(on==='shop')shop();else if(on==='area')area();else if(on==='journey')journey();else if(on==='ontap')onTap();else if(on==='redo')redo();else if(on==='ranked')ranked();else if(on==='board')board();
+  if(on==='login'&&!$('#lName')?.value)login();else if(on==='grades')grades();else if(on==='subj')subjects();else if(on==='shop')shop();else if(on==='friends'&&!$('#fq'))friends();else if(on==='area')area();else if(on==='journey')journey();else if(on==='ontap')onTap();else if(on==='redo')redo();else if(on==='ranked')ranked();else if(on==='board')board();
 }
 (async()=>{if(!window.claude||!claude.use){DBSTATE='off';refresh();return}
   const tm=setTimeout(()=>{if(DBSTATE==='loading'){DBSTATE='slow';refresh()}},10000);
