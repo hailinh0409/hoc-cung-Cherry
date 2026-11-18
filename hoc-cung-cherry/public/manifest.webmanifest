@@ -1,0 +1,16 @@
+{
+  "name": "Học cùng Cherry · CLB Toán - Anh Ngọc Linh",
+  "short_name": "Học cùng Cherry",
+  "description": "Bài tập Toán dạng game của CLB Toán - Anh Ngọc Linh",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#06303a",
+  "theme_color": "#0b4654",
+  "lang": "vi",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
