@@ -286,3 +286,16 @@ textarea.code.light{background:#fff;color:#12313a;font:14px/1.5 "Be Vietnam Pro"
 .mon.shopm{background:linear-gradient(120deg,#ff7eb6,#a55cff);box-shadow:inset 0 -8px 0 #7a3bc8,0 10px 20px #0004}
 .mon.shopm b{display:flex;flex-direction:column}.mon.shopm b small{font:700 13px "Be Vietnam Pro",sans-serif;opacity:.92;white-space:normal}
 .mon.shopm .shav .ava{border:3px solid #fff;border-radius:50%}
+
+/* Tóm tắt lý thuyết */
+.thhead{padding:6px 2px 4px}.thhead span{display:inline-flex;align-items:center;gap:6px;font-weight:800;font-size:13px;color:#ffd23f}
+.thhead h1{font:800 28px/1.1 "Baloo 2",sans-serif;margin:6px 0 2px}.thhead small{color:var(--mute)}
+.thc{background:var(--card);color:var(--cink);border-radius:18px;padding:12px 14px;margin-top:12px;border-left:7px solid var(--c);box-shadow:0 6px 14px #0003;animation:rise .35s both}
+.thc .thk{display:inline-block;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:#fff;background:var(--c);padding:2px 9px;border-radius:99px}
+.thc h3{font:800 19px/1.2 "Baloo 2",sans-serif;margin:6px 0 2px}.thc .thb2{font-size:16px;line-height:1.55;margin-top:4px;overflow-x:auto}
+.thc details{margin-top:8px}.thc summary{cursor:pointer;font-weight:800;color:#2584b8;font-size:14px}.thc details .thb2{background:#eef6f6;border-radius:12px;padding:8px 10px}
+.thend{margin:16px 0 24px;display:flex;flex-direction:column;gap:10px}
+.tnode .thb{position:absolute;top:-8px;right:-8px;width:26px;height:26px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px #0004;font-style:normal}
+.tnode.ghost.thy{opacity:1;cursor:pointer}
+.thbtn{display:flex;align-items:center;justify-content:center;gap:8px}.thnote{display:block;margin-top:8px;color:#5f7d82;font-size:12px}
+.thpv .thc{box-shadow:none;border:1px solid #d4e3e3;border-left:7px solid var(--c)}
