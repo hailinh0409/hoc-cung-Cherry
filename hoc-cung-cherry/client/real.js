@@ -5,6 +5,7 @@ const api=async(path,body,method)=>{const r=await fetch(path,{method:method||(bo
 const wrapDoc=x=>({id:x.id,exists:true,data:()=>x});
 async function loadAll(){const j=await api('/api/sync');FIGS=j.figs||{};TOPICS=(j.topics||[]).map(t=>fromDoc(wrapDoc(t)));ASG=j.assignments||[];PLAYERS=j.players||[];ACCS=j.accounts||[]}
 function softRefresh(){const on=$$('.scr.on')[0]?.id;if($('#ovl').classList.contains('on')||on==='play')return;
+  if(BANKON&&!QE&&on==='track'){if(document.activeElement&&document.activeElement.id==='bkQ')return;return bank(true)}
   if(QE&&on==='track'){const t=TOPICS.find(x=>x.id===QE);if(t)qedit(t);return}
   if(on==='track'&&$('#trTitle').textContent.startsWith('Tài khoản'))return accounts();if(on==='track'&&$('#trTitle').textContent.startsWith('Theo dõi'))return track();refresh()}
 const after=p=>p.then(r=>{loadAll().then(softRefresh).catch(()=>{});return r});
@@ -12,7 +13,7 @@ DB={doc:path=>{const i=path.indexOf('/'),c=path.slice(0,i),id=path.slice(i+1);re
     update:v=>c==='topics'?after(api('/api/admin/topic',{id,...v})):c==='accounts'?after(v.mon?api('/api/admin/accounts',{action:'mon',id,mon:v.mon}):('ph' in v)&&v.isDefault?api('/api/admin/accounts',{action:'reset',id}):Promise.resolve()):Promise.resolve(),
     set:v=>c==='players'?api('/api/me/save',{doc:v}):Promise.resolve(),
     delete:()=>c==='assignments'?after(api('/api/admin/assign?id='+encodeURIComponent(id),null,'DELETE')):c==='players'?after(api('/api/admin/samples',{id})):Promise.resolve()}},
-  collection:c=>({doc:()=>({set:v=>c==='assignments'?after(api('/api/admin/assign',v)):c==='accounts'?after(api('/api/admin/accounts',{action:'create',name:v.name,khoi:v.khoi,mon:v.mon})):Promise.resolve()})})};
+  collection:c=>({doc:()=>({set:v=>c==='topics'?api('/api/admin/topic',{action:'create',...v}).then(async r=>{await loadAll();return r}):c==='assignments'?after(api('/api/admin/assign',v)):c==='accounts'?after(api('/api/admin/accounts',{action:'create',name:v.name,khoi:v.khoi,mon:v.mon})):Promise.resolve()})})};
 /* đối chiếu với máy chủ sau khi lưu: phần máy chủ không chấp nhận thì bỏ */
 function reconcile(sent,r){if(!r||!P)return;if(r.xp<sent.xp)P.xp-=sent.xp-r.xp;if(r.lp<sent.lp)P.lp=Math.max(0,P.lp-(sent.lp-r.lp));
   for(const id of Object.keys(sent.own||{}))if(!r.own[id]){delete P.own[id];for(const [k,v] of Object.entries(P.eq))if(v===id)delete P.eq[k]}

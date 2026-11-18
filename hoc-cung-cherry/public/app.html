@@ -538,6 +538,10 @@ textarea.code.light{background:#fff;color:#12313a;font:14px/1.5 "Be Vietnam Pro"
 .hwn{font-style:normal;font-size:10px;font-weight:800;background:#fff3c4;color:#7a5a00;padding:1px 7px;border-radius:99px;margin-top:2px;white-space:nowrap}.hwn.late{background:#ffe3e6;color:#a1202f}.hwn.st{background:#e3e3e3;color:#444}
 .plank{min-height:70px}
 
+/* Ngân hàng câu hỏi */
+.tbox .qbtn{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}.bkgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}.bkgrid select.name,#bkQ{width:100%;padding:0 10px}
+.bksum{font-size:13px;color:var(--mute);margin:10px 2px 6px}.bktd summary{cursor:pointer}.bktd summary small{color:#7a9399}.foot{flex-wrap:wrap}
+
 .gvlink{margin-top:4px;font-size:13px;color:#7a9399;text-decoration:underline;align-self:center}
 .figmiss{display:inline-block;padding:6px 10px;border-radius:8px;background:#fff3c4;color:#7a5a00;font-size:13px}
 img.fig{display:block;max-width:100%;height:auto;margin:8px auto;background:#fff;border-radius:8px}
@@ -1042,7 +1046,7 @@ let TOPICS=[],ACCS=[],PLAYERS=[],ASG=[],TEACHER=false,DBSTATE='loading',DB=null;
 let ACC=null,P=null,curK='',curPhan='',curT=null,profFrom='grades';
 const newP=()=>({xp:0,lp:0,matches:0,hist:[],st:{},best:{},score:{},pt:{},rev:{},saved:{},wst:{},stats:{correct:0,maxCombo:0,levels:0,perfect:0,top:0,cleared:0,chests:0},own:{},eq:{},spent:0,dq:null,wk:{},season:'',seasons:[],fails:{},lvt:{},ccl:{},tut:0,follow:{},fseen:'',rseen:{},ach:{},avatar:0,nick:''});
 function fromDoc(d){const v=d.data()||{};const P=parseTopic(v.text);
-  return {id:d.id,khoi:String(v.khoi||'?'),phan:PHAN[v.phan]?v.phan:'dai-so',title:v.title||P.title||d.id,status:v.trangthai||'nhap',order:Number(v.thutu)||0,levels:P.levels,errors:P.errors,nguon:v.nguon||'',chuong:v.chuong||'',raw:v.text||'',prev:v.banTruoc||''}}
+  return {id:d.id,khoi:String(v.khoi||'?'),phan:PHAN[v.phan]?v.phan:'dai-so',title:v.title||P.title||d.id,status:v.trangthai||'nhap',order:Number(v.thutu)||0,levels:P.levels,errors:P.errors,nguon:v.nguon||'',chuong:v.chuong||'',raw:v.text||'',prev:v.banTruoc||'',upd:v.capnhat||''}}
 const tex=s=>figImg(esc(figSwap(s))).replace(/\\\\/g,'<br>').replace(/\\textbf\{([^}]*)\}/g,'<b>$1</b>').replace(/&quot;/g,'"');
 const typeset=el=>{if(window.__mjReady)MathJax.typesetPromise([el]).catch(()=>{})};
 
@@ -1379,12 +1383,12 @@ function subjects(){show('subj');
    <div class="mons">${Object.entries(MON).map(([k,m],i)=>{const on=hasMon(k);return `<button class="mon${on?'':' off'}" data-m="${k}" style="--c:${m.c};--d:${m.d};animation-delay:${i*.1}s" ${on?'':'aria-disabled="true"'}>
      ${m.ico}<b>${m.n}</b><span>${on?(k==='anh'?'Sắp ra mắt':'Vào học ›'):'Chưa đăng kí'}</span>${on?'':'<i class="mlock">'+lockSVG+'</i>'}</button>`}).join('')}</div>
    ${GV()?'':`<button class="frtile" id="sFr"><span class="frava">${followingOf(P).slice(0,4).map(id=>avatarOf(PLAYERS.find(x=>x.id===id),34)).join('')||avatarOf(P,34)}</span><span><b>Bạn bè</b><small>${followingOf(P).length} đang theo dõi · ${followersOf(ACC.id).length} người theo dõi</small></span>${newFollowers()?`<i class="dot">${newFollowers()} mới</i>`:'<i class="go">›</i>'}</button>`}
-   ${GV()?`<div class="foot"><button class="btn alt" id="sAcc">Tài khoản học sinh${ACCS.some(a=>a.reset)?' ●':''}</button><button class="btn alt" id="sOut">Thoát</button></div>`:`<div class="foot"><button class="btn alt" id="sOut">Đăng xuất</button></div>`}`;
+   ${GV()?`<div class="foot"><button class="btn alt" id="sBank">Ngân hàng câu hỏi</button><button class="btn alt" id="sAcc">Tài khoản học sinh${ACCS.some(a=>a.reset)?' ●':''}</button><button class="btn alt" id="sOut">Thoát</button></div>`:`<div class="foot"><button class="btn alt" id="sOut">Đăng xuất</button></div>`}`;
   $$('#subjBody .mon').forEach(b=>b.onclick=()=>{const m=b.dataset.m;
     if(!hasMon(m)){sfx.no();b.animate([{transform:'translateX(-6px)'},{transform:'translateX(6px)'},{transform:'none'}],{duration:300});return toast(`Em chưa đăng kí môn ${MON[m].n}. Em hỏi thầy để đăng kí nhé.`)}
     sfx.tap();m==='toan'?grades():anh()});
   $('#sFr')&&($('#sFr').onclick=()=>{sfx.tap();frTab=newFollowers()?'followers':'feed';friends()});
-  $('#sAcc')&&($('#sAcc').onclick=()=>{sfx.tap();accounts()});$('#sOut').onclick=()=>{sfx.tap();logout()}}
+  $('#sAcc')&&($('#sAcc').onclick=()=>{sfx.tap();accounts()});$('#sBank')&&($('#sBank').onclick=()=>{sfx.tap();bank()});$('#sOut').onclick=()=>{sfx.tap();logout()}}
 function anh(){show('anh');$('#anhBody').innerHTML=`<div class="empty"><div style="width:130px;margin:0 auto">${owlSVG}</div><h2 style="margin-top:8px">Tiếng Anh</h2><p>Bản đồ môn Tiếng Anh đang được chuẩn bị. Cherry sẽ báo em khi mở nhé!</p></div>`}
 
 function grades(){show('grades');
@@ -1494,7 +1498,7 @@ function tOpts(t){overlay(`<h2 style="font-size:26px">${esc(t.title)}</h2><div c
    <label>Thứ tự nếu nhiều chủ đề cùng một bài<input class="name" id="oOrd" type="number" value="${t.order}"></label>
    <button class="btn" id="oSave">Lưu</button>${t.status!=='giao'?`<button class="btn" id="oGiao" ${t.errors.length?'disabled':''}>Duyệt cho học sinh</button>`:''}${t.status!=='an'?`<button class="btn alt" id="oAn">Ẩn khỏi học sinh</button>`:''}
    <button class="btn" id="oQ">Sửa câu hỏi</button><button class="btn alt" id="oC">Đóng</button></div>`);
-  const up=async v=>{try{await DB.doc('topics/'+t.id).update({...v,capnhat:new Date().toISOString()});sfx.ok();closeOvl()}catch(e){msgBox('Chưa lưu được',esc(e&&e.message||'Lỗi kết nối'))}};
+  const up=async v=>{try{const r=await DB.doc('topics/'+t.id).update({...v,capnhat:new Date().toISOString()});if(r&&r.updated_at)t.upd=r.updated_at;sfx.ok();closeOvl()}catch(e){msgBox('Chưa lưu được',esc(e&&e.message||'Lỗi kết nối'))}};
   $('#oSave').onclick=()=>up({phan:$('#oPh').value,chuong:$('#oCh').value,thutu:Number($('#oOrd').value)||0});
   $('#oGiao')&&($('#oGiao').onclick=()=>up({trangthai:'giao'}));$('#oAn')&&($('#oAn').onclick=()=>up({trangthai:'an'}));$('#oC').onclick=closeOvl;$('#oQ').onclick=()=>{closeOvl();qedit(t)}}
 
@@ -1543,10 +1547,10 @@ function rankPick(pools,want){const used=new Set(),picks=[];
   // ok(x): được phép lấy ở lượt này; lần 1 chỉ câu chưa gặp hoặc câu có tham số (đổi số), lần 2 mới tới câu cố định đã gặp
   const take=(li,n,ok)=>{const c=shuffle(pools[li].filter(x=>!used.has(x.q.key)&&ok(x))).sort((a,b)=>rankRank(a)-rankRank(b));
     for(const x of c){if(n<=0)break;used.add(x.q.key);picks.push(x);n--}return n};
-  const fresh=x=>rankRank(x)<2e6,any=()=>true,near=[0,-1,1,-2,2,-3,3];
+  const fresh=x=>rankRank(x)<2e6,any=()=>true,near=[0,-1,1,-2,2,-3,3],top=want.reduce((m,n,i)=>n?i:m,0);
   want.forEach((n,i)=>{let left=n;
     // chỉ mượn câu chưa gặp ở mức liền kề để trận không bị dễ/khó bất thường; kho cạn hẳn mới lặp câu gặp lâu nhất
-    for(const [ok,ds] of [[fresh,[0,-1,1]],[any,near]])for(const d of ds){if(left<=0)break;const j=i+d;if(j>=0&&j<=3)left=take(j,left,ok)}});
+    for(const [ok,ds] of [[fresh,[0,-1,1]],[any,near]])for(const d of ds){if(left<=0)break;const j=i+d;if(j>=0&&j<=top)left=take(j,left,ok)}}); // không mượn câu khó hơn mức cao nhất của bậc
   return picks.sort((a,b)=>a.li-b.li)}
 function rankInst(x){const old=String((P.rseen||{})[x.q.key]||'').split('|')[1];let q;
   for(let k=0;k<8;k++){q=inst(x.q,{tid:x.t.id,level:x.li,title:x.t.title});if(!x.q.params||!old||hashS(q.stem)!==old)break}
@@ -2021,7 +2025,7 @@ function qedit(t){QE=t.id;t=TOPICS.find(x=>x.id===QE)||t;show('track');$('#trTit
        ${errors.length?`<div class="err">${errors.map(esc).join('<br>')}</div>`:''}${q2?`<div class="stem">${tex(q2.stem)}</div><div class="vans">${answerHTML(q2)}</div>`:''}
        <div class="qbtn"><button class="btn sm" data-e="${i}">✎ Sửa</button><button class="btn sm alt" data-d="${i}">Xóa</button></div></div>`}).join('')+
    (bs.some(b=>b.man)?'':`<div class="tbox"><button class="btn sm" data-add="0">+ Thêm câu</button></div>`);
-  typeset($('#trk'));$('#trBack').onclick=()=>{sfx.tap();QE=null;journeyOr()};
+  typeset($('#trk'));$('#trBack').onclick=()=>{sfx.tap();QE=null;BANKON?bank(true):journeyOr()};
   $$('#trk [data-e]').forEach(b=>b.onclick=()=>{sfx.tap();editQ(t,+b.dataset.e)});
   $$('#trk [data-add]').forEach(b=>b.onclick=()=>{sfx.tap();editQ(t,null,+b.dataset.add)});
   $$('#trk [data-d]').forEach(b=>b.onclick=()=>{const blk=bs[+b.dataset.d];overlay(`<h2>Xóa câu này?</h2><p>Câu sẽ bị xóa khỏi chủ đề. Thầy có thể bấm "Hoàn tác lần lưu trước" nếu xóa nhầm.</p><button class="btn co" id="dy">Xóa</button><button class="btn alt" id="dn">Thôi</button>`);
@@ -2030,7 +2034,8 @@ function qedit(t){QE=t.id;t=TOPICS.find(x=>x.id===QE)||t;show('track');$('#trTit
     $('#qaC').onclick=closeOvl;$('#qaS').onclick=()=>{const v=$('#qa').value,P=parseTopic(v);if(P.errors.length){$('#qaErr').innerHTML=`<div class="err">${P.errors.map(esc).join('<br>')}</div>`;return}saveText(t,v,'Đã lưu chủ đề.')}};
   $('#qUndo')&&($('#qUndo').onclick=()=>saveText(t,t.prev,'Đã hoàn tác.'))}
 function journeyOr(){const t=TOPICS.find(x=>x.id===curT?.id);if(t&&isDe(t))onTap();else journey()}
-async function saveText(t,text,msg){try{await DB.doc('topics/'+t.id).update({text,banTruoc:t.raw,capnhat:new Date().toISOString()});closeOvl();sfx.ok();toast(msg);if(QE&&$$('.scr.on')[0]?.id==='track')qedit(TOPICS.find(x=>x.id===QE)||t)}catch(e){msgBox('Chưa lưu được',esc(e&&e.message||'Lỗi kết nối'))}}
+async function saveText(t,text,msg){try{const r=await DB.doc('topics/'+t.id).update({text,banTruoc:t.raw,capnhat:new Date().toISOString(),base:t.upd});if(r&&r.updated_at){t.upd=r.updated_at;t.prev=t.raw;t.raw=text}closeOvl();sfx.ok();toast(msg);const on=$$('.scr.on')[0]?.id;if(QE&&on==='track')qedit(TOPICS.find(x=>x.id===QE)||t);else if(BANKON&&on==='track')bank(true)}
+  catch(e){msgBox('Chưa lưu được',esc(e&&e.message||'Lỗi kết nối'));if(e&&e.status===409&&typeof loadAll==='function')loadAll().then(()=>{const on=$$('.scr.on')[0]?.id;if(on!=='track')return;if(QE){const x=TOPICS.find(y=>y.id===QE);if(x)qedit(x)}else if(BANKON)bank(true)}).catch(()=>{})}}
 function editQ(t,bi,lvNew){const bs=qBlocks(t.raw),b=bi!=null?bs[bi]:null;let raw=b?b.raw:QT.ex;
   overlay(`<h2 style="font-size:26px">${b?'Sửa câu hỏi':'Thêm câu mới'}</h2>${b?'':`<div class="seg qtype">${Object.entries(TYPE).map(([k,v])=>`<button data-qt="${k}" class="${k==='ex'?'on':''}">${v}</button>`).join('')}</div>`}
     <textarea class="code" id="qx" spellcheck="false">${esc(raw)}</textarea>
@@ -2045,9 +2050,102 @@ function editQ(t,bi,lvNew){const bs=qBlocks(t.raw),b=bi!=null?bs[bi]:null;let ra
   $('#qC').onclick=closeOvl;
   $('#qS').onclick=()=>{if(!pv())return;const v=$('#qx').value.trim();let text;
     if(b)text=t.raw.slice(0,b.start)+v+t.raw.slice(b.end);
+    else if(typeof lvNew==='string')text=t.raw.replace(/\s*$/,'')+'\n\n'+lvNew+'\n'+v+'\n';
     else{const nx=bs.find(x=>x.man&&x.lv===lvNew+1);const at=nx?nx.start:t.raw.length;text=t.raw.slice(0,at).replace(/\s*$/,'')+'\n'+v+'\n\n'+t.raw.slice(at)}
     if(parseTopic(text).errors.length>t.errors.length){$('#qpv').insertAdjacentHTML('afterbegin','<div class="err">Lưu câu này làm chủ đề phát sinh lỗi, thầy kiểm tra lại.</div>');return}
     saveText(t,text,b?'Đã lưu câu hỏi.':'Đã thêm câu mới.')}}
+
+/* ---------- Ngân hàng câu hỏi (chỉ giáo viên) ---------- */
+let BANKON=false;const BK={tab:'all',k:'',bai:'',man:'',type:'',st:'',q:'',lim:25,tdOpen:false,cur:[]};
+const BK_ST={nhap:'Nháp',giao:'Đã duyệt',an:'Đã ẩn'},BK_MAN=['','Nhận biết','Thông hiểu','Vận dụng','Vận dụng cao'];
+const bankLessons=k=>{const r=routeTopics(k),rest=TOPICS.filter(t=>t.khoi===k&&!isDe(t)&&!r.includes(t));return [...r,...rest]};
+const bankDes=k=>TOPICS.filter(t=>t.khoi===k&&isDe(t)).sort((a,b)=>a.order-b.order||a.title.localeCompare(b.title,'vi'));
+function bankItems(k){const out=[];for(const t of [...bankLessons(k),...bankDes(k)]){let n=1;
+  qBlocks(t.raw).forEach((b,bi)=>{if(b.man){n=Number(b.n)||b.lv+1;return}out.push({t,bi,b,n})})}return out}
+function bank(keep){const y=keep?window.scrollY:0,sy=keep?$('#trk').scrollTop:0;BANKON=true;QE=null;
+  if(!BK.k)BK.k=curK||(ACC&&ACC.khoi)||'8';
+  show('track');$('#trTitle').textContent='Ngân hàng câu hỏi';
+  const ks=[...new Set(['6','7','8','9',...TOPICS.map(t=>t.khoi)])].filter(k=>/^\d+$/.test(k)).sort((a,b)=>a-b);
+  $('#trk').innerHTML=`<div class="seg">${[['all','Tất cả câu'],['td','Thi đấu'],['de','Ôn tập']].map(([v,l])=>`<button data-tab="${v}" class="${BK.tab===v?'on':''}">${l}</button>`).join('')}</div>
+    <div class="seg sm">${ks.map(k=>`<button data-k="${k}" class="${BK.k===k?'on':''}">Khối ${k}</button>`).join('')}</div>`+
+    (BK.tab==='de'?bankDeHTML():bankFilterHTML()+'<div id="bkSum"></div><div id="bkList"></div>');
+  $('#trBack').onclick=()=>{sfx.tap();BANKON=false;subjects()};
+  $$('#trk [data-tab]').forEach(b=>b.onclick=()=>{sfx.tap();BK.tab=b.dataset.tab;BK.lim=25;BK.bai='';bank()});
+  $$('#trk [data-k]').forEach(b=>b.onclick=()=>{sfx.tap();BK.k=b.dataset.k;BK.bai='';BK.lim=25;bank()});
+  if(BK.tab==='de')bindDe();else{bindBankFilters();bankList()}
+  if(keep){window.scrollTo(0,y);$('#trk').scrollTop=sy}}
+function bankFilterHTML(){const td=BK.tab==='td',ls=bankLessons(BK.k),des=bankDes(BK.k);
+  const sel=(id,cur,opts)=>`<select class="name" id="${id}">${opts.map(([v,l])=>`<option value="${esc(v)}" ${String(cur)===String(v)?'selected':''}>${esc(l)}</option>`).join('')}</select>`;
+  const lab=t=>(t.chuong?t.chuong.replace(/^k\d+-/,'').toUpperCase()+' · ':'')+t.title;
+  if(BK.bai&&!ls.concat(td?[]:des).some(t=>t.id===BK.bai))BK.bai='';
+  return `<div class="tbox">${td?'<p class="tnote" style="margin:0 0 8px">Câu <b>Mức 4</b> của mọi bài trong khối. Đây là kho câu dùng cho Thi đấu.</p>':''}
+    <div class="bkgrid">${sel('bkBai',BK.bai,[['','Tất cả bài'],...ls.map(t=>[t.id,lab(t)]),...(td?[]:des.map(t=>[t.id,'Ôn tập · '+t.title]))])}
+    ${td?'':sel('bkMan',BK.man,[['','Mọi mức'],['1','Mức 1'],['2','Mức 2'],['3','Mức 3'],['4','Mức 4']])}
+    ${sel('bkType',BK.type,[['','Mọi dạng'],...Object.entries(TYPE)])}${sel('bkSt',BK.st,[['','Mọi trạng thái bài'],...Object.entries(BK_ST)])}</div>
+    <input class="name" id="bkQ" placeholder="Tìm chữ trong đề, đáp án, lời giải…" value="${esc(BK.q)}"></div>`}
+function bindBankFilters(){const on=(id,k)=>{const el=$('#'+id);if(el)el.onchange=()=>{BK[k]=el.value;BK.lim=25;bankList()}};
+  on('bkBai','bai');on('bkMan','man');on('bkType','type');on('bkSt','st');let tm=null;
+  $('#bkQ').oninput=()=>{clearTimeout(tm);tm=setTimeout(()=>{BK.q=$('#bkQ').value;BK.lim=25;bankList()},300)}}
+function bankList(){const td=BK.tab==='td',qq=plain(BK.q),all=bankItems(BK.k);let it=all;
+  if(td)it=it.filter(x=>!isDe(x.t)&&x.n===4);
+  if(BK.bai)it=it.filter(x=>x.t.id===BK.bai);
+  if(!td&&BK.man)it=it.filter(x=>String(x.n)===BK.man);
+  if(BK.type)it=it.filter(x=>x.b.type===BK.type);
+  if(BK.st)it=it.filter(x=>x.t.status===BK.st);
+  if(qq)it=it.filter(x=>plain(x.b.raw).includes(qq));
+  const c={},ty={};it.forEach(x=>{c[x.n]=(c[x.n]||0)+1;ty[x.b.type]=(ty[x.b.type]||0)+1});
+  const bt=BK.bai&&TOPICS.find(t=>t.id===BK.bai),addN=td?4:isDe(bt||{})?1:(Number(BK.man)||1);
+  $('#bkSum').innerHTML=`<p class="bksum"><b>${it.length} câu</b>${td?'':` · M1 ${c[1]||0} · M2 ${c[2]||0} · M3 ${c[3]||0} · M4 ${c[4]||0}`} · ${Object.entries(TYPE).map(([k,v])=>`${v} ${ty[k]||0}`).join(' · ')}</p>`+
+    (bt?`<button class="btn sm" id="bkAdd">+ Thêm câu ${isDe(bt)?'vào đề':'Mức '+addN} · ${esc(bt.title)}</button>`:'')+(td?bankTdTable(all):'');
+  BK.cur=it.slice(0,BK.lim);
+  $('#bkList').innerHTML=(BK.cur.length?BK.cur.map(bankCard).join(''):'<div class="tbox"><p>Không có câu nào khớp bộ lọc.</p></div>')+
+    (it.length>BK.lim?`<button class="btn alt" id="bkMore">Xem thêm (còn ${it.length-BK.lim} câu)</button>`:'');
+  typeset($('#bkList'));
+  $('#bkAdd')&&($('#bkAdd').onclick=()=>{sfx.tap();bankAdd(bt,addN)});
+  $('#bkMore')&&($('#bkMore').onclick=()=>{BK.lim+=25;bankList()});
+  const td0=$('#trk details.bktd');td0&&(td0.ontoggle=()=>{BK.tdOpen=td0.open});
+  $$('#trk [data-ta]').forEach(b=>b.onclick=()=>{sfx.tap();bankAdd(TOPICS.find(t=>t.id===b.dataset.ta),4)});
+  const X=b=>BK.cur[+b.dataset.i];
+  $$('#bkList [data-be]').forEach(b=>b.onclick=()=>{sfx.tap();const x=X(b);editQ(x.t,x.bi)});
+  $$('#bkList [data-bo]').forEach(b=>b.onclick=()=>{sfx.tap();qedit(X(b).t)});
+  $$('#bkList [data-bc]').forEach(b=>b.onclick=()=>{sfx.tap();bankCopy(X(b))});
+  $$('#bkList [data-bd]').forEach(b=>b.onclick=()=>{const x=X(b);overlay(`<h2>Xóa câu này?</h2><p>Câu sẽ bị xóa khỏi <b>${esc(x.t.title)}</b>. Thầy có thể vào bài đó bấm "Hoàn tác lần lưu trước" nếu xóa nhầm.</p><button class="btn co" id="dy">Xóa</button><button class="btn alt" id="dn">Thôi</button>`);
+    $('#dn').onclick=closeOvl;$('#dy').onclick=()=>saveText(x.t,x.t.raw.slice(0,x.b.start).replace(/[ \t]*\n?$/,'')+x.t.raw.slice(x.b.end),'Đã xóa câu.')})}
+function bankCard(x,i){const {q,errors}=parseOne(x.b.raw);let q2=q;try{if(q)q2=instantiate(q)}catch(e){}
+  return `<div class="tbox qrow${errors.length?' bad':''}"><div class="hqh"><span class="chip ${x.t.status}">${esc(x.t.title)}</span><span class="chip">${isDe(x.t)?'Đề ôn tập':'Mức '+x.n}</span><span class="chip nhap">${TYPE[x.b.type]}</span>${q&&q.params?'<span class="chip">có tham số</span>':''}${q&&q.hints?`<span class="chip">${q.hints.length} gợi ý</span>`:''}</div>
+    ${errors.length?`<div class="err">${errors.map(esc).join('<br>')}</div>`:''}${q2?`<div class="stem">${tex(q2.stem)}</div><div class="vans">${answerHTML(q2)}</div>`:''}
+    <div class="qbtn"><button class="btn sm" data-be data-i="${i}">✎ Sửa</button><button class="btn sm alt" data-bc data-i="${i}">Chép vào đề…</button><button class="btn sm alt" data-bo data-i="${i}">Mở bài</button><button class="btn sm alt" data-bd data-i="${i}">Xóa</button></div></div>`}
+function bankTdTable(all){const ls=bankLessons(BK.k);if(!ls.length)return '';const cnt={};all.forEach(x=>{if(x.n===4&&!isDe(x.t))cnt[x.t.id]=(cnt[x.t.id]||0)+1});
+  return `<details class="tbox bktd" ${BK.tdOpen?'open':''}><summary><b>Số câu Mức 4 theo bài</b> <small>(${ls.filter(t=>(cnt[t.id]||0)<2).length} bài dưới 2 câu)</small></summary>
+    ${ls.map(t=>`<div class="row2"><span>${esc(t.title)} <small>${cnt[t.id]||0} câu</small></span><button class="btn sm${(cnt[t.id]||0)<2?'':' alt'}" data-ta="${t.id}">+ Thêm</button></div>`).join('')}</details>`}
+function bankAdd(t,n){if(!t)return;const m=qBlocks(t.raw).find(b=>b.man&&Number(b.n)===n);
+  if(m)editQ(t,null,m.lv);else editQ(t,null,`\\man{${n}}{${BK_MAN[n]||'Mức '+n}}`)}
+function bankCopy(x){const des=bankDes(x.t.khoi).filter(d=>d!==x.t);
+  overlay(`<h2>Chép câu vào đề ôn tập</h2><p>Chọn đề khối ${x.t.khoi}. Câu được thêm vào cuối đề, bài gốc giữ nguyên.</p>
+    ${des.map((d,i)=>`<button class="btn alt" data-cd="${i}">${esc(d.title)} <small>(${BK_ST[d.status]||''})</small></button>`).join('')||'<p class="tnote">Khối này chưa có đề ôn tập nào.</p>'}
+    <button class="btn" id="cNew">+ Tạo đề mới rồi chép vào</button><button class="btn alt" id="cC">Hủy</button>`);
+  $('#cC').onclick=closeOvl;$('#cNew').onclick=()=>bankNewDe(x.t.khoi,d=>bankPaste(x,d));
+  $$('#panel [data-cd]').forEach(b=>b.onclick=()=>bankPaste(x,des[+b.dataset.cd]))}
+function bankPaste(x,d){const blk=x.b.raw.trim();if(d.raw.includes(blk)){closeOvl();return toast('Câu này đã có trong đề.')}
+  const text=d.raw.replace(/\s*$/,'')+'\n\n'+blk+'\n';if(parseTopic(text).errors.length>d.errors.length)return msgBox('Chưa chép được','Chép câu này làm đề phát sinh lỗi.');
+  saveText(d,text,'Đã chép vào '+esc(d.title)+'.')}
+function bankNewDe(k,then){overlay(`<h2>Tạo đề ôn tập mới</h2><div class="form"><label>Tên đề<input class="name" id="nT" placeholder="Ví dụ: Đề ôn giữa học kì I số 1"></label>
+    <label>Khối<select class="name" id="nK">${['6','7','8','9'].map(x=>`<option ${x===k?'selected':''}>${x}</option>`).join('')}</select></label><div id="nE"></div>
+    <button class="btn" id="nS">Tạo đề (nháp)</button><button class="btn alt" id="nC">Hủy</button></div>`);
+  $('#nC').onclick=closeOvl;$('#nS').onclick=async()=>{const title=$('#nT').value.trim(),khoi=$('#nK').value;if(!title){$('#nE').innerHTML='<div class="err">Thầy nhập tên đề.</div>';return}
+    $('#nS').disabled=true;try{const r=await DB.collection('topics').doc().set({title,khoi,phan:'on-tap'});const d=r&&TOPICS.find(t=>t.id===r.id);
+      if(then&&d){then(d);return}closeOvl();sfx.ok();toast('Đã tạo đề '+esc(title)+'.');BK.tab='de';BK.k=khoi;bank()}catch(e){$('#nS').disabled=false;$('#nE').innerHTML=`<div class="err">${esc(e&&e.message||'Lỗi kết nối')}</div>`}}}
+function bankDeHTML(){const des=bankDes(BK.k);
+  return `<div class="tbox"><b>Đề ôn tập khối ${BK.k}</b><p class="tnote">Đề mới ở trạng thái Nháp. Ghép đề bằng nút <b>Chép vào đề…</b> ở thẻ Tất cả câu hoặc Thi đấu, hoặc mở đề để soạn câu mới.</p><div class="qbtn"><button class="btn sm" id="bkNew">+ Tạo đề mới</button></div></div>`+
+   (des.length?des.map((t,i)=>{const ty={};qBlocks(t.raw).filter(b=>!b.man).forEach(b=>ty[b.type]=(ty[b.type]||0)+1);const n=Object.values(ty).reduce((s,v)=>s+v,0);
+     return `<div class="tbox"><div class="hqh"><span class="chip ${t.status}">${BK_ST[t.status]||t.status}${t.errors.length?' · lỗi':''}</span></div><b>${esc(t.title)}</b>
+       <p class="tnote">${n} câu${n?' · '+Object.entries(ty).map(([k,v])=>TYPE[k]+' '+v).join(' · '):''}</p>
+       <div class="qbtn"><button class="btn sm" data-dq="${i}">Sửa câu hỏi</button><button class="btn sm alt" data-dl="${i}">Xem dạng danh sách</button><button class="btn sm alt" data-ds="${i}">⚙ Cài đặt</button></div></div>`}).join('')
+   :`<div class="tbox"><p>Khối ${BK.k} chưa có đề ôn tập nào.</p></div>`)}
+function bindDe(){const des=bankDes(BK.k);$('#bkNew').onclick=()=>{sfx.tap();bankNewDe(BK.k)};
+  $$('#trk [data-dq]').forEach(b=>b.onclick=()=>{sfx.tap();qedit(des[+b.dataset.dq])});
+  $$('#trk [data-dl]').forEach(b=>b.onclick=()=>{sfx.tap();BK.tab='all';BK.bai=des[+b.dataset.dl].id;BK.man='';BK.lim=25;bank()});
+  $$('#trk [data-ds]').forEach(b=>b.onclick=()=>{sfx.tap();tOpts(des[+b.dataset.ds])})}
 
 /* ---------- đồng bộ dữ liệu cá nhân ---------- */
 let syncT=null,wq=Promise.resolve();
@@ -2091,6 +2189,7 @@ const api=async(path,body,method)=>{const r=await fetch(path,{method:method||(bo
 const wrapDoc=x=>({id:x.id,exists:true,data:()=>x});
 async function loadAll(){const j=await api('/api/sync');FIGS=j.figs||{};TOPICS=(j.topics||[]).map(t=>fromDoc(wrapDoc(t)));ASG=j.assignments||[];PLAYERS=j.players||[];ACCS=j.accounts||[]}
 function softRefresh(){const on=$('.scr.on')[0]?.id;if($('#ovl').classList.contains('on')||on==='play')return;
+  if(BANKON&&!QE&&on==='track'){if(document.activeElement&&document.activeElement.id==='bkQ')return;return bank(true)}
   if(QE&&on==='track'){const t=TOPICS.find(x=>x.id===QE);if(t)qedit(t);return}
   if(on==='track'&&$('#trTitle').textContent.startsWith('Tài khoản'))return accounts();if(on==='track'&&$('#trTitle').textContent.startsWith('Theo dõi'))return track();refresh()}
 const after=p=>p.then(r=>{loadAll().then(softRefresh).catch(()=>{});return r});
@@ -2098,7 +2197,7 @@ DB={doc:path=>{const i=path.indexOf('/'),c=path.slice(0,i),id=path.slice(i+1);re
     update:v=>c==='topics'?after(api('/api/admin/topic',{id,...v})):c==='accounts'?after(v.mon?api('/api/admin/accounts',{action:'mon',id,mon:v.mon}):('ph' in v)&&v.isDefault?api('/api/admin/accounts',{action:'reset',id}):Promise.resolve()):Promise.resolve(),
     set:v=>c==='players'?api('/api/me/save',{doc:v}):Promise.resolve(),
     delete:()=>c==='assignments'?after(api('/api/admin/assign?id='+encodeURIComponent(id),null,'DELETE')):c==='players'?after(api('/api/admin/samples',{id})):Promise.resolve()}},
-  collection:c=>({doc:()=>({set:v=>c==='assignments'?after(api('/api/admin/assign',v)):c==='accounts'?after(api('/api/admin/accounts',{action:'create',name:v.name,khoi:v.khoi,mon:v.mon})):Promise.resolve()})})};
+  collection:c=>({doc:()=>({set:v=>c==='topics'?api('/api/admin/topic',{action:'create',...v}).then(async r=>{await loadAll();return r}):c==='assignments'?after(api('/api/admin/assign',v)):c==='accounts'?after(api('/api/admin/accounts',{action:'create',name:v.name,khoi:v.khoi,mon:v.mon})):Promise.resolve()})})};
 /* đối chiếu với máy chủ sau khi lưu: phần máy chủ không chấp nhận thì bỏ */
 function reconcile(sent,r){if(!r||!P)return;if(r.xp<sent.xp)P.xp-=sent.xp-r.xp;if(r.lp<sent.lp)P.lp=Math.max(0,P.lp-(sent.lp-r.lp));
   for(const id of Object.keys(sent.own||{}))if(!r.own[id]){delete P.own[id];for(const [k,v] of Object.entries(P.eq))if(v===id)delete P.eq[k]}
