@@ -903,24 +903,25 @@ function bankFilterHTML(){const td=BK.tab==='td',ls=bankLessons(BK.k),des=bankDe
   const sel=(id,cur,opts)=>`<select class="name" id="${id}">${opts.map(([v,l])=>`<option value="${esc(v)}" ${String(cur)===String(v)?'selected':''}>${esc(l)}</option>`).join('')}</select>`;
   const lab=t=>(t.chuong?t.chuong.replace(/^k\d+-/,'').toUpperCase()+' · ':'')+t.title;
   if(BK.bai&&!ls.concat(td?[]:des).some(t=>t.id===BK.bai))BK.bai='';
-  return `<div class="tbox">${td?'<p class="tnote" style="margin:0 0 8px">Câu <b>Mức 4</b> của mọi bài trong khối. Đây là kho câu dùng cho Thi đấu.</p>':''}
+  const lvFrom=m=>{const i=RANK_BY_TIER.findIndex(r=>r[m]>0);return i<0?'chưa dùng':'từ bậc '+((TIERS[i]||{}).n||i+1)};
+  return `<div class="tbox">${td?`<p class="tnote" style="margin:0 0 8px">Kho Thi đấu khối ${BK.k}: mọi câu Mức 1–4 của các bài <b>đã duyệt</b>, không lỗi, không tính đề ôn tập. Bài nháp hoặc ẩn chưa vào kho. Mức 3 dùng ${lvFrom(2)}, Mức 4 dùng ${lvFrom(3)}.</p>`:''}
     <div class="bkgrid">${sel('bkBai',BK.bai,[['','Tất cả bài'],...ls.map(t=>[t.id,lab(t)]),...(td?[]:des.map(t=>[t.id,'Ôn tập · '+t.title]))])}
-    ${td?'':sel('bkMan',BK.man,[['','Mọi mức'],['1','Mức 1'],['2','Mức 2'],['3','Mức 3'],['4','Mức 4']])}
-    ${sel('bkType',BK.type,[['','Mọi dạng'],...Object.entries(TYPE)])}${sel('bkSt',BK.st,[['','Mọi trạng thái bài'],...Object.entries(BK_ST)])}</div>
+    ${sel('bkMan',BK.man,[['','Mọi mức'],['1','Mức 1'],['2','Mức 2'],['3','Mức 3'],['4','Mức 4']])}
+    ${sel('bkType',BK.type,[['','Mọi dạng'],...Object.entries(TYPE)])}${td?'':sel('bkSt',BK.st,[['','Mọi trạng thái bài'],...Object.entries(BK_ST)])}</div>
     <input class="name" id="bkQ" placeholder="Tìm chữ trong đề, đáp án, lời giải…" value="${esc(BK.q)}"></div>`}
 function bindBankFilters(){const on=(id,k)=>{const el=$('#'+id);if(el)el.onchange=()=>{BK[k]=el.value;BK.lim=25;bankList()}};
   on('bkBai','bai');on('bkMan','man');on('bkType','type');on('bkSt','st');let tm=null;
   $('#bkQ').oninput=()=>{clearTimeout(tm);tm=setTimeout(()=>{BK.q=$('#bkQ').value;BK.lim=25;bankList()},300)}}
 function bankList(){const td=BK.tab==='td',qq=plain(BK.q),all=bankItems(BK.k);let it=all;
-  if(td)it=it.filter(x=>!isDe(x.t)&&x.n===4);
+  if(td)it=it.filter(x=>!isDe(x.t)&&x.t.status==='giao'&&!x.t.errors.length);
   if(BK.bai)it=it.filter(x=>x.t.id===BK.bai);
-  if(!td&&BK.man)it=it.filter(x=>String(x.n)===BK.man);
+  if(BK.man)it=it.filter(x=>String(x.n)===BK.man);
   if(BK.type)it=it.filter(x=>x.b.type===BK.type);
-  if(BK.st)it=it.filter(x=>x.t.status===BK.st);
+  if(!td&&BK.st)it=it.filter(x=>x.t.status===BK.st);
   if(qq)it=it.filter(x=>plain(x.b.raw).includes(qq));
   const c={},ty={};it.forEach(x=>{c[x.n]=(c[x.n]||0)+1;ty[x.b.type]=(ty[x.b.type]||0)+1});
-  const bt=BK.bai&&TOPICS.find(t=>t.id===BK.bai),addN=td?4:isDe(bt||{})?1:(Number(BK.man)||1);
-  $('#bkSum').innerHTML=`<p class="bksum"><b>${it.length} câu</b>${td?'':` · M1 ${c[1]||0} · M2 ${c[2]||0} · M3 ${c[3]||0} · M4 ${c[4]||0}`} · ${Object.entries(TYPE).map(([k,v])=>`${v} ${ty[k]||0}`).join(' · ')}</p>`+
+  const bt=BK.bai&&TOPICS.find(t=>t.id===BK.bai),addN=isDe(bt||{})?1:(Number(BK.man)||(td?4:1));
+  $('#bkSum').innerHTML=`<p class="bksum"><b>${it.length} câu</b> · M1 ${c[1]||0} · M2 ${c[2]||0} · M3 ${c[3]||0} · M4 ${c[4]||0} · ${Object.entries(TYPE).map(([k,v])=>`${v} ${ty[k]||0}`).join(' · ')}</p>`+
     (bt?`<button class="btn sm" id="bkAdd">+ Thêm câu ${isDe(bt)?'vào đề':'Mức '+addN} · ${esc(bt.title)}</button>`:'')+(td?bankTdTable(all):'');
   BK.cur=it.slice(0,BK.lim);
   $('#bkList').innerHTML=(BK.cur.length?BK.cur.map(bankCard).join(''):'<div class="tbox"><p>Không có câu nào khớp bộ lọc.</p></div>')+
@@ -940,9 +941,10 @@ function bankCard(x,i){const {q,errors}=parseOne(x.b.raw);let q2=q;try{if(q)q2=i
   return `<div class="tbox qrow${errors.length?' bad':''}"><div class="hqh"><span class="chip ${x.t.status}">${esc(x.t.title)}</span><span class="chip">${isDe(x.t)?'Đề ôn tập':'Mức '+x.n}</span><span class="chip nhap">${TYPE[x.b.type]}</span>${q&&q.params?'<span class="chip">có tham số</span>':''}${q&&q.hints?`<span class="chip">${q.hints.length} gợi ý</span>`:''}</div>
     ${errors.length?`<div class="err">${errors.map(esc).join('<br>')}</div>`:''}${q2?`<div class="stem">${tex(q2.stem)}</div><div class="vans">${answerHTML(q2)}</div>`:''}
     <div class="qbtn"><button class="btn sm" data-be data-i="${i}">✎ Sửa</button><button class="btn sm alt" data-bc data-i="${i}">Chép vào đề…</button><button class="btn sm alt" data-bo data-i="${i}">Mở bài</button><button class="btn sm alt" data-bd data-i="${i}">Xóa</button></div></div>`}
-function bankTdTable(all){const ls=bankLessons(BK.k);if(!ls.length)return '';const cnt={};all.forEach(x=>{if(x.n===4&&!isDe(x.t))cnt[x.t.id]=(cnt[x.t.id]||0)+1});
-  return `<details class="tbox bktd" ${BK.tdOpen?'open':''}><summary><b>Số câu Mức 4 theo bài</b> <small>(${ls.filter(t=>(cnt[t.id]||0)<2).length} bài dưới 2 câu)</small></summary>
-    ${ls.map(t=>`<div class="row2"><span>${esc(t.title)} <small>${cnt[t.id]||0} câu</small></span><button class="btn sm${(cnt[t.id]||0)<2?'':' alt'}" data-ta="${t.id}">+ Thêm</button></div>`).join('')}</details>`}
+function bankTdTable(all){const ls=bankLessons(BK.k);if(!ls.length)return '';const tot={},m4={};all.forEach(x=>{if(isDe(x.t))return;tot[x.t.id]=(tot[x.t.id]||0)+1;if(x.n===4)m4[x.t.id]=(m4[x.t.id]||0)+1});
+  const inK=t=>t.status==='giao'&&!t.errors.length,out=ls.filter(t=>!inK(t)).length;
+  return `<details class="tbox bktd" ${BK.tdOpen?'open':''}><summary><b>Các bài của khối</b> <small>(${ls.length-out} bài trong kho${out?`, ${out} bài chưa vào kho`:''})</small></summary>
+    ${ls.map(t=>`<div class="row2"><span>${esc(t.title)} <small>${inK(t)?`${tot[t.id]||0} câu · Mức 4: ${m4[t.id]||0}`:`chưa vào kho (${t.errors.length?'có lỗi':BK_ST[t.status]||t.status})`}</small></span><button class="btn sm${(m4[t.id]||0)<2?'':' alt'}" data-ta="${t.id}">+ Mức 4</button></div>`).join('')}</details>`}
 function bankAdd(t,n){if(!t)return;const m=qBlocks(t.raw).find(b=>b.man&&Number(b.n)===n);
   if(m)editQ(t,null,m.lv);else editQ(t,null,`\\man{${n}}{${BK_MAN[n]||'Mức '+n}}`)}
 function bankCopy(x){const des=bankDes(x.t.khoi).filter(d=>d!==x.t);

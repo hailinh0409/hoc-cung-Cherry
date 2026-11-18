@@ -35,7 +35,7 @@ App bài tập Toán dạng game trên điện thoại. Giao diện giống hệ
 ## Câu hỏi
 Câu hỏi soạn bằng LaTeX, lưu ở bảng `ltt_topics` (cột `source`). Claude soạn bằng skill *nap-bai-leo-thap* rồi thầy duyệt trong app (bấm vào tấm biển chủ đề trên bản đồ ở chế độ giáo viên). Sửa từng câu: nút ✎ hoặc **Sửa câu hỏi**.
 
-**Ngân hàng câu hỏi** (chỉ giáo viên, nút ở màn chọn môn): xem mọi câu của một khối, lọc theo bài/mức/dạng/trạng thái, tìm theo chữ; thẻ *Thi đấu* gom câu Mức 4; thẻ *Ôn tập* tạo đề mới (nháp) và ghép đề bằng nút *Chép vào đề…*. Khi lưu, máy chủ từ chối nếu bài vừa bị sửa ở nơi khác (tránh ghi đè). Làm việc hàng loạt trên máy: `scripts/ngan-hang.mjs` (xem `ngan-hang/HUONG-DAN.md`).
+**Ngân hàng câu hỏi** (chỉ giáo viên, nút ở màn chọn môn): xem mọi câu của một khối, lọc theo bài/mức/dạng/trạng thái, tìm theo chữ; thẻ *Thi đấu* xem kho câu Thi đấu (mọi mức của các bài đã duyệt) và thêm câu Mức 4; thẻ *Ôn tập* tạo đề mới (nháp) và ghép đề bằng nút *Chép vào đề…*. Khi lưu, máy chủ từ chối nếu bài vừa bị sửa ở nơi khác (tránh ghi đè). Làm việc hàng loạt trên máy: `scripts/ngan-hang.mjs` (xem `ngan-hang/HUONG-DAN.md`).
 
 ## Giới hạn hiện tại
 - Chấm bài diễn ra trên điện thoại (đáp án được gửi kèm đề). Máy chủ chặn các kiểu gian lận lớn (tự cộng XP, tự thêm đồ, tự nâng hạng) nhưng học sinh rành kỹ thuật vẫn có thể xem đáp án trong mã trang.
