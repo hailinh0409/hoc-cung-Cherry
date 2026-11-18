@@ -265,3 +265,7 @@ textarea.code.light{background:#fff;color:#12313a;font:14px/1.5 "Be Vietnam Pro"
 .tnode .coin{width:58px;height:58px;font-size:26px}
 .hwn{font-style:normal;font-size:10px;font-weight:800;background:#fff3c4;color:#7a5a00;padding:1px 7px;border-radius:99px;margin-top:2px;white-space:nowrap}.hwn.late{background:#ffe3e6;color:#a1202f}.hwn.st{background:#e3e3e3;color:#444}
 .plank{min-height:70px}
+
+/* Ngân hàng câu hỏi */
+.tbox .qbtn{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}.bkgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}.bkgrid select.name,#bkQ{width:100%;padding:0 10px}
+.bksum{font-size:13px;color:var(--mute);margin:10px 2px 6px}.bktd summary{cursor:pointer}.bktd summary small{color:#7a9399}.foot{flex-wrap:wrap}
