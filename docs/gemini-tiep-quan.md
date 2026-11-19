@@ -17,11 +17,10 @@ Mở https://github.com/hailinh0409/hoc-cung-Cherry/pulls. Việc dở là pull 
 
 ## Bước 2. Giao cho Gemini (chọn một cách)
 
-**Cách A — Jules (trợ lý lập trình của Google, chạy Gemini, nối thẳng GitHub) — khuyên dùng.**
-Cài đặt một lần: vào https://jules.google, đăng nhập tài khoản Google cá nhân, bấm kết nối GitHub và cài ứng dụng Jules **chỉ cho repo `hoc-cung-Cherry`**.
-Mỗi lần giao việc: chọn repo, chọn **nhánh xuất phát là nhánh dở** (`claude/…`), dán câu lệnh mẫu ở Bước 3. Jules làm trên máy ảo của Google rồi mở một pull request mới; thầy xem và gộp như bình thường. (Jules có thể tạo nhánh riêng dựa trên nhánh dở thay vì đẩy vào đúng nhánh đó; như vậy vẫn được, miễn file tiến độ được cập nhật.)
-
-**Cách A2 — Gemini CLI trên máy tính.** Chạy trong thư mục repo đã `git clone` mới (không dùng bản cũ ở ổ D). Gemini CLI tự đọc `GEMINI.md`. Lưu ý: cách đăng nhập miễn phí bằng tài khoản Google cho Gemini CLI đã bị Google thu hẹp trong năm 2026; có thể cần khóa API riêng.
+**Cách A — Antigravity (công cụ lập trình của Google chạy Gemini, cài trên máy tính).**
+Google đã dừng Jules (chỉ còn xem từ 11/11/2026, đóng hẳn 31/12/2026) và chuyển sang Antigravity; Gemini CLI cũng được thay bằng Antigravity CLI.
+Cài đặt một lần: cài Antigravity trên máy, đăng nhập tài khoản Google; `git clone` repo `hailinh0409/hoc-cung-Cherry` vào một thư mục **mới** (không dùng bản cũ ở ổ D); đăng nhập GitHub trên máy để đẩy được nhánh.
+Mỗi lần giao việc: mở thư mục repo trong Antigravity, chuyển sang nhánh dở (`git checkout claude/…`), dán câu lệnh mẫu ở Bước 3. Antigravity sửa file, commit và đẩy lên đúng nhánh, pull request tự cập nhật.
 
 **Cách B — Gemini trên web (gemini.google.com).** Gemini web không tự commit được:
 1. Trong Gemini, nhập repo GitHub (nút thêm tệp → nhập mã nguồn, nếu có) hoặc dán nội dung file tiến độ và các file liên quan.
