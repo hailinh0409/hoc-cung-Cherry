@@ -29,7 +29,8 @@ js = must(js, "const doc=PLAYERS.find(x=>x.id===ACC.id);if(doc)mergeP(doc);", "c
 js = must(js, 'function logout(view){ACC=null;', "function logout(view){api('/api/auth/logout',{}).catch(()=>{});TEACHER=false;ACC=null;");
 js = must(js, 'const tex=s=>esc(s)', 'const tex=s=>figImg(esc(figSwap(s)))');
 js = must(js, "await DB.doc('players/'+ACC.id).set(doc)}", "const r=await DB.doc('players/'+ACC.id).set(doc);reconcile(doc,r)}");
-js = must(js, "$('#intro').onclick=()=>{sfx.win();start()};", "$('#intro').onclick=()=>{sfx.win();start()};\n" + R('client/real.js'));
+// Bản thật: không còn bước "Chạm để bắt đầu"; mở link là vào thẳng (màn chờ chỉ hiện logo, tên app, tên CLB)
+js = must(js, "$('#intro').onclick=()=>{sfx.win();start()};", R('client/real.js'));
 const a = js.indexOf("(async()=>{if(!window.claude");
 const b = js.lastIndexOf('})();', js.lastIndexOf('</script>'));
 if (a < 0 || b < a) throw new Error('Không tìm thấy khối khởi động artifact');

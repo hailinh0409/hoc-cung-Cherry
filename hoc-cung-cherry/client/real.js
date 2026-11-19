@@ -62,7 +62,7 @@ async function onLogin(r){TEACHER=r.acc.role==='teacher';SERVERP=r.data||null;
   try{await loadAll()}catch(e){return msgBox('Chưa tải được dữ liệu',esc(e.message))}DBSTATE='ok';
   if(TEACHER)enter({id:'gv',name:r.acc.name||'Giáo viên',khoi:'8',teacher:true});else enter(r.acc,r.isDefault)}
 function start(){started=true;if(SESS){const s=SESS;SESS=null;onLogin(s)}else login()}
-(async()=>{try{const me=await api('/api/me');if(me&&me.acc)SESS=me}catch(e){}DBSTATE='ok';if(started&&!ACC&&SESS){const s=SESS;SESS=null;onLogin(s)}})();
+(async()=>{try{const me=await api('/api/me');if(me&&me.acc)SESS=me}catch(e){}DBSTATE='ok';if(!started)start();else if(!ACC&&SESS){const s=SESS;SESS=null;onLogin(s)}})();
 setInterval(()=>{if(ACC&&!document.hidden)loadAll().then(softRefresh).catch(e=>{if(e.status===401){ACC=null;P=null;login('in','Phiên đăng nhập đã hết, em đăng nhập lại nhé.')}})},60000);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&ACC)loadAll().then(softRefresh).catch(()=>{})});
 if('serviceWorker' in navigator)navigator.serviceWorker.register('/sw.js').catch(()=>{});
