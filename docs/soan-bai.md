@@ -4,6 +4,10 @@ Bản này chép từ quy trình soạn bài của Claude (skill `nap-bai-leo-th
 
 ## Ghi bài vào app khi KHÔNG có quyền vào Supabase (ví dụ Gemini)
 
+**Cách nhanh nhất (không cần máy tính):** trợ lý trả về toàn bộ LaTeX của một bài trong một khối mã. Thầy mở app bằng tài khoản giáo viên → Toán → khối → bấm vào bài còn xám có nhãn **+ Dán bài** trên bản đồ → dán → *Kiểm tra và tạo bài nháp*. App tự gắn đúng mã bài, tự thêm `\chude` nếu thiếu, bỏ qua dấu ``` và các dòng `%%%`, báo lỗi cú pháp nếu có. Hình TikZ tự hiện sau khoảng 15 phút. Bài đã có trên bản đồ thì sửa ở *Cài đặt & sửa câu hỏi* → *LaTeX của chủ đề*.
+
+**Cách dùng file (sửa hàng loạt, đề ôn tập):**
+
 1. Mỗi bài là một file `.tex` trong `hoc-cung-cherry/ngan-hang/lop<khối>/<slug>.tex`. Đầu file có các dòng thông tin:
    ```
    %%% slug: lop6-b23-mo-rong-phan-so
