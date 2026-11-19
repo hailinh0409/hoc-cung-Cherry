@@ -29,7 +29,7 @@ App bài tập Toán dạng game trên điện thoại. Giao diện giống hệ
 - `app/api/` — máy chủ: đăng nhập, đồng bộ, lưu tiến độ, chức năng giáo viên.
 - `lib/validate.js` — máy chủ kiểm tra dữ liệu học sinh gửi lên: XP tăng theo thời gian có giới hạn, đồ mua phải đủ XP (giá tính trên máy chủ), đồ đặc biệt phải đạt điều kiện, điểm thi đấu tối đa +30 mỗi trận, gói tin thiếu không làm mất dữ liệu.
 - `lib/secret.js` — mã PIN/mật khẩu băm bằng scrypt. Sai 5 lần khoá 1 phút, sai 10 lần khoá 15 phút.
-- `scripts/dung-hinh.mjs`, `scripts/dich_hinh.py` — dịch hình TikZ thành SVG (cần TeX Live).
+- `scripts/dung-hinh.mjs`, `scripts/dich_hinh.py` — dịch hình TikZ thành SVG (cần TeX Live). GitHub Actions `tu-dich-hinh.yml` tự chạy `dung-hinh.mjs` mỗi 15 phút.
 - `tests/` — kiểm thử: `npm test`. Chạy thử trên máy không cần Supabase: `FAKE_DB=1 SESSION_SECRET=... npm run build && npm start` (dùng dữ liệu mẫu `tests/seed.json`; tài khoản giáo viên mẫu `thaylinh` / `matkhau123`).
 
 ## Câu hỏi

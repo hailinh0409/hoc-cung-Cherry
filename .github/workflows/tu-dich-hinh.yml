@@ -1,0 +1,59 @@
+name: Tự dịch hình TikZ
+# Cứ 15 phút tìm các hình TikZ trong ltt_topics chưa có SVG, dịch rồi ghi vào ltt_figures.
+# Không có hình mới thì dừng ngay, không cài TeX.
+# Cần 2 khóa trong Settings → Secrets and variables → Actions:
+#   NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY (lấy từ Vercel → Settings → Environment Variables)
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+    inputs:
+      slug:
+        description: 'Mã chủ đề (slug) cần dịch, để trống = mọi chủ đề'
+        required: false
+      dich_lai_loi:
+        description: 'Dịch lại cả hình đã báo lỗi'
+        type: boolean
+        default: false
+concurrency:
+  group: tu-dich-hinh
+  cancel-in-progress: false
+jobs:
+  dich-hinh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: hoc-cung-cherry
+    env:
+      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      SLUG: ${{ inputs.slug }}
+      CO: ${{ inputs.dich_lai_loi == true && '--dich-lai' || '--bo-qua-loi' }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Kiểm tra khóa Supabase
+        run: |
+          if [ -z "$NEXT_PUBLIC_SUPABASE_URL" ] || [ -z "$SUPABASE_SERVICE_ROLE_KEY" ]; then
+            echo "::error::Chưa thêm khóa NEXT_PUBLIC_SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY vào Secrets của repo."
+            exit 1
+          fi
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: hoc-cung-cherry/package-lock.json
+      - run: npm ci --ignore-scripts
+      - name: Đếm hình chưa dịch
+        id: dem
+        run: node scripts/dung-hinh.mjs $SLUG --dem $CO
+      - name: Cài TeX (chỉ khi có hình cần dịch)
+        if: steps.dem.outputs.can_dich != '0'
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq --no-install-recommends \
+            texlive-xetex texlive-latex-recommended texlive-latex-extra texlive-pictures \
+            fonts-lmodern lmodern poppler-utils > /dev/null
+      - name: Dịch hình và ghi lên Supabase
+        if: steps.dem.outputs.can_dich != '0'
+        run: node scripts/dung-hinh.mjs $SLUG $CO

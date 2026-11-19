@@ -16,7 +16,7 @@ Bản này chép từ quy trình soạn bài của Claude (skill `nap-bai-leo-th
    Sửa bài đã có: thầy chạy `keo` trước để lấy bản mới nhất, rồi sửa đúng file đó (giữ nguyên các dòng `%%%`).
 2. Thầy kiểm tra cú pháp bằng đúng bộ đọc của app: `node scripts/ngan-hang.mjs kiemtra ngan-hang` (trong thư mục `hoc-cung-cherry`).
 3. Thầy chạy thử rồi đẩy lên: `node --env-file=.env.local scripts/ngan-hang.mjs day --thu`, sau đó bỏ `--thu`. Bài mới luôn ở trạng thái nháp; thầy duyệt trong app.
-4. Có hình TikZ mới: `node --env-file=.env.local scripts/dung-hinh.mjs <slug>`.
+4. Có hình TikZ mới: **không cần làm gì**. GitHub Actions (`.github/workflows/tu-dich-hinh.yml`) cứ 15 phút tự dịch các hình chưa có SVG. Cần hình ngay: vào GitHub → Actions → *Tự dịch hình TikZ* → *Run workflow*, hoặc tự chạy trên máy `node --env-file=.env.local scripts/dung-hinh.mjs <slug>`. Hình báo lỗi thì sửa mã TikZ, lần chạy sau tự dịch lại.
 
 Mã bài: Bài thường `k<khối>-b<số bài SGK>`; Luyện tập chung `k<khối>-c<chương>-lt<thứ tự>` (khối 6–9); Bài tập cuối chương `k<khối>-c<chương>-cc` (khối 10–12, SGK THPT không có Luyện tập chung). Số bài khối 10–12 đánh liên tục cả năm như SGK (ví dụ `k11-b18` = Luỹ thừa với số mũ thực). Danh sách đủ ở hằng `CURR` trong `hoc-cung-cherry/client/app.js`.
 
