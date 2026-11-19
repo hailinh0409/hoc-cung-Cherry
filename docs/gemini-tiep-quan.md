@@ -19,7 +19,7 @@ Mở https://github.com/hailinh0409/hoc-cung-Cherry/pulls. Việc dở là pull 
 
 **Cách A — Antigravity (công cụ lập trình của Google chạy Gemini, cài trên máy tính).**
 Google đã dừng Jules (chỉ còn xem từ 11/11/2026, đóng hẳn 31/12/2026) và chuyển sang Antigravity; Gemini CLI cũng được thay bằng Antigravity CLI.
-Cài đặt một lần: cài Antigravity trên máy, đăng nhập tài khoản Google; `git clone` repo `hailinh0409/hoc-cung-Cherry` vào một thư mục **mới** (không dùng bản cũ ở ổ D); đăng nhập GitHub trên máy để đẩy được nhánh.
+Cài đặt một lần (chi tiết: `docs/cai-antigravity.md`): cài Antigravity trên máy, đăng nhập tài khoản Google; `git clone` repo `hailinh0409/hoc-cung-Cherry` vào một thư mục **mới** (không dùng bản cũ ở ổ D); đăng nhập GitHub trên máy để đẩy được nhánh.
 Mỗi lần giao việc: mở thư mục repo trong Antigravity, chuyển sang nhánh dở (`git checkout claude/…`), dán câu lệnh mẫu ở Bước 3. Antigravity sửa file, commit và đẩy lên đúng nhánh, pull request tự cập nhật.
 
 **Cách B — Gemini trên web (gemini.google.com).** Gemini web không tự commit được:
