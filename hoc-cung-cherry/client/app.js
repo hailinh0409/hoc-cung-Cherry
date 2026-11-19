@@ -319,7 +319,7 @@ function journey(){show('journey');jdock();if(curK===ACC.khoi&&!ACC.teacher&&!P.
       y-=BAN+30;return}
     const L=x.L,t=x.t,side=[.3,.7,.62,.38][ni++%4],x2=side*W,ny=y-STEP/2;pts.push([x2,ny]);
     const lab=`<span class="tlab"><b>${L.lt?L.title:L.num?'Bài '+L.num:'Bổ sung'}</b>${L.lt?'':`<i>${esc(t&&!L.num?t.title:L.title)}</i>`}</span>`;
-    if(!t){html+=`<div class="tnode ghost${x2<W/2?' l':' r'}" style="left:${x2}px;top:${ny}px"><span class="coin">${L.lt?L.coin:L.num||'?'}</span>${lab}</div>`;y-=STEP;return}
+    if(!t){const gv=GV()&&L.id;html+=`<${gv?'button':'div'} class="tnode ghost${x2<W/2?' l':' r'}"${gv?` data-gl="${esc(L.id)}"`:''} style="left:${x2}px;top:${ny}px"><span class="coin">${L.lt?L.coin:L.num||'?'}</span>${lab}${gv?'<em class="hwn st">+ Dán bài</em>':''}</${gv?'button':'div'}>`;y-=STEP;return}
     if(!hasQ(t)){html+=`<button class="tnode ghost thy${x2<W/2?' l':' r'}" data-th="${esc(t.id)}" style="left:${x2}px;top:${ny}px"><span class="coin">${L.lt?L.coin:L.num||'?'}</span>${lab}<i class="thb">${bookSVG}</i>${GV()&&t.status!=='giao'?`<em class="hwn st">${({nhap:'Nháp',an:'Đã ẩn'})[t.status]||t.status}</em>`:''}</button>`;y-=STEP;return}
     const j=ts.indexOf(t),lo=topicOpen(ts,j),b=bestOf(t,0),a=asgFor(t),as=a&&asgStatus(a,myPt),st=!lo?'lock':b?'done':'open';
     if(st==='open'&&!cur)cur={x:x2,y:ny};
@@ -345,7 +345,28 @@ function journey(){show('journey');jdock();if(curK===ACC.khoi&&!ACC.teacher&&!P.
     if(GV()){overlay(`<h2 style="font-size:24px">${esc(t.title)}</h2><p>Bài này mới có lý thuyết, chưa có câu hỏi.</p><button class="btn" id="g1">Xem lý thuyết</button><button class="btn alt" id="g2">Cài đặt & sửa</button><button class="btn alt" id="g3">Đóng</button>`);
       $('#g1').onclick=()=>{closeOvl();theory(t)};$('#g2').onclick=()=>{closeOvl();tOpts(t)};$('#g3').onclick=closeOvl;return}
     theory(t)});
-  $$('#tmap .tnode.ghost:not(.thy)').forEach(b=>b.onclick=()=>{sfx.tap();toast(GV()?'Bài này chưa có câu hỏi. Thầy nhờ Claude soạn rồi gán vào bài này.':'Bài này thầy đang chuẩn bị câu hỏi. Em làm các bài khác trước nhé!')})}
+  $$('#tmap .tnode.ghost:not(.thy)').forEach(b=>b.onclick=()=>{sfx.tap();const L=b.dataset.gl&&currOf(curK).find(c=>c.id===b.dataset.gl);
+    if(GV()&&L)return pasteNew(L);toast(GV()?'Bài này chưa có câu hỏi.':'Bài này thầy đang chuẩn bị câu hỏi. Em làm các bài khác trước nhé!')})}
+
+/* ---------- Dán bài mới (giáo viên): tạo chủ đề nháp cho bài chưa có câu hỏi ---------- */
+// Nhận LaTeX do Gemini/Claude soạn; bỏ dấu ``` và các dòng %%% của file ngân hàng; thiếu \chude thì lấy tên bài SGK.
+const cleanPaste=v=>String(v||'').replace(/\r/g,'').split('\n').filter(l=>!/^\s*```/.test(l)&&!/^\s*%%%/.test(l)).join('\n').trim();
+function pasteNew(L){const k=curK,name=L.lt?lessonName(L):L.title;
+  overlay(`<h2 style="font-size:24px">Dán bài mới</h2><p class="tnote">${esc(lessonName(L))} · Khối ${k}<br>Dán toàn bộ LaTeX của bài (lý thuyết và câu hỏi). Bài mới ở trạng thái <b>Nháp</b>; hình TikZ tự hiện sau khoảng 15 phút.</p>
+    <textarea class="code" id="pn" spellcheck="false" placeholder="\\chude{${esc(name)}}"></textarea><div id="pnErr"></div>
+    <button class="btn" id="pnS">Kiểm tra và tạo bài nháp</button><button class="btn alt" id="pnC">Hủy</button>`);
+  $('#pnC').onclick=closeOvl;
+  $('#pnS').onclick=async()=>{let text=cleanPaste($('#pn').value);const er=m=>{$('#pnErr').innerHTML=`<div class="err">${m}</div>`};
+    if(!text)return er('Thầy dán nội dung bài vào ô trên.');
+    if(!/\\chude\s*\{/.test(text))text=`\\chude{${name.replace(/[{}\\]/g,'')}}\n\n`+text;
+    const P=parseTopic(text);if(P.errors.length)return er(P.errors.map(esc).join('<br>'));
+    const nq=P.levels.reduce((s,l)=>s+l.qs.length,0);if(!nq&&!P.theory)return er('Chưa thấy câu hỏi hay lý thuyết nào trong nội dung đã dán.');
+    if(TOPICS.some(t=>t.khoi===k&&t.chuong===L.id))return er('Bài này vừa có chủ đề (có thể do máy khác tạo). Thầy đóng hộp này để tải lại bản đồ.');
+    const nf=(text.match(/\\begin\{tikzpicture\}/g)||[]).length,idx=currOf(k).filter(c=>c.id).findIndex(c=>c.id===L.id);
+    $('#pnS').disabled=true;
+    try{await DB.collection('topics').doc().set({title:P.title||name,khoi:k,phan:L.ch.phan,chuong:L.id,text,thutu:(idx+1)*10,nguon:'Dán bài mới (giáo viên)'});
+      closeOvl();sfx.ok();toast(`Đã tạo bài nháp: ${nq} câu${P.theory?' + lý thuyết':''}${nf?` · ${nf} hình đang chờ dịch`:''}.`);journey()}
+    catch(e){$('#pnS').disabled=false;er(esc(e&&e.message||'Lỗi kết nối'))}}}
 
 /* ---------- tóm tắt lý thuyết của bài ---------- */
 const bookSVG='<svg viewBox="0 0 24 24" width="18" height="18"><path d="M3 5.5C5.5 4 8.5 4 12 6c3.5-2 6.5-2 9-.5V19c-2.5-1.3-5.5-1.3-9 .7-3.5-2-6.5-2-9-.7z" fill="#fff" stroke="#2584b8" stroke-width="1.6" stroke-linejoin="round"/><path d="M12 6v13.7" stroke="#2584b8" stroke-width="1.6"/></svg>';

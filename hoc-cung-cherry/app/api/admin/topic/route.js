@@ -8,7 +8,8 @@ const slugify = s => plainName(s).replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g
 const sameTime = (a, b) => Date.parse(a || 0) === Date.parse(b || 0);
 
 // Sửa chủ đề: nội dung LaTeX (lưu bản trước để hoàn tác), trạng thái, phần, chương, thứ tự.
-// action 'create': tạo chủ đề mới (luôn ở trạng thái nháp), dùng cho "Tạo đề ôn tập mới" trong Ngân hàng câu hỏi.
+// action 'create': tạo chủ đề mới (luôn ở trạng thái nháp), dùng cho "Tạo đề ôn tập mới" trong Ngân hàng câu hỏi
+// và nút "Dán bài mới" trên bản đồ (gửi kèm text, chuong = mã bài, nguon).
 // base: thời điểm sửa gần nhất mà giao diện đang có; nếu chủ đề đã bị sửa ở nơi khác thì từ chối để không ghi đè.
 export async function POST(req) {
   if (!(await needTeacher())) return fail('Chỉ giáo viên', 403);
@@ -19,12 +20,14 @@ export async function POST(req) {
     const title = String(b.title || '').replace(/\s+/g, ' ').trim().slice(0, 120), grade = String(b.khoi || '');
     const phan = PHAN.includes(b.phan) ? b.phan : 'on-tap';
     if (!title || !/^(6|7|8|9|1[0-2])$/.test(grade)) return fail('Thiếu tên hoặc khối');
-    const sl = slugify(title), base = `lop${grade}-${phan === 'on-tap' && !/^de-/.test(sl) ? 'de-' : ''}${sl}`;
+    const chuong = phan === 'on-tap' ? null : (String(b.chuong || '').trim() || null);
+    const code = chuong && /^k\d+-[a-z0-9-]+$/.test(chuong) ? chuong.replace(/^k\d+-/, '') + '-' : '';
+    const sl = slugify(title), base = `lop${grade}-${code}${phan === 'on-tap' && !/^de-/.test(sl) ? 'de-' : ''}${sl}`.slice(0, 80);
     const { data: used } = await db.from('ltt_topics').select('slug').like('slug', base + '%');
     const taken = new Set((used || []).map(r => r.slug));
     let slug = base; for (let i = 2; taken.has(slug); i++) slug = `${base}-${i}`;
     const text = typeof b.text === 'string' && b.text.trim() ? b.text : `\\chude{${title.replace(/[{}\\]/g, '')}}\n\n\\man{1}{${phan === 'on-tap' ? 'Đề' : 'Nhận biết'}}\n`;
-    const { error } = await db.from('ltt_topics').insert({ slug, title, grade, status: 'draft', source: text, sort: Math.floor(Number(b.thutu) || 0), nguon: 'Ngân hàng câu hỏi (giáo viên)', phan, chuong: phan === 'on-tap' ? null : (String(b.chuong || '') || null) });
+    const { error } = await db.from('ltt_topics').insert({ slug, title, grade, status: 'draft', source: text, sort: Math.floor(Number(b.thutu) || 0), nguon: String(b.nguon || '').trim().slice(0, 60) || 'Ngân hàng câu hỏi (giáo viên)', phan, chuong });
     return error ? fail('Chưa tạo được', 500) : json({ ok: true, id: slug });
   }
 
