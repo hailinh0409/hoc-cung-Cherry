@@ -20,7 +20,7 @@ Chủ dự án: **thầy Phan Hải Linh** (GitHub `hailinh0409`). Thầy là ng
   **Không sửa trực tiếp `public/app.html` và `lib/items.js`**: hai file này được sinh bằng `node scripts/build-app.mjs`. Sửa `client/` xong phải chạy lệnh này và commit cả file sinh ra.
 - `app/api/` — máy chủ Next.js (đăng nhập, đồng bộ, lưu tiến độ, chức năng giáo viên).
 - `lib/` — dùng chung: `latex.js` (bộ đọc câu hỏi LaTeX, dùng cả ở máy chủ, giao diện và script), `params.js` (câu có tham số), `srs.js` (lịch ôn), `validate.js` (chống gian lận), `topics.js`, `figcode.js` (hình TikZ).
-- `scripts/` — `build-app.mjs`, `ngan-hang.mjs` (kéo/đẩy ngân hàng câu hỏi), `dung-hinh.mjs` và `dich_hinh.py` (dịch TikZ sang SVG), `create-teacher.mjs`.
+- `scripts/` — `build-app.mjs`, `ngan-hang.mjs` (kéo/đẩy ngân hàng câu hỏi), `dung-hinh.mjs` và `dich_hinh.py` (dịch TikZ sang SVG; GitHub Actions `tu-dich-hinh.yml` tự chạy `dung-hinh.mjs` mỗi 15 phút, nên trợ lý **không cần tự dịch hình**), `create-teacher.mjs`.
 - `tests/` — `npm test`; `fakedb.cjs` + `seed.json` là cơ sở dữ liệu giả để chạy thử.
 
 ## 3. Kiểm tra bắt buộc trước khi mở PR
