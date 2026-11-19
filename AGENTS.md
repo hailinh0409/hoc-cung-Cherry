@@ -10,7 +10,7 @@ Chủ dự án: **thầy Phan Hải Linh** (GitHub `hailinh0409`). Thầy là ng
   - Claude: nhánh `claude/<việc>`; Gemini: nhánh `gemini/<việc>`.
   - Tiêu đề PR và commit viết tiếng Việt, nói rõ thay đổi gì cho thầy và học sinh.
 - **Một việc, một trợ lý.** Trước khi bắt đầu, xem các PR đang mở và các issue trên GitHub. Nếu việc đó đang có PR của trợ lý kia, không làm song song; góp ý trong PR đó.
-- **Xem chéo.** Khi thầy nhờ, trợ lý này đọc PR của trợ lý kia và góp ý bằng bình luận trong PR (lỗi, chỗ chưa khớp quy tắc). Không tự sửa đè lên nhánh của bên kia.
+- **Xem chéo.** Khi thầy nhờ, trợ lý này đọc PR của trợ lý kia và góp ý bằng bình luận trong PR (lỗi, chỗ chưa khớp quy tắc). Không tự sửa đè lên nhánh của bên kia, **trừ khi thầy giao tiếp quản** (mục 7).
 - **Bắt đầu từ `main` mới nhất.** Luôn tạo nhánh từ `origin/main` vừa tải về. Không dựa vào bản sao cũ trên máy thầy (ổ D) hay bản sao cũ của chính mình.
 - Mỗi PR ghi rõ: đã thay đổi gì, đã kiểm tra thế nào (lệnh đã chạy, kết quả), còn gì chưa làm.
 
@@ -57,6 +57,19 @@ Có sửa giao diện thì chạy thử bằng dữ liệu giả (`FAKE_DB=1 …
 - Mọi tính năng AI cho học sinh phải tuân thủ điều khoản của nhà cung cấp về người dùng dưới 18 tuổi. Hiện **Gemini API (Google AI Studio) không cho dùng trong ứng dụng hướng tới người dưới 18 tuổi**; Claude API cho phép nếu có các biện pháp an toàn. Kiểm tra lại điều khoản trước khi tích hợp bất kỳ mô hình nào vào app.
 - Không gửi tên hay thông tin cá nhân của học sinh cho dịch vụ AI.
 
-## 7. Viết cho thầy
+## 7. Bàn giao khi một trợ lý dừng giữa chừng
+
+Trợ lý nào cũng có thể dừng đột ngột (hết lượt dùng, hết bộ nhớ hội thoại, mất kết nối). Vì vậy **việc dở phải nằm trên GitHub, không nằm trong cuộc trò chuyện**:
+
+- **Ngay khi bắt đầu một việc nhiều bước:** tạo nhánh, chép `docs/tien-do/MAU.md` thành `docs/tien-do/<tên-nhánh>.md` (thay `/` bằng `-`), điền mục tiêu và các bước dự kiến, commit, đẩy lên, mở **pull request nháp (Draft)**.
+- **Sau mỗi bước nhỏ:** commit, đẩy lên, cập nhật file tiến độ (đã xong, đang làm dở chỗ nào, còn lại gì). Không để thay đổi chưa commit quá lâu.
+- **Quyết định thầy đã chốt trong chat** (ví dụ "không mở lý thuyết lúc làm bài") phải ghi vào mục *Quyết định đã chốt* của file tiến độ, vì trợ lý tiếp quản không đọc được cuộc trò chuyện.
+- **Dữ liệu đã ghi lên Supabase** trong lúc làm (bảng, slug) phải ghi vào file tiến độ.
+- **Tiếp quản:** khi thầy giao, trợ lý kia làm tiếp trên **cùng nhánh, cùng PR**, đọc file tiến độ trước, ghi "Người đang làm" là mình, và tiếp tục cập nhật file đó. Không làm lại phần đã xong nếu không thấy lỗi.
+- **Xong việc:** đánh dấu trạng thái "xong, chờ thầy duyệt", chuyển PR từ Draft sang Ready. File tiến độ giữ lại trong PR để thầy đọc; sau khi gộp có thể xóa.
+
+Hướng dẫn cho thầy: `docs/gemini-tiep-quan.md`. Hướng dẫn soạn câu hỏi, lý thuyết cho trợ lý không có quyền vào Supabase: `docs/soan-bai.md`.
+
+## 8. Viết cho thầy
 
 Thầy không phải lập trình viên chuyên nghiệp. Mô tả PR và tin nhắn viết tiếng Việt, ngắn, nói rõ thầy cần bấm gì hay kiểm tra gì; tránh thuật ngữ khi không cần.
