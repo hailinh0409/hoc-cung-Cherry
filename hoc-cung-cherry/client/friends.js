@@ -30,7 +30,7 @@ function friends(){show('friends');const me=ACC.id,fl=followingOf(P),fw=follower
   if(frTab==='search'){const q=plain(frQ);let L=PLAYERS.filter(p=>p.id!==me&&!p.mau&&(!frK||p.khoi===frK));
     if(q)L=L.filter(p=>plain(p.name).includes(q)||plain(p.nick||'').includes(q));else L=L.filter(p=>!isFollow(p.id)).sort((a,b)=>(b.khoi===ACC.khoi)-(a.khoi===ACC.khoi)||(b.xp||0)-(a.xp||0));
     body=`<div class="fsearch"><input class="name" id="fq" placeholder="Gõ tên hoặc nickname…" value="${esc(frQ)}" autocomplete="off"></div>
-      <div class="seg sm">${['','6','7','8','9'].map(k=>`<button data-fk="${k}" class="${k===frK?'on':''}">${k?'Khối '+k:'Tất cả'}</button>`).join('')}</div>
+      <div class="seg sm">${['',...KHOI].map(k=>`<button data-fk="${k}" class="${k===frK?'on':''}">${k||'Tất cả'}</button>`).join('')}</div>
       <p class="tnote2">${q?`${L.length} kết quả`:'Gợi ý cho em'}</p>${L.slice(0,40).map(p=>personRow(p)).join('')||'<div class="tempty">Không tìm thấy bạn nào.</div>'}`}
   $('#frBody').innerHTML=`<div class="fhead">${avatarOf(P,56)}<div><b>${esc(P.nick||ACC.name)}</b><small><a data-ft="following">${fl.length} đang theo dõi</a> · <a data-ft="followers">${fw.length} người theo dõi</a></small></div></div>
     <div class="shtabs">${tabs.map(([k,n])=>`<button data-ft="${k}" class="${k===frTab?'on':''}">${n}</button>`).join('')}</div>${body}`;
