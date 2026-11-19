@@ -20,6 +20,11 @@
 - [ ] <việc>
 - [ ] Chạy kiểm tra (AGENTS.md mục 3) và ghi kết quả vào PR
 
+## File liên quan
+<Danh sách file người tiếp quản cần đọc/sửa, mỗi dòng một đường dẫn. Gemini trên web không tự mở được GitHub, thầy sẽ đính kèm đúng các file này.>
+- `AGENTS.md`
+- `hoc-cung-cherry/<đường dẫn>`
+
 ## Cách kiểm tra
 <lệnh đã/ cần chạy, tài khoản thử, các bước bấm trên app>
 

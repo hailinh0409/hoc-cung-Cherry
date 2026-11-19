@@ -1,54 +1,60 @@
-# Kế hoạch dự phòng: Claude dừng giữa chừng, Gemini làm tiếp
+# Kế hoạch dự phòng: Claude dừng giữa chừng, Gemini (trên web) làm tiếp
 
-Dành cho thầy Linh. Áp dụng khi Claude hết lượt dùng, hết bộ nhớ của cuộc trò chuyện, hoặc bị ngắt giữa chừng.
+Dành cho thầy Linh. Áp dụng khi Claude hết lượt dùng, hết bộ nhớ của cuộc trò chuyện, hoặc bị ngắt giữa chừng. Gemini dùng ở **gemini.google.com** (gói Pro của thầy).
 
-## Vì sao làm được
+## Gemini trên web làm được gì, không làm được gì
 
-Claude không giữ việc dở trong đầu mà ghi hết lên GitHub (AGENTS.md mục 7):
+- **Làm được:** đọc các file thầy đính kèm, viết mã, chỉ chính xác chỗ cần sửa, soạn câu hỏi và lý thuyết, đọc lỗi kiểm tra và sửa.
+- **Không làm được:** tự mở GitHub (kể cả đường link), tự lưu mã lên GitHub, tự ghi vào Supabase. Thầy là người chuyển file qua lại.
+- **Nên giao:** việc nhỏ và vừa (sửa giao diện, sửa lỗi đã rõ chỗ, thêm một màn hình đơn giản), soạn câu hỏi và lý thuyết.
+- **Nên chờ Claude:** việc chạm nhiều file lõi (chấm bài, tài khoản, cấu trúc dữ liệu), mọi việc ghi thẳng lên dữ liệu thật.
 
-- Mỗi việc có **một pull request nháp mở ngay từ đầu**, và **một file tiến độ** `docs/tien-do/<nhánh>.md` ghi: mục tiêu, quyết định đã chốt, đã xong gì, đang dở chỗ nào, còn lại gì, cách kiểm tra.
-- Claude **commit và đẩy lên sau mỗi bước nhỏ**, nên khi dừng đột ngột thì việc mất tối đa là bước đang làm.
+## Claude chuẩn bị sẵn những gì (AGENTS.md mục 7)
 
-Gemini chỉ cần đọc pull request đó là biết làm tiếp từ đâu.
+Mỗi việc nhiều bước có một **pull request nháp** và một **file tiến độ** `docs/tien-do/<nhánh>.md`: mục tiêu, quyết định đã chốt, đã xong gì, đang dở chỗ nào, còn lại gì, **file liên quan**, cách kiểm tra. Claude lưu lên GitHub sau mỗi bước nhỏ.
 
-## Bước 1. Tìm việc đang dở (1 phút)
+## Việc mã nguồn: 5 bước
 
-Mở https://github.com/hailinh0409/hoc-cung-Cherry/pulls. Việc dở là pull request **Draft** của nhánh `claude/…`. Mở tab *Files changed*, tìm file `docs/tien-do/<nhánh>.md`, đọc mục **Đang làm dở** và **Còn lại**.
+**1. Tìm việc dở.** Mở https://github.com/hailinh0409/hoc-cung-Cherry/pulls, mở PR nháp của nhánh `claude/…`. Tab *Files changed* → mở file `docs/tien-do/<nhánh>.md`, xem mục **File liên quan**.
 
-## Bước 2. Giao cho Gemini (chọn một cách)
+**2. Lấy file.** Ở trang repo, đổi nhánh sang `claude/…` (nút chọn nhánh góc trái), bấm **Code → Download ZIP**, giải nén. Đính kèm vào Gemini: `AGENTS.md`, file tiến độ, và các file trong mục **File liên quan**.
 
-**Cách A — Antigravity (công cụ lập trình của Google chạy Gemini, cài trên máy tính).**
-Google đã dừng Jules (chỉ còn xem từ 11/11/2026, đóng hẳn 31/12/2026) và chuyển sang Antigravity; Gemini CLI cũng được thay bằng Antigravity CLI.
-Cài đặt một lần (chi tiết: `docs/cai-antigravity.md`): cài Antigravity trên máy, đăng nhập tài khoản Google; `git clone` repo `hailinh0409/hoc-cung-Cherry` vào một thư mục **mới** (không dùng bản cũ ở ổ D); đăng nhập GitHub trên máy để đẩy được nhánh.
-Mỗi lần giao việc: mở thư mục repo trong Antigravity, chuyển sang nhánh dở (`git checkout claude/…`), dán câu lệnh mẫu ở Bước 3. Antigravity sửa file, commit và đẩy lên đúng nhánh, pull request tự cập nhật.
-
-**Cách B — Gemini trên web (gemini.google.com).** Gemini web không tự commit được:
-1. Trong Gemini, nhập repo GitHub (nút thêm tệp → nhập mã nguồn, nếu có) hoặc dán nội dung file tiến độ và các file liên quan.
-2. Dán câu lệnh mẫu ở Bước 3, yêu cầu Gemini trả về **toàn bộ nội dung của từng file cần sửa**.
-3. Thầy mở file đó trên GitHub (đúng nhánh `claude/…`), bấm ✏️, dán nội dung mới, *Commit changes* vào cùng nhánh.
-Cách này chậm và dễ sót; chỉ dùng cho việc nhỏ.
-
-**Cách C — Soạn câu hỏi, lý thuyết.** Không cần GitHub. Gemini soạn theo `docs/soan-bai.md`, xuất ra file `.tex`; thầy lưu vào `ngan-hang/lop<khối>/` rồi chạy `kiemtra` và `day` như trong file đó.
-
-## Bước 3. Câu lệnh mẫu cho Gemini
+**3. Dán câu lệnh này vào Gemini** (sửa phần trong `<…>`):
 
 ```
-Bạn tiếp quản một việc Claude đang làm dở trong repo hailinh0409/hoc-cung-Cherry.
-1. Đọc AGENTS.md (quy tắc chung) và docs/tien-do/<nhánh>.md (tiến độ).
-2. Làm tiếp trên đúng nhánh <nhánh>, đúng pull request #<số>. Không tạo nhánh mới,
-   không sửa lại phần đã ghi là "Đã xong" trừ khi thấy lỗi.
-3. Làm các mục "Đang làm dở" và "Còn lại" theo thứ tự. Sau mỗi mục: commit, đẩy lên,
-   cập nhật file tiến độ (ghi "Người đang làm: Gemini").
-4. Chạy các lệnh kiểm tra ở AGENTS.md mục 3 và ghi kết quả vào pull request.
-5. Không tự gộp vào main. Không đụng dữ liệu học sinh trên Supabase. Không đưa khóa bí mật lên GitHub.
-Nếu chỗ nào không rõ ý thầy, dừng lại và hỏi thầy, đừng đoán.
+Bạn tiếp quản việc Claude đang làm dở trong app Học cùng Cherry.
+Tôi đã đính kèm AGENTS.md (quy tắc chung), file tiến độ docs/tien-do/<nhánh>.md và các file liên quan.
+1. Đọc AGENTS.md và file tiến độ. Làm các mục "Đang làm dở" và "Còn lại" theo thứ tự.
+   Không làm lại phần "Đã xong". Giữ đúng các "Quyết định đã chốt".
+2. Trả kết quả theo từng file. Với mỗi chỗ sửa, viết đúng dạng:
+   FILE: <đường dẫn>
+   TÌM (chép nguyên văn từ file, đủ dài để chỉ có một chỗ khớp):
+   <đoạn cũ>
+   THAY BẰNG:
+   <đoạn mới>
+   File mới tạo thì ghi FILE: <đường dẫn> và toàn bộ nội dung.
+   Không sửa public/app.html và lib/items.js (hai file này tự sinh).
+3. Cuối cùng, viết lại nội dung mới của file tiến độ (cập nhật "Người đang làm: Gemini", đã xong, còn lại).
+Chỗ nào không rõ ý tôi thì hỏi lại, đừng đoán.
 ```
 
-## Bước 4. Khi Claude quay lại
+**4. Dán thay đổi lên GitHub.** Ở trang repo, đang chọn đúng nhánh `claude/…`, bấm phím **`.`** (dấu chấm) để mở trình sửa mã trên web (github.dev). Với mỗi chỗ Gemini đưa: mở file, **Ctrl+H**, dán đoạn TÌM và đoạn THAY BẰNG, bấm thay. Xong hết: biểu tượng nhánh ở thanh bên trái (Source Control) → ghi một dòng mô tả → **Commit & Push**.
 
-Nhắn Claude: "xem PR #<số>, Gemini đã làm tiếp". Claude đọc lại file tiến độ và các commit của Gemini, xem lại phần Gemini làm, rồi làm tiếp hoặc đóng việc. Thầy vẫn là người bấm Merge.
+**5. Xem kết quả kiểm tra.** Quay lại PR: sau vài phút có dấu ✓ (đạt) hoặc ✗ (lỗi). Nếu ✗: bấm *Details*, chép phần chữ đỏ, dán cho Gemini và nhờ sửa, rồi lặp lại bước 4.
 
-## Những việc Gemini không nên tiếp quản
+Khi PR có ✓ và thầy đã thử trên app (nếu Vercel có tạo bản xem trước cho PR, đường link nằm trong PR), thầy bấm Merge. Hoặc chờ Claude quay lại xem trước khi gộp.
 
-- **Ghi trực tiếp lên Supabase thật** (tài khoản, tiến độ học sinh, thay đổi cấu trúc bảng): để thầy tự chạy sau khi đọc, hoặc chờ Claude.
-- **Đưa Gemini vào bên trong app cho học sinh dùng**: điều khoản Gemini API không cho phép với người dưới 18 tuổi (AGENTS.md mục 6). Gemini vẫn được viết mã cho các tính năng AI, miễn mô hình chạy trong app là loại được phép.
+## Soạn câu hỏi, lý thuyết (không cần GitHub)
+
+1. Đính kèm `docs/soan-bai.md` vào Gemini, nhờ soạn bài theo đúng định dạng trong file.
+2. Vào app bằng tài khoản giáo viên → bài cần sửa → **Cài đặt & sửa câu hỏi** → **Sửa toàn bộ LaTeX** (hoặc **Sửa lý thuyết**) → dán mã Gemini soạn → Lưu. App tự báo lỗi cú pháp, chưa lỗi thì mới lưu được. Bài vẫn ở trạng thái thầy đã đặt (nháp/đã duyệt).
+3. Bài chưa có trên app: chờ Claude tạo, hoặc dùng `scripts/ngan-hang.mjs` trên máy như hướng dẫn trong `docs/soan-bai.md`.
+
+## Khi Claude quay lại
+
+Nhắn Claude: "xem PR #<số>, Gemini đã làm tiếp". Claude đọc file tiến độ và các commit, xem lại phần Gemini làm, rồi làm tiếp hoặc đóng việc.
+
+## Không giao cho Gemini
+
+- Ghi trực tiếp vào dữ liệu thật trên Supabase (tài khoản, tiến độ học sinh, cấu trúc bảng).
+- Đưa Gemini vào bên trong app cho học sinh dùng: điều khoản Gemini API không cho phép với người dưới 18 tuổi (AGENTS.md mục 6).

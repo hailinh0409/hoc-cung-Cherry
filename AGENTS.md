@@ -25,6 +25,8 @@ Chủ dự án: **thầy Phan Hải Linh** (GitHub `hailinh0409`). Thầy là ng
 
 ## 3. Kiểm tra bắt buộc trước khi mở PR
 
+GitHub tự chạy các bước dưới đây cho mọi lần đẩy mã và mọi PR (`.github/workflows/kiem-tra.yml`); dấu ✓ hoặc ✗ hiện ngay trên PR. Vercel tự chạy `scripts/build-app.mjs` khi triển khai (`npm run build`), nên người sửa trên web không cần tự ghép `public/app.html`.
+
 ```bash
 cd hoc-cung-cherry
 npm ci
@@ -65,6 +67,7 @@ Trợ lý nào cũng có thể dừng đột ngột (hết lượt dùng, hết 
 - **Sau mỗi bước nhỏ:** commit, đẩy lên, cập nhật file tiến độ (đã xong, đang làm dở chỗ nào, còn lại gì). Không để thay đổi chưa commit quá lâu.
 - **Quyết định thầy đã chốt trong chat** (ví dụ "không mở lý thuyết lúc làm bài") phải ghi vào mục *Quyết định đã chốt* của file tiến độ, vì trợ lý tiếp quản không đọc được cuộc trò chuyện.
 - **Dữ liệu đã ghi lên Supabase** trong lúc làm (bảng, slug) phải ghi vào file tiến độ.
+- **File liên quan:** liệt kê các file người tiếp quản cần đọc hoặc sửa, vì Gemini trên web chỉ đọc được file thầy đính kèm.
 - **Tiếp quản:** khi thầy giao, trợ lý kia làm tiếp trên **cùng nhánh, cùng PR**, đọc file tiến độ trước, ghi "Người đang làm" là mình, và tiếp tục cập nhật file đó. Không làm lại phần đã xong nếu không thấy lỗi.
 - **Xong việc:** đánh dấu trạng thái "xong, chờ thầy duyệt", chuyển PR từ Draft sang Ready. File tiến độ giữ lại trong PR để thầy đọc; sau khi gộp có thể xóa.
 
