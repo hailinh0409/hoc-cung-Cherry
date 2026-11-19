@@ -47,14 +47,14 @@ Có sửa giao diện thì chạy thử bằng dữ liệu giả (`FAKE_DB=1 …
 
 ## 5. Câu hỏi và lý thuyết (LaTeX trong `ltt_topics.source`)
 
-- Một chủ đề = một bài học SGK Kết nối tri thức; cột `chuong` là mã bài (`k6-b8`, `k6-c2-lt1`). Đề ôn tập: `phan = 'on-tap'`.
+- Một chủ đề = một bài học SGK Kết nối tri thức; cột `chuong` là mã bài (`k6-b8`, `k6-c2-lt1`; khối 10–12 không có Luyện tập chung mà có Bài tập cuối chương `k10-c4-cc`). Đề ôn tập: `phan = 'on-tap'`.
 - Dạng câu: `ex` (trắc nghiệm, đúng một `\True`), `extf` (đúng/sai), `exfb` (điền đáp số, chỉ số nguyên/thập phân/phân số), `exmatch` (nối ý). Mức `\man{1..4}`; Mức 4 không có trên bản đồ.
 - Tóm tắt lý thuyết: khối `\begin{lythuyet}…\end{lythuyet}` ngay sau `\chude`, với `\dinhnghia`, `\quytac`, `\congthuc`, `\dinhly`, `\tinhchat` `{tiêu đề}{nội dung}`, `\luuy{…}`, `\vidu{đề}{lời giải}`. Ngoài `$…$` không dùng lệnh LaTeX (trừ `\\`).
 - Câu hỏi và lý thuyết bám SGK nhưng **diễn đạt bằng lời của mình**, không chép nguyên văn sách.
 - Câu khó phân loại theo **mức độ hiểu bài**, không dùng kiểu "tính mẹo".
 - Chủ đề mới luôn ở trạng thái nháp (`draft`); chỉ thầy duyệt cho học sinh.
 
-## 6. Học sinh là trẻ em (lớp 6–9)
+## 6. Học sinh là trẻ em (lớp 6–12, đều dưới 18 tuổi)
 
 - Mọi tính năng AI cho học sinh phải tuân thủ điều khoản của nhà cung cấp về người dùng dưới 18 tuổi. Hiện **Gemini API (Google AI Studio) không cho dùng trong ứng dụng hướng tới người dưới 18 tuổi**; Claude API cho phép nếu có các biện pháp an toàn. Kiểm tra lại điều khoản trước khi tích hợp bất kỳ mô hình nào vào app.
 - Không gửi tên hay thông tin cá nhân của học sinh cho dịch vụ AI.

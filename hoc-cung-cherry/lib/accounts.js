@@ -37,6 +37,6 @@ export async function loadPlayer(id) {
 export async function pickStudent(name, khoi) {
   const m = await findStudents(name, khoi);
   if (!m.length) return { err: 'Không tìm thấy họ tên này. Em gõ đúng họ tên đầy đủ có dấu nhé.' };
-  if (m.length > 1) return { choose: [...new Set(m.map(a => a.khoi))].sort() };
+  if (m.length > 1) return { choose: [...new Set(m.map(a => a.khoi))].sort((x, y) => x - y) };
   return { acc: m[0] };
 }
