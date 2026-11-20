@@ -43,7 +43,7 @@ Mỗi bài cần: Mức 1 ít nhất 5 câu, Mức 2 ít nhất 5, Mức 3 ít n
 \man{1}{Nhận biết}
 \begin{ex}
 Đề bài có công thức $...$
-\choice{$..$}{\True $..$}{$..$}{$..$}
+\choice{$..$ \sai{vì sao sai}}{\True $..$}{$..$ \sai{..}}{$..$ \sai{..}}
 \loigiai{...}
 \end{ex}
 
@@ -58,6 +58,7 @@ Mỗi bài cần: Mức 1 ít nhất 5 câu, Mức 2 ít nhất 5, Mức 3 ít n
 \begin{exfb}
 Đề bài ...
 \shortans{5/2;2,5}
+\saithuong{5}{vì sao học sinh hay ra 5}
 \loigiai{...}
 \end{exfb}
 
@@ -74,6 +75,12 @@ Nối mỗi ... với ...
 - `exfb` điền đáp số: học sinh gõ bằng bàn phím số `0–9`, `−`, dấu phẩy, `/` — đáp số chỉ là số nguyên, thập phân (dấu phẩy) hoặc phân số `a/b`, **không** dùng căn hay biểu thức chữ. Nhiều cách viết cùng giá trị cách nhau bằng `;` (app tự coi `0,5` và `1/2` là bằng nhau). Đáp số là phân số thì đề ghi rõ "(viết dạng phân số a/b)".
 - `exmatch` nối ý: 3–4 cặp, mỗi vế ngắn để vừa màn hình điện thoại dọc.
 - `\loigiai` không bắt buộc nhưng nên có ở mức 3–4 (học sinh xem khi làm sai).
+- **Báo lỗi theo đáp án sai** (hiện ngay khi học sinh chọn sai, trong khung *Vì sao chưa đúng?*): **mọi câu `ex` mới phải có**, nên có ở `extf` và `exfb`.
+  - `ex`: đặt `\sai{…}` ngay trong phương án sai, ví dụ `\choice{$-5$ \sai{Quên đổi dấu khi bỏ ngoặc: $-(a-b)=-a+b$.}}{\True $5$}{…}{…}`. Không đặt `\sai` trong phương án `\True`.
+  - `extf`: đặt `\sai{…}` trong ý; hiện khi học sinh đánh giá sai ý đó (ý đúng mà chọn S, ý sai mà chọn Đ), nên viết lời giải thích vì sao ý đó đúng/sai.
+  - `exfb`: thêm `\saithuong{đáp số sai hay gặp}{vì sao sai}` (viết nhiều lần được); học sinh gõ đúng số đó thì hiện lời giải thích. Dùng được tham số: `\saithuong{{{2*a}}}{…}`.
+  - Cách viết: 1–2 câu, nói đúng **chỗ hiểu sai** (quên đổi dấu, nhầm công thức, thiếu điều kiện…) và nhắc lại quy tắc đúng; không chỉ ghi "Sai rồi" hay chép lại đáp án. Vì thế phương án nhiễu nên là lỗi sai thường gặp có thật.
+  - Thêm hoặc sửa `\sai`/`\saithuong` cho câu cũ **không** làm mất lịch ôn của học sinh.
 - **Gợi ý từng bước** `\goiy{...}`: đặt trong câu, viết nhiều lần theo thứ tự (gợi ý 1 rồi gợi ý 2). Học sinh bấm mở từng gợi ý, mỗi gợi ý trừ 30 điểm của câu. Câu mức 3–4 nên có 1–2 gợi ý: gợi ý 1 chỉ hướng (dùng kiến thức nào), gợi ý 2 là bước đầu tiên; **không được lộ đáp số/đáp án**. Mức 1–2 thường không cần gợi ý.
 - **Câu có tham số** (mỗi lần làm ra số khác, dùng cho ôn tập và "câu tương tự" khi học sinh làm sai). Khai báo bằng các dòng `%@` ngay trong môi trường câu hỏi:
   ```latex
@@ -100,6 +107,6 @@ Nối mỗi ... với ...
 4. **Tự kiểm tra trước khi ghi** (bắt buộc; với câu có tham số thì thử vài bộ số cụ thể, kể cả trường hợp biên, và kiểm tra đáp án theo công thức):
 - Tính lại đáp án từng câu; với đúng/sai kiểm tra từng ý.
 - Khối `lythuyet` (nếu có): kiểm tra lại từng công thức, ví dụ và lời giải; mỗi mục đủ số cặp `{…}`; số dấu `$` chẵn.
-- Mỗi `ex` có đúng một `\True`; mỗi `exfb` có `\shortans` gõ được bằng bàn phím số; mỗi `\begin{..}` có `\end{..}` cùng loại; ngoặc nhọn cân bằng.
+- Mỗi `ex` có đúng một `\True`, mỗi phương án sai có `\sai{…}` đúng nội dung; mỗi `exfb` có `\shortans` gõ được bằng bàn phím số; mỗi `\begin{..}` có `\end{..}` cùng loại; ngoặc nhọn cân bằng.
 - Mã LaTeX **không được chứa chuỗi `$ltt$`** (dùng làm dấu bọc khi ghi).
 

@@ -164,8 +164,9 @@ export function fillQ(q, env) {
   return {
     ...q, stem: f(q.stem), sol: f(q.sol),
     ...(q.hints && { hints: q.hints.map(f) }),
-    ...(q.opts && { opts: q.opts.map(o => ({ ...o, t: f(o.t) })) }),
-    ...(q.items && { items: q.items.map(o => ({ ...o, t: f(o.t) })) }),
+    ...(q.opts && { opts: q.opts.map(o => ({ ...o, t: f(o.t), ...(o.why && { why: f(o.why) }) })) }),
+    ...(q.items && { items: q.items.map(o => ({ ...o, t: f(o.t), ...(o.why && { why: f(o.why) }) })) }),
+    ...(q.traps && { traps: q.traps.map(x => ({ a: fill(x.a, env, 'ans'), why: f(x.why) })) }),
     ...(q.pairs && { pairs: q.pairs.map(p => p.map(f)) }),
     ...(q.ans && { ans: q.ans.map(a => fill(a, env, 'ans')) }),
   };

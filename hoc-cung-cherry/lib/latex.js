@@ -6,6 +6,10 @@
 //   \begin{extf}  đề \choiceTF{\True ..}{..}{\True ..}{..} \loigiai{..} \end{extf}   đúng/sai từng ý
 //   \begin{exfb}  đề \shortans{đáp số;đáp số khác}          \loigiai{..} \end{exfb}   điền đáp số
 //   \begin{exmatch} đề \pair{trái}{phải} \pair{..}{..}       \loigiai{..} \end{exmatch} nối ý
+// Báo lỗi theo đáp án sai (hiện ngay khi học sinh chọn sai):
+//   ex:   \sai{vì sao sai} đặt trong phương án sai, ví dụ \choice{$5$ \sai{Quên đổi dấu}}{\True $-5$}..
+//   extf: \sai{giải thích} đặt trong ý, hiện khi học sinh đánh giá sai ý đó
+//   exfb: \saithuong{đáp số sai hay gặp}{vì sao sai}, viết nhiều lần được
 
 import { instantiate } from './params.js';
 
@@ -45,7 +49,9 @@ function takeAll(body, cmd) {
 }
 // Mã nhận diện câu hỏi (ổn định khi soạn lại không đổi nội dung câu)
 export function qkeyOf(q) {
-  const str = JSON.stringify([q.type, q.stem, q.opts, q.items, q.ans, q.pairs, q.params]);
+  // Lời báo lỗi (\sai, \saithuong) không tính vào mã: thêm/sửa lời báo lỗi không làm mất lịch ôn của câu
+  const strip = a => a && a.map(({ why, ...o }) => o);
+  const str = JSON.stringify([q.type, q.stem, strip(q.opts), strip(q.items), q.ans, q.pairs, q.params]);
   let h1 = 0xdeadbeef, h2 = 0x41c6ce57;
   for (let i = 0; i < str.length; i++) { const c = str.charCodeAt(i); h1 = Math.imul(h1 ^ c, 2654435761); h2 = Math.imul(h2 ^ c, 1597334677); }
   h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
@@ -55,6 +61,15 @@ export function qkeyOf(q) {
 
 const isTrue = t => /\\True\b/.test(t);
 const clean = t => t.replace(/\\True\b/g, '').trim();
+// Tách \sai{...} khỏi một phương án / một ý (không nhầm với \saithuong)
+function takeWhy(t) {
+  const m = /\\sai(?![a-zA-Z])/.exec(t);
+  if (!m) return [t, null];
+  const g = group(t, m.index + 4);
+  if (!g) return [t, null];
+  return [t.slice(0, m.index) + t.slice(g[1]), g[0].trim()];
+}
+const opt = o => { const [t, why] = takeWhy(o); const r = { t: clean(t), ok: isTrue(t) }; if (why) r.why = why; return r; };
 
 export function parseBank(raw) {
   const errors = [];
@@ -97,8 +112,9 @@ export function parseBank(raw) {
         const k = b.indexOf('\\choice');
         if (k < 0) { err('Câu trắc nghiệm thiếu \\choice'); continue; }
         q.stem = b.slice(0, k).trim();
-        q.opts = readGroups(b, k + 7).map(o => ({ t: clean(o), ok: isTrue(o) }));
+        q.opts = readGroups(b, k + 7).map(opt);
         const nt = q.opts.filter(o => o.ok).length;
+        if (q.opts.some(o => o.ok && o.why)) { err('\\sai{…} chỉ đặt trong phương án sai, không đặt trong phương án \\True'); continue; }
         if (q.opts.length < 2) { err('Câu trắc nghiệm cần ít nhất 2 phương án'); continue; }
         if (nt !== 1) { err(nt ? 'Câu trắc nghiệm có nhiều hơn một \\True' : 'Câu trắc nghiệm chưa đánh dấu \\True cho đáp án đúng'); continue; }
       } else if (q.type === 'extf') {
@@ -106,9 +122,17 @@ export function parseBank(raw) {
         if (k < 0) { k = b.indexOf('\\choice'); len = 7; }
         if (k < 0) { err('Câu đúng/sai thiếu \\choiceTF'); continue; }
         q.stem = b.slice(0, k).trim();
-        q.items = readGroups(b, k + len).map(o => ({ t: clean(o), ok: isTrue(o) }));
+        q.items = readGroups(b, k + len).map(opt);
         if (q.items.length < 2) { err('Câu đúng/sai cần ít nhất 2 ý'); continue; }
       } else if (q.type === 'exfb') {
+        const traps = []; let bad = false;
+        for (let m; (m = b.indexOf('\\saithuong')) >= 0;) {
+          const a = group(b, m + 10), c = a && group(b, a[1]);
+          if (!a || !c) { bad = true; break; }
+          traps.push({ a: a[0].trim(), why: c[0].trim() }); b = b.slice(0, m) + b.slice(c[1]);
+        }
+        if (bad) { err('\\saithuong cần hai cặp: \\saithuong{đáp số sai}{vì sao sai}'); continue; }
+        if (traps.length) q.traps = traps;
         const k = b.indexOf('\\shortans');
         const g = k >= 0 && group(b, k + 9);
         if (!g || !g[0].trim()) { err('Câu điền đáp số thiếu \\shortans{đáp số}'); continue; }
@@ -131,7 +155,7 @@ export function parseBank(raw) {
       if (!q.stem) { err('Câu hỏi chưa có đề bài'); continue; }
       if (q.params) {
         try { for (let t = 0; t < 5; t++) instantiate(q); } catch (ex) { err('tham số: ' + ex.message); continue; }
-      } else if (/\{\{[^{}]+\}\}/.test(JSON.stringify([q.stem, q.opts, q.items, q.ans, q.pairs, q.sol]))) {
+      } else if (/\{\{[^{}]+\}\}/.test(JSON.stringify([q.stem, q.opts, q.items, q.ans, q.pairs, q.sol, q.traps]))) {
         err('có {{...}} nhưng chưa khai báo tham số %@'); continue;
       }
       q.key = qkeyOf(q);
