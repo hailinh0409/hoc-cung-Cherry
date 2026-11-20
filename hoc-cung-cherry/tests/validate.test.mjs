@@ -44,3 +44,14 @@ test('theo dõi: không tự theo dõi mình, giữ danh sách', () => {
   const a = sanitize(null, { follow: { me: 'x', b: '2026-11-18' } }, { ...acc, id: 'me' }, 0);
   assert.deepEqual(Object.keys(a.follow), ['b']);
 });
+
+test('gợi ý tự luận: tính vào XP đã tiêu, gửi thiếu không làm mất', async () => {
+  const { HINT_XP } = await import('../lib/validate.js');
+  let d = sanitize(null, { xp: 100 }, acc, 0);
+  d = sanitize(d, { ...d, tlh: { abc: 2 } }, acc, 1000);
+  assert.equal(d.spent, 2 * HINT_XP);
+  d = sanitize(d, { ...d, tlh: { abc: 1 } }, acc, 2000);
+  assert.equal(d.tlh.abc, 2); assert.equal(d.spent, 2 * HINT_XP);
+  d = sanitize(d, { xp: d.xp }, acc, 3000);
+  assert.equal(d.spent, 2 * HINT_XP);
+});

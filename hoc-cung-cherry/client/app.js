@@ -16,7 +16,8 @@ const PHAN={'dai-so':{name:'Đại số',c:'#3aa8e0',d:'#2584b8'},'hinh-hoc':{na
 const TIERS=[{n:'Đồng',lp:0,c:'#c08457',d:'#8a5a33'},{n:'Bạc',lp:100,c:'#c3ced6',d:'#8a9aa6'},{n:'Vàng',lp:200,c:'#ffd23f',d:'#c99a08'},{n:'Bạch Kim',lp:350,c:'#4fd1c5',d:'#2a9d93'},
   {n:'Kim Cương',lp:500,c:'#6aa8ff',d:'#3f78d6'},{n:'Cao Thủ',lp:700,c:'#b36bff',d:'#8442d6'},{n:'Đại Cao Thủ',lp:900,c:'#ff5d6c',d:'#c8323f'},{n:'Thách Đấu',lp:1200,c:'#ffb800',d:'#b97f00'}];
 const tierOf=lp=>{let t=0;TIERS.forEach((x,i)=>{if((lp||0)>=x.lp)t=i});return t};
-const TYPE={ex:'Trắc nghiệm',extf:'Đúng / Sai',exfb:'Điền đáp số',exmatch:'Nối ý'};
+const TYPE={ex:'Trắc nghiệm',extf:'Đúng / Sai',exfb:'Điền đáp số',exmatch:'Nối ý',extl:'Tự luận'};
+const HINT_XP=10; // mỗi gợi ý tự luận mở lần đầu trừ 10 XP trong Ví XP (khớp HINT_XP ở lib/validate.js)
 const MODE={so:'Làm lại câu sai',one:'Câu đã lưu',rank:'Thi đấu',de:'Ôn tập'};
 const RANK_TIME=[30,45,60,90],RANK_PTS=[10,15,20,30],RANK_PICK=[3,3,2,2],RANK_BY_TIER=[[8,2,0,0],[6,4,0,0],[5,5,0,0],[5,3,2,0],[3,3,4,0],[0,5,5,0],[0,3,5,2],[0,0,6,4]];
 const MPC=[['#ffe1d6','#ff7a59'],['#d8eeff','#2b9bd6'],['#e8e0ff','#8d7bff'],['#d6f7e6','#1fa86b'],['#fff1c2','#e0a100'],['#ffe0ec','#e84a8a']];
@@ -24,7 +25,7 @@ const MPC=[['#ffe1d6','#ff7a59'],['#d8eeff','#2b9bd6'],['#e8e0ff','#8d7bff'],['#
 /* ---------- kho dữ liệu ---------- */
 let TOPICS=[],ACCS=[],PLAYERS=[],ASG=[],TEACHER=false,DBSTATE='loading',DB=null;
 let ACC=null,P=null,curK='',curPhan='',curT=null,profFrom='grades';
-const newP=()=>({xp:0,lp:0,matches:0,hist:[],st:{},best:{},score:{},pt:{},rev:{},saved:{},wst:{},stats:{correct:0,maxCombo:0,levels:0,perfect:0,top:0,cleared:0,chests:0},own:{},eq:{},spent:0,dq:null,wk:{},season:'',seasons:[],fails:{},lvt:{},ccl:{},tut:0,follow:{},fseen:'',rseen:{},ach:{},avatar:0,nick:''});
+const newP=()=>({xp:0,lp:0,matches:0,hist:[],st:{},best:{},score:{},pt:{},rev:{},saved:{},wst:{},stats:{correct:0,maxCombo:0,levels:0,perfect:0,top:0,cleared:0,chests:0},own:{},eq:{},spent:0,dq:null,wk:{},season:'',seasons:[],fails:{},lvt:{},ccl:{},tut:0,follow:{},fseen:'',rseen:{},ach:{},avatar:0,nick:'',tlh:{}});
 function fromDoc(d){const v=d.data()||{};const P=parseTopic(v.text);
   return {id:d.id,khoi:String(v.khoi||'?'),phan:PHAN[v.phan]?v.phan:'dai-so',title:v.title||P.title||d.id,status:v.trangthai||'nhap',order:Number(v.thutu)||0,levels:P.levels,errors:P.errors,nguon:v.nguon||'',chuong:v.chuong||'',raw:v.text||'',prev:v.banTruoc||'',upd:v.capnhat||'',theory:P.theory||null}}
 const tex=s=>esc(s).replace(/\\\\/g,'<br>').replace(/\\textbf\{([^}]*)\}/g,'<b>$1</b>').replace(/&quot;/g,'"');
@@ -118,7 +119,7 @@ const currOf=k=>{const out=[];let num=0,cn=0;for(const c of CURR[k]||[]){if(c===
   cn++;const ch={n:cn,title:c[0],phan:c[1]};out.push({ch});let lt=0;
   for(const b of c[2]){if(b==='LT'){lt++;out.push({id:`k${k}-c${cn}-lt${lt}`,num:0,title:'Luyện tập chung',lt:true,coin:'LT',ch})}else if(b==='CC'){out.push({id:`k${k}-c${cn}-cc`,num:0,title:'Bài tập cuối chương',lt:true,coin:'ÔT',ch})}else{num++;out.push({id:`k${k}-b${num}`,num,title:b,ch})}}}return out};
 const lessonName=L=>L.lt?`${L.title} · Chương ${L.ch.n}`:`Bài ${L.num}. ${L.title}`;
-function mapItems(k){const all=gradeTopics(k).filter(t=>!isDe(t)),used=new Set(),items=[];
+function mapItems(k){const all=gradeTopics(k).filter(t=>!isDe(t)&&!isTL(t)),used=new Set(),items=[];
   for(const c of currOf(k)){if(!c.id){items.push(c);continue}
     const ts=all.filter(t=>!used.has(t)&&((t.chuong||ALIAS[t.id])===c.id));ts.forEach(t=>used.add(t));
     if(ts.length)ts.forEach((t,i)=>items.push({L:c,t,sub:ts.length>1?i+1:0}));else items.push({L:c,t:null})}
@@ -130,6 +131,7 @@ const key=(t,i)=>t.id+'|'+i;
 const GV=()=>TEACHER&&!!ACC&&!!ACC.teacher;
 const bestOf=(t,i)=>(P&&P.best[key(t,i)])||0;
 const isDe=t=>t.phan==='on-tap';
+const isTL=t=>isTLBank(t.levels); // đề tự luận: học sinh làm vào vở, app chỉ có đề và gợi ý
 const nMan=t=>1; // mỗi bài (hoặc đề) là một chặng
 const MAN_NAME=['Nhận biết','Thông hiểu','Vận dụng'];
 const LESSON_PLAN=[3,3,2]; // số câu mức 1, 2, 3 trong một bài (khoảng 10 phút)
@@ -157,12 +159,12 @@ function msgBox(t,m){overlay(`<h2>${t}</h2><p>${m}</p><button class="btn" id="eo
 /* ---------- thanh trên cùng: avatar, tên, chuỗi, XP ---------- */
 function ubar(el){if(!ACC||!P){el.innerHTML='';return}
   const today=vnDay(),S=P.st||{},sk=liveStreak(S,today),learned=S.last_day===today,lv=level(P.xp),[a,b]=lvBounds(lv),id=$$('.scr.on')[0]?.id;
-  const back=['grades','anh','area','journey','ontap','redo','ranked','theory'].includes(id);
+  const back=['grades','anh','area','journey','ontap','redo','ranked','theory','tlde'].includes(id);
   el.innerHTML=`${back?`<button class="ico" data-back aria-label="Quay lại">${backIco}</button>`:''}
    <button class="me" data-me>${avatarOf(P,40)}<span><b>${esc(P.nick||ACC.name)}</b><small>Cấp ${lv} · ${P.xp} XP</small><i class="xpb"><i style="width:${Math.min(100,(P.xp-a)/(b-a)*100)}%"></i></i></span></button>
    <div class="stk${learned?'':' off'}" title="Chuỗi ngày học">${flame(!learned,26)}<b>${sk}</b><span class="shl">${shieldSVG.repeat(S.shields??1)}</span></div>`;
   el.querySelector('[data-me]').onclick=()=>{sfx.tap();profFrom=id;profile(ACC.id)};
-  const bk=el.querySelector('[data-back]');if(bk)bk.onclick=()=>{sfx.tap();id==='grades'||id==='anh'?subjects():id==='area'||id==='journey'?grades():journey()}}
+  const bk=el.querySelector('[data-back]');if(bk)bk.onclick=()=>{sfx.tap();id==='grades'||id==='anh'?subjects():id==='area'||id==='journey'?grades():id==='tlde'?onTap():journey()}}
 
 /* ---------- đăng nhập ---------- */
 const normName=s=>String(s||'').normalize('NFC').toLowerCase().replace(/\s+/g,' ').trim();
@@ -396,17 +398,50 @@ function editTheory(t){t=TOPICS.find(x=>x.id===t.id)||t;const m=t.raw.match(/\\b
     saveText(t,text,'Đã lưu lý thuyết.').then(()=>{const x=TOPICS.find(y=>y.id===t.id)||t;x.theory=parseTopic(x.raw).theory;if($$('.scr.on')[0]?.id==='theory')theory(x)})};
   $('#tD')&&($('#tD').onclick=()=>saveText(t,put(''),'Đã xóa lý thuyết.').then(()=>{const x=TOPICS.find(y=>y.id===t.id)||t;x.theory=null;if($$('.scr.on')[0]?.id==='theory')theory(x)}))}
 
-/* ---------- ôn tập: danh sách đề ---------- */
-function onTap(){show('ontap');const de=deTopics(curK);
-  $('#ontapBody').innerHTML=`<div class="phead" style="--c:#8d7bff;--d:#6a57e0"><b>Ôn tập</b><span>Đề tổng hợp Đại số và Hình học để ôn thi. Làm đề không có gợi ý.</span></div>`+(de.length?de.map((t,i)=>{const n=t.levels.reduce((s,l)=>s+l.qs.length,0),sc=P.score[key(t,0)],a=asgFor(t),as=a&&asgStatus(a,myPt);
-    return `<div class="decard" style="animation-delay:${i*.05}s"><button class="dmain" data-i="${i}"><span class="dno">Đề ${i+1}</span><div style="flex:1;text-align:left">
-      ${a?`<span class="chip hwc ${as.complete?'giao':as.overdue?'late':'nhap'}">Thầy giao · ${dueLabel(a,as)}</span>`:''}${GV()?`<span class="chip ${t.status}">${({nhap:'Nháp',giao:'Đã duyệt',an:'Đã ẩn'})[t.status]}${t.errors.length?' · lỗi':''}</span>`:''}
-      <h3>${esc(t.title)}</h3><small>${n} câu${sc!=null?` · tốt nhất ${sc}%`:' · chưa làm'}</small></div>${stars(bestOf(t,0))}</button>${GV()?`<button class="dset" data-s="${i}" aria-label="Cài đặt">⚙</button>`:''}</div>`}).join('')
-   :`<div class="empty"><div style="width:100px;margin:0 auto">${owlSVG}</div><p>${DBSTATE==='ok'?'Chưa có đề ôn tập nào.':'Đang tải…'}</p></div>`);
-  $$('#ontapBody .dmain').forEach(b=>b.onclick=()=>{sfx.tap();const t=de[+b.dataset.i],n=t.levels.reduce((s,l)=>s+l.qs.length,0);
-    overlay(`<h2>${esc(t.title)}</h2><p>${n} câu · không có gợi ý, không giới hạn tim. Làm xong mới xem điểm.</p><button class="btn" id="dGo">Bắt đầu làm đề</button><button class="btn alt" id="dNo">Để sau</button>`);
+/* ---------- ôn tập: lưới đề, Phần 1 trắc nghiệm (TN), Phần 2 tự luận (TL) ---------- */
+const ICO_TN='<svg viewBox="0 0 24 24" width="34" height="34"><rect x="4" y="3" width="16" height="18" rx="3" fill="#fff"/><circle cx="8.5" cy="8.5" r="1.8" fill="#8d7bff"/><circle cx="8.5" cy="13" r="1.8" fill="none" stroke="#8d7bff" stroke-width="1.4"/><circle cx="8.5" cy="17.5" r="1.8" fill="none" stroke="#8d7bff" stroke-width="1.4"/><path d="M12 8.5h5M12 13h5M12 17.5h4" stroke="#b9aefc" stroke-width="1.8" stroke-linecap="round"/></svg>';
+const ICO_TL='<svg viewBox="0 0 24 24" width="34" height="34"><path d="M4 4.5c3-1 5.5-.6 8 1v15c-2.5-1.6-5-2-8-1z" fill="#fff"/><path d="M20 4.5c-3-1-5.5-.6-8 1v15c2.5-1.6 5-2 8-1z" fill="#ffe7c2"/><path d="M6.3 9h3.6M6.3 12h3.6M14 9h3.6" stroke="#f08a24" stroke-width="1.4" stroke-linecap="round"/><path d="M13.5 17.5l5.8-7.3 1.8 1.4-5.8 7.3-2.3.9z" fill="#f08a24"/></svg>';
+function deTile(t,lab,i){const a=asgFor(t),as=a&&asgStatus(a,myPt),tl=isTL(t),done=deDone(t),sc=P.score[key(t,0)];
+  return `<div class="dtile${tl?' tl':''}" style="animation-delay:${i*.04}s"><button class="dtmain" data-de="${t.id}">
+    ${a&&!as.complete?`<em class="dbadge ${as.overdue?'late':''}">Thầy giao</em>`:''}<i class="dtico">${tl?ICO_TL:ICO_TN}</i><b>${lab}</b><small>${esc(t.title)}</small>
+    <span class="dst">${tl?(done?'✓ Đã làm':'Làm vào vở'):(sc!=null?sc+'%':'Chưa làm')}</span>
+    ${GV()?`<span class="chip ${t.status}">${({nhap:'Nháp',giao:'Đã duyệt',an:'Đã ẩn'})[t.status]}${t.errors.length?' · lỗi':''}</span>`:''}</button>
+    ${GV()?`<button class="dtset" data-ds="${t.id}" aria-label="Cài đặt">⚙</button>`:''}</div>`}
+function onTap(){show('ontap');const de=deTopics(curK),tn=de.filter(t=>!isTL(t)),tl=de.filter(isTL);
+  const sect=(h,sub,list,pre,c)=>`<div class="dsect" style="--c:${c}"><b>${h}</b><span>${sub}</span></div>`+
+    (list.length?`<div class="dgrid">${list.map((t,i)=>deTile(t,pre+(i+1),i)).join('')}</div>`:`<div class="tbox dnone">${DBSTATE==='ok'?'Chưa có đề nào ở phần này.':'Đang tải…'}</div>`);
+  $('#ontapBody').innerHTML=`<div class="phead" style="--c:#8d7bff;--d:#6a57e0"><b>Ôn tập</b><span>Đề tổng hợp để ôn thi. Phần 1 làm ngay trên app, Phần 2 làm vào vở.</span></div>`+
+    sect('Phần 1 · Trắc nghiệm','Trắc nghiệm, đúng/sai, trả lời ngắn, nối ý. Làm xong biết điểm ngay.',tn,'TN','#8d7bff')+
+    sect('Phần 2 · Tự luận',`Làm bài vào vở bài tập. Mỗi gợi ý mở lần đầu trừ ${HINT_XP} XP.`,tl,'TL','#f08a24')+
+    (GV()?`<button class="btn alt" id="deNew" style="margin-top:14px">+ Tạo đề ôn tập mới</button>`:'');
+  const byId=id=>de.find(t=>t.id===id);
+  $$('#ontapBody [data-de]').forEach(b=>b.onclick=()=>{sfx.tap();const t=byId(b.dataset.de),lab=(isTL(t)?'TL':'TN')+((isTL(t)?tl:tn).indexOf(t)+1);
+    if(isTL(t))return tlDe(t,lab);
+    const n=t.levels.reduce((s,l)=>s+l.qs.length,0);
+    overlay(`<h2>${lab} · ${esc(t.title)}</h2><p>${n} câu · không có gợi ý, không giới hạn tim. Làm xong mới xem điểm.</p><button class="btn" id="dGo">Bắt đầu làm đề</button><button class="btn alt" id="dNo">Để sau</button>`);
     $('#dGo').onclick=()=>{closeOvl();startDe(t)};$('#dNo').onclick=closeOvl});
-  $$('#ontapBody .dset').forEach(b=>b.onclick=()=>{sfx.tap();tOpts(de[+b.dataset.s])})}
+  $$('#ontapBody [data-ds]').forEach(b=>b.onclick=()=>{sfx.tap();tOpts(byId(b.dataset.ds))});
+  $('#deNew')&&($('#deNew').onclick=()=>{sfx.tap();bankNewDe(curK,d=>{closeOvl();sfx.ok();qedit(d)})})}
+
+/* ---------- đề tự luận: đề bài + gợi ý (mua bằng XP), học sinh làm vào vở ---------- */
+let tlT=null,tlLab='';const TLQ={};
+function tlQs(t){return t.levels.flatMap(l=>l.qs).map(q=>{if(!q.params)return q;if(!TLQ[q.key])try{TLQ[q.key]=instantiate(q)}catch(e){TLQ[q.key]=q}return {...TLQ[q.key],key:q.key}})}
+function tlDe(t,lab){tlT=t;if(lab)tlLab=lab;show('tlde');const qs=tlQs(t),gv=GV(),k=key(t,0),done=P.pt&&P.pt[k],a=asgFor(t),as=a&&asgStatus(a,myPt);P.tlh=P.tlh||{};
+  $('#tlBody').innerHTML=`<div class="phead" style="--c:#f08a24;--d:#c96a0c"><b>${esc(tlLab)} · ${esc(t.title)}</b><span>${qs.length} câu tự luận. Em làm bài vào vở bài tập, trình bày đầy đủ như khi đi thi.</span></div>
+   ${a?`<div class="tbox"><span class="chip hwc ${as.complete?'giao':as.overdue?'late':'nhap'}">Thầy giao · ${dueLabel(a,as)}</span>${a.note?` <small>${esc(a.note)}</small>`:''}</div>`:''}
+   <div class="tbox tlwal">${gv?'<b>Giáo viên xem được mọi gợi ý và lời giải, không bị trừ XP.</b>':`Bí quá thì mở gợi ý. Mỗi gợi ý mở lần đầu trừ <b>${HINT_XP} XP</b>, gợi ý đã mở thì xem lại miễn phí.<br>Ví XP của em: <b id="tlBal">${fmtXP(bal())}</b> XP`}</div>`+
+   qs.map((q,i)=>{const nh=(q.hints||[]).length,u=gv?nh:Math.min(nh,P.tlh[q.key]||0);
+     return `<div class="tbox tlq"><span class="tag">Câu ${i+1}</span><div class="stem">${tex(q.stem)}</div>
+      ${(q.hints||[]).slice(0,u).map((h,j)=>`<div class="vh"><b>Gợi ý ${j+1}.</b> ${tex(h)}</div>`).join('')}
+      ${u<nh?`<button class="btn sm tlh" data-h="${i}" ${bal()<HINT_XP?'disabled':''}>💡 Mở gợi ý ${u+1}/${nh} · −${HINT_XP} XP</button>${bal()<HINT_XP?'<small class="tnote">Ví XP chưa đủ để mở gợi ý.</small>':''}`:nh?'':'<small class="tnote">Câu này không có gợi ý.</small>'}
+      ${gv&&q.sol?`<div class="sol"><b>Lời giải (chỉ giáo viên thấy).</b> ${tex(q.sol)}</div>`:''}</div>`}).join('')+
+   (gv?`<button class="btn alt" id="tlEd">✎ Sửa đề này</button>`:done?`<div class="tbox tldone">✓ Em đã đánh dấu làm xong ngày ${new Date(done).toLocaleDateString('vi-VN')}.</div>`:`<button class="btn big" id="tlOk">Em đã làm xong vào vở</button>`);
+  typeset($('#tlBody'));
+  $$('#tlBody [data-h]').forEach(b=>b.onclick=()=>{sfx.tap();const q=qs[+b.dataset.h],u=P.tlh[q.key]||0;if(bal()<HINT_XP)return;
+    overlay(`<h2>Mở gợi ý ${u+1}?</h2><p>Gợi ý này trừ <b>${HINT_XP} XP</b> trong Ví XP (còn ${fmtXP(bal())} XP). Em đã thử tự làm chưa?</p><button class="btn" id="hY">Mở gợi ý</button><button class="btn alt" id="hN">Để em thử thêm</button>`);
+    $('#hN').onclick=closeOvl;$('#hY').onclick=()=>{closeOvl();if(bal()<HINT_XP)return;P.tlh[q.key]=u+1;P.spent=(P.spent||0)+HINT_XP;save();syncMine();toast(`Đã mở gợi ý · <b>−${HINT_XP} XP</b>`);tlDe(t)}});
+  $('#tlEd')&&($('#tlEd').onclick=()=>{sfx.tap();qedit(t)});
+  $('#tlOk')&&($('#tlOk').onclick=()=>{sfx.ok();P.pt[k]=new Date().toISOString();if(P.best[k]==null)P.best[k]=0;save();syncMine();toast('Giỏi lắm! Nhớ mang vở cho thầy xem nhé.');tlDe(t)})}
 function startDe(t){curT=t;let qs;try{qs=t.levels.flatMap((l,li)=>l.qs.map(q=>inst(q,{tid:t.id,level:li,title:t.title})))}catch(e){return msgBox('Câu hỏi lỗi',esc(e.message))}
   if(!qs.length)return msgBox('Đề trống','Đề này chưa có câu hỏi.');
   newG('de',qs,{t});hud();show('play');renderQ()}
@@ -443,6 +478,7 @@ function answerHTML(q){
   const w=x=>x?`<div class="vw">↳ ${tex(x)}</div>`:'';
   if(q.type==='ex')return q.opts.map((o,i)=>`<div class="va${o.ok?' y':''}">${'ABCDEF'[i]}. ${tex(o.t)}${o.ok?' ✓':''}${w(o.why)}</div>`).join('');
   if(q.type==='extf')return q.items.map((o,i)=>`<div class="va">${'abcdef'[i]}) ${tex(o.t)} — <b class="${o.ok?'y':'n'}">${o.ok?'Đúng':'Sai'}</b>${w(o.why)}</div>`).join('');
+  if(q.type==='extl')return `<div class="va">Tự luận: học sinh làm vào vở${q.hints?` · ${q.hints.length} gợi ý`:' · chưa có gợi ý'}</div>`;
   if(q.type==='exfb')return `<div class="va y">Đáp số: ${tex(q.ans.join(' hoặc '))}</div>`+(q.traps||[]).map(x=>`<div class="va">Nếu ghi ${tex(x.a)}${w(x.why)}</div>`).join('');
   return q.pairs.map((p,i)=>`<div class="va"><span class="mdot" style="background:${MPC[i%MPC.length][1]}"></span>${tex(p[0])} ⟶ ${tex(p[1])}</div>`).join('')}
 function viewSaved(id){const s=P.saved[id];if(!s)return;
@@ -481,7 +517,7 @@ function rankInst(x){const old=String((P.rseen||{})[x.q.key]||'').split('|')[1];
 function rankSeen(qs){const r=P.rseen||(P.rseen={}),m=P.matches||0;qs.forEach(q=>{if(q.key)r[q.key]=m+'|'+q.rh});
   const ks=Object.keys(r);if(ks.length>1500)ks.sort((a,b)=>(+String(r[a]).split('|')[0])-(+String(r[b]).split('|')[0])).slice(0,ks.length-1500).forEach(k=>delete r[k])}
 function startRank(){if(ACC.teacher&&!TEACHER)return;const pools=[[],[],[],[]];
-  for(const t of TOPICS){if(t.khoi!==ACC.khoi||t.status!=='giao'||t.errors.length||isDe(t))continue;t.levels.forEach((l,li)=>l.qs.forEach(q=>pools[Math.min(3,li)].push({q,t,li})))}
+  for(const t of TOPICS){if(t.khoi!==ACC.khoi||t.status!=='giao'||t.errors.length||isDe(t))continue;t.levels.forEach((l,li)=>l.qs.forEach(q=>{if(q.type!=='extl')pools[Math.min(3,li)].push({q,t,li})}))}
   const total=pools.reduce((s,p)=>s+p.length,0);if(total<4)return msgBox('Chưa đủ câu hỏi','Khối này cần thêm chủ đề đã giao để mở thi đấu.');
   const picks=rankPick(pools,RANK_BY_TIER[tierOf(P.lp)]||RANK_PICK);
   let qs;try{qs=picks.map(x=>rankInst(x))}catch(e){return msgBox('Câu hỏi lỗi',esc(e.message))}
@@ -930,16 +966,17 @@ function track(){show('track');$('#trTitle').textContent='Theo dõi khối '+cur
 
 
 /* ---------- giáo viên: sửa câu hỏi ---------- */
-function qBlocks(text){const out=[],re=/\\man\s*\{([^}]*)\}\s*\{([^}]*)\}|\\begin\{(ex|extf|exfb|exmatch)\}[\s\S]*?\\end\{\3\}/g;let m,lv=-1;
+function qBlocks(text){const out=[],re=/\\man\s*\{([^}]*)\}\s*\{([^}]*)\}|\\begin\{(ex|extf|exfb|exmatch|extl)\}[\s\S]*?\\end\{\3\}/g;let m,lv=-1;
   while((m=re.exec(text))){if(m[1]!==undefined){lv++;out.push({man:true,lv,n:m[1].trim(),name:m[2].trim(),start:m.index,end:m.index+m[0].length})}
     else out.push({lv:Math.max(lv,0),type:m[3],start:m.index,end:m.index+m[0].length,raw:m[0]})}
   return out}
-function parseOne(raw){const P=parseBank('\\chude{x}\n\\man{1}{x}\n'+raw);const n=(raw.match(/\\begin\{(ex|extf|exfb|exmatch)\}/g)||[]).length;
-  const errs=P.errors.map(e=>e.msg);if(n!==1)errs.push(n?'Mỗi lần chỉ sửa một câu (một cặp \\begin…\\end).':'Chưa có \\begin{ex|extf|exfb|exmatch}…\\end{…}.');
+function parseOne(raw){const P=parseBank('\\chude{x}\n\\man{1}{x}\n'+raw);const n=(raw.match(/\\begin\{(ex|extf|exfb|exmatch|extl)\}/g)||[]).length;
+  const errs=P.errors.map(e=>e.msg);if(n!==1)errs.push(n?'Mỗi lần chỉ sửa một câu (một cặp \\begin…\\end).':'Chưa có \\begin{ex|extf|exfb|exmatch|extl}…\\end{…}.');
   return {q:P.levels[0]&&P.levels[0].qs[0],errors:errs}}
 const QT={ex:'\\begin{ex}\nĐề bài\n\\choice{$A$ \\sai{Vì sao A sai}}{\\True $B$}{$C$ \\sai{Vì sao C sai}}{$D$ \\sai{Vì sao D sai}}\n\\goiy{Gợi ý}\n\\loigiai{Lời giải}\n\\end{ex}',
   extf:'\\begin{extf}\nĐề bài. Mỗi khẳng định sau đúng hay sai?\n\\choiceTF{\\True Ý a}{Ý b}{\\True Ý c}{Ý d}\n\\loigiai{Lời giải}\n\\end{extf}',
   exfb:'\\begin{exfb}\nĐề bài\n\\shortans{đáp số}\n\\saithuong{đáp số sai hay gặp}{Vì sao sai}\n\\loigiai{Lời giải}\n\\end{exfb}',
+  extl:'\\begin{extl}\nĐề bài tự luận (học sinh làm vào vở).\n\\goiy{Gợi ý 1: hướng làm}\n\\goiy{Gợi ý 2: bước tiếp theo}\n\\end{extl}',
   exmatch:'\\begin{exmatch}\nNối mỗi ý ở cột trái với ý đúng ở cột phải.\n\\pair{trái 1}{phải 1}\n\\pair{trái 2}{phải 2}\n\\pair{trái 3}{phải 3}\n\\end{exmatch}'};
 let QE=null;
 function qedit(t){QE=t.id;t=TOPICS.find(x=>x.id===QE)||t;show('track');$('#trTitle').textContent='Sửa câu hỏi';const bs=qBlocks(t.raw);let no=0;
@@ -1060,10 +1097,11 @@ function bankPaste(x,d){const blk=x.b.raw.trim();if(d.raw.includes(blk)){closeOv
   const text=d.raw.replace(/\s*$/,'')+'\n\n'+blk+'\n';if(parseTopic(text).errors.length>d.errors.length)return msgBox('Chưa chép được','Chép câu này làm đề phát sinh lỗi.');
   saveText(d,text,'Đã chép vào '+esc(d.title)+'.')}
 function bankNewDe(k,then){overlay(`<h2>Tạo đề ôn tập mới</h2><div class="form"><label>Tên đề<input class="name" id="nT" placeholder="Ví dụ: Đề ôn giữa học kì I số 1"></label>
-    <label>Khối<select class="name" id="nK">${KHOI.map(x=>`<option ${x===k?'selected':''}>${x}</option>`).join('')}</select></label><div id="nE"></div>
+    <label>Khối<select class="name" id="nK">${KHOI.map(x=>`<option ${x===k?'selected':''}>${x}</option>`).join('')}</select></label>
+    <label>Loại đề<select class="name" id="nL"><option value="tn">Phần 1 · Trắc nghiệm (TN)</option><option value="tl">Phần 2 · Tự luận (TL)</option></select></label><div id="nE"></div>
     <button class="btn" id="nS">Tạo đề (nháp)</button><button class="btn alt" id="nC">Hủy</button></div>`);
   $('#nC').onclick=closeOvl;$('#nS').onclick=async()=>{const title=$('#nT').value.trim(),khoi=$('#nK').value;if(!title){$('#nE').innerHTML='<div class="err">Thầy nhập tên đề.</div>';return}
-    $('#nS').disabled=true;try{const r=await DB.collection('topics').doc().set({title,khoi,phan:'on-tap'});const d=r&&TOPICS.find(t=>t.id===r.id);
+    $('#nS').disabled=true;try{const tl=$('#nL').value==='tl',r=await DB.collection('topics').doc().set({title,khoi,phan:'on-tap',...(tl?{text:`\\chude{${title.replace(/[{}\\]/g,'')}}\n\n\\man{1}{Đề}\n${QT.extl}\n`}:{})});const d=r&&TOPICS.find(t=>t.id===r.id);
       if(then&&d){then(d);return}closeOvl();sfx.ok();toast('Đã tạo đề '+esc(title)+'.');BK.tab='de';BK.k=khoi;bank()}catch(e){$('#nS').disabled=false;$('#nE').innerHTML=`<div class="err">${esc(e&&e.message||'Lỗi kết nối')}</div>`}}}
 function bankDeHTML(){const des=bankDes(BK.k);
   return `<div class="tbox"><b>Đề ôn tập khối ${BK.k}</b><p class="tnote">Đề mới ở trạng thái Nháp. Ghép đề bằng nút <b>Chép vào đề…</b> ở thẻ Tất cả câu hoặc Thi đấu, hoặc mở đề để soạn câu mới.</p><div class="qbtn"><button class="btn sm" id="bkNew">+ Tạo đề mới</button></div></div>`+
@@ -1082,7 +1120,7 @@ let syncT=null,wq=Promise.resolve();
 function syncMine(){if(!DB||!ACC||ACC.teacher||DBSTATE!=='ok')return;clearTimeout(syncT);syncT=setTimeout(()=>{syncT=null;pushMine()},1200)}
 function pushMine(){if(!DB||!ACC||ACC.teacher||DBSTATE!=='ok')return;wq=wq.then(async()=>{const lim=addDays(vnDay(),-30),w={};for(const [k,v] of Object.entries(P.wst||{}))if(v.d>=lim)w[k]=v;
   const doc={name:ACC.name,khoi:ACC.khoi,nick:P.nick||'',avatar:P.avatar||0,xp:P.xp||0,lp:P.lp||0,matches:P.matches||0,hist:P.hist||[],st:P.st||{},stats:P.stats,ach:P.ach,
-    best:Object.fromEntries(Object.entries(P.best).map(([k,s])=>[k,{st:s,s:P.score[k]||0,t:P.pt[k]||null}])),rev:P.rev,saved:P.saved,wst:w,eq:P.eq||{},own:P.own||{},spent:P.spent||0,dq:P.dq,wk:P.wk||{},season:P.season||'',seasons:P.seasons||[],fails:P.fails||{},lvt:P.lvt||{},ccl:P.ccl||{},tut:P.tut||0,follow:P.follow||{},fseen:P.fseen||'',rseen:P.rseen||{},capnhat:new Date().toISOString()};
+    best:Object.fromEntries(Object.entries(P.best).map(([k,s])=>[k,{st:s,s:P.score[k]||0,t:P.pt[k]||null}])),rev:P.rev,saved:P.saved,wst:w,eq:P.eq||{},own:P.own||{},spent:P.spent||0,dq:P.dq,wk:P.wk||{},season:P.season||'',seasons:P.seasons||[],fails:P.fails||{},lvt:P.lvt||{},ccl:P.ccl||{},tut:P.tut||0,follow:P.follow||{},fseen:P.fseen||'',rseen:P.rseen||{},tlh:P.tlh||{},capnhat:new Date().toISOString()};
   await DB.doc('players/'+ACC.id).set(doc)}).catch(()=>{})}
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&syncT){clearTimeout(syncT);syncT=null;pushMine()}});
 function mergeP(d){
@@ -1102,6 +1140,7 @@ function mergeP(d){
   if(d.season&&!P.season)P.season=d.season;if(d.seasons&&d.seasons.length>(P.seasons||[]).length)P.seasons=d.seasons;
   for(const f of ['fails','lvt','ccl'])if(d[f])for(const [k,v] of Object.entries(d[f]))if(!P[f][k])P[f][k]=v;
   if(d.tut)P.tut=1;if(d.follow&&!Object.keys(P.follow||{}).length)P.follow=d.follow;if((d.fseen||'')>(P.fseen||''))P.fseen=d.fseen;
+  if(d.tlh){P.tlh=P.tlh||{};for(const [k,v] of Object.entries(d.tlh))if((v||0)>(P.tlh[k]||0))P.tlh[k]=v}
   if(d.rseen){P.rseen=P.rseen||{};for(const [k,v] of Object.entries(d.rseen)){const a=+String(v).split('|')[0],b=+String(P.rseen[k]||'').split('|')[0];if(P.rseen[k]==null||a>b)P.rseen[k]=v}}
   save()}
 
@@ -1113,7 +1152,7 @@ function start(){started=true;const a=store.get('ltt:acc',null);
   if(a&&(a.teacher?TEACHER:ACCS.some(x=>x.id===a.id))){enter(ACCS.find(x=>x.id===a.id)||a,false)}else if(DBSTATE==='ok'||DBSTATE==='off')login();else login()}
 $('#intro').onclick=()=>{sfx.win();start()};
 function refresh(){const on=$$('.scr.on')[0]?.id;
-  if(on==='login'&&!$('#lName')?.value)login();else if(on==='grades')grades();else if(on==='subj')subjects();else if(on==='shop')shop();else if(on==='friends'&&!$('#fq'))friends();else if(on==='area')area();else if(on==='journey')journey();else if(on==='theory'&&thT){const x=TOPICS.find(y=>y.id===thT.id);if(x)theory(x)}else if(on==='ontap')onTap();else if(on==='redo')redo();else if(on==='ranked')ranked();else if(on==='board')board();
+  if(on==='login'&&!$('#lName')?.value)login();else if(on==='grades')grades();else if(on==='subj')subjects();else if(on==='shop')shop();else if(on==='friends'&&!$('#fq'))friends();else if(on==='area')area();else if(on==='journey')journey();else if(on==='theory'&&thT){const x=TOPICS.find(y=>y.id===thT.id);if(x)theory(x)}else if(on==='ontap')onTap();else if(on==='tlde'&&tlT){const x=TOPICS.find(y=>y.id===tlT.id);if(x)tlDe(x)}else if(on==='redo')redo();else if(on==='ranked')ranked();else if(on==='board')board();
 }
 (async()=>{if(!window.claude||!claude.use){DBSTATE='off';refresh();return}
   const tm=setTimeout(()=>{if(DBSTATE==='loading'){DBSTATE='slow';refresh()}},10000);

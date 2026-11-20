@@ -6,6 +6,8 @@
 //   \begin{extf}  đề \choiceTF{\True ..}{..}{\True ..}{..} \loigiai{..} \end{extf}   đúng/sai từng ý
 //   \begin{exfb}  đề \shortans{đáp số;đáp số khác}          \loigiai{..} \end{exfb}   điền đáp số
 //   \begin{exmatch} đề \pair{trái}{phải} \pair{..}{..}       \loigiai{..} \end{exmatch} nối ý
+//   \begin{extl}  đề \goiy{gợi ý 1} \goiy{gợi ý 2}          \end{extl}     tự luận (chỉ dùng trong đề ôn tập,
+//                 học sinh làm vào vở; app chỉ hiện đề và gợi ý, mỗi gợi ý mở lần đầu trừ XP)
 // Báo lỗi theo đáp án sai (hiện ngay khi học sinh chọn sai):
 //   ex:   \sai{vì sao sai} đặt trong phương án sai, ví dụ \choice{$5$ \sai{Quên đổi dấu}}{\True $-5$}..
 //   extf: \sai{giải thích} đặt trong ý, hiện khi học sinh đánh giá sai ý đó
@@ -13,7 +15,7 @@
 
 import { instantiate } from './params.js';
 
-const ENV = /\\begin\{(ex|extf|exfb|exmatch)\}([\s\S]*?)\\end\{\1\}/g;
+const ENV = /\\begin\{(ex|extf|exfb|exmatch|extl)\}([\s\S]*?)\\end\{\1\}/g;
 
 export function group(s, i) {
   while (i < s.length && /\s/.test(s[i])) i++;
@@ -138,6 +140,8 @@ export function parseBank(raw) {
         if (!g || !g[0].trim()) { err('Câu điền đáp số thiếu \\shortans{đáp số}'); continue; }
         q.stem = b.slice(0, k).trim();
         q.ans = g[0].split(';').map(s => s.trim()).filter(Boolean);
+      } else if (q.type === 'extl') {
+        q.stem = b.trim();
       } else {
         const k = b.indexOf('\\pair');
         if (k < 0) { err('Câu nối ý thiếu \\pair{..}{..}'); continue; }
@@ -161,14 +165,19 @@ export function parseBank(raw) {
       q.key = qkeyOf(q);
       qs.push(q);
     }
-    const opened = (body.match(/\\begin\{(ex|extf|exfb|exmatch)\}/g) || []).length;
-    const closed = (body.match(/\\begin\{(ex|extf|exfb|exmatch)\}[\s\S]*?\\end\{(ex|extf|exfb|exmatch)\}/g) || []).length;
+    const opened = (body.match(/\\begin\{(ex|extf|exfb|exmatch|extl)\}/g) || []).length;
+    const closed = (body.match(/\\begin\{(ex|extf|exfb|exmatch|extl)\}[\s\S]*?\\end\{(ex|extf|exfb|exmatch|extl)\}/g) || []).length;
     if (opened > closed) errors.push({ level: n, msg: 'Có câu chưa đóng \\end{...} hoặc \\begin và \\end không cùng loại' });
     if (!qs.length && !errors.some(er => er.level === n)) errors.push({ level: n, msg: 'Màn này chưa có câu hỏi nào' });
     levels.push({ n, title: g2[0].trim(), qs });
   });
+  const all = levels.flatMap(l => l.qs);
+  if (all.some(q => q.type === 'extl') && all.some(q => q.type !== 'extl'))
+    errors.push({ msg: 'Đề tự luận (\\begin{extl}) không trộn chung với câu trắc nghiệm, đúng/sai, điền số, nối ý. Thầy tách thành hai đề.' });
   return { topic, levels, errors, theory };
 }
+// Đề tự luận: mọi câu là extl
+export const isTLBank = levels => levels.some(l => l.qs.some(q => q.type === 'extl'));
 
 // Các mục của khối lý thuyết. Hai đối số {tiêu đề}{nội dung}, riêng \luuy{nội dung}; \vidu{đề}{lời giải}.
 export const THEORY_KINDS = { dinhnghia: 'Định nghĩa', quytac: 'Quy tắc', congthuc: 'Công thức', dinhly: 'Định lý', tinhchat: 'Tính chất', luuy: 'Lưu ý', vidu: 'Ví dụ' };

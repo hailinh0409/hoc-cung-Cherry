@@ -3,6 +3,19 @@
 import { ITEMS, ITEM } from './items.js';
 
 const MAX_BYTES = 450000;
+// Mỗi gợi ý của câu tự luận (đề ôn tập TL) mở lần đầu tốn bấy nhiêu XP trong Ví XP. Sửa cùng HINT_XP ở client/app.js.
+export const HINT_XP = 10;
+// Gợi ý đã mua: { mã câu: số gợi ý đã mở }. Chỉ tăng, không giảm (gửi thiếu không làm mất gợi ý đã trả tiền).
+export function mergeTlh(oldT, newT) {
+  const out = {};
+  for (const src of [oldT, newT]) for (const [k, v] of Object.entries(src && typeof src === 'object' ? src : {})) {
+    if (typeof k !== 'string' || k.length > 40) continue;
+    const c = Math.max(0, Math.min(20, Math.floor(num(v))));
+    if (c > (out[k] || 0)) out[k] = c;
+  }
+  return out;
+}
+export const hintSpent = tlh => Object.values(tlh || {}).reduce((s, c) => s + c, 0) * HINT_XP;
 const num = x => (Number.isFinite(+x) ? +x : 0);
 
 export function priceOfOwn(own) {
@@ -38,7 +51,8 @@ export function sanitize(old, doc, acc, now = Date.now()) {
   const fresh = Object.keys(n.own || {}).filter(id => ITEM[id] && !own[id]);
   for (const id of fresh.filter(id => ITEM[id].special)) { const it = ITEM[id]; try { if (it.cond({ ...n, st: n.st || {}, stats: n.stats || {} })) own[id] = n.own[id]; } catch {} }
   const buy = fresh.filter(id => !ITEM[id].special).sort((a, b) => ITEM[a].price - ITEM[b].price);
-  let spent = priceOfOwn(own);
+  n.tlh = mergeTlh(o.tlh, n.tlh);
+  let spent = priceOfOwn(own) + hintSpent(n.tlh);
   for (const id of buy) { if (spent + ITEM[id].price <= n.xp) { own[id] = n.own[id] || new Date(now).toISOString(); spent += ITEM[id].price; } }
   for (const id of Object.keys(own)) if (!ITEM[id]) delete own[id];
   n.own = own; n.spent = spent;

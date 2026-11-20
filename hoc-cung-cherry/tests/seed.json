@@ -77,6 +77,19 @@
    "phan": "on-tap",
    "chuong": null,
    "ban_truoc": null
+  },
+  {
+   "id": "3f2ebc27-2d79-4b0f-8901-9ca3b089dd9d",
+   "slug": "lop8-de-tl-hk1",
+   "title": "Đề thi thử tự luận HK1",
+   "grade": "8",
+   "status": "published",
+   "source": "\\chude{Đề thi thử tự luận HK1}\n\n\\man{1}{Đề}\n\\begin{extl}\nPhân tích đa thức thành nhân tử: $x^2-9+2(x+3)$.\n\\goiy{Viết $x^2-9=(x-3)(x+3)$.}\n\\goiy{Đặt $x+3$ làm nhân tử chung.}\n\\loigiai{$(x+3)(x-1)$}\n\\end{extl}\n\\begin{extl}\nCho hình thang cân $ABCD$ ($AB\\parallel CD$). Chứng minh $\\widehat{ACD}=\\widehat{BDC}$.\n\\goiy{Xét hai tam giác $ACD$ và $BDC$.}\n\\end{extl}\n",
+   "sort": 0,
+   "nguon": "",
+   "phan": "on-tap",
+   "chuong": null,
+   "ban_truoc": null
   }
  ],
  "ltt_accounts": [

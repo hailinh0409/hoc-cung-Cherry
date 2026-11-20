@@ -46,3 +46,13 @@ Câu lỗi
   const plain = parseBank(src.replace(/ \\sai\{[^{}]*(\$[^$]*\$[^{}]*)*\}/g, '')).levels[0].qs[0];
   assert.equal(plain.key, mc.key);
 });
+
+test('đề tự luận extl: đọc đề và gợi ý, không cho trộn với câu trắc nghiệm', () => {
+  const P = parseBank('\\chude{Đề TL}\n\\man{1}{Đề}\n\\begin{extl}\nGiải phương trình $2x+3=7$.\n\\goiy{Chuyển $3$ sang vế phải.}\n\\goiy{Chia hai vế cho $2$.}\n\\loigiai{$x=2$}\n\\end{extl}\n\\begin{extl}\nTính $1+2$.\n\\end{extl}');
+  assert.equal(P.errors.length, 0, JSON.stringify(P.errors));
+  const [a, b] = P.levels[0].qs;
+  assert.equal(a.type, 'extl'); assert.equal(a.stem, 'Giải phương trình $2x+3=7$.'); assert.equal(a.hints.length, 2); assert.equal(a.sol, '$x=2$');
+  assert.equal(b.hints, undefined);
+  const M = parseBank('\\chude{Trộn}\n\\man{1}{Đề}\n\\begin{extl}\nTính $1+2$.\n\\end{extl}\n\\begin{exfb}\nTính $2+2$. \\shortans{4}\n\\end{exfb}');
+  assert.ok(M.errors.some(e => /không trộn/.test(e.msg)));
+});

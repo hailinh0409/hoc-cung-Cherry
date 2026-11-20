@@ -1,8 +1,8 @@
 # Tiến độ: Ôn tập chia 2 phần (Trắc nghiệm TN / Tự luận TL), dạng lưới
 
-- Nhánh: `claude/on-tap-tn-tl` · PR: (xem PR nháp cùng tên nhánh)
+- Nhánh: `claude/on-tap-tn-tl` · PR: #11
 - Người đang làm: Claude · Cập nhật lần cuối: 2026-11-20
-- Trạng thái: đang làm
+- Trạng thái: xong, chờ thầy duyệt
 
 ## Mục tiêu
 Yêu cầu của thầy (20/11/2026): Phần Ôn tập có 2 phần
@@ -20,13 +20,15 @@ Yêu cầu của thầy (20/11/2026): Phần Ôn tập có 2 phần
 - Nút "Em đã làm xong vào vở" ghi `P.pt` của đề, để thầy giao đề TL và theo dõi được như đề thường.
 
 ## Đã xong (đã commit)
-- (đang cập nhật)
+- [x] `lib/latex.js`: dạng câu `extl`, báo lỗi khi trộn với dạng khác, hàm `isTLBank`
+- [x] `lib/validate.js`: `P.tlh` (gợi ý đã mua) chỉ tăng; `spent` = giá đồ + gợi ý × 10 XP
+- [x] `client/app.js`, `client/body.html`, `client/app2.css`: Ôn tập dạng lưới 2 phần TN/TL, màn đề tự luận (`tlde`), nút "Em đã làm xong vào vở", tạo đề mới chọn loại TN/TL, soạn câu "Tự luận" trong ô Thêm câu; đề TL không lên bản đồ, câu TL không vào Thi đấu
+- [x] `tests/`: test đọc `extl` và tính XP gợi ý; seed thêm đề TL mẫu khối 8
+- [x] `docs/soan-bai.md`, `AGENTS.md`: cú pháp đề tự luận cho Gemini
+- [x] npm test, next build, chạy thử 390×844 (học sinh + giáo viên)
 
 ## Còn lại
-- [ ] `lib/latex.js`: dạng `extl`
-- [ ] `lib/validate.js`: tính XP gợi ý
-- [ ] `client/app.js`, `client/body.html`, `client/app2.css`: lưới Ôn tập TN/TL, màn đề tự luận, soạn đề TL
-- [ ] Test, build, chạy thử ở cỡ điện thoại
+- Không. Thầy duyệt PR rồi gộp.
 
 ## File liên quan
 - `AGENTS.md`
