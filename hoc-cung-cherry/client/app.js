@@ -440,9 +440,10 @@ function redo(){show('redo');const ix=qIndex(),wr=Object.entries(P.rev||{}).filt
   $('#rGo')&&($('#rGo').onclick=()=>{sfx.tap();startReview()});
   $$('#redoBody [data-sv]').forEach(b=>b.onclick=()=>{sfx.tap();viewSaved(b.dataset.sv)})}
 function answerHTML(q){
-  if(q.type==='ex')return q.opts.map((o,i)=>`<div class="va${o.ok?' y':''}">${'ABCDEF'[i]}. ${tex(o.t)}${o.ok?' ✓':''}</div>`).join('');
-  if(q.type==='extf')return q.items.map((o,i)=>`<div class="va">${'abcdef'[i]}) ${tex(o.t)} — <b class="${o.ok?'y':'n'}">${o.ok?'Đúng':'Sai'}</b></div>`).join('');
-  if(q.type==='exfb')return `<div class="va y">Đáp số: ${tex(q.ans.join(' hoặc '))}</div>`;
+  const w=x=>x?`<div class="vw">↳ ${tex(x)}</div>`:'';
+  if(q.type==='ex')return q.opts.map((o,i)=>`<div class="va${o.ok?' y':''}">${'ABCDEF'[i]}. ${tex(o.t)}${o.ok?' ✓':''}${w(o.why)}</div>`).join('');
+  if(q.type==='extf')return q.items.map((o,i)=>`<div class="va">${'abcdef'[i]}) ${tex(o.t)} — <b class="${o.ok?'y':'n'}">${o.ok?'Đúng':'Sai'}</b>${w(o.why)}</div>`).join('');
+  if(q.type==='exfb')return `<div class="va y">Đáp số: ${tex(q.ans.join(' hoặc '))}</div>`+(q.traps||[]).map(x=>`<div class="va">Nếu ghi ${tex(x.a)}${w(x.why)}</div>`).join('');
   return q.pairs.map((p,i)=>`<div class="va"><span class="mdot" style="background:${MPC[i%MPC.length][1]}"></span>${tex(p[0])} ⟶ ${tex(p[1])}</div>`).join('')}
 function viewSaved(id){const s=P.saved[id];if(!s)return;
   overlay(`<div class="viewq"><span class="tag tt">${esc(s.title)}</span><div class="stem">${tex(s.q.stem)}</div><div class="vans">${answerHTML(s.q)}</div>
@@ -779,18 +780,21 @@ function renderQ(){hud();const q=cur();const st=$('#stage');$('#dock').innerHTML
 function startTimer(q){clearInterval(TM);const lim=(RANK_TIME[Math.min(3,q.level||0)]+(q.type==='exmatch'||q.type==='extf'?15:0))*1000;G.lim=lim;G.qt0=Date.now();
   const tick=()=>{const left=Math.max(0,lim-(Date.now()-G.qt0));$('#timerB').style.width=(left/lim*100)+'%';$('#timer').classList.toggle('low',left<10000);$('#modeLbl').textContent=Math.ceil(left/1000)+' giây';
     if(left<=0&&!G.done){clearInterval(TM);G.done=true;$('#qc').classList.add('lock');result(false,null,'<b>Hết giờ!</b><div class="vans">'+answerHTML(cur())+'</div>',true)}};tick();TM=setInterval(tick,200)}
+const whyBox=xs=>xs.length?`<div class="loi"><b>Vì sao chưa đúng?</b>${xs.map(x=>`<div>${x}</div>`).join('')}</div>`:'';
 function answerMC(b){if(G.done)return;G.done=true;const o=G.opts[+b.dataset.i];$('#qc').classList.add('lock');
   const okI=G.opts.findIndex(x=>x.ok);$$('#qc .opt')[okI].classList.add('ok');
-  if(!o.ok)b.classList.add('no');result(o.ok,b,o.ok?'':`Đáp án đúng: <b>${'ABCDEF'[okI]}</b>. ${tex(G.opts[okI].t)}`)}
+  if(!o.ok)b.classList.add('no');result(o.ok,b,o.ok?'':whyBox(o.why?[tex(o.why)]:[])+`Đáp án đúng: <b>${'ABCDEF'[okI]}</b>. ${tex(G.opts[okI].t)}`)}
 function checkTF(){G.done=true;const q=cur();$('#qc').classList.add('lock');const rows=$$('#qc .tfrow');let all=true;
   q.items.forEach((it,i)=>{const ok=G.tf[i]===it.ok;all=all&&ok;rows[i].classList.add(ok?'ok':'no')});
-  result(all,$('#tchk'),all?'':'Đáp án đúng: '+q.items.map((it,i)=>`<b>${'abcdef'[i]}) ${it.ok?'Đúng':'Sai'}</b>`).join(' &nbsp; '))}
+  const ws=q.items.map((it,i)=>G.tf[i]!==it.ok&&it.why?`<b>${'abcdef'[i]})</b> ${tex(it.why)}`:'').filter(Boolean);
+  result(all,$('#tchk'),all?'':whyBox(ws)+'Đáp án đúng: '+q.items.map((it,i)=>`<b>${'abcdef'[i]}) ${it.ok?'Đúng':'Sai'}</b>`).join(' &nbsp; '))}
 const norm=s=>s.replace(/\s/g,'').replace(/−/g,'-').replace(/,/g,'.');
 function val(s){s=norm(s);if(/^-?\d+(\.\d+)?\/-?\d+(\.\d+)?$/.test(s)){const [a,b]=s.split('/').map(Number);return b?a/b:NaN}return /^-?\d*\.?\d+$/.test(s)?Number(s):NaN}
 function same(a,b){const x=val(a),y=val(b);return !isNaN(x)&&!isNaN(y)?Math.abs(x-y)<1e-9:norm(a)===norm(b)}
 function keyIn(k){const ab=$('#ab');if(!ab||G.done)return;sfx.tap();
   if(k==='OK'){if(!G.typed)return;G.done=true;const q=cur();const ok=q.ans.some(a=>same(G.typed,a));ab.classList.add(ok?'ok':'no');
-    result(ok,ab,ok?'':`Đáp số đúng: <b>${tex(q.ans[0])}</b>`);return}
+    const tr=!ok&&(q.traps||[]).find(x=>same(G.typed,x.a));
+    result(ok,ab,ok?'':whyBox(tr?[tex(tr.why)]:[])+`Đáp số đúng: <b>${tex(q.ans[0])}</b>`);return}
   if(k==='⌫')G.typed=G.typed.slice(0,-1);else if(G.typed.length<12)G.typed+=k;ab.textContent=G.typed}
 function tapMatch(b){if(G.done)return;sfx.tap();const s=b.dataset.s,j=+b.dataset.j;
   if(s==='L'){if(G.link[j]!=null){delete G.link[j];G.sel=null}else G.sel=G.sel===j?null:j}
@@ -933,9 +937,9 @@ function qBlocks(text){const out=[],re=/\\man\s*\{([^}]*)\}\s*\{([^}]*)\}|\\begi
 function parseOne(raw){const P=parseBank('\\chude{x}\n\\man{1}{x}\n'+raw);const n=(raw.match(/\\begin\{(ex|extf|exfb|exmatch)\}/g)||[]).length;
   const errs=P.errors.map(e=>e.msg);if(n!==1)errs.push(n?'Mỗi lần chỉ sửa một câu (một cặp \\begin…\\end).':'Chưa có \\begin{ex|extf|exfb|exmatch}…\\end{…}.');
   return {q:P.levels[0]&&P.levels[0].qs[0],errors:errs}}
-const QT={ex:'\\begin{ex}\nĐề bài\n\\choice{$A$}{\\True $B$}{$C$}{$D$}\n\\goiy{Gợi ý}\n\\loigiai{Lời giải}\n\\end{ex}',
+const QT={ex:'\\begin{ex}\nĐề bài\n\\choice{$A$ \\sai{Vì sao A sai}}{\\True $B$}{$C$ \\sai{Vì sao C sai}}{$D$ \\sai{Vì sao D sai}}\n\\goiy{Gợi ý}\n\\loigiai{Lời giải}\n\\end{ex}',
   extf:'\\begin{extf}\nĐề bài. Mỗi khẳng định sau đúng hay sai?\n\\choiceTF{\\True Ý a}{Ý b}{\\True Ý c}{Ý d}\n\\loigiai{Lời giải}\n\\end{extf}',
-  exfb:'\\begin{exfb}\nĐề bài\n\\shortans{đáp số}\n\\loigiai{Lời giải}\n\\end{exfb}',
+  exfb:'\\begin{exfb}\nĐề bài\n\\shortans{đáp số}\n\\saithuong{đáp số sai hay gặp}{Vì sao sai}\n\\loigiai{Lời giải}\n\\end{exfb}',
   exmatch:'\\begin{exmatch}\nNối mỗi ý ở cột trái với ý đúng ở cột phải.\n\\pair{trái 1}{phải 1}\n\\pair{trái 2}{phải 2}\n\\pair{trái 3}{phải 3}\n\\end{exmatch}'};
 let QE=null;
 function qedit(t){QE=t.id;t=TOPICS.find(x=>x.id===QE)||t;show('track');$('#trTitle').textContent='Sửa câu hỏi';const bs=qBlocks(t.raw);let no=0;
@@ -963,7 +967,7 @@ async function saveText(t,text,msg){try{const r=await DB.doc('topics/'+t.id).upd
 function editQ(t,bi,lvNew){const bs=qBlocks(t.raw),b=bi!=null?bs[bi]:null;let raw=b?b.raw:QT.ex;
   overlay(`<h2 style="font-size:26px">${b?'Sửa câu hỏi':'Thêm câu mới'}</h2>${b?'':`<div class="seg qtype">${Object.entries(TYPE).map(([k,v])=>`<button data-qt="${k}" class="${k==='ex'?'on':''}">${v}</button>`).join('')}</div>`}
     <textarea class="code" id="qx" spellcheck="false">${esc(raw)}</textarea>
-    <p class="tnote" style="text-align:left">Đáp án đúng đánh dấu <b>\\True</b>. Gợi ý: <b>\\goiy{…}</b>, lời giải: <b>\\loigiai{…}</b>. Tham số: dòng <b>%@ a = ngaunhien(2,9)</b> rồi dùng <b>{{a}}</b>.</p>
+    <p class="tnote" style="text-align:left">Đáp án đúng đánh dấu <b>\\True</b>. Báo lỗi khi chọn sai: <b>\\sai{…}</b> trong phương án/ý, câu điền số dùng <b>\\saithuong{đáp số sai}{vì sao}</b>. Gợi ý: <b>\\goiy{…}</b>, lời giải: <b>\\loigiai{…}</b>. Tham số: dòng <b>%@ a = ngaunhien(2,9)</b> rồi dùng <b>{{a}}</b>.</p>
     <div class="qpv" id="qpv"></div><button class="btn" id="qS">Lưu câu</button><button class="btn alt" id="qC">Hủy</button>`);
   const pv=()=>{const {q,errors}=parseOne($('#qx').value);let h='';
     if(errors.length)h=`<div class="err">${errors.map(esc).join('<br>')}</div>`;

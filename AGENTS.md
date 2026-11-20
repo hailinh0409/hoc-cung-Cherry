@@ -49,6 +49,7 @@ Có sửa giao diện thì chạy thử bằng dữ liệu giả (`FAKE_DB=1 …
 
 - Một chủ đề = một bài học SGK Kết nối tri thức; cột `chuong` là mã bài (`k6-b8`, `k6-c2-lt1`; khối 10–12 không có Luyện tập chung mà có Bài tập cuối chương `k10-c4-cc`). Đề ôn tập: `phan = 'on-tap'`.
 - Dạng câu: `ex` (trắc nghiệm, đúng một `\True`), `extf` (đúng/sai), `exfb` (điền đáp số, chỉ số nguyên/thập phân/phân số), `exmatch` (nối ý). Mức `\man{1..4}`; Mức 4 không có trên bản đồ.
+- Báo lỗi theo đáp án sai: `\sai{…}` trong phương án/ý sai (`ex`, `extf`), `\saithuong{đáp số sai}{vì sao}` cho `exfb`. Câu `ex` mới phải có `\sai` ở mọi phương án sai (chi tiết: `docs/soan-bai.md`).
 - Tóm tắt lý thuyết: khối `\begin{lythuyet}…\end{lythuyet}` ngay sau `\chude`, với `\dinhnghia`, `\quytac`, `\congthuc`, `\dinhly`, `\tinhchat` `{tiêu đề}{nội dung}`, `\luuy{…}`, `\vidu{đề}{lời giải}`. Ngoài `$…$` không dùng lệnh LaTeX (trừ `\\`).
 - Câu hỏi và lý thuyết bám SGK nhưng **diễn đạt bằng lời của mình**, không chép nguyên văn sách.
 - Câu khó phân loại theo **mức độ hiểu bài**, không dùng kiểu "tính mẹo".
