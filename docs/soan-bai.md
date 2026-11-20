@@ -74,6 +74,18 @@ Nối mỗi ... với ...
 - `extf` đúng/sai: 4 ý, `\True` ở các ý đúng; học sinh phải đúng cả 4 ý mới được tính đúng.
 - `exfb` điền đáp số: học sinh gõ bằng bàn phím số `0–9`, `−`, dấu phẩy, `/` — đáp số chỉ là số nguyên, thập phân (dấu phẩy) hoặc phân số `a/b`, **không** dùng căn hay biểu thức chữ. Nhiều cách viết cùng giá trị cách nhau bằng `;` (app tự coi `0,5` và `1/2` là bằng nhau). Đáp số là phân số thì đề ghi rõ "(viết dạng phân số a/b)".
 - `exmatch` nối ý: 3–4 cặp, mỗi vế ngắn để vừa màn hình điện thoại dọc.
+- **Đề tự luận** (Ôn tập, Phần 2 · Tự luận, đánh số TL1, TL2…): tạo một đề ôn tập riêng (`phan = 'on-tap'`) chỉ gồm các câu `extl`, **không trộn** với câu trắc nghiệm/đúng sai/điền số/nối ý (trộn là báo lỗi). Học sinh làm vào vở; app chỉ hiện đề và gợi ý, mỗi gợi ý mở lần đầu trừ 10 XP trong Ví XP. `\loigiai` (nếu có) chỉ giáo viên thấy.
+  ```latex
+  \chude{Đề thi thử tự luận học kì I}
+  \man{1}{Đề}
+  \begin{extl}
+  Bài 1 (1,5 điểm). a) ...\\ b) ...
+  \goiy{Hướng làm: dùng kiến thức nào.}
+  \goiy{Bước đầu tiên, không lộ đáp số.}
+  \loigiai{... (chỉ giáo viên thấy)}
+  \end{extl}
+  ```
+  Mỗi `extl` là một bài của đề (có thể gồm nhiều ý a, b, c); viết 1–3 gợi ý, gợi ý trước chỉ hướng, gợi ý sau cụ thể hơn, không lộ đáp số.
 - `\loigiai` không bắt buộc nhưng nên có ở mức 3–4 (học sinh xem khi làm sai).
 - **Báo lỗi theo đáp án sai** (hiện ngay khi học sinh chọn sai, trong khung *Vì sao chưa đúng?*): **mọi câu `ex` mới phải có**, nên có ở `extf` và `exfb`.
   - `ex`: đặt `\sai{…}` ngay trong phương án sai, ví dụ `\choice{$-5$ \sai{Quên đổi dấu khi bỏ ngoặc: $-(a-b)=-a+b$.}}{\True $5$}{…}{…}`. Không đặt `\sai` trong phương án `\True`.
