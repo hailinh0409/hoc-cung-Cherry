@@ -84,7 +84,7 @@
    "title": "Đề thi thử tự luận HK1",
    "grade": "8",
    "status": "published",
-   "source": "\\chude{Đề thi thử tự luận HK1}\n\n\\man{1}{Đề}\n\\begin{extl}\nPhân tích đa thức thành nhân tử: $x^2-9+2(x+3)$.\n\\goiy{Viết $x^2-9=(x-3)(x+3)$.}\n\\goiy{Đặt $x+3$ làm nhân tử chung.}\n\\loigiai{$(x+3)(x-1)$}\n\\end{extl}\n\\begin{extl}\nCho hình thang cân $ABCD$ ($AB\\parallel CD$). Chứng minh $\\widehat{ACD}=\\widehat{BDC}$.\n\\goiy{Xét hai tam giác $ACD$ và $BDC$.}\n\\end{extl}\n",
+   "source": "\\chude{Đề ôn giữa kì I số 1 – Tự luận}\n\n\\man{1}{Đề}\n\\begin{extl}\n\\textbf{Bài 1} (2,0 điểm). Phân tích các đa thức sau thành nhân tử:\\\\\na) $x^2-9$;\\\\\nb) $x^3-2x^2+x$.\n\\goiy{Ý a): dùng hằng đẳng thức hiệu hai bình phương.}\n\\goiy{Ý b): đặt nhân tử chung $x$ trước, phần còn lại là một hằng đẳng thức.}\n\\loigiai{a) $x^2-9=(x-3)(x+3)$. (1,0 điểm)\\\\\nb) $x^3-2x^2+x=x(x^2-2x+1)$ (0,5 điểm) $=x(x-1)^2$. (0,5 điểm)}\n\\end{extl}\n\n\\begin{extl}\n\\textbf{Bài 2} (1,5 điểm). Giải hệ phương trình $\\begin{cases} x+y=5 \\\\ x-y=1 \\end{cases}$\n\\goiy{Cộng vế với vế hai phương trình để khử $y$.}\n\\loigiai{Cộng vế: $2x=6\\Rightarrow x=3$ (0,75 điểm). Thay vào: $y=2$ (0,5 điểm). Kết luận nghiệm $(3;2)$ (0,25 điểm).}\n\\end{extl}\n",
    "sort": 0,
    "nguon": "",
    "phan": "on-tap",
