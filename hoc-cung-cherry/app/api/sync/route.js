@@ -7,12 +7,13 @@ export async function GET() {
   const a = await getAccount();
   if (!a) return fail('Chưa đăng nhập', 401);
   const T = a.role === 'teacher', db = admin();
-  const [{ topics, figs }, asg, pl, accs, rep] = await Promise.all([
+  const [{ topics, figs }, asg, pl, accs, rep, st] = await Promise.all([
     loadTopics(T),
     db.from('ltt_assignments').select('id,class,levels,due_at,note,created_at,topic:ltt_topics(slug)'),
     db.from('ltt_players').select('account_id,data,mau'),
     db.from('ltt_accounts').select(T ? 'id,name,khoi,mon,reset_req,is_default,active' : 'id,active').eq('role', 'student'),
     T ? db.from('ltt_reports').select('id,account_id,topic_slug,qkey,kind,note,snap,status,created_at,resolved_at') : Promise.resolve({ data: null }),
+    db.from('ltt_settings').select('key,value')
   ]);
   // Tài khoản đã xoá: không hiện trên bảng xếp hạng, danh sách bạn bè
   const off = new Set((accs.data || []).filter(x => !x.active).map(x => x.id));
@@ -29,5 +30,7 @@ export async function GET() {
     all.sort((a, b) => String(b.at).localeCompare(String(a.at)));
     reports = [...all.filter(r => !r.done), ...all.filter(r => r.done).sort((a, b) => String(b.doneAt).localeCompare(String(a.doneAt))).slice(0, 60)];
   }
-  return json({ topics, figs, assignments, players, accounts, removed, reports });
+  // Mốc Thi đấu theo khối (bảng chưa có thì coi như chưa đặt mốc)
+  const moc = (st?.data || []).find(r => r.key === 'moc_thi_dau')?.value || {};
+  return json({ topics, figs, assignments, players, accounts, removed, reports, moc });
 }

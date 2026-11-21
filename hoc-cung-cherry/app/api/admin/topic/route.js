@@ -3,7 +3,7 @@ import { needTeacher, json, fail } from '@/lib/session';
 import { toStatus } from '@/lib/topics';
 import { plainName } from '@/lib/names';
 
-const PHAN = ['dai-so', 'hinh-hoc', 'thong-ke', 'on-tap'];
+const PHAN = ['dai-so', 'hinh-hoc', 'thong-ke', 'on-tap', 'thi-dau']; // thi-dau: Kho Thi đấu theo chương, chuong = k<khối>-c<số chương>
 const slugify = s => plainName(s).replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 60) || 'chu-de';
 const sameTime = (a, b) => Date.parse(a || 0) === Date.parse(b || 0);
 
@@ -21,6 +21,7 @@ export async function POST(req) {
     const phan = PHAN.includes(b.phan) ? b.phan : 'on-tap';
     if (!title || !/^(6|7|8|9|1[0-2])$/.test(grade)) return fail('Thiếu tên hoặc khối');
     const chuong = phan === 'on-tap' ? null : (String(b.chuong || '').trim() || null);
+    if (phan === 'thi-dau' && !new RegExp(`^k${grade}-c\\d+$`).test(chuong || '')) return fail('Kho Thi đấu cần chọn chương');
     const code = chuong && /^k\d+-[a-z0-9-]+$/.test(chuong) ? chuong.replace(/^k\d+-/, '') + '-' : '';
     const sl = slugify(title), base = `lop${grade}-${code}${phan === 'on-tap' && !/^de-/.test(sl) ? 'de-' : ''}${sl}`.slice(0, 80);
     const { data: used } = await db.from('ltt_topics').select('slug').like('slug', base + '%');
