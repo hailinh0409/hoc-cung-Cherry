@@ -2,7 +2,7 @@
 
 - Nhánh: `claude/bao-loi-cau-hoi` · PR: #14
 - Người đang làm: Claude · Cập nhật lần cuối: 21/11/2026
-- Trạng thái: xong, chờ thầy duyệt (thầy cần chạy `hoc-cung-cherry/sql/ltt_reports.sql` trên Supabase trước khi gộp)
+- Trạng thái: xong, chờ thầy duyệt
 
 ## Mục tiêu
 Thầy: "Bổ sung thêm 1 tính năng báo lỗi cho mỗi câu hỏi, nếu học sinh nào báo câu hỏi bị lỗi (lời giải sai hoặc đề sai), câu hỏi đó sẽ được gửi vào tài khoản của giáo viên để giáo viên kiểm tra lại."
@@ -34,4 +34,4 @@ Thầy: "Bổ sung thêm 1 tính năng báo lỗi cho mỗi câu hỏi, nếu h�
 `FAKE_DB=1 … npx next start`: đăng nhập học sinh (seed) làm một màn, bấm Báo lỗi; đăng nhập `thaylinh` / `matkhau123`, mở "Câu báo lỗi".
 
 ## Lưu ý cho người tiếp quản
-- Chưa ghi gì lên Supabase thật. Bảng `ltt_reports` cần thầy chạy file SQL trước khi gộp.
+- 21/11/2026: thầy cho phép, Claude đã tạo bảng `ltt_reports` trên Supabase thật (migration `ltt_reports`, RLS bật, chưa có dòng nào).
