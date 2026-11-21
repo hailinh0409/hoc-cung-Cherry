@@ -1,6 +1,6 @@
 # Tiến độ: Học sinh báo lỗi câu hỏi, giáo viên nhận và kiểm tra
 
-- Nhánh: `claude/bao-loi-cau-hoi` · PR: (xem PR nháp cùng nhánh)
+- Nhánh: `claude/bao-loi-cau-hoi` · PR: #14
 - Người đang làm: Claude · Cập nhật lần cuối: 21/11/2026
 - Trạng thái: đang làm
 
@@ -12,12 +12,12 @@ Thầy: "Bổ sung thêm 1 tính năng báo lỗi cho mỗi câu hỏi, nếu h�
 - Loại lỗi: Đề sai / Đáp án hoặc lời giải sai / Lỗi khác (hình, chữ…), kèm ghi chú tuỳ chọn.
 
 ## Đã xong (đã commit)
-- [ ] (chưa)
+- [x] Máy chủ: bảng SQL, API báo lỗi, API giáo viên, sync (xem mục Còn lại đã đánh dấu)
 
 ## Còn lại
-- [ ] `sql/ltt_reports.sql` — bảng mới, thầy chạy tay trên Supabase
-- [ ] API học sinh gửi báo lỗi `app/api/report/route.js` (giới hạn 20 lần/ngày, trùng câu thì gộp)
-- [ ] API giáo viên `app/api/admin/report/route.js` (đã xử lý / mở lại / xoá) + `app/api/sync/route.js` trả danh sách
+- [x] `sql/ltt_reports.sql` — bảng mới, thầy chạy tay trên Supabase
+- [x] API học sinh gửi báo lỗi `app/api/report/route.js` (giới hạn 20 lần/ngày, trùng câu thì gộp)
+- [x] API giáo viên `app/api/admin/report/route.js` (đã xử lý / mở lại / xoá) + `app/api/sync/route.js` trả danh sách
 - [ ] Giao diện học sinh: nút Báo lỗi (`client/app.js` hàm `sheetOpen`, `tlDe`)
 - [ ] Giao diện giáo viên: trang "Câu báo lỗi" ở màn chọn môn
 - [ ] Chạy kiểm tra (AGENTS.md mục 3) và ghi kết quả vào PR
