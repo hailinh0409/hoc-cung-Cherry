@@ -27,9 +27,18 @@ export async function POST(req) {
     const { error } = await db.from('ltt_accounts').update({ mon }).eq('id', b.id).eq('role', 'student');
     return error ? fail('Chưa lưu được', 500) : json({ ok: true });
   }
+  // Xoá tài khoản: chỉ ẩn (active = false), không xoá tiến độ, để khôi phục được khi lỡ tay
   if (b.action === 'remove') {
-    const { error } = await db.from('ltt_accounts').update({ active: false }).eq('id', b.id).eq('role', 'student');
-    return error ? fail('Chưa lưu được', 500) : json({ ok: true });
+    const { error } = await db.from('ltt_accounts').update({ active: false, reset_req: false }).eq('id', b.id).eq('role', 'student');
+    return error ? fail('Chưa xoá được', 500) : json({ ok: true });
+  }
+  if (b.action === 'restore') {
+    const { data: acc } = await db.from('ltt_accounts').select('id,name_norm,khoi').eq('id', b.id).eq('role', 'student').maybeSingle();
+    if (!acc) return fail('Không tìm thấy tài khoản', 404);
+    const { data: same } = await db.from('ltt_accounts').select('id').eq('role', 'student').eq('active', true).eq('name_norm', acc.name_norm).eq('khoi', acc.khoi);
+    if (same?.length) return fail('Khối này đã có một tài khoản cùng họ tên đang dùng', 409);
+    const { error } = await db.from('ltt_accounts').update({ active: true }).eq('id', b.id).eq('role', 'student');
+    return error ? fail('Chưa khôi phục được', 500) : json({ ok: true });
   }
   return fail('Thao tác không hợp lệ');
 }

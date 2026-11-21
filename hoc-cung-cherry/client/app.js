@@ -23,7 +23,7 @@ const RANK_TIME=[30,45,60,90],RANK_PTS=[10,15,20,30],RANK_PICK=[3,3,2,2],RANK_BY
 const MPC=[['#ffe1d6','#ff7a59'],['#d8eeff','#2b9bd6'],['#e8e0ff','#8d7bff'],['#d6f7e6','#1fa86b'],['#fff1c2','#e0a100'],['#ffe0ec','#e84a8a']];
 
 /* ---------- kho dữ liệu ---------- */
-let TOPICS=[],ACCS=[],PLAYERS=[],ASG=[],TEACHER=false,DBSTATE='loading',DB=null;
+let TOPICS=[],ACCS=[],ACCS_DEL=[],PLAYERS=[],ASG=[],TEACHER=false,DBSTATE='loading',DB=null;
 let ACC=null,P=null,curK='',curPhan='',curT=null,profFrom='grades';
 const newP=()=>({xp:0,lp:0,matches:0,hist:[],st:{},best:{},score:{},pt:{},rev:{},saved:{},wst:{},stats:{correct:0,maxCombo:0,levels:0,perfect:0,top:0,cleared:0,chests:0},own:{},eq:{},spent:0,dq:null,wk:{},season:'',seasons:[],fails:{},lvt:{},ccl:{},tut:0,follow:{},fseen:'',rseen:{},ach:{},avatar:0,nick:'',tlh:{}});
 function fromDoc(d){const v=d.data()||{};const P=parseTopic(v.text);
@@ -920,7 +920,8 @@ function accounts(){show('track');$('#trTitle').textContent='Tài khoản học 
   $('#trk').innerHTML=`<div class="tbox"><b>Thêm học sinh</b><p class="tnote">Mỗi dòng: <b>Họ và tên; khối; môn</b>. Môn ghi <b>Toán</b>, <b>Anh</b> hoặc <b>Toán Anh</b>; bỏ trống là Toán. Mật khẩu mặc định 0000.</p>
      <textarea class="name ta" id="aLines" placeholder="Nguyễn Văn An; 8; Toán&#10;Trần Thị Bình; 8; Toán Anh&#10;Lê Minh; 7; Anh"></textarea><button class="btn sm" id="aAdd">Tạo tài khoản</button><div id="aMsg"></div></div>
    ${req.length?`<div class="tbox warn"><b>Xin đặt lại mật khẩu (${req.length})</b>${req.map(a=>`<div class="row2"><span>${esc(a.name)} · khối ${a.khoi}</span><button class="btn sm" data-reset="${a.id}">Đặt lại 0000</button></div>`).join('')}</div>`:''}
-   ${KHOI.map(k=>{const L=ACCS.filter(a=>a.khoi===k).sort((a,b)=>a.name.localeCompare(b.name,'vi'));return L.length?`<div class="tbox"><b>Khối ${k} (${L.length})</b>${L.map(a=>`<div class="row2 acc"><span>${esc(a.name)}${a.isDefault!==false?' <small>(mật khẩu 0000)</small>':''}<span class="mtg">${Object.entries(MON).map(([m,x])=>`<button class="mt${monOf(a).includes(m)?' on':''}" data-acc="${a.id}" data-mon="${m}" style="--c:${x.c}">${x.n}</button>`).join('')}</span></span><button class="btn sm alt" data-reset="${a.id}">Đặt lại 0000</button></div>`).join('')}</div>`:''}).join('')}`;
+   ${KHOI.map(k=>{const L=ACCS.filter(a=>a.khoi===k).sort((a,b)=>a.name.localeCompare(b.name,'vi'));return L.length?`<div class="tbox"><b>Khối ${k} (${L.length})</b>${L.map(a=>`<div class="row2 acc"><span>${esc(a.name)}${a.isDefault!==false?' <small>(mật khẩu 0000)</small>':''}<span class="mtg">${Object.entries(MON).map(([m,x])=>`<button class="mt${monOf(a).includes(m)?' on':''}" data-acc="${a.id}" data-mon="${m}" style="--c:${x.c}">${x.n}</button>`).join('')}</span></span><span class="abtn"><button class="btn sm alt" data-reset="${a.id}">Đặt lại 0000</button><button class="btn sm del" data-del="${a.id}">Xoá</button></span></div>`).join('')}</div>`:''}).join('')}
+   ${ACCS_DEL.length?`<details class="tbox adel"><summary><b>Tài khoản đã xoá (${ACCS_DEL.length})</b></summary><p class="tnote">Tiến độ của các em vẫn được giữ. Bấm Khôi phục nếu lỡ xoá nhầm.</p>${[...ACCS_DEL].sort((a,b)=>a.khoi-b.khoi||a.name.localeCompare(b.name,'vi')).map(a=>`<div class="row2"><span>${esc(a.name)} · khối ${esc(a.khoi)}</span><button class="btn sm alt" data-restore="${a.id}">Khôi phục</button></div>`).join('')}</details>`:''}`;
   $('#trBack').onclick=()=>{sfx.tap();subjects()};
   $('#aAdd').onclick=async()=>{const lines=$('#aLines').value.split('\n').map(s=>s.trim()).filter(Boolean);let ok=0,bad=[];
     for(const l of lines){const [n,k,mm]=l.split(/[;,\t]/).map(s=>(s||'').trim());const pm=plain(mm||''),mon=[...(!pm||/toan/.test(pm)?['toan']:[]),...(/anh/.test(pm)?['anh']:[])];if(!mon.length){bad.push(l+' (môn?)');continue}if(!n||!/^(6|7|8|9|1[0-2])$/.test(k||'')){bad.push(l);continue}
@@ -929,7 +930,14 @@ function accounts(){show('track');$('#trTitle').textContent='Tài khoản học 
     $('#aMsg').innerHTML=`<div class="okbox">Đã tạo ${ok} tài khoản.</div>${bad.length?`<div class="err">Không tạo được: ${bad.map(esc).join('; ')}</div>`:''}`};
   $$('#trk [data-mon]').forEach(b=>b.onclick=async()=>{const a=ACCS.find(x=>x.id===b.dataset.acc),m=b.dataset.mon,cur=monOf(a),nx=cur.includes(m)?cur.filter(x=>x!==m):[...cur,m];
     if(!nx.length)return toast('Mỗi tài khoản cần ít nhất một môn.');try{await DB.doc('accounts/'+a.id).update({mon:nx});sfx.tap()}catch(e){msgBox('Chưa lưu được',esc(e.message))}});
-  $$('#trk [data-reset]').forEach(b=>b.onclick=async()=>{const a=ACCS.find(x=>x.id===b.dataset.reset);try{await DB.doc('accounts/'+a.id).update({ph:await hashPin(a.salt,'0000'),reset:false,isDefault:true});toast(`Đã đặt lại mật khẩu của ${esc(a.name)} về 0000`)}catch(e){msgBox('Chưa lưu được',esc(e.message))}})}
+  $$('#trk [data-reset]').forEach(b=>b.onclick=async()=>{const a=ACCS.find(x=>x.id===b.dataset.reset);try{await DB.doc('accounts/'+a.id).update({ph:await hashPin(a.salt,'0000'),reset:false,isDefault:true});toast(`Đã đặt lại mật khẩu của ${esc(a.name)} về 0000`)}catch(e){msgBox('Chưa lưu được',esc(e.message))}});
+  $$('#trk [data-del]').forEach(b=>b.onclick=()=>{const a=ACCS.find(x=>x.id===b.dataset.del);if(!a)return;sfx.tap();
+    overlay(`<h2>Xoá tài khoản?</h2><p>Xoá tài khoản của <b>${esc(a.name)}</b> (khối ${esc(a.khoi)})? Em ấy sẽ không đăng nhập được nữa và không còn hiện trên bảng xếp hạng.</p><p class="tnote">Tiến độ vẫn được giữ; thầy khôi phục được ở mục <b>Tài khoản đã xoá</b> cuối trang.</p><button class="btn del" id="dY">Xoá tài khoản</button><button class="btn alt" id="dN">Huỷ</button>`);
+    $('#dN').onclick=closeOvl;
+    $('#dY').onclick=async()=>{const y=$('#dY');if(y.disabled)return;y.disabled=true;y.textContent='Đang xoá…';
+      try{await DB.doc('accounts/'+a.id).delete();closeOvl();toast(`Đã xoá tài khoản của ${esc(a.name)}`)}catch(e){msgBox('Chưa xoá được',esc(e.message))}}});
+  $$('#trk [data-restore]').forEach(b=>b.onclick=async()=>{const a=ACCS_DEL.find(x=>x.id===b.dataset.restore);if(!a||b.disabled)return;b.disabled=true;
+    try{await DB.doc('accounts/'+a.id).update({restore:true});toast(`Đã khôi phục tài khoản của ${esc(a.name)}`)}catch(e){b.disabled=false;msgBox('Chưa khôi phục được',esc(e.message))}})}
 function asgForm(){const ts=gradeTopics(curK).filter(t=>t.status==='giao'&&!t.errors.length);const mine=ASG.filter(a=>a.khoi===curK).sort((a,b)=>(b.created||'').localeCompare(a.created||'')).slice(0,10);
   const d=new Date(Date.now()+3*864e5),p=x=>String(x).padStart(2,'0'),dv=`${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}T21:00`;
   overlay(`<h2>Giao bài khối ${curK}</h2>${ts.length?`<div class="form">
