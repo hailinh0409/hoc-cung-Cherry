@@ -17,14 +17,15 @@ Thầy (21/11): "OK, làm tất cả đề xuất trong đợt này" — gồm:
 - Nạp kho: nút "Dán câu Thi đấu" (giáo viên), skill của Claude, hoặc `scripts/ngan-hang.mjs`.
 
 ## Đã xong (đã commit)
+- [x] Giao diện: tab Thi đấu (mốc, kho theo chương, Dán câu Thi đấu, Duyệt), lọc mốc + 50% chương gần nhất, luật thi đấu
 - [x] Máy chủ: bảng `ltt_settings` (đã tạo trên Supabase), API mốc, sync trả `moc`, topic route nhận `thi-dau`
 
 ## Còn lại
 - [x] Bảng `ltt_settings` (lưu mốc) + `sql/ltt_settings.sql`; API `app/api/admin/settings/route.js`; sync trả `moc`
 - [x] `app/api/admin/topic/route.js`: cho phép `phan = 'thi-dau'`, `chuong = k<k>-c<n>`
-- [ ] Client: `isKho`, `chapOf`, ẩn kho khỏi bản đồ / giao bài; lọc mốc + 50% chương gần nhất trong `startRank`
-- [ ] Ngân hàng câu hỏi → tab Thi đấu: chọn mốc, danh sách Kho Thi đấu theo chương, nút Dán câu Thi đấu, Duyệt
-- [ ] Luật thi đấu cho học sinh: ghi rõ chương đang mở
+- [x] Client: `isKho`, `chapOf`, ẩn kho khỏi bản đồ / giao bài; lọc mốc + 50% chương gần nhất trong `startRank`
+- [x] Ngân hàng câu hỏi → tab Thi đấu: chọn mốc, danh sách Kho Thi đấu theo chương, nút Dán câu Thi đấu, Duyệt
+- [x] Luật thi đấu cho học sinh: ghi rõ chương đang mở
 - [ ] `docs/soan-bai.md` (+ hướng dẫn Gemini) mục Kho Thi đấu; `scripts/ngan-hang.mjs` nếu cần
 - [ ] Kiểm tra (AGENTS.md mục 3)
 
