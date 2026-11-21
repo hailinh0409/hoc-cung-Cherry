@@ -23,7 +23,7 @@ const RANK_TIME=[30,45,60,90],RANK_PTS=[10,15,20,30],RANK_PICK=[3,3,2,2],RANK_BY
 const MPC=[['#ffe1d6','#ff7a59'],['#d8eeff','#2b9bd6'],['#e8e0ff','#8d7bff'],['#d6f7e6','#1fa86b'],['#fff1c2','#e0a100'],['#ffe0ec','#e84a8a']];
 
 /* ---------- kho dữ liệu ---------- */
-let TOPICS=[],ACCS=[],ACCS_DEL=[],PLAYERS=[],ASG=[],TEACHER=false,DBSTATE='loading',DB=null;
+let TOPICS=[],ACCS=[],ACCS_DEL=[],REPS=[],PLAYERS=[],ASG=[],TEACHER=false,DBSTATE='loading',DB=null;
 let ACC=null,P=null,curK='',curPhan='',curT=null,profFrom='grades';
 const newP=()=>({xp:0,lp:0,matches:0,hist:[],st:{},best:{},score:{},pt:{},rev:{},saved:{},wst:{},stats:{correct:0,maxCombo:0,levels:0,perfect:0,top:0,cleared:0,chests:0},own:{},eq:{},spent:0,dq:null,wk:{},season:'',seasons:[],fails:{},lvt:{},ccl:{},tut:0,follow:{},fseen:'',rseen:{},ach:{},avatar:0,nick:'',tlh:{}});
 function fromDoc(d){const v=d.data()||{};const P=parseTopic(v.text);
@@ -237,13 +237,13 @@ function subjects(){show('subj');
      ${m.ico}<b>${m.n}</b><span>${on?(k==='anh'?'Sắp ra mắt':'Vào học ›'):'Chưa đăng kí'}</span>${on?'':'<i class="mlock">'+lockSVG+'</i>'}</button>`}).join('')}
     ${GV()?'':`<button class="mon shopm" id="sShop" style="animation-delay:${Object.keys(MON).length*.1}s"><span class="shav">${avatarOf(P,64)}</span><b>Cửa hàng<small>Ví ${bal()} XP · đã sưu tầm ${Object.keys(P.own||{}).length}/${ITEMS.length}</small></b><span>Mua sắm ›</span></button>`}</div>
    ${GV()?'':`<button class="frtile" id="sFr"><span class="frava">${followingOf(P).slice(0,4).map(id=>avatarOf(PLAYERS.find(x=>x.id===id),34)).join('')||avatarOf(P,34)}</span><span><b>Bạn bè</b><small>${followingOf(P).length} đang theo dõi · ${followersOf(ACC.id).length} người theo dõi</small></span>${newFollowers()?`<i class="dot">${newFollowers()} mới</i>`:'<i class="go">›</i>'}</button>`}
-   ${GV()?`<div class="foot"><button class="btn alt" id="sBank">Ngân hàng câu hỏi</button><button class="btn alt" id="sAcc">Tài khoản học sinh${ACCS.some(a=>a.reset)?' ●':''}</button><button class="btn alt" id="sOut">Thoát</button></div>`:`<div class="foot"><button class="btn alt" id="sOut">Đăng xuất</button></div>`}`;
+   ${GV()?`<div class="foot"><button class="btn alt" id="sBank">Ngân hàng câu hỏi</button><button class="btn alt" id="sRep">Câu báo lỗi${REPS.some(r=>!r.done)?` (${repGroups(false).length}) ●`:''}</button><button class="btn alt" id="sAcc">Tài khoản học sinh${ACCS.some(a=>a.reset)?' ●':''}</button><button class="btn alt" id="sOut">Thoát</button></div>`:`<div class="foot"><button class="btn alt" id="sOut">Đăng xuất</button></div>`}`;
   $$('#subjBody .mon').forEach(b=>b.onclick=()=>{const m=b.dataset.m;
     if(!hasMon(m)){sfx.no();b.animate([{transform:'translateX(-6px)'},{transform:'translateX(6px)'},{transform:'none'}],{duration:300});return toast(`Em chưa đăng kí môn ${MON[m].n}. Em hỏi thầy để đăng kí nhé.`)}
     sfx.tap();m==='toan'?grades():anh()});
   $('#sShop')&&($('#sShop').onclick=()=>{sfx.tap();shopFrom='subj';shop()});
   $('#sFr')&&($('#sFr').onclick=()=>{sfx.tap();frTab=newFollowers()?'followers':'feed';friends()});
-  $('#sAcc')&&($('#sAcc').onclick=()=>{sfx.tap();accounts()});$('#sBank')&&($('#sBank').onclick=()=>{sfx.tap();bank()});$('#sOut').onclick=()=>{sfx.tap();logout()}}
+  $('#sAcc')&&($('#sAcc').onclick=()=>{sfx.tap();accounts()});$('#sRep')&&($('#sRep').onclick=()=>{sfx.tap();reportsPage()});$('#sBank')&&($('#sBank').onclick=()=>{sfx.tap();bank()});$('#sOut').onclick=()=>{sfx.tap();logout()}}
 function anh(){show('anh');$('#anhBody').innerHTML=`<div class="empty"><div style="width:130px;margin:0 auto">${owlSVG}</div><h2 style="margin-top:8px">Tiếng Anh</h2><p>Bản đồ môn Tiếng Anh đang được chuẩn bị. Cherry sẽ báo em khi mở nhé!</p></div>`}
 
 function grades(){show('grades');
@@ -434,12 +434,13 @@ function tlDe(t,lab){tlT=t;if(lab)tlLab=lab;show('tlde');const qs=tlQs(t),gv=GV(
      return `<div class="tbox tlq"><span class="tag">Câu ${i+1}</span><div class="stem">${tex(q.stem)}</div>
       ${(q.hints||[]).slice(0,u).map((h,j)=>`<div class="vh"><b>Gợi ý ${j+1}.</b> ${tex(h)}</div>`).join('')}
       ${u<nh?`<button class="btn sm tlh" data-h="${i}" ${bal()<HINT_XP?'disabled':''}>💡 Mở gợi ý ${u+1}/${nh} · −${HINT_XP} XP</button>${bal()<HINT_XP?'<small class="tnote">Ví XP chưa đủ để mở gợi ý.</small>':''}`:nh?'':'<small class="tnote">Câu này không có gợi ý.</small>'}
-      ${gv&&q.sol?`<div class="sol"><b>Lời giải (chỉ giáo viên thấy).</b> ${tex(q.sol)}</div>`:''}</div>`}).join('')+
+      ${gv&&q.sol?`<div class="sol"><b>Lời giải (chỉ giáo viên thấy).</b> ${tex(q.sol)}</div>`:''}${canReport({...q,tid:t.id})?`<div class="tlrp">${repBtn(q,'rpT'+i)}</div>`:''}</div>`}).join('')+
    (gv?`<button class="btn alt" id="tlEd">✎ Sửa đề này</button>`:done?`<div class="tbox tldone">✓ Em đã đánh dấu làm xong ngày ${new Date(done).toLocaleDateString('vi-VN')}.</div>`:`<button class="btn big" id="tlOk">Em đã làm xong vào vở</button>`);
   typeset($('#tlBody'));
   $$('#tlBody [data-h]').forEach(b=>b.onclick=()=>{sfx.tap();const q=qs[+b.dataset.h],u=P.tlh[q.key]||0;if(bal()<HINT_XP)return;
     overlay(`<h2>Mở gợi ý ${u+1}?</h2><p>Gợi ý này trừ <b>${HINT_XP} XP</b> trong Ví XP (còn ${fmtXP(bal())} XP). Em đã thử tự làm chưa?</p><button class="btn" id="hY">Mở gợi ý</button><button class="btn alt" id="hN">Để em thử thêm</button>`);
     $('#hN').onclick=closeOvl;$('#hY').onclick=()=>{closeOvl();if(bal()<HINT_XP)return;P.tlh[q.key]=u+1;P.spent=(P.spent||0)+HINT_XP;save();syncMine();toast(`Đã mở gợi ý · <b>−${HINT_XP} XP</b>`);tlDe(t)}});
+  $$('#tlBody .rpb').forEach((b,i)=>{const q=qs.find(x=>x.key===b.dataset.k);if(q)b.onclick=e=>reportQ({...q,tid:t.id,title:t.title},e.currentTarget)});
   $('#tlEd')&&($('#tlEd').onclick=()=>{sfx.tap();qedit(t)});
   $('#tlOk')&&($('#tlOk').onclick=()=>{sfx.ok();P.pt[k]=new Date().toISOString();if(P.best[k]==null)P.best[k]=0;save();syncMine();toast('Giỏi lắm! Nhớ mang vở cho thầy xem nhé.');tlDe(t)})}
 function startDe(t){curT=t;let qs;try{qs=t.levels.flatMap((l,li)=>l.qs.map(q=>inst(q,{tid:t.id,level:li,title:t.title})))}catch(e){return msgBox('Câu hỏi lỗi',esc(e.message))}
@@ -786,7 +787,7 @@ function toggleSave(q,btn){const ex=Object.entries(P.saved||{}).find(([,s])=>s.k
   if(ex)delete P.saved[ex[0]];else{if(Object.keys(P.saved).length>=60)return toast('Đã lưu tối đa 60 câu. Em bỏ bớt câu cũ nhé.');
     const {raw,...q2}=q;P.saved[(q.key||'q')+'-'+Date.now().toString(36)]={k:q.key,title:q.title||(G.t&&G.t.title)||'',q:q2,at:new Date().toISOString()};toast(`${bookmark(true)}<span>Đã lưu câu hỏi và lời giải vào <b>Làm lại câu sai › Đã lưu</b></span>`)}
   save();syncMine();if(btn)btn.innerHTML=bookmark(isSaved(q))+(btn.dataset.lbl?' '+(isSaved(q)?'Đã lưu':'Lưu câu này'):'')}
-function renderQ(){hud();const q=cur();const st=$('#stage');$('#dock').innerHTML='';st.scrollTop=0;G.done=false;G.hu=0;
+function renderQ(){hud();const q=cur();const st=$('#stage');$('#dock').innerHTML='';st.scrollTop=0;G.done=false;G.hu=0;G.ansTxt=null;
   const nh=['man','so','one'].includes(G.mode)&&q.hints?q.hints.length:0;
   let h=`<div class="card${G.twin?' twin':''}" id="qc"><div class="ctop"><span class="tag">${G.twin?'Câu tương tự':TYPE[q.type]}</span>${G.mode!=='man'?`<span class="tag tt">${esc(q.title)}</span>`:''}
     ${nh?`<button class="hintbtn" id="hintB">Gợi ý (${nh})${G.mode==='man'?' · −30 điểm':''}</button>`:''}${GV()&&q.tid?`<button class="savebtn" id="editB" aria-label="Sửa câu này">✎</button>`:''}<button class="savebtn" id="saveB" aria-label="Lưu câu hỏi">${bookmark(isSaved(q))}</button></div>
@@ -815,20 +816,20 @@ function renderQ(){hud();const q=cur();const st=$('#stage');$('#dock').innerHTML
   if(G.mode==='rank')startTimer(q)}
 function startTimer(q){clearInterval(TM);const lim=(RANK_TIME[Math.min(3,q.level||0)]+(q.type==='exmatch'||q.type==='extf'?15:0))*1000;G.lim=lim;G.qt0=Date.now();
   const tick=()=>{const left=Math.max(0,lim-(Date.now()-G.qt0));$('#timerB').style.width=(left/lim*100)+'%';$('#timer').classList.toggle('low',left<10000);$('#modeLbl').textContent=Math.ceil(left/1000)+' giây';
-    if(left<=0&&!G.done){clearInterval(TM);G.done=true;$('#qc').classList.add('lock');result(false,null,'<b>Hết giờ!</b><div class="vans">'+answerHTML(cur())+'</div>',true)}};tick();TM=setInterval(tick,200)}
+    if(left<=0&&!G.done){clearInterval(TM);G.done=true;G.ansTxt='(hết giờ, chưa trả lời)';$('#qc').classList.add('lock');result(false,null,'<b>Hết giờ!</b><div class="vans">'+answerHTML(cur())+'</div>',true)}};tick();TM=setInterval(tick,200)}
 const whyBox=xs=>xs.length?`<div class="loi"><b>Vì sao chưa đúng?</b>${xs.map(x=>`<div>${x}</div>`).join('')}</div>`:'';
-function answerMC(b){if(G.done)return;G.done=true;const o=G.opts[+b.dataset.i];$('#qc').classList.add('lock');
+function answerMC(b){if(G.done)return;G.done=true;const o=G.opts[+b.dataset.i];G.ansTxt=o.t;$('#qc').classList.add('lock');
   const okI=G.opts.findIndex(x=>x.ok);$$('#qc .opt')[okI].classList.add('ok');
   if(!o.ok)b.classList.add('no');result(o.ok,b,o.ok?'':whyBox(o.why?[tex(o.why)]:[])+`Đáp án đúng: <b>${'ABCDEF'[okI]}</b>. ${tex(G.opts[okI].t)}`)}
 function checkTF(){G.done=true;const q=cur();$('#qc').classList.add('lock');const rows=$$('#qc .tfrow');let all=true;
-  q.items.forEach((it,i)=>{const ok=G.tf[i]===it.ok;all=all&&ok;rows[i].classList.add(ok?'ok':'no')});
+  q.items.forEach((it,i)=>{const ok=G.tf[i]===it.ok;all=all&&ok;rows[i].classList.add(ok?'ok':'no')});G.ansTxt=q.items.map((it,i)=>`${'abcdef'[i]}) ${G.tf[i]?'Đúng':'Sai'}`).join('; ');
   const ws=q.items.map((it,i)=>G.tf[i]!==it.ok&&it.why?`<b>${'abcdef'[i]})</b> ${tex(it.why)}`:'').filter(Boolean);
   result(all,$('#tchk'),all?'':whyBox(ws)+'Đáp án đúng: '+q.items.map((it,i)=>`<b>${'abcdef'[i]}) ${it.ok?'Đúng':'Sai'}</b>`).join(' &nbsp; '))}
 const norm=s=>s.replace(/\s/g,'').replace(/−/g,'-').replace(/,/g,'.');
 function val(s){s=norm(s);if(/^-?\d+(\.\d+)?\/-?\d+(\.\d+)?$/.test(s)){const [a,b]=s.split('/').map(Number);return b?a/b:NaN}return /^-?\d*\.?\d+$/.test(s)?Number(s):NaN}
 function same(a,b){const x=val(a),y=val(b);return !isNaN(x)&&!isNaN(y)?Math.abs(x-y)<1e-9:norm(a)===norm(b)}
 function keyIn(k){const ab=$('#ab');if(!ab||G.done)return;sfx.tap();
-  if(k==='OK'){if(!G.typed)return;G.done=true;const q=cur();const ok=q.ans.some(a=>same(G.typed,a));ab.classList.add(ok?'ok':'no');
+  if(k==='OK'){if(!G.typed)return;G.done=true;G.ansTxt=G.typed;const q=cur();const ok=q.ans.some(a=>same(G.typed,a));ab.classList.add(ok?'ok':'no');
     const tr=!ok&&(q.traps||[]).find(x=>same(G.typed,x.a));
     result(ok,ab,ok?'':whyBox(tr?[tex(tr.why)]:[])+`Đáp số đúng: <b>${tex(q.ans[0])}</b>`);return}
   if(k==='⌫')G.typed=G.typed.slice(0,-1);else if(G.typed.length<12)G.typed+=k;ab.textContent=G.typed}
@@ -840,7 +841,7 @@ function paintMatch(){const it=$$('#stage .mi');it.forEach(e=>{e.classList.remov
   const L=it.filter(e=>e.dataset.s==='L'),R=it.filter(e=>e.dataset.s==='R');
   if(G.sel!=null)L[G.sel].classList.add('sel');
   Object.keys(G.link).map(Number).sort((a,b)=>a-b).forEach((l,n)=>{const [bg,bd]=MPC[n%MPC.length];[L[l],R[G.link[l]]].forEach(e=>{e.style.background=bg;e.style.boxShadow=`0 4px 0 ${bd}55,inset 0 0 0 3px ${bd}`})})}
-function checkMatch(){G.done=true;$('#qc').classList.add('lock');const it=$$('#stage .mi');const L=it.filter(e=>e.dataset.s==='L'),R=it.filter(e=>e.dataset.s==='R');let all=true;
+function checkMatch(){G.done=true;G.ansTxt=G.L.map((x,l)=>x.t+' ⟶ '+(G.link[l]!=null?G.R[G.link[l]].t:'?')).join('; ');$('#qc').classList.add('lock');const it=$$('#stage .mi');const L=it.filter(e=>e.dataset.s==='L'),R=it.filter(e=>e.dataset.s==='R');let all=true;
   Object.entries(G.link).forEach(([l,r])=>{const ok=G.L[l].i===G.R[r].i;all=all&&ok;[L[l],R[r]].forEach(e=>{e.style.boxShadow='';e.classList.add(ok?'ok':'no')})});
   result(all,$('#mchk'),all?'':'Cách nối đúng:'+G.L.map((x,i)=>`<div class="va"><span class="mdot" style="background:${MPC[i%MPC.length][1]}"></span>${tex(x.t)} ⟶ ${tex(G.R.find(y=>y.i===x.i).t)}</div>`).join(''))}
 
@@ -852,8 +853,27 @@ function recordQ(q,ok){if(!q.key)return;const today=vnDay();
 function bumpStreak(){const nx=nextStreak(P.st||{},vnDay());if(!nx)return null;const {shieldUsed,...p}=nx;P.st=p;save();syncMine();return nx}
 function sheetOpen(ok,title,why,q,btns){const sh=$('#sheet');sh.className='sheet '+(ok?'ok':'no');
   sh.innerHTML=`<div class="sbody"><h2>${title}</h2>${why?`<div class="why">${why}</div>`:''}${q.sol?`<div class="sol"><b>Lời giải.</b> ${tex(q.sol)}</div>`:''}</div>
-    <div class="sbtns"><button class="btn alt sv" id="svB" data-lbl="1">${bookmark(isSaved(q))} ${isSaved(q)?'Đã lưu':'Lưu câu này'}</button>${btns}</div>`;
-  typeset(sh);requestAnimationFrame(()=>sh.classList.add('on'));$('#svB').onclick=e=>{sfx.tap();toggleSave(q,e.currentTarget)};return sh}
+    <div class="sbtns"><div class="srow"><button class="btn alt sv" id="svB" data-lbl="1">${bookmark(isSaved(q))} ${isSaved(q)?'Đã lưu':'Lưu câu này'}</button>${canReport(q)?repBtn(q):''}</div>${btns}</div>`;
+  typeset(sh);requestAnimationFrame(()=>sh.classList.add('on'));$('#svB').onclick=e=>{sfx.tap();toggleSave(q,e.currentTarget)};
+  $('#rpB')&&($('#rpB').onclick=e=>reportQ(q,e.currentTarget,{ok,ans:G.ansTxt}));return sh}
+/* ---------- báo lỗi câu hỏi (học sinh) ---------- */
+const MYREP=new Set();
+const REPK={de:'Đề bài sai',dapan:'Đáp án hoặc lời giải sai',khac:'Lỗi khác (hình, chữ, …)'};
+const flagSVG='<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M5 21V4m0 0h11l-2 4 2 4H5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const canReport=q=>!GV()&&q&&q.key&&q.tid&&typeof api==='function';
+const repBtn=(q,id='rpB')=>`<button class="btn alt sv rpb${MYREP.has(q.key)?' sent':''}" id="${id}" data-k="${esc(q.key)}">${flagSVG} ${MYREP.has(q.key)?'Đã báo lỗi':'Báo lỗi'}</button>`;
+function reportQ(q,btn,extra){sfx.tap();let kind='';
+  overlay(`<h2>Báo lỗi câu hỏi</h2><p>Em thấy câu này sai ở đâu? Thầy sẽ kiểm tra và sửa lại.</p>${MYREP.has(q.key)?'<p class="tnote">Em đã báo câu này rồi. Gửi lại sẽ cập nhật lý do và ghi chú.</p>':''}
+    <div class="rpk">${Object.entries(REPK).map(([k,v])=>`<button data-rk="${k}">${v}</button>`).join('')}</div>
+    <textarea class="name ta" id="rpN" maxlength="300" placeholder="Em ghi thêm vì sao (không bắt buộc). Ví dụ: đáp số đúng phải là 12"></textarea>
+    <div class="err" id="rpE" style="display:none"></div><button class="btn" id="rpS" disabled>Gửi cho thầy</button><button class="btn alt" id="rpC">Huỷ</button>`);
+  $$('#panel [data-rk]').forEach(b=>b.onclick=()=>{sfx.tap();kind=b.dataset.rk;$$('#panel [data-rk]').forEach(x=>x.classList.toggle('on',x===b));$('#rpS').disabled=false});
+  $('#rpC').onclick=closeOvl;
+  $('#rpS').onclick=async()=>{const s=$('#rpS');if(!kind||s.disabled)return;s.disabled=true;s.textContent='Đang gửi…';
+    const {raw,...q2}=q,snap={type:q2.type,stem:q2.stem,opts:q2.opts,items:q2.items,ans:q2.ans,traps:q2.traps,pairs:q2.pairs,hints:q2.hints,sol:q2.sol,level:q2.level,title:q2.title,...(extra||{})};
+    try{await DB.collection('reports').doc().set({tid:q.tid,qkey:q.key,kind,note:$('#rpN').value,snap});MYREP.add(q.key);closeOvl();sfx.ok();toast('Đã gửi cho thầy. Cảm ơn em!');
+      if(btn){btn.classList.add('sent');btn.innerHTML=flagSVG+' Đã báo lỗi'}}
+    catch(e){s.disabled=false;s.textContent='Gửi cho thầy';const er=$('#rpE');er.style.display='';er.textContent=e.message||'Chưa gửi được, em thử lại.'}}}
 function result(ok,el,why,timeout){clearInterval(TM);const q=cur();recordQ(q,ok);
   if(G.twin){const healed=ok&&G.mode==='man'&&G.hearts<3;if(healed)G.hearts++;hud();ok?(sfx.ok(),confetti(40,.45)):sfx.no();$('#dock').innerHTML='';
     const sh=sheetOpen(ok,ok?(healed?'Đúng rồi! Hồi 1 tim':'Đúng rồi!'):'Chưa đúng rồi',why,q,`<button class="btn ${ok?'':'co'}" id="nx">${G.over?'Xem kết quả':'Câu tiếp theo'}</button>`);
@@ -938,6 +958,27 @@ function accounts(){show('track');$('#trTitle').textContent='Tài khoản học 
       try{await DB.doc('accounts/'+a.id).delete();closeOvl();toast(`Đã xoá tài khoản của ${esc(a.name)}`)}catch(e){msgBox('Chưa xoá được',esc(e.message))}}});
   $$('#trk [data-restore]').forEach(b=>b.onclick=async()=>{const a=ACCS_DEL.find(x=>x.id===b.dataset.restore);if(!a||b.disabled)return;b.disabled=true;
     try{await DB.doc('accounts/'+a.id).update({restore:true});toast(`Đã khôi phục tài khoản của ${esc(a.name)}`)}catch(e){b.disabled=false;msgBox('Chưa khôi phục được',esc(e.message))}})}
+/* báo lỗi câu hỏi: nhóm theo câu (nhiều bạn báo cùng một câu) */
+function repGroups(done){const m=new Map();for(const r of REPS.filter(x=>!!x.done===done)){const k=r.tid+'|'+r.qkey;if(!m.has(k))m.set(k,[]);m.get(k).push(r)}return [...m.values()]}
+const vnTime=s=>{const d=new Date(s);return isNaN(d)?'':d.toLocaleString('vi-VN',{hour:'2-digit',minute:'2-digit',day:'2-digit',month:'2-digit'})};
+function reportsPage(){show('track');$('#trTitle').textContent='Câu báo lỗi';const open=repGroups(false),done=repGroups(true);
+  const card=(g,gi)=>{const r0=g[0],s=r0.snap||{},t=TOPICS.find(x=>x.id===r0.tid),cnt={};g.forEach(r=>cnt[r.kind]=(cnt[r.kind]||0)+1);let ans='';try{ans=answerHTML(s)}catch(e){}
+    return `<div class="tbox rpc"><div class="rph"><b>${esc(t?t.title:s.title||r0.tid)}</b><small>${[t?`Khối ${esc(t.khoi)}`:'',s.level!=null?`Mức ${s.level+1}`:''].filter(Boolean).join(' · ')}</small></div>
+      <div class="rpchips">${Object.entries(cnt).map(([k,n])=>`<span class="chip late">${REPK[k]||k}${n>1?` ×${n}`:''}</span>`).join('')}</div>
+      <div class="stem">${tex(s.stem||'')}</div>${ans?`<div class="vans">${ans}</div>`:''}${s.sol?`<details><summary>Lời giải</summary><div class="sol">${tex(s.sol)}</div></details>`:''}
+      <div class="rpwho">${g.map(r=>`<div><b>${esc(r.name)}</b>${r.khoi?` · khối ${esc(r.khoi)}`:''} · <small>${vnTime(r.at)}</small>${r.snap&&r.snap.ans!=null?`<br><small>Em trả lời: ${tex(String(r.snap.ans))}${r.snap.ok===true?' (đúng)':r.snap.ok===false?' (sai)':''}</small>`:''}${r.note?`<div class="rpn">“${esc(r.note)}”</div>`:''}</div>`).join('')}</div>
+      <div class="rpbt"><button class="btn sm" data-rq="${gi}">✎ Sửa câu này</button><button class="btn sm alt" data-rd="${gi}">✓ Đã xử lý</button></div></div>`};
+  $('#trk').innerHTML=(open.length?`<div class="tbox"><b>Học sinh báo ${open.length} câu</b><p class="tnote">Bấm <b>Sửa câu này</b> để sửa, xong bấm <b>Đã xử lý</b>. Câu không có lỗi cũng bấm <b>Đã xử lý</b>.</p></div>`+open.map(card).join('')
+    :`<div class="tbox"><b>Chưa có câu nào bị báo lỗi.</b><p class="tnote">Học sinh bấm <b>Báo lỗi</b> ở bảng kết quả sau mỗi câu (hoặc dưới mỗi câu tự luận). Câu được báo sẽ hiện ở đây.</p></div>`)+
+    (done.length?`<details class="tbox adel"><summary><b>Đã xử lý gần đây (${done.length})</b></summary>${done.map((g,gi)=>{const r0=g[0],t=TOPICS.find(x=>x.id===r0.tid);
+      return `<div class="row2"><span>${esc(t?t.title:r0.tid)}<br><small>${esc(String((r0.snap||{}).stem||'').replace(/\$/g,'').slice(0,70))}… · ${g.length} lượt báo</small></span><button class="btn sm alt" data-ro="${gi}">Mở lại</button></div>`}).join('')}</details>`:'');
+  typeset($('#trk'));$('#trBack').onclick=()=>{sfx.tap();subjects()};
+  const act=async(g,action,msg,b)=>{if(b.disabled)return;b.disabled=true;try{await DB.doc('reports/'+g[0].id).update({action,ids:g.map(r=>r.id)});toast(msg)}catch(e){b.disabled=false;msgBox('Chưa lưu được',esc(e.message))}};
+  $$('#trk [data-rd]').forEach(b=>b.onclick=()=>{sfx.tap();act(open[+b.dataset.rd],'done','Đã đánh dấu xử lý xong',b)});
+  $$('#trk [data-ro]').forEach(b=>b.onclick=()=>{sfx.tap();act(done[+b.dataset.ro],'reopen','Đã mở lại',b)});
+  $$('#trk [data-rq]').forEach(b=>b.onclick=()=>{sfx.tap();const r0=open[+b.dataset.rq][0],t=TOPICS.find(x=>x.id===r0.tid);if(!t)return toast('Không tìm thấy bài này (có thể đã bị xoá).');
+    const bs=qBlocks(t.raw),i=bs.findIndex(x=>!x.man&&parseOne(x.raw).q?.key===r0.qkey);
+    if(i<0){toast('Câu này đã được sửa hoặc đổi nội dung. Mở danh sách câu của bài để tìm.');return qedit(t)}editQ(t,i)})}
 function asgForm(){const ts=gradeTopics(curK).filter(t=>t.status==='giao'&&!t.errors.length);const mine=ASG.filter(a=>a.khoi===curK).sort((a,b)=>(b.created||'').localeCompare(a.created||'')).slice(0,10);
   const d=new Date(Date.now()+3*864e5),p=x=>String(x).padStart(2,'0'),dv=`${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}T21:00`;
   overlay(`<h2>Giao bài khối ${curK}</h2>${ts.length?`<div class="form">

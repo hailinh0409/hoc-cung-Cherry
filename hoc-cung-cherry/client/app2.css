@@ -325,3 +325,13 @@ textarea.code.light{background:#fff;color:#12313a;font:14px/1.5 "Be Vietnam Pro"
 .dnone{text-align:center;color:#7a9399}
 .tlwal{font-size:14px}.tlq .stem{margin:6px 0}.tlh{margin-top:8px}
 .tldone{text-align:center;font-weight:800;color:#1f8a63}
+
+/* báo lỗi câu hỏi */
+.sheet .srow{display:flex;gap:8px}.sheet .srow .btn{flex:1}.rpb{gap:6px}.rpb.sent{color:#c0392b}
+.rpk{display:flex;flex-direction:column;gap:8px;margin:12px 0}.rpk button{padding:12px;border-radius:14px;background:#eef3f4;font-weight:800;color:#35565c;text-align:left;border:2px solid transparent}
+.rpk button.on{background:#fff3c4;border-color:#f5b800;color:#3a2a00}
+.tlrp{margin-top:8px;display:flex;justify-content:flex-end}.tlrp .btn{width:auto;min-height:36px;font-size:13px;padding:0 12px}
+.rpc .rph{display:flex;justify-content:space-between;gap:8px;align-items:baseline}.rpc .rph small{color:#7a9399;white-space:nowrap}
+.rpchips{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}.rpc .stem{margin:6px 0}.rpc .vans{margin:6px 0}.rpc details summary{cursor:pointer;font-weight:800;color:#2584b8;font-size:14px}
+.rpwho{margin-top:8px;border-top:1px dashed #0002;padding-top:6px;font-size:14px}.rpwho>div{padding:4px 0}.rpn{color:#35565c;font-style:italic;margin-top:2px}
+.rpbt{display:flex;gap:8px;margin-top:10px}.rpbt .btn{flex:1}
