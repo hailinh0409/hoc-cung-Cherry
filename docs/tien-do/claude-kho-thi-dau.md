@@ -26,7 +26,7 @@ Thầy (21/11): "OK, làm tất cả đề xuất trong đợt này" — gồm:
 - [x] Client: `isKho`, `chapOf`, ẩn kho khỏi bản đồ / giao bài; lọc mốc + 50% chương gần nhất trong `startRank`
 - [x] Ngân hàng câu hỏi → tab Thi đấu: chọn mốc, danh sách Kho Thi đấu theo chương, nút Dán câu Thi đấu, Duyệt
 - [x] Luật thi đấu cho học sinh: ghi rõ chương đang mở
-- [ ] `docs/soan-bai.md` (+ hướng dẫn Gemini) mục Kho Thi đấu; `scripts/ngan-hang.mjs` nếu cần
+- [x] `docs/soan-bai.md` (+ hướng dẫn Gemini) mục Kho Thi đấu; `scripts/ngan-hang.mjs` nếu cần
 - [ ] Kiểm tra (AGENTS.md mục 3)
 
 ## File liên quan
