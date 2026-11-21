@@ -335,3 +335,6 @@ textarea.code.light{background:#fff;color:#12313a;font:14px/1.5 "Be Vietnam Pro"
 .rpchips{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}.rpc .stem{margin:6px 0}.rpc .vans{margin:6px 0}.rpc details summary{cursor:pointer;font-weight:800;color:#2584b8;font-size:14px}
 .rpwho{margin-top:8px;border-top:1px dashed #0002;padding-top:6px;font-size:14px}.rpwho>div{padding:4px 0}.rpn{color:#35565c;font-style:italic;margin-top:2px}
 .rpbt{display:flex;gap:8px;margin-top:10px}.rpbt .btn{flex:1}
+/* tab Thi đấu: mốc chương + kho theo chương */
+.mocr{display:flex;flex-direction:column;gap:8px}.mocr select{margin:0}
+.khoc{margin-top:10px;border-top:1px dashed #0002;padding-top:8px}.khoc .nmoc{color:#c0392b;font-weight:700}.khoc .abtn{display:flex;gap:6px;flex-shrink:0}.khoc .chip{font-size:11px}

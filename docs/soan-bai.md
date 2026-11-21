@@ -12,8 +12,8 @@ Bản này chép từ quy trình soạn bài của Claude (skill `nap-bai-leo-th
    ```
    %%% slug: lop6-b23-mo-rong-phan-so
    %%% grade: 6
-   %%% phan: dai-so            (dai-so | hinh-hoc | thong-ke | on-tap)
-   %%% chuong: k6-b23          (mã bài; đề ôn tập để trống)
+   %%% phan: dai-so            (dai-so | hinh-hoc | thong-ke | on-tap | thi-dau)
+   %%% chuong: k6-b23          (mã bài; đề ôn tập để trống; Kho Thi đấu là mã chương k6-c2)
    %%% sort: 230
    %%% nguon: Gemini
    ```
@@ -25,6 +25,17 @@ Bản này chép từ quy trình soạn bài của Claude (skill `nap-bai-leo-th
 Mã bài: Bài thường `k<khối>-b<số bài SGK>`; Luyện tập chung `k<khối>-c<chương>-lt<thứ tự>` (khối 6–9); Bài tập cuối chương `k<khối>-c<chương>-cc` (khối 10–12, SGK THPT không có Luyện tập chung). Số bài khối 10–12 đánh liên tục cả năm như SGK (ví dụ `k11-b18` = Luỹ thừa với số mũ thực). Danh sách đủ ở hằng `CURR` trong `hoc-cung-cherry/client/app.js`.
 
 Mỗi bài cần: Mức 1 ít nhất 5 câu, Mức 2 ít nhất 5, Mức 3 ít nhất 3, Mức 4 (Thi đấu) 2–4 câu; câu Mức 1–3 bám sát SGK Kết nối tri thức; câu Mức 4 hóc búa, phân loại theo mức độ hiểu bài, không dùng kiểu "tính mẹo".
+
+## Kho Thi đấu theo chương (câu chỉ dùng cho Thi đấu)
+
+Thi đấu rút câu Mức 1–4 của mọi bài **đã duyệt** của khối, cộng thêm **Kho Thi đấu theo chương**. Giáo viên đặt **mốc** "đã học hết Chương N" cho từng khối (Ngân hàng câu hỏi → tab Thi đấu): Thi đấu chỉ dùng câu của Chương 1..N, khoảng một nửa số câu mỗi trận thuộc Chương N. Chưa đặt mốc = mở mọi chương. Bài chưa gắn chương luôn được dùng.
+
+- Kho là một chủ đề với `phan = 'thi-dau'`, `chuong = 'k<khối>-c<số chương>'` (ví dụ `k8-c3`), **không có** khối `lythuyet`, **không có** câu `extl`. Không hiện trên bản đồ.
+- Mỗi lần nạp là **một đợt mới** (chủ đề mới, trạng thái nháp), tên `\chude{Kho Thi đấu · Chương 3. Tứ giác · đợt 2}`, `slug` dạng `lop8-c3-kho-thi-dau-...-dot-2`, `sort = chương*100 + đợt`. Không sửa đợt cũ đã duyệt để thêm câu (thêm câu vào đợt đã duyệt thì câu mới vào trận ngay, không qua bước duyệt).
+- Nội dung: chủ yếu `\man{3}{Vận dụng}` và `\man{4}{Vận dụng cao}` (Mức 1–2 đã có sẵn trong các bài). Dùng đủ 4 dạng `ex`, `extf`, `exfb`, `exmatch`, có `\sai`/`\saithuong` và `\loigiai`. Câu phân loại theo mức độ hiểu bài, không dùng kiểu "tính mẹo". Mỗi câu làm được trong 1–3 phút. Kiến thức chỉ trong chương đó và các chương trước.
+- **Gemini / không có quyền Supabase:** trả về một khối mã chỉ gồm các `\man{..}` và câu hỏi. Thầy mở app → Ngân hàng câu hỏi → tab **Thi đấu** → chọn khối → **+ Dán câu Thi đấu** → chọn chương → dán. App tự đặt tên đợt, tự thêm `\man{4}` nếu thiếu, báo lỗi cú pháp. Thầy bấm **Duyệt** cạnh đợt đó.
+- **Claude (có Supabase):** chèn chủ đề như mục ghi Supabase của skill, với `phan = 'thi-dau'`, `chuong = 'k8-c3'`, `status = 'draft'`; đếm đợt đã có bằng `select count(*) from ltt_topics where phan = 'thi-dau' and chuong = 'k8-c3'`.
+- **File:** `%%% phan: thi-dau` và `%%% chuong: k8-c3` rồi đẩy bằng `scripts/ngan-hang.mjs` như bài thường.
 
 ## Định dạng và kiểm tra
 

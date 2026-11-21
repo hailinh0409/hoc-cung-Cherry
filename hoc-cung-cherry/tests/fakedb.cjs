@@ -2,7 +2,7 @@
 const crypto = require("node:crypto");
 function makeFake(seed = {}) {
   const T = { ltt_accounts: [], ltt_players: [], ltt_topics: [], ltt_assignments: [], ltt_figures: [], ...seed };
-  const pk = { ltt_players: 'account_id', ltt_figures: 'hash' };
+  const pk = { ltt_players: 'account_id', ltt_figures: 'hash', ltt_settings: 'key' };
   class Q {
     constructor(t) { this.t = t; this.f = []; this.op = 'select'; this.one = false; }
     select(cols) { if (this.op === 'select') this.cols = cols; return this; }
