@@ -2,7 +2,7 @@
 
 - Nhánh: `claude/bao-loi-cau-hoi` · PR: #14
 - Người đang làm: Claude · Cập nhật lần cuối: 21/11/2026
-- Trạng thái: đang làm
+- Trạng thái: xong, chờ thầy duyệt (thầy cần chạy `hoc-cung-cherry/sql/ltt_reports.sql` trên Supabase trước khi gộp)
 
 ## Mục tiêu
 Thầy: "Bổ sung thêm 1 tính năng báo lỗi cho mỗi câu hỏi, nếu học sinh nào báo câu hỏi bị lỗi (lời giải sai hoặc đề sai), câu hỏi đó sẽ được gửi vào tài khoản của giáo viên để giáo viên kiểm tra lại."
@@ -18,9 +18,9 @@ Thầy: "Bổ sung thêm 1 tính năng báo lỗi cho mỗi câu hỏi, nếu h�
 - [x] `sql/ltt_reports.sql` — bảng mới, thầy chạy tay trên Supabase
 - [x] API học sinh gửi báo lỗi `app/api/report/route.js` (giới hạn 20 lần/ngày, trùng câu thì gộp)
 - [x] API giáo viên `app/api/admin/report/route.js` (đã xử lý / mở lại / xoá) + `app/api/sync/route.js` trả danh sách
-- [ ] Giao diện học sinh: nút Báo lỗi (`client/app.js` hàm `sheetOpen`, `tlDe`)
-- [ ] Giao diện giáo viên: trang "Câu báo lỗi" ở màn chọn môn
-- [ ] Chạy kiểm tra (AGENTS.md mục 3) và ghi kết quả vào PR
+- [x] Giao diện học sinh: nút Báo lỗi (`client/app.js` hàm `sheetOpen`, `tlDe`)
+- [x] Giao diện giáo viên: trang "Câu báo lỗi" ở màn chọn môn
+- [x] Chạy kiểm tra (AGENTS.md mục 3) và ghi kết quả vào PR
 
 ## File liên quan
 - `AGENTS.md`
