@@ -2,7 +2,7 @@
 
 - Nhánh: `claude/kho-thi-dau` · PR: #15 (nháp)
 - Người đang làm: Claude · Cập nhật lần cuối: 21/11/2026
-- Trạng thái: đang làm
+- Trạng thái: xong, chờ thầy duyệt PR
 
 ## Mục tiêu
 Thầy (21/11): "OK, làm tất cả đề xuất trong đợt này" — gồm:
@@ -27,7 +27,7 @@ Thầy (21/11): "OK, làm tất cả đề xuất trong đợt này" — gồm:
 - [x] Ngân hàng câu hỏi → tab Thi đấu: chọn mốc, danh sách Kho Thi đấu theo chương, nút Dán câu Thi đấu, Duyệt
 - [x] Luật thi đấu cho học sinh: ghi rõ chương đang mở
 - [x] `docs/soan-bai.md` (+ hướng dẫn Gemini) mục Kho Thi đấu; `scripts/ngan-hang.mjs` nếu cần
-- [ ] Kiểm tra (AGENTS.md mục 3)
+- [x] Kiểm tra (AGENTS.md mục 3)
 
 ## File liên quan
 - `hoc-cung-cherry/client/app.js`, `client/real.js`, `client/app2.css`
