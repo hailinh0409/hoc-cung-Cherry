@@ -169,6 +169,10 @@ export function fillQ(q, env) {
     ...(q.traps && { traps: q.traps.map(x => ({ a: fill(x.a, env, 'ans'), why: f(x.why) })) }),
     ...(q.pairs && { pairs: q.pairs.map(p => p.map(f)) }),
     ...(q.ans && { ans: q.ans.map(a => fill(a, env, 'ans')) }),
+    ...(q.steps && { steps: q.steps.map(x => ({ ...x, t: f(x.t) })) }),
+    ...(q.nodes && { nodes: q.nodes.map(x => ({ ...x, t: f(x.t), c: f(x.c) })) }),
+    ...(q.bad && { bad: q.bad.map(x => ({ ...x, t: f(x.t), ...(x.why && { why: f(x.why) }) })) }),
+    ...(q.badc && { badc: q.badc.map(x => ({ ...x, t: f(x.t), ...(x.why && { why: f(x.why) }) })) }),
   };
 }
 // Sinh một bản cụ thể của câu hỏi (câu không có tham số giữ nguyên)
