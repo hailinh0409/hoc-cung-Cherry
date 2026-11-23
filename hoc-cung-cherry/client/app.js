@@ -830,7 +830,7 @@ function renderQ(){hud();const q=cur();const st=$('#stage');$('#dock').innerHTML
     h+=`<div class="mgrid${wide?' stack':''}"><div class="mcol">${G.L.map((x,j)=>`<button class="mi" data-s="L" data-j="${j}" style="animation-delay:${.07*j}s"><span class="tx">${tex(x.t)}</span></button>`).join('')}</div>
      <div class="mcol">${G.R.map((x,j)=>`<button class="mi" data-s="R" data-j="${j}" style="animation-delay:${.07*j+.1}s"><span class="tx">${tex(x.t)}</span></button>`).join('')}</div></div>
      <div class="hint">Chạm một ô bên trái, rồi chạm ô bên phải để nối; cặp đã nối cùng màu. Chạm lại để bỏ nối.</div>`}
-  if(isQ2(q))h+=`<div id="q2"></div>`;
+  if(isQ2(q))h+=`<div id="q2a"></div>`;
   st.innerHTML=h+'</div>';typeset(st);if(isQ2(q)){q2Init(q);q2Draw()}
   $('#editB')&&($('#editB').onclick=()=>{const t=TOPICS.find(x=>x.id===q.tid);if(!t)return;const bs=qBlocks(t.raw),b=bs.findIndex(x=>!x.man&&parseOne(x.raw).q?.key===q.key);if(b<0)return toast('Không tìm thấy câu này trong chủ đề (có thể đã được sửa).');editQ(t,b)});
   $('#saveB').onclick=e=>{sfx.tap();toggleSave(q,e.currentTarget)};

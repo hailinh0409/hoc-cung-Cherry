@@ -631,9 +631,9 @@ textarea.code.light{background:#fff;color:#12313a;font:14px/1.5 "Be Vietnam Pro"
 .sd-ar line{stroke:#12313a;stroke-width:2.5;stroke-linecap:round}.sd-ar polygon{fill:#12313a}
 .sd-node{position:absolute;left:0;top:0;z-index:1;display:flex;flex-direction:column;align-items:center}
 .sd-jn{position:absolute;left:0;top:0;z-index:1;display:flex;justify-content:center}
-.sd-tb{position:relative;min-width:58px;max-width:170px;padding:8px 14px;border-radius:20px;background:#fff;box-shadow:inset 0 0 0 2.5px #12313a;text-align:center;font-size:15px;line-height:1.35}
+.sd-tb{position:relative;min-width:58px;max-width:210px;padding:8px 14px;border-radius:20px;background:#fff;box-shadow:inset 0 0 0 2.5px #12313a;text-align:center;font-size:15px;line-height:1.35}
 .sd-tb.hs{padding:0;background:none;box-shadow:none}
-.sd-slot{display:flex;align-items:center;justify-content:center;min-height:44px;min-width:96px;max-width:170px;padding:6px 12px;border-radius:20px;background:#eef6f6;box-shadow:inset 0 0 0 2px #cfe2e2;color:var(--cink);text-align:center;font-size:15px}
+.sd-slot{display:flex;align-items:center;justify-content:center;min-height:44px;min-width:96px;max-width:210px;padding:6px 12px;border-radius:20px;background:#eef6f6;box-shadow:inset 0 0 0 2px #cfe2e2;color:var(--cink);text-align:center;font-size:15px}
 .sd-slot.empty{color:#8aa7ab;font-size:14px;border:2px dashed #9cc4c6;box-shadow:none}
 .sd-slot.full{background:#fff4c9;box-shadow:inset 0 0 0 2px #f1d36b}
 .sd-slot.cc{min-height:34px;min-width:0;padding:3px 12px;border-radius:99px;font-size:13px}
@@ -660,6 +660,7 @@ textarea.code.light{background:#fff;color:#12313a;font:14px/1.5 "Be Vietnam Pro"
 .q2kho .blks.off .blk{opacity:.45}
 .q2kho .btn{margin-top:4px}
 .rlock{background:#ffe8df;border-left:4px solid var(--coral2)}.rlock b{color:#b8401f}.rlock div{font-size:14px;margin-top:4px;color:#5b3a30}
+.q2b{font-weight:700}
 
 .gvlink{margin-top:4px;font-size:13px;color:#7a9399;text-decoration:underline;align-self:center}
 .figmiss{display:inline-block;padding:6px 10px;border-radius:8px;background:#fff3c4;color:#7a5a00;font-size:13px}
@@ -2308,7 +2309,7 @@ function renderQ(){hud();const q=cur();const st=$('#stage');$('#dock').innerHTML
     h+=`<div class="mgrid${wide?' stack':''}"><div class="mcol">${G.L.map((x,j)=>`<button class="mi" data-s="L" data-j="${j}" style="animation-delay:${.07*j}s"><span class="tx">${tex(x.t)}</span></button>`).join('')}</div>
      <div class="mcol">${G.R.map((x,j)=>`<button class="mi" data-s="R" data-j="${j}" style="animation-delay:${.07*j+.1}s"><span class="tx">${tex(x.t)}</span></button>`).join('')}</div></div>
      <div class="hint">Chạm một ô bên trái, rồi chạm ô bên phải để nối; cặp đã nối cùng màu. Chạm lại để bỏ nối.</div>`}
-  if(isQ2(q))h+=`<div id="q2"></div>`;
+  if(isQ2(q))h+=`<div id="q2a"></div>`;
   st.innerHTML=h+'</div>';typeset(st);if(isQ2(q)){q2Init(q);q2Draw()}
   $('#editB')&&($('#editB').onclick=()=>{const t=TOPICS.find(x=>x.id===q.tid);if(!t)return;const bs=qBlocks(t.raw),b=bs.findIndex(x=>!x.man&&parseOne(x.raw).q?.key===q.key);if(b<0)return toast('Không tìm thấy câu này trong chủ đề (có thể đã được sửa).');editQ(t,b)});
   $('#saveB').onclick=e=>{sfx.tap();toggleSave(q,e.currentTarget)};
@@ -2446,15 +2447,15 @@ function q2Dock(q){if(G.done)return '';const S=G.q2;
   const used=new Set(Object.values(S.fill)),sk=S.sel&&S.sel[0],kind=sk||((S.slots.find(x=>S.fill[x.key]==null)||S.slots[0]||{}).kind);
   const grp=(arr,k,title)=>arr.length?`<h3>${title}${kind===k?'<span class="need">ô đang sáng cần</span>':''}</h3><div class="blks${kind!==k?' off':''}">${arr.map(b=>`<button class="blk${k==='c'?' cc':''}${used.has(b.id)?' used':''}" data-b="${b.id}">${tex(b.t)}</button>`).join('')}</div>`:'';
   return `<div class="q2kho"><p class="tip">Chạm một ô để chọn, chạm lại ô đang sáng để gỡ khối ra.</p>${kind==='c'?grp(S.cblk,'c','Căn cứ')+grp(S.nblk,'n','Mệnh đề'):grp(S.nblk,'n','Mệnh đề')+grp(S.cblk,'c','Căn cứ')}<button class="btn" id="q2chk" ${S.slots.every(s=>S.fill[s.key]!=null)?'':'disabled'}>Kiểm tra</button></div>`}
-function q2Draw(){const q=cur(),a=$('#q2'),d=$('#dock');if(!a)return;const st=$('#stage'),y=st.scrollTop,sx=G.q2.sx;
+function q2Draw(){const q=cur(),a=$('#q2a'),d=$('#dock');if(!a)return;const st=$('#stage'),y=st.scrollTop,sx=G.q2.sx;
   if(window.__mjReady&&MathJax.typesetClear)try{MathJax.typesetClear([a,d])}catch(e){}
   a.innerHTML=q2Area(q);d.innerHTML=q2Dock(q);q2Bind(q);
   const fix=()=>{sdLay(a);const w=a.querySelector('.sd-tw');if(w&&sx!=null)w.scrollLeft=sx;st.scrollTop=y};fix();
   Promise.all([tsP(a),tsP(d)]).then(fix)}
 function q2Bind(q){const S=G.q2;
-  $('#q2 [data-ln]').forEach(b=>b.onclick=()=>{if(G.done)return;sfx.tap();const i=+b.dataset.ln;if(S.place[i]!=null&&S.sel===i){S.place[i]=null;S.sel=null}else S.sel=S.sel===i?null:i;q2Draw()});
-  $('#q2 button[data-s]').forEach(b=>b.onclick=()=>{if(G.done)return;sfx.tap();const k=b.dataset.s;if(S.fill[k]!=null&&S.sel===k)delete S.fill[k];else S.sel=k;q2Draw()});
-  $('#dock [data-b]').forEach(b=>b.onclick=()=>{if(G.done)return;sfx.tap();const B=q2Blk(+b.dataset.b);
+  $$('#q2a [data-ln]').forEach(b=>b.onclick=()=>{if(G.done)return;sfx.tap();const i=+b.dataset.ln;if(S.place[i]!=null&&S.sel===i){S.place[i]=null;S.sel=null}else S.sel=S.sel===i?null:i;q2Draw()});
+  $$('#q2a button[data-s]').forEach(b=>b.onclick=()=>{if(G.done)return;sfx.tap();const k=b.dataset.s;if(S.fill[k]!=null&&S.sel===k)delete S.fill[k];else S.sel=k;q2Draw()});
+  $$('#dock [data-b]').forEach(b=>b.onclick=()=>{if(G.done)return;sfx.tap();const B=q2Blk(+b.dataset.b);
     if(q.type==='exsx'){const i=S.sel!=null?S.sel:S.place.indexOf(null);if(i>=0){S.place[i]=B.id;S.sel=null}}
     else{const s=S.slots.find(s=>s.key===S.sel&&s.kind===B.k)||S.slots.find(s=>s.kind===B.k&&S.fill[s.key]==null);if(!s)return;S.fill[s.key]=B.id;
       const nx=S.slots.find(x=>x.kind===s.kind&&S.fill[x.key]==null)||S.slots.find(x=>S.fill[x.key]==null);S.sel=nx?nx.key:null}
@@ -2466,20 +2467,20 @@ function q2Check(q){const S=G.q2,wrong=[];let ok=0,tot=0,right='';S.mark={};
   if(q.type==='exsx'){const runs=[];q.steps.forEach((s,i)=>{const r=runs[runs.length-1];if(r&&s.g&&r.g===s.g)r.e=i;else runs.push({g:s.g,s:i,e:i})});
     const runOf=i=>runs.findIndex(r=>r.s<=i&&i<=r.e);
     S.place.forEach((id,i)=>{const B=q2Blk(id);tot++;const good=B.k==='s'&&runOf(B.i)===runOf(i);S.mark[i]=good?'ok':'no';if(good){ok++;return}
-      const r=runs[runOf(B.i)];wrong.push(B.k==='x'?`Dòng ${i+1}: <b>${tex(B.t)}</b> là khối sai.${B.why?' '+tex(B.why):''}`:`Dòng ${i+1}: <b>${tex(B.t)}</b> đúng nhưng phải ở dòng ${r.s===r.e?r.s+1:(r.s+1)+' hoặc '+(r.e+1)}.`)});
+      const r=runs[runOf(B.i)];wrong.push(B.k==='x'?`Dòng ${i+1}: <span class="q2b">${tex(B.t)}</span> là khối sai.${B.why?' '+tex(B.why):''}`:`Dòng ${i+1}: <span class="q2b">${tex(B.t)}</span> đúng nhưng phải ở dòng ${r.s===r.e?r.s+1:(r.s+1)+' hoặc '+(r.e+1)}.`)});
     G.ansTxt=S.place.map((id,i)=>(i+1)+') '+q2Blk(id).t).join('; ');right=sxRight(q)}
   else{const by=sdById(q),nodeOk={},hl=new Set(),groups={};
     // các ô lá cùng ô cha được đổi chỗ cho nhau
     S.slots.filter(s=>s.kind==='n').forEach(s=>{const n=by[s.id],leaf=!q.nodes.some(c=>c.p===n.id),g=leaf?'L'+n.p:'N'+n.id;(groups[g]=groups[g]||[]).push(s)});
     Object.values(groups).forEach(ss=>{const need=ss.map(s=>by[s.id].t);ss.forEach(s=>{const B=q2Blk(S.fill[s.key]);tot++;const j=!B.trap?need.indexOf(B.t):-1,good=j>=0;
       if(good){need.splice(j,1);ok++;nodeOk[s.id]=B.nid}S.mark[s.key]=good?'ok':'no';
-      if(!good){if(!B.trap)hl.add('n'+B.nid);wrong.push(B.trap?`<b>${tex(B.t)}</b> là khối sai.${B.why?' '+tex(B.why):''}`:`<b>${tex(B.t)}</b> đúng nhưng đặt nhầm ô. Chỗ đúng của nó được tô viền vàng trong sơ đồ đúng.`)}})});
+      if(!good){if(!B.trap)hl.add('n'+B.nid);wrong.push(B.trap?`<span class="q2b">${tex(B.t)}</span> là khối sai.${B.why?' '+tex(B.why):''}`:`<span class="q2b">${tex(B.t)}</span> đúng nhưng đặt nhầm ô. Chỗ đúng của nó được tô viền vàng trong sơ đồ đúng.`)}})});
     S.slots.filter(s=>s.kind==='c').forEach(s=>{const B=q2Blk(S.fill[s.key]);tot++;const occ=nodeOk[s.id]||s.id,exp=by[occ].c,good=!B.trap&&B.t===exp;
       S.mark[s.key]=good?'ok':'no';if(good){ok++;return}if(!B.trap)hl.add('c'+B.nid);
-      wrong.push(B.trap?`Căn cứ <b>${tex(B.t)}</b> chưa đúng.${B.why?' '+tex(B.why):''}`:`Căn cứ <b>${tex(B.t)}</b> đặt nhầm chỗ (ô này cần: ${tex(exp)}). Chỗ đúng của nó được tô viền vàng.`)});
+      wrong.push(B.trap?`Căn cứ <span class="q2b">${tex(B.t)}</span> chưa đúng.${B.why?' '+tex(B.why):''}`:`Căn cứ <span class="q2b">${tex(B.t)}</span> đặt nhầm chỗ (ô này cần: ${tex(exp)}). Chỗ đúng của nó được tô viền vàng.`)});
     G.ansTxt=S.slots.map(s=>'ô '+s.key+': '+q2Blk(S.fill[s.key]).t).join('; ');right=sdFull(q,hl)}
   const all=ok===tot;G.done=true;G.frac=tot?ok/tot:0;$('#qc').classList.add('lock');q2Draw();
-  result(all,$('#q2'),all?'':whyBox(wrong)+`<div class="q2r">Đúng ${ok}/${tot} ${q.type==='exsx'?'dòng':'ô'}${G.mode==='rank'&&ok?` · được ${Math.round(100*G.frac)}% điểm câu`:''}. ${q.type==='exsx'?'Lời giải đúng:':'Sơ đồ đúng:'}</div>${right}`)}
+  result(all,$('#q2a'),all?'':whyBox(wrong)+`<div class="q2r">Đúng ${ok}/${tot} ${q.type==='exsx'?'dòng':'ô'}${G.mode==='rank'&&ok?` · được ${Math.round(100*G.frac)}% điểm câu`:''}. ${q.type==='exsx'?'Lời giải đúng:':'Sơ đồ đúng:'}</div>${right}`)}
 function sxRight(q){const runs={};q.steps.forEach((s,i)=>{if(s.g)(runs[s.g]=runs[s.g]||[]).push(i+1)});
   return `<ol class="sx-sol">${q.steps.map((s,i)=>`<li><div class="sx-ln full"><span class="n">${i+1}</span><span class="t">${tex(s.t)}</span></div></li>`).join('')}</ol>`+
     Object.values(runs).filter(r=>r.length>1).map(r=>`<div class="q2r">Dòng ${r.join(', ')} đổi chỗ cho nhau được.</div>`).join('')}
@@ -2893,7 +2894,7 @@ const api=async(path,body,method)=>{const r=await fetch(path,{method:method||(bo
   let j=null;try{j=await r.json()}catch(e){}if(!r.ok)throw Object.assign(new Error((j&&j.error)||('Lỗi kết nối ('+r.status+')')),{status:r.status,data:j});return j};
 const wrapDoc=x=>({id:x.id,exists:true,data:()=>x});
 async function loadAll(){const j=await api('/api/sync');FIGS=j.figs||{};TOPICS=(j.topics||[]).map(t=>fromDoc(wrapDoc(t)));ASG=j.assignments||[];PLAYERS=j.players||[];ACCS=j.accounts||[];ACCS_DEL=j.removed||[];REPS=j.reports||[];MOC=j.moc||{}}
-function softRefresh(){const on=$('.scr.on')[0]?.id;if($('#ovl').classList.contains('on')||on==='play')return;
+function softRefresh(){const on=$$('.scr.on')[0]?.id;if($('#ovl').classList.contains('on')||on==='play')return;
   if(BANKON&&!QE&&on==='track'){if(document.activeElement&&document.activeElement.id==='bkQ')return;return bank(true)}
   if(QE&&on==='track'){const t=TOPICS.find(x=>x.id===QE);if(t)qedit(t);return}
   if(on==='track'&&$('#trTitle').textContent.startsWith('Tài khoản'))return accounts();if(on==='track'&&$('#trTitle').textContent.startsWith('Câu báo lỗi'))return reportsPage();if(on==='track'&&$('#trTitle').textContent.startsWith('Theo dõi'))return track();refresh()}

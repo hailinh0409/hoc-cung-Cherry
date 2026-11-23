@@ -359,9 +359,9 @@ textarea.code.light{background:#fff;color:#12313a;font:14px/1.5 "Be Vietnam Pro"
 .sd-ar line{stroke:#12313a;stroke-width:2.5;stroke-linecap:round}.sd-ar polygon{fill:#12313a}
 .sd-node{position:absolute;left:0;top:0;z-index:1;display:flex;flex-direction:column;align-items:center}
 .sd-jn{position:absolute;left:0;top:0;z-index:1;display:flex;justify-content:center}
-.sd-tb{position:relative;min-width:58px;max-width:170px;padding:8px 14px;border-radius:20px;background:#fff;box-shadow:inset 0 0 0 2.5px #12313a;text-align:center;font-size:15px;line-height:1.35}
+.sd-tb{position:relative;min-width:58px;max-width:210px;padding:8px 14px;border-radius:20px;background:#fff;box-shadow:inset 0 0 0 2.5px #12313a;text-align:center;font-size:15px;line-height:1.35}
 .sd-tb.hs{padding:0;background:none;box-shadow:none}
-.sd-slot{display:flex;align-items:center;justify-content:center;min-height:44px;min-width:96px;max-width:170px;padding:6px 12px;border-radius:20px;background:#eef6f6;box-shadow:inset 0 0 0 2px #cfe2e2;color:var(--cink);text-align:center;font-size:15px}
+.sd-slot{display:flex;align-items:center;justify-content:center;min-height:44px;min-width:96px;max-width:210px;padding:6px 12px;border-radius:20px;background:#eef6f6;box-shadow:inset 0 0 0 2px #cfe2e2;color:var(--cink);text-align:center;font-size:15px}
 .sd-slot.empty{color:#8aa7ab;font-size:14px;border:2px dashed #9cc4c6;box-shadow:none}
 .sd-slot.full{background:#fff4c9;box-shadow:inset 0 0 0 2px #f1d36b}
 .sd-slot.cc{min-height:34px;min-width:0;padding:3px 12px;border-radius:99px;font-size:13px}
@@ -388,3 +388,4 @@ textarea.code.light{background:#fff;color:#12313a;font:14px/1.5 "Be Vietnam Pro"
 .q2kho .blks.off .blk{opacity:.45}
 .q2kho .btn{margin-top:4px}
 .rlock{background:#ffe8df;border-left:4px solid var(--coral2)}.rlock b{color:#b8401f}.rlock div{font-size:14px;margin-top:4px;color:#5b3a30}
+.q2b{font-weight:700}

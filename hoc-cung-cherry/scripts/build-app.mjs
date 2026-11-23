@@ -3,7 +3,7 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 const R = p => readFileSync(new URL('../' + p, import.meta.url), 'utf8');
 const strip = s => s.replace(/^import .*$\n?/gm, '').replace(/^export (default )?/gm, '');
-const must = (s, a, b) => { if (!s.includes(a)) throw new Error('Không tìm thấy đoạn cần thay: ' + a.slice(0, 60)); return s.replace(a, b); };
+const must = (s, a, b) => { if (!s.includes(a)) throw new Error('Không tìm thấy đoạn cần thay: ' + a.slice(0, 60)); return s.replace(a, () => b); };
 
 const lib = ['lib/params.js', 'lib/latex.js', 'lib/srs.js', 'lib/rank.js'].map(f => strip(R(f))).join('\n');
 const head0 = R('client/head.html');
