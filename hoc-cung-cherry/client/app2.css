@@ -387,3 +387,4 @@ textarea.code.light{background:#fff;color:#12313a;font:14px/1.5 "Be Vietnam Pro"
 .q2kho .blk.used{opacity:.25;pointer-events:none}
 .q2kho .blks.off .blk{opacity:.45}
 .q2kho .btn{margin-top:4px}
+.rlock{background:#ffe8df;border-left:4px solid var(--coral2)}.rlock b{color:#b8401f}.rlock div{font-size:14px;margin-top:4px;color:#5b3a30}
