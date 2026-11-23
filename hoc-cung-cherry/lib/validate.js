@@ -1,6 +1,8 @@
 // Kiểm tra dữ liệu tiến độ học sinh gửi lên: không cho tự cộng XP vô lý,
 // tự thêm đồ không trả tiền, hay tự nâng điểm thi đấu.
 import { ITEMS, ITEM } from './items.js';
+import { vnDay } from './srs.js';
+import { seasonName, RANK_DAY_CAP, RANK_UP, RANK_DOWN } from './rank.js';
 
 const MAX_BYTES = 450000;
 // Mỗi gợi ý của câu tự luận (đề ôn tập TL) mở lần đầu tốn bấy nhiêu XP trong Ví XP. Sửa cùng HINT_XP ở client/app.js.
@@ -42,9 +44,15 @@ export function sanitize(old, doc, acc, now = Date.now()) {
   const mt = Math.min(6, (last ? num(o._mt ?? 6) : 6) + mins / 1.5);
   const dm = Math.max(0, Math.min(Math.floor(num(n.matches)) - om, Math.floor(mt)));
   n.matches = om + dm; n._mt = mt - dm;
-  // Thi đấu: mỗi trận thay đổi tối đa +30 / −20 (sang mùa mới thì từ một nửa điểm cũ)
-  const base = n.season && o.season && n.season !== o.season ? Math.floor(oLp / 2) : oLp;
-  n.lp = Math.max(0, Math.min(Math.floor(num(n.lp)), base + 30 * dm), base - 20 * dm);
+  // Thi đấu: mùa 30 ngày do máy chủ tính (sang mùa mới điểm về 0); mỗi trận tối đa +30 / −20;
+  // mỗi ngày cộng tối đa RANK_DAY_CAP điểm (đếm ở _lpd, học sinh không tự sửa được)
+  const day = vnDay(now), ses = seasonName(day);
+  const base = o.season === ses ? oLp : 0;
+  const g0 = o._lpd && o._lpd.d === day ? Math.max(0, num(o._lpd.g)) : 0;
+  const up = Math.min(base + RANK_UP * dm, base + Math.max(0, RANK_DAY_CAP - g0));
+  n.lp = Math.max(0, Math.min(Math.floor(num(n.lp)), up), base - RANK_DOWN * dm);
+  n.season = ses;
+  n._lpd = { d: day, g: g0 + Math.max(0, n.lp - base) };
 
   // Vật phẩm: giữ đồ cũ; đồ mới phải trả đủ XP, đồ đặc biệt phải đạt điều kiện
   const own = { ...(o.own || {}) };

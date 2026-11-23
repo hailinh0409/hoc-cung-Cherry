@@ -85,6 +85,45 @@ Nối mỗi ... với ...
 - `extf` đúng/sai: 4 ý, `\True` ở các ý đúng; học sinh phải đúng cả 4 ý mới được tính đúng.
 - `exfb` điền đáp số: học sinh gõ bằng bàn phím số `0–9`, `−`, dấu phẩy, `/` — đáp số chỉ là số nguyên, thập phân (dấu phẩy) hoặc phân số `a/b`, **không** dùng căn hay biểu thức chữ. Nhiều cách viết cùng giá trị cách nhau bằng `;` (app tự coi `0,5` và `1/2` là bằng nhau). Đáp số là phân số thì đề ghi rõ "(viết dạng phân số a/b)".
 - `exmatch` nối ý: 3–4 cặp, mỗi vế ngắn để vừa màn hình điện thoại dọc.
+- **Sắp xếp lời giải** `exsx` (học sinh chạm khối ở kho để điền từng dòng lời giải; kho có lẫn khối sai):
+  ```latex
+  \begin{exsx}
+  Tìm $x$, biết $\dfrac{2}{3}x-\dfrac{1}{2}=\dfrac{5}{6}$. Sắp xếp các bước thành lời giải đúng.
+  \buoc{$\dfrac{2}{3}x=\dfrac{5}{6}+\dfrac{1}{2}$}
+  \buoc{$\dfrac{2}{3}x=\dfrac{4}{3}$}
+  \buoc{$x=\dfrac{4}{3}:\dfrac{2}{3}$}
+  \buoc{$x=2$}
+  \nhieu{$\dfrac{2}{3}x=\dfrac{5}{6}-\dfrac{1}{2}$}{Chuyển vế phải đổi dấu: $-\dfrac12$ thành $+\dfrac12$.}
+  \nhieu{$x=\dfrac{4}{3}\cdot\dfrac{2}{3}$}{Tìm thừa số chưa biết: lấy tích chia cho thừa số đã biết, không nhân.}
+  \loigiai{Vậy $x=2$.}
+  \end{exsx}
+  ```
+  - Viết `\buoc{…}` đúng thứ tự, 3–6 bước, mỗi bước ngắn (một đẳng thức hoặc một câu) để vừa màn hình điện thoại.
+  - Các bước **liền nhau** đổi chỗ được cho nhau (ví dụ tính hai ngoặc) thì gắn cùng nhãn: `\buoc[1]{…}` `\buoc[1]{…}`. Bước không có nhãn có vị trí cố định.
+  - `\nhieu{khối sai}{vì sao sai}`: 1–3 khối sai, mỗi khối là một **lỗi hay gặp có thật** (quên đổi dấu, nhầm phép tính, sai quy tắc), lời giải thích nói đúng chỗ hiểu sai. Khối sai không được trùng chữ với một bước đúng.
+  - Dùng được tham số `%@` và `{{…}}` trong đề, `\buoc`, `\nhieu`.
+- **Sơ đồ phân tích đi lên** `exsd` (cây chứng minh: kết luận ở trên, các ô "cần có" ở dưới, mũi tên đi lên; học sinh điền các ô mệnh đề và căn cứ bị ẩn):
+  ```latex
+  \begin{exsd}
+  Cho $\triangle ABC$ có $AB=AC$, $M$ là trung điểm của $BC$. Chứng minh $AM\perp BC$.
+  \nut{1}{$AM\perp BC$}{hai góc kề bù bằng nhau nên mỗi góc bằng $90^\circ$}
+  \nut{2}[1]{$\widehat{AMB}=\widehat{AMC}$}{hai góc tương ứng}
+  \nut{3}[2]{$\triangle AMB=\triangle AMC$}{c.c.c}
+  \nut{4}[3]{$AB=AC$}{giả thiết}
+  \nut{5}[3]{$MB=MC$}{$M$ là trung điểm $BC$}
+  \nut{6}[3]{$AM$ là cạnh chung}{}
+  \an{3}
+  \anly{2,3}
+  \nhieu{$\triangle AMB=\triangle CMA$}{Viết sai thứ tự đỉnh tương ứng: $B\leftrightarrow C$ nên phải viết $\triangle AMB=\triangle AMC$.}
+  \nhieuly{c.g.c}{Muốn dùng c.g.c phải có góc xen giữa bằng nhau, ở đây mới có ba cặp cạnh.}
+  \end{exsd}
+  ```
+  - `\nut{số}[ô cha]{mệnh đề}{căn cứ}`: ô cha là ô được suy ra từ ô này. Đúng **một** ô kết luận (không có `[ô cha]`). Căn cứ là lý do của chính ô đó (định lý, trường hợp bằng nhau, "giả thiết"…), viết ngắn; để trống `{}` khi hiển nhiên (cạnh chung).
+  - 4–9 ô. Mỗi mệnh đề ngắn (khoảng một đẳng thức) để sơ đồ vừa điện thoại; sơ đồ quá rộng học sinh phải vuốt ngang.
+  - `\an{2,3}` ẩn mệnh đề của các ô đó (không ẩn ô kết luận), `\anly{3}` ẩn căn cứ (chỉ ô có căn cứ). Thường ẩn 1–3 mệnh đề và 1–3 căn cứ; ẩn nhiều quá thì câu thành đoán mò.
+  - `\nhieu{mệnh đề sai}{vì sao}` và `\nhieuly{căn cứ sai}{vì sao}`: 1–3 mỗi loại, là lỗi hay gặp (sai thứ tự đỉnh, dùng điều cần chứng minh làm căn cứ, nhầm trường hợp bằng nhau, nhầm góc tương ứng). Không trùng chữ với ô đúng.
+  - Các ô lá cùng một ô cha đổi chỗ cho nhau được (app tự chấm). Hợp với chứng minh hình học, cũng dùng được cho chuỗi suy luận đại số. Hình học nên có hình TikZ trong đề.
+- **Dùng ở đâu, chấm thế nào:** hai dạng này dùng được ở mọi mức của bản đồ, Kho Thi đấu và đề ôn tập Trắc nghiệm (không trộn vào đề tự luận `extl`, không đặt trong `lythuyet`). Hợp nhất ở Mức 2–3: mỗi bài hình học có chứng minh nên có 1–2 câu `exsd`, bài giải phương trình/tính toán nhiều bước nên có 1–2 câu `exsx`; không lạm dụng (một lượt bài chỉ 8 câu). Bản đồ: phải đúng hết mới tính đúng. Thi đấu: được điểm theo tỉ lệ dòng/ô đúng; câu sắp xếp +20 giây, câu sơ đồ +20 giây mỗi ô trống.
 - **Đề tự luận** (Ôn tập, Phần 2 · Tự luận, đánh số TL1, TL2…): tạo một đề ôn tập riêng (`phan = 'on-tap'`) chỉ gồm các câu `extl`, **không trộn** với câu trắc nghiệm/đúng sai/điền số/nối ý (trộn là báo lỗi). Học sinh làm vào vở; app chỉ hiện đề và gợi ý, mỗi gợi ý mở lần đầu trừ 10 XP trong Ví XP. `\loigiai` (nếu có) chỉ giáo viên thấy.
   ```latex
   \chude{Đề thi thử tự luận học kì I}
@@ -131,5 +170,6 @@ Nối mỗi ... với ...
 - Tính lại đáp án từng câu; với đúng/sai kiểm tra từng ý.
 - Khối `lythuyet` (nếu có): kiểm tra lại từng công thức, ví dụ và lời giải; mỗi mục đủ số cặp `{…}`; số dấu `$` chẵn.
 - Mỗi `ex` có đúng một `\True`, mỗi phương án sai có `\sai{…}` đúng nội dung; mỗi `exfb` có `\shortans` gõ được bằng bàn phím số; mỗi `\begin{..}` có `\end{..}` cùng loại; ngoặc nhọn cân bằng.
+- Mỗi `exsx` có ít nhất 2 `\buoc`, nhãn `[..]` chỉ gắn cho các bước liền nhau thật sự đổi chỗ được; mỗi `exsd` có đúng một ô kết luận, mọi `[ô cha]` có thật, `\an`/`\anly` chỉ nhắc ô có thật, không ẩn ô kết luận, `\anly` chỉ cho ô có căn cứ; khối sai không trùng chữ với khối đúng; đọc lại cả chuỗi suy luận (mỗi ô cha suy ra được từ đúng các ô con và căn cứ của nó).
 - Mã LaTeX **không được chứa chuỗi `$ltt$`** (dùng làm dấu bọc khi ghi).
 

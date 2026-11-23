@@ -90,6 +90,19 @@
    "phan": "on-tap",
    "chuong": null,
    "ban_truoc": null
+  },
+  {
+   "id": "5e3f9a10-7c11-4b6e-9d2a-0a1b2c3d4e5f",
+   "slug": "lop8-thu-dang-moi",
+   "title": "Thử dạng câu mới",
+   "grade": "8",
+   "status": "published",
+   "sort": 2,
+   "nguon": "Chủ đề mẫu",
+   "phan": "hinh-hoc",
+   "chuong": null,
+   "ban_truoc": null,
+   "source": "\\chude{Thử dạng câu mới}\n\\man{1}{Nhận biết}\n\\begin{exsx}\nTìm $x$, biết $\\dfrac{2}{3}x-\\dfrac{1}{2}=\\dfrac{5}{6}$. Sắp xếp các bước thành lời giải đúng.\n\\buoc{$\\dfrac{2}{3}x=\\dfrac{5}{6}+\\dfrac{1}{2}$}\n\\buoc{$\\dfrac{2}{3}x=\\dfrac{4}{3}$}\n\\buoc{$x=\\dfrac{4}{3}:\\dfrac{2}{3}$}\n\\buoc{$x=2$}\n\\nhieu{$\\dfrac{2}{3}x=\\dfrac{5}{6}-\\dfrac{1}{2}$}{Chuyển $-\\dfrac12$ sang vế phải phải đổi dấu thành $+\\dfrac12$.}\n\\nhieu{$x=\\dfrac{4}{3}\\cdot\\dfrac{2}{3}$}{Tìm thừa số chưa biết: lấy tích chia cho thừa số đã biết, không nhân.}\n\\loigiai{Vậy $x=2$.}\n\\end{exsx}\n\\begin{exsx}\nTính $A=\\left(\\dfrac12+\\dfrac13\\right)\\cdot\\left(\\dfrac12-\\dfrac13\\right)$.\n\\buoc[1]{$\\dfrac12+\\dfrac13=\\dfrac56$}\n\\buoc[1]{$\\dfrac12-\\dfrac13=\\dfrac16$}\n\\buoc{$A=\\dfrac56\\cdot\\dfrac16$}\n\\buoc{$A=\\dfrac{5}{36}$}\n\\nhieu{$\\dfrac12+\\dfrac13=\\dfrac25$}{Không cộng tử với tử, mẫu với mẫu. Phải quy đồng: $\\dfrac36+\\dfrac26=\\dfrac56$.}\n\\nhieu{$A=\\dfrac56+\\dfrac16$}{Giữa hai dấu ngoặc là phép nhân, không phải phép cộng.}\n\\loigiai{Hai bước tính trong ngoặc làm trước bước nào cũng đúng.}\n\\end{exsx}\n\\begin{exsd}\nCho $\\triangle ABC$ có $AB=AC$, $M$ là trung điểm của $BC$. Chứng minh $AM\\perp BC$ (góc $\\angle AMB$).\n\\nut{1}{$AM\\perp BC$}{hai góc kề bù bằng nhau nên mỗi góc bằng $90^\\circ$}\n\\nut{2}[1]{$\\widehat{AMB}=\\widehat{AMC}$}{hai góc tương ứng}\n\\nut{3}[2]{$\\triangle AMB=\\triangle AMC$}{c.c.c}\n\\nut{4}[3]{$AB=AC$}{giả thiết}\n\\nut{5}[3]{$MB=MC$}{$M$ là trung điểm $BC$}\n\\nut{6}[3]{$AM$ là cạnh chung}{}\n\\an{3}\n\\anly{2,3}\n\\nhieu{$\\triangle AMB=\\triangle CMA$}{Viết sai thứ tự đỉnh tương ứng.}\n\\nhieu{$\\triangle ABC=\\triangle AMC$}{Hai tam giác này không bằng nhau.}\n\\nhieuly{hai cạnh tương ứng}{Ô bên trên là hai góc bằng nhau.}\n\\nhieuly{c.g.c}{Chưa có góc xen giữa.}\n\\end{exsd}\n\\begin{exsd}\nCho $\\triangle ABC$ có $AB=AC$, $M$ là trung điểm của $BC$. Lấy $D$ trên cạnh $AB$, $E$ trên cạnh $AC$ sao cho $BD=CE$. Chứng minh $MD=ME$.\n\\nut{1}{$MD=ME$}{hai cạnh tương ứng}\n\\nut{2}[1]{$\\triangle MBD=\\triangle MCE$}{c.g.c}\n\\nut{3}[2]{$BD=CE$}{giả thiết}\n\\nut{4}[2]{$\\widehat{DBM}=\\widehat{ECM}$}{hai góc tương ứng}\n\\nut{5}[2]{$MB=MC$}{$M$ là trung điểm $BC$}\n\\nut{6}[4]{$\\triangle ABM=\\triangle ACM$}{c.c.c}\n\\nut{7}[6]{$AB=AC$}{giả thiết}\n\\nut{8}[6]{$MB=MC$}{$M$ là trung điểm $BC$}\n\\nut{9}[6]{$AM$ là cạnh chung}{}\n\\an{2,6}\n\\anly{2,4,6}\n\\nhieu{$\\triangle MBD=\\triangle MEC$}{Viết sai thứ tự đỉnh tương ứng.}\n\\nhieu{$\\widehat{BMD}=\\widehat{CME}$}{Chỉ suy ra được sau khi đã có hai tam giác bằng nhau.}\n\\nhieuly{c.c.c}{Chưa có $MD=ME$.}\n\\nhieuly{g.c.g}{Đó là c.g.c.}\n\\loigiai{Có thêm một nhánh.}\n\\end{exsd}\n\\man{2}{Thông hiểu}\n\\begin{exsx}\n%@ a = ngaunhien(2, 9)\nTính $2x={{2*a}}$.\n\\buoc{$x={{2*a}}:2$}\n\\buoc{$x={{a}}$}\n\\nhieu{$x={{4*a}}$}{Nhân thay vì chia.}\n\\end{exsx}\n"
   }
  ],
  "ltt_accounts": [

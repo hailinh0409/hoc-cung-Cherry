@@ -3,9 +3,9 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 const R = p => readFileSync(new URL('../' + p, import.meta.url), 'utf8');
 const strip = s => s.replace(/^import .*$\n?/gm, '').replace(/^export (default )?/gm, '');
-const must = (s, a, b) => { if (!s.includes(a)) throw new Error('Không tìm thấy đoạn cần thay: ' + a.slice(0, 60)); return s.replace(a, b); };
+const must = (s, a, b) => { if (!s.includes(a)) throw new Error('Không tìm thấy đoạn cần thay: ' + a.slice(0, 60)); return s.replace(a, () => b); };
 
-const lib = ['lib/params.js', 'lib/latex.js', 'lib/srs.js'].map(f => strip(R(f))).join('\n');
+const lib = ['lib/params.js', 'lib/latex.js', 'lib/srs.js', 'lib/rank.js'].map(f => strip(R(f))).join('\n');
 const head0 = R('client/head.html');
 let head = head0.slice(0, head0.indexOf('</style>'));
 const mj = head0.slice(head0.indexOf('</style>'), head0.indexOf('<!-- ====='));
@@ -21,6 +21,7 @@ let js = R('client/app.js');
 js = must(js, '/*@@LIB@@*/', lib);
 js = must(js, '@@FX@@', R('client/fx.js'));
 js = must(js, '@@SVG@@', R('client/svg.js'));
+js = must(js, '@@Q2@@', R('client/q2.js'));
 js = must(js, '@@ART@@', R('client/art.js') + R('client/items.js'));
 js = must(js, "function login(view='in',msg=''){", "function login_artifact(view='in',msg=''){");
 js = must(js, 'function start(){', 'function start_artifact(){');
