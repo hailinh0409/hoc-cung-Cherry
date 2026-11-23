@@ -31,7 +31,7 @@ function fromDoc(d){const v=d.data()||{};const P=parseTopic(v.text);
 // \\ ngoài công thức = xuống dòng; trong $...$, $$...$$, \(...\), \[...\] giữ nguyên (cases, aligned, ma trận cần \\)
 const brOut=s=>s.replace(/(\\\$|\$\$[\s\S]*?\$\$|\$(?:\\[\s\S]|[^$\\])*\$|\\\([\s\S]*?\\\)|\\\[[\s\S]*?\\\])|\\\\/g,(m,keep)=>keep?m:'<br>');
 const tex=s=>brOut(esc(s)).replace(/\\textbf\{([^}]*)\}/g,'<b>$1</b>').replace(/&quot;/g,'"');
-const typeset=el=>{if(window.__mjReady)MathJax.typesetPromise([el]).catch(()=>{}).then(()=>sdLay(el));requestAnimationFrame(()=>sdLay(el))};
+const typeset=el=>{if(window.__mjReady)MathJax.typesetPromise([el]).catch(()=>{}).then(()=>sdLay(el));requestAnimationFrame(()=>sdLay(el));if(el&&el.querySelector&&el.querySelector('.sd-tw'))setTimeout(()=>sdLay(el),500)};
 
 /* ---------- âm thanh & hiệu ứng ---------- */
 @@FX@@

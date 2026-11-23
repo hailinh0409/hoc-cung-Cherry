@@ -59,7 +59,8 @@ function sdPlace(ti){const GAP=14,VG=24,PAD=6;ti.style.width='2000px';
 function sdArrow(x1,y1,x2,y2){const dx=x2-x1,dy=y2-y1,L=Math.hypot(dx,dy)||1,ux=dx/L,uy=dy/L,h=9,w=5.5,bx=x2-ux*h,by=y2-uy*h;
   return `<line x1="${x1}" y1="${y1}" x2="${bx}" y2="${by}"/><polygon points="${x2},${y2} ${bx-uy*w},${by+ux*w} ${bx+uy*w},${by-ux*w}"/>`}
 function sdLayOne(wrap){const sz=wrap.firstElementChild,ti=sz.firstElementChild,svg=ti.querySelector('svg.sd-ar');if(!wrap.clientWidth)return;ti.style.transform='none';sdPlace(ti);
-  const ir=ti.getBoundingClientRect(),R=e=>{const r=e.getBoundingClientRect();return{l:r.left-ir.left,t:r.top-ir.top,w:r.width,h:r.height}};let p='';
+  // đo bằng offset (không bị ảnh hưởng bởi hiệu ứng phóng to/thu nhỏ của khung chứa)
+  const R=e=>{let l=0,t=0,x=e;while(x&&x!==ti){l+=x.offsetLeft;t+=x.offsetTop;x=x.offsetParent}return{l,t,w:e.offsetWidth,h:e.offsetHeight}};let p='';
   ti.querySelectorAll('.sd-jn').forEach(j=>{const id=j.dataset.jn,tb=ti.querySelector(`.sd-tb[data-tb="${CSS.escape(id)}"]`);if(!tb)return;const T=R(tb),J=R(j),cx=J.l+J.w/2;
     p+=sdArrow(cx,J.t-3,T.l+T.w/2,T.t+T.h+3);
     ti.querySelectorAll(`.sd-tb[data-par="${CSS.escape(id)}"]`).forEach(k=>{const K=R(k),kx=K.l+K.w/2,ex=cx+Math.max(-J.w/2+8,Math.min(J.w/2-8,(kx-cx)*.25));p+=sdArrow(kx,K.t-3,ex,J.t+J.h+3)})});
