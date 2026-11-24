@@ -41,7 +41,7 @@ input.pin::placeholder{color:#b8cccc}
 .svcard small{color:#7a9399}.stem.clamp{max-height:5.2em;overflow:hidden;font-size:15px}
 .seg{margin:6px 0 10px}
 .viewq{text-align:left;max-height:58dvh;overflow-y:auto;margin-bottom:6px;-webkit-overflow-scrolling:touch}
-.panel{max-height:calc(100dvh - 40px);overflow-y:auto}
+.panel{max-height:100%;overflow-y:auto}
 .va{padding:6px 10px;border-radius:10px;background:#eef6f6;margin-top:6px;font-size:15px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}.va.y{background:#dcfbe9;color:#0c4a2f;font-weight:700}
 .vh{background:#fff6d6;border-radius:10px;padding:8px 10px;margin-top:8px;font-size:15px}
 .viewq .sol,.tbox .sol{background:#eef6f6;border-radius:12px;padding:10px;margin-top:10px;font-size:15px}
@@ -95,8 +95,8 @@ mjx-container svg{max-width:none}
 .ach b{font-size:13px;line-height:1.2;margin-top:4px}.ach small{font-size:11px;color:#7a9399;line-height:1.2}
 .avas{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:10px 0}.avas button{border-radius:50%;padding:3px}.avas button.on{box-shadow:0 0 0 4px var(--sun)}
 /* toast */
-.toast{position:absolute;left:16px;right:16px;top:14px;z-index:9;display:flex;align-items:center;gap:10px;background:var(--card);color:var(--cink);border-radius:16px;padding:10px 14px;box-shadow:0 10px 30px #0006;transform:translateY(-140%);transition:transform .35s cubic-bezier(.2,1.2,.4,1);font-size:14px}
-.toast.on{transform:none}
+.toast{position:absolute;left:16px;right:16px;top:14px;z-index:9;display:flex;align-items:center;gap:10px;background:var(--card);color:var(--cink);border-radius:16px;padding:10px 14px;box-shadow:0 10px 30px #0006;transform:translateY(-140%);visibility:hidden;transition:transform .35s cubic-bezier(.2,1.2,.4,1),visibility 0s .35s;font-size:14px}
+.toast.on{transform:none;visibility:visible;transition-delay:0s}
 textarea.ta{min-height:110px;padding:10px 12px;font:15px/1.4 "Be Vietnam Pro";resize:vertical;margin:8px 0}
 .tbox.warn{box-shadow:inset 0 0 0 3px var(--sun)}
 .chkl{display:flex!important;align-items:center;gap:10px}.chkl input{width:22px;height:22px}
@@ -137,8 +137,8 @@ input[type=checkbox]{accent-color:var(--coral)}
 .tmap{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;background:
  radial-gradient(circle at 20% 15%,#0000 0 60%,#a0702a14 100%),radial-gradient(#b8894a22 1.2px,#0000 1.4px) 0 0/22px 22px,linear-gradient(180deg,#f3e2b8,#ecd29a);
  box-shadow:inset 0 0 40px #8a5a2b55;border-radius:22px 22px 0 0;margin:0 6px}
-.tmapin{position:relative;margin:0 auto}
-.tpath{position:absolute;left:0;top:0;pointer-events:none}
+.tmapin{position:relative;width:100%;max-width:860px;margin:0 auto}
+.tpath{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none}
 .deco{position:absolute;pointer-events:none;opacity:.9}
 .plank{position:absolute;left:50%;transform:translate(-50%,-50%);width:84%;max-width:380px;min-height:62px;padding:8px 14px;border-radius:12px;
  background:linear-gradient(180deg,#b9743c,#9a5a28);border:3px solid #6e3c16;box-shadow:0 5px 0 #6e3c16,0 10px 16px #0003;color:#fff7e6;display:flex;flex-direction:column;align-items:center;text-align:center;z-index:2;animation:rise .45s both}

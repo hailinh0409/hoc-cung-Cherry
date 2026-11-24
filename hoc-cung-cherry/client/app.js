@@ -314,40 +314,41 @@ const chestSVG=(open,sz=60)=>`<svg viewBox="0 0 64 56" width="${sz}" height="${s
  <rect x="27" y="26" width="10" height="12" rx="2" fill="#ffd23f" stroke="#c99a08" stroke-width="1.5"/><circle cx="32" cy="31" r="1.8" fill="#7d4219"/>
  <path d="M14 24v28M50 24v28" stroke="#ffd23f" stroke-width="3"/></svg>`;
 const lockSVG='<svg width="26" height="26" viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="11" rx="3" fill="#b9a27a"/><path d="M8 10V7a4 4 0 018 0v3" stroke="#b9a27a" stroke-width="2.6" fill="none"/></svg>';
-const palm=(x,y,f)=>`<svg class="deco" style="left:${x}px;top:${y}px${f?';transform:scaleX(-1)':''}" width="54" height="64" viewBox="0 0 54 64"><path d="M27 62c2-16 2-30-2-42" stroke="#8a5a2b" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M25 20c-8-8-18-8-22-2 8-2 14 0 22 2zM25 20c4-10 14-14 22-10-8 0-14 4-22 10zM25 20c-12-2-20 6-20 14 4-8 10-12 20-14zM25 20c10-4 20 2 22 10-6-6-12-8-22-10z" fill="#4fae4a"/></svg>`;
-const xmark=(x,y)=>`<svg class="deco" style="left:${x}px;top:${y}px" width="26" height="26" viewBox="0 0 24 24"><path d="M5 5l14 14M19 5L5 19" stroke="#c0392b" stroke-width="3.5" stroke-linecap="round"/></svg>`;
-const wave=(x,y)=>`<svg class="deco" style="left:${x}px;top:${y}px" width="44" height="14" viewBox="0 0 44 14"><path d="M2 8q5-6 10 0t10 0 10 0 10 0" stroke="#5aa6b8" stroke-width="2.4" fill="none" stroke-linecap="round"/></svg>`;
-const flag=(x,y,txt)=>`<div class="hkflag" style="top:${y}px"><svg width="40" height="52" viewBox="0 0 40 52"><path d="M6 50V4" stroke="#6e3c16" stroke-width="3.5" stroke-linecap="round"/><path d="M7 5h26l-6 8 6 8H7z" fill="#ef3b55"/></svg><b>${txt}</b></div>`;
+const palm=(x,y,f)=>`<svg class="deco" style="left:${x};top:${y}px${f?';transform:scaleX(-1)':''}" width="54" height="64" viewBox="0 0 54 64"><path d="M27 62c2-16 2-30-2-42" stroke="#8a5a2b" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M25 20c-8-8-18-8-22-2 8-2 14 0 22 2zM25 20c4-10 14-14 22-10-8 0-14 4-22 10zM25 20c-12-2-20 6-20 14 4-8 10-12 20-14zM25 20c10-4 20 2 22 10-6-6-12-8-22-10z" fill="#4fae4a"/></svg>`;
+const xmark=(x,y)=>`<svg class="deco" style="left:${x};top:${y}px" width="26" height="26" viewBox="0 0 24 24"><path d="M5 5l14 14M19 5L5 19" stroke="#c0392b" stroke-width="3.5" stroke-linecap="round"/></svg>`;
+const wave=(x,y)=>`<svg class="deco" style="left:${x};top:${y}px" width="44" height="14" viewBox="0 0 44 14"><path d="M2 8q5-6 10 0t10 0 10 0 10 0" stroke="#5aa6b8" stroke-width="2.4" fill="none" stroke-linecap="round"/></svg>`;
+const flag=(y,txt)=>`<div class="hkflag" style="top:${y}px"><svg width="40" height="52" viewBox="0 0 40 52"><path d="M6 50V4" stroke="#6e3c16" stroke-width="3.5" stroke-linecap="round"/><path d="M7 5h26l-6 8 6 8H7z" fill="#ef3b55"/></svg><b>${txt}</b></div>`;
 function journey(){show('journey');jdock();if(curK===ACC.khoi&&!ACC.teacher&&!P.tut)setTimeout(tutorial,400);const items=mapItems(curK),ts=items.filter(x=>x.t&&hasQ(x.t)).map(x=>x.t),el=$('#tmap');
   if(!items.length){el.innerHTML=`<div class="empty dark"><div style="width:110px;margin:0 auto">${owlSVG}</div><p>Khối ${curK} chưa có bản đồ.</p></div>`;return}
-  const W=Math.min(el.clientWidth||390,480),BAN=86,STEP=112,TOP=210,BOT=90,HKH=96;
+  // Dùng phần trăm chiều ngang để đường đi và các nút cùng co giãn khi xoay máy.
+  const W=100,BAN=86,STEP=112,TOP=210,BOT=90,HKH=96;
   const H=BOT+TOP+items.reduce((s,x)=>s+(x.hk?HKH:x.ch&&!x.L?BAN+30:STEP),0);
   let y=H-BOT,pts=[],html='',deco='',cur=null,k=0,ni=0;
   const chStat=ch=>{const L=items.filter(x=>x.L&&x.L.ch===ch);const has=L.filter(x=>x.t);return {n:L.length,done:has.filter(x=>topicPassed(x.t)>0).length,st:has.reduce((s,x)=>s+topicStars(x.t),0),has:has.length}};
   items.forEach(x=>{
-    if(x.hk){const fy=y-HKH/2;pts.push([W/2,fy]);html+=flag(W/2,fy,'Hết học kì I · Sang học kì II');y-=HKH;return}
+    if(x.hk){const fy=y-HKH/2;pts.push([W/2,fy]);html+=flag(fy,'Hết học kì I · Sang học kì II');y-=HKH;return}
     if(x.ch&&!x.L){const c=x.ch,by=y-BAN/2,odd=k++%2,ph=PHAN[c.phan]||PHAN['dai-so'],S=chStat(c);pts.push([W/2,by]);
-      deco+=(odd?palm(W-60,by-80,1):palm(8,by-84))+wave(odd?20:W-70,by+34);
+      deco+=(odd?palm('calc(100% - 60px)',by-80,1):palm('8px',by-84))+wave(odd?'20px':'calc(100% - 70px)',by+34);
       html+=`<div class="plank${S.has?'':' wait'}" style="top:${by}px;--c:${ph.c}"><span class="ptag">${ph.name}</span>${c.n?`<span class="cno">Chương ${c.n}</span>`:''}<b>${esc(c.title)}</b>
         <span class="pinfo">${S.has?`${star(1)} ${S.st}/${S.has*3} · đã qua ${S.done}/${S.n} bài`:'Sắp mở · đang chờ câu hỏi'}</span></div>`;
       y-=BAN+30;return}
     const L=x.L,t=x.t,side=[.3,.7,.62,.38][ni++%4],x2=side*W,ny=y-STEP/2;pts.push([x2,ny]);
     const lab=`<span class="tlab"><b>${L.lt?L.title:L.num?'Bài '+L.num:'Bổ sung'}</b>${L.lt?'':`<i>${esc(t&&!L.num?t.title:L.title)}</i>`}</span>`;
-    if(!t){const gv=GV()&&L.id;html+=`<${gv?'button':'div'} class="tnode ghost${x2<W/2?' l':' r'}"${gv?` data-gl="${esc(L.id)}"`:''} style="left:${x2}px;top:${ny}px"><span class="coin">${L.lt?L.coin:L.num||'?'}</span>${lab}${gv?'<em class="hwn st">+ Dán bài</em>':''}</${gv?'button':'div'}>`;y-=STEP;return}
-    if(!hasQ(t)){html+=`<button class="tnode ghost thy${x2<W/2?' l':' r'}" data-th="${esc(t.id)}" style="left:${x2}px;top:${ny}px"><span class="coin">${L.lt?L.coin:L.num||'?'}</span>${lab}<i class="thb">${bookSVG}</i>${GV()&&t.status!=='giao'?`<em class="hwn st">${({nhap:'Nháp',an:'Đã ẩn'})[t.status]||t.status}</em>`:''}</button>`;y-=STEP;return}
+    if(!t){const gv=GV()&&L.id;html+=`<${gv?'button':'div'} class="tnode ghost${x2<W/2?' l':' r'}"${gv?` data-gl="${esc(L.id)}"`:''} style="left:${x2}%;top:${ny}px"><span class="coin">${L.lt?L.coin:L.num||'?'}</span>${lab}${gv?'<em class="hwn st">+ Dán bài</em>':''}</${gv?'button':'div'}>`;y-=STEP;return}
+    if(!hasQ(t)){html+=`<button class="tnode ghost thy${x2<W/2?' l':' r'}" data-th="${esc(t.id)}" style="left:${x2}%;top:${ny}px"><span class="coin">${L.lt?L.coin:L.num||'?'}</span>${lab}<i class="thb">${bookSVG}</i>${GV()&&t.status!=='giao'?`<em class="hwn st">${({nhap:'Nháp',an:'Đã ẩn'})[t.status]||t.status}</em>`:''}</button>`;y-=STEP;return}
     const j=ts.indexOf(t),lo=topicOpen(ts,j),b=bestOf(t,0),a=asgFor(t),as=a&&asgStatus(a,myPt),st=!lo?'lock':b?'done':'open';
     if(st==='open'&&!cur)cur={x:x2,y:ny};
-    html+=`<button class="tnode ${st}${x2<W/2?' l':' r'}" data-t="${j}" style="left:${x2}px;top:${ny}px"><span class="coin">${st==='lock'?lockSVG:L.lt?L.coin:L.num||'★'}</span>${lab}${stars(b)}${t.theory?`<i class="thb">${bookSVG}</i>`:''}
+    html+=`<button class="tnode ${st}${x2<W/2?' l':' r'}" data-t="${j}" style="left:${x2}%;top:${ny}px"><span class="coin">${st==='lock'?lockSVG:L.lt?L.coin:L.num||'★'}</span>${lab}${stars(b)}${t.theory?`<i class="thb">${bookSVG}</i>`:''}
       ${a&&!as.complete?`<em class="hwn ${as.overdue?'late':''}">Thầy giao · ${dueLabel(a,as)}</em>`:''}${GV()&&t.status!=='giao'?`<em class="hwn st">${({nhap:'Nháp',an:'Đã ẩn'})[t.status]||t.status}</em>`:''}</button>`;
     y-=STEP});
   const allDone=ts.length>0&&ts.every(t=>topicPassed(t)>0)&&!items.some(x=>x.L&&x.L.id&&!x.t),cy=y-TOP/2+20;pts.push([W/2,cy+78]);
   if(!cur)cur=ts.length?{x:W/2,y:cy}:{x:pts[1]?pts[1][0]:W/2,y:pts[1]?pts[1][1]:H-200};
   let d=`M${pts[0][0]} ${pts[0][1]}`;for(let q=1;q<pts.length;q++){const p=pts[q-1],n=pts[q];d+=` C${p[0]} ${p[1]-STEP*.42} ${n[0]} ${n[1]+STEP*.42} ${n[0]} ${n[1]}`}
-  el.innerHTML=`<div class="tmapin" style="height:${H}px;width:${W}px"><svg class="tpath" width="${W}" height="${H}"><path d="${d}" stroke="#8a5a2b" stroke-width="4" fill="none" stroke-dasharray="2 11" stroke-linecap="round"/></svg>
-    ${deco}${xmark(W/2+52,cy-44)}<div class="tchest" style="top:${cy}px">${chestSVG(allDone,104)}<b>${allDone?'Đã mở kho báu!':'Kho báu cuối năm'}</b><small>Qua mọi bài của lớp ${curK} để mở</small></div>
+  el.innerHTML=`<div class="tmapin" style="height:${H}px"><svg class="tpath" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true"><path vector-effect="non-scaling-stroke" d="${d}" stroke="#8a5a2b" stroke-width="4" fill="none" stroke-dasharray="2 11" stroke-linecap="round"/></svg>
+    ${deco}${xmark('calc(50% + 52px)',cy-44)}<div class="tchest" style="top:${cy}px">${chestSVG(allDone,104)}<b>${allDone?'Đã mở kho báu!':'Kho báu cuối năm'}</b><small>Qua mọi bài của lớp ${curK} để mở</small></div>
     <div class="tstart" style="top:${H-34}px">Khởi hành · Lớp ${curK}</div>
-    <svg class="deco compass" style="left:${W-78}px;top:${H-96}px" width="64" height="64" viewBox="0 0 64 64"><circle cx="32" cy="32" r="28" fill="#f6e7c4" stroke="#8a5a2b" stroke-width="2"/><path d="M32 8l5 24-5 24-5-24z" fill="#c0392b"/><path d="M8 32l24-5 24 5-24 5z" fill="#8a5a2b"/><text x="32" y="7" font-size="8" text-anchor="middle" fill="#8a5a2b" font-weight="700">B</text></svg>
-    ${html}<div class="girl" style="left:${cur.x+(cur.x<W/2?66:-66)}px;top:${cur.y+30}px">${owlSVG}</div></div>`;
+    <svg class="deco compass" style="right:14px;top:${H-96}px" width="64" height="64" viewBox="0 0 64 64"><circle cx="32" cy="32" r="28" fill="#f6e7c4" stroke="#8a5a2b" stroke-width="2"/><path d="M32 8l5 24-5 24-5-24z" fill="#c0392b"/><path d="M8 32l24-5 24 5-24 5z" fill="#8a5a2b"/><text x="32" y="7" font-size="8" text-anchor="middle" fill="#8a5a2b" font-weight="700">B</text></svg>
+    ${html}<div class="girl" style="left:calc(${cur.x}% + ${cur.x<W/2?66:-66}px);top:${cur.y+30}px">${owlSVG}</div></div>`;
   el.scrollTop=Math.max(0,cur.y-el.clientHeight*.55);
   $$('#tmap .tnode[data-t]').forEach(n=>n.onclick=()=>{const j=+n.dataset.t,t=ts[j];sfx.tap();
     if(GV()){overlay(`<h2 style="font-size:24px">${esc(t.title)}</h2><button class="btn" id="g1">Chơi thử</button><button class="btn alt" id="g2">Cài đặt & sửa câu hỏi</button><button class="btn alt" id="g3">Đóng</button>`);

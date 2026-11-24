@@ -1,6 +1,6 @@
 .scr{overflow:hidden}
-.gwrap{position:relative;flex:1;display:flex;align-items:center;padding:12px 16px}
-.ggrid{width:100%;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px}
+.gwrap{position:relative;flex:1;min-height:0;overflow-y:auto;display:flex;padding:12px 16px}
+.ggrid{width:100%;margin:auto;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px}
 .gtile{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:2px;min-height:170px;padding:16px;border-radius:26px;background:var(--c);color:var(--t);box-shadow:inset 0 -9px 0 var(--d),0 10px 0 -2px #0003;text-align:left;overflow:hidden;animation:pop .5s cubic-bezier(.3,1.5,.5,1) both;transition:transform .1s}
 .gtile:active{transform:scale(.96)}
 .gtile::after{content:"";position:absolute;right:-30px;bottom:-30px;width:110px;height:110px;border-radius:50%;background:#ffffff26}
