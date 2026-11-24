@@ -172,9 +172,12 @@ function msgBox(t,m){overlay(`<h2>${t}</h2><p>${m}</p><button class="btn" id="eo
 function ubar(el){if(!ACC||!P){el.innerHTML='';return}
   const today=vnDay(),S=P.st||{},sk=liveStreak(S,today),learned=S.last_day===today,lv=level(P.xp),[a,b]=lvBounds(lv),id=$$('.scr.on')[0]?.id;
   const back=['grades','anh','area','journey','ontap','redo','ranked','theory','tlde'].includes(id);
-  el.innerHTML=`${back?`<button class="ico" data-back aria-label="Quay lại">${backIco}</button>`:''}
+  const markup=`${back?`<button class="ico" data-back aria-label="Quay lại">${backIco}</button>`:''}
    <button class="me" data-me>${avatarOf(P,40)}<span><b>${esc(P.nick||ACC.name)}</b><small>Cấp ${lv} · ${P.xp} XP</small><i class="xpb"><i style="width:${Math.min(100,(P.xp-a)/(b-a)*100)}%"></i></i></span></button>
    <div class="stk${learned?'':' off'}" title="Chuỗi ngày học">${flame(!learned,26)}<b>${sk}</b><span class="shl">${shieldSVG.repeat(S.shields??1)}</span></div>`;
+  if (id === 'grades' && el.dataset.lastMarkup === markup) return;
+  el.dataset.lastMarkup = markup;
+  el.innerHTML = markup;
   el.querySelector('[data-me]').onclick=()=>{sfx.tap();profFrom=id;profile(ACC.id)};
   const bk=el.querySelector('[data-back]');if(bk)bk.onclick=()=>{sfx.tap();id==='grades'||id==='anh'?subjects():id==='area'||id==='journey'?grades():id==='tlde'?onTap():journey()}}
 
@@ -265,7 +268,7 @@ function gradeCounts(g) {
 function refreshGrades() {
   for (const g of GRADES) {
     const tile = $('#ggrid [data-k="' + g.k + '"]');
-    if (!tile) return grades();
+    if (!tile) continue;
     const counts = gradeCounts(g);
     for (const [selector, value] of [['.gm', counts.topics], ['.grade-stars', counts.stars]]) {
       const label = tile.querySelector(selector);
@@ -276,8 +279,8 @@ function refreshGrades() {
 }
 function grades(){show('grades');
   $('#gsub').textContent=`Khối của em: ${ACC.khoi}. Chọn khu vực để vào học.`;
-  $('#ggrid').innerHTML=GRADES.map((g,i)=>{const counts=gradeCounts(g);
-    return `<button class="gtile${ACC.khoi===g.k?' mine':''}" data-k="${g.k}" style="--c:${g.c};--d:${g.d};--t:${g.dark?'#4a3300':'#fff'};animation-delay:${i*.08}s">
+  $('#ggrid').innerHTML=GRADES.map(g=>{const counts=gradeCounts(g);
+    return `<button class="gtile${ACC.khoi===g.k?' mine':''}" data-k="${g.k}" style="--c:${g.c};--d:${g.d};--t:${g.dark?'#4a3300':'#fff'}">
       <span class="gk">Khối</span><span class="gn">${g.k}</span><span class="gm">${counts.topics}</span><span class="gs">${star(1)} <span class="grade-stars">${counts.stars}</span></span>${ACC.khoi===g.k?'<span class="gme">Khối của em</span>':''}</button>`}).join('');
   $$('#ggrid .gtile').forEach(b=>b.onclick=()=>{sfx.tap();curK=b.dataset.k;area()});
   $('#gteach').innerHTML=''}
