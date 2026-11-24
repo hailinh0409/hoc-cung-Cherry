@@ -597,8 +597,6 @@ textarea.code.light{background:#fff;color:#12313a;font:14px/1.5 "Be Vietnam Pro"
 .dbadge.late{color:#c8323f}
 .dtset{position:absolute;top:4px;right:4px;width:28px;height:28px;border-radius:10px;background:#0004;color:#fff;font-size:14px}
 .dnone{text-align:center;color:#7a9399}
-.tlwal{font-size:14px}.tlq .stem{margin:6px 0}.tlh{margin-top:8px}
-.tldone{text-align:center;font-weight:800;color:#1f8a63}
 
 /* báo lỗi câu hỏi */
 .sheet .srow{display:flex;gap:8px}.sheet .srow .btn{flex:1}.rpb{gap:6px}.rpb.sent{color:#c0392b}
@@ -663,6 +661,40 @@ textarea.code.light{background:#fff;color:#12313a;font:14px/1.5 "Be Vietnam Pro"
 .q2kho .btn{margin-top:4px}
 .rlock{background:#ffe8df;border-left:4px solid var(--coral2)}.rlock b{color:#b8401f}.rlock div{font-size:14px;margin-top:4px;color:#5b3a30}
 .q2b{font-weight:700}
+
+/* Màn đọc đề tự luận */
+#tlBody{
+  --exam-ink:#172f36;
+  --exam-muted:#526769;
+  --exam-accent:#934721;
+  padding-bottom:32px;
+}
+.tl-exam-head{padding:20px 2px 22px}
+.tl-exam-meta{display:flex;align-items:center;flex-wrap:wrap;gap:6px 14px;color:#b9dad8;font-size:13px;font-weight:700}
+.tl-exam-meta>span:first-child{padding:3px 9px;border:1px solid #ffffff40;border-radius:8px;color:#fff}
+.tl-exam-head h1{font:800 clamp(27px,5vw,44px)/1.12 "Baloo 2",sans-serif;overflow-wrap:anywhere;margin:10px 0 0}
+.tl-wallet{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 12px;margin-top:13px;color:#c4e0dd;font-size:13px}
+.tl-wallet b{color:#fff1c8}
+.tl-assignment{display:grid;gap:3px;padding:12px 15px;margin:0 0 12px;border-radius:12px;background:#e7f2ec;color:#254a41;font-size:14px;overflow-wrap:anywhere}
+.tl-exam-paper{background:#fffaf0;color:var(--exam-ink);border-radius:18px;box-shadow:0 5px 16px #001b2355}
+.tl-question{padding:clamp(16px,4vw,32px)}
+.tl-question+.tl-question{border-top:1px solid #dddacb}
+.tl-question h2{display:inline-block;margin:0 0 9px;padding:4px 10px;border-radius:7px;background:#fae8d8;color:var(--exam-accent);font:800 16px/1.25 "Be Vietnam Pro",sans-serif}
+.tl-question .tl-question-text{font-size:clamp(16px,2.4vw,19px);line-height:1.72;overflow-wrap:anywhere}
+.tl-question-text img,.tl-annotation img{max-width:100%;height:auto}
+.tl-question mjx-container[display="true"]{overflow-x:auto;overflow-y:hidden;padding-block:4px}
+.tl-annotation{display:grid;gap:4px;margin-top:12px;padding:12px 14px;background:#edf3ed;border-inline-start:3px solid #7da597;border-radius:8px;overflow-wrap:anywhere;color:#294c43;line-height:1.6}
+.tl-annotation>b{font-size:13px}
+.tl-solution{background:#eaf0f7;border-color:#7298c2;color:#274760}
+.tl-question-actions{display:flex;flex-wrap:wrap;align-items:center;gap:7px 10px;margin-top:12px}
+.tl-question-actions small{color:var(--exam-muted)}
+.tl-question-actions .tlh{margin:0;min-height:44px;background:#f8e4d1;color:#783a1d;border:1px solid #ddba9d;box-shadow:none}
+.tl-question-actions .tlrp{margin:0 0 0 auto}
+.tl-exam-footer{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-top:16px;color:#c4e0dd;font-size:14px}
+.tl-exam-footer .btn{min-height:48px}
+.tl-completed{margin:0;color:#bbefd3;font-weight:700}
+.tl-empty{margin:0;padding:24px;color:var(--exam-muted)}
+@media(max-width:480px){.tl-exam-footer .btn{width:100%}}
 
 /* Chiều rộng nội dung theo từng màn, nền app luôn phủ hết khung nhìn. */
 @media (min-width: 600px) {
@@ -2072,16 +2104,36 @@ function onTap(){
 /* ---------- đề tự luận: đề bài + gợi ý (mua bằng XP), học sinh làm vào vở ---------- */
 let tlT=null,tlLab='';const TLQ={};
 function tlQs(t){return t.levels.flatMap(l=>l.qs).map(q=>{if(!q.params)return q;if(!TLQ[q.key])try{TLQ[q.key]=instantiate(q)}catch(e){TLQ[q.key]=q}return {...TLQ[q.key],key:q.key}})}
-function tlDe(t,lab){if(t.khoi===CHUYEN_TOAN&&!canOpenSpecial())return grades();tlT=t;if(lab)tlLab=lab;show('tlde');const qs=tlQs(t),gv=GV(),k=key(t,0),done=P.pt&&P.pt[k],a=asgFor(t),as=a&&asgStatus(a,myPt);P.tlh=P.tlh||{};
-  $('#tlBody').innerHTML=`<div class="phead" style="--c:#f08a24;--d:#c96a0c"><b>${esc(tlLab)} · ${esc(t.title)}</b><span>${qs.length} câu tự luận. Em làm bài vào vở bài tập, trình bày đầy đủ như khi đi thi.</span></div>
-   ${a?`<div class="tbox"><span class="chip hwc ${as.complete?'giao':as.overdue?'late':'nhap'}">Thầy giao · ${dueLabel(a,as)}</span>${a.note?` <small>${esc(a.note)}</small>`:''}</div>`:''}
-   <div class="tbox tlwal">${gv?'<b>Giáo viên xem được mọi gợi ý và lời giải, không bị trừ XP.</b>':`Bí quá thì mở gợi ý. Mỗi gợi ý mở lần đầu trừ <b>${HINT_XP} XP</b>, gợi ý đã mở thì xem lại miễn phí.<br>Ví XP của em: <b id="tlBal">${fmtXP(bal())}</b> XP`}</div>`+
-   qs.map((q,i)=>{const nh=(q.hints||[]).length,u=gv?nh:Math.min(nh,P.tlh[q.key]||0);
-     return `<div class="tbox tlq"><span class="tag">Câu ${i+1}</span><div class="stem">${tex(q.stem)}</div>
-      ${(q.hints||[]).slice(0,u).map((h,j)=>`<div class="vh"><b>Gợi ý ${j+1}.</b> ${tex(h)}</div>`).join('')}
-      ${u<nh?`<button class="btn sm tlh" data-h="${i}" ${bal()<HINT_XP?'disabled':''}>💡 Mở gợi ý ${u+1}/${nh} · −${HINT_XP} XP</button>${bal()<HINT_XP?'<small class="tnote">Ví XP chưa đủ để mở gợi ý.</small>':''}`:nh?'':'<small class="tnote">Câu này không có gợi ý.</small>'}
-      ${gv&&q.sol?`<div class="sol"><b>Lời giải (chỉ giáo viên thấy).</b> ${tex(q.sol)}</div>`:''}${canReport({...q,tid:t.id})?`<div class="tlrp">${repBtn(q,'rpT'+i)}</div>`:''}</div>`}).join('')+
-   (gv?`<button class="btn alt" id="tlEd">✎ Sửa đề này</button>`:done?`<div class="tbox tldone">✓ Em đã đánh dấu làm xong ngày ${new Date(done).toLocaleDateString('vi-VN')}.</div>`:`<button class="btn big" id="tlOk">Em đã làm xong vào vở</button>`);
+function tlDe(t,lab){
+  if(t.khoi===CHUYEN_TOAN&&!canOpenSpecial())return grades();
+  const body=$('#tlBody');
+  const scrollTop=$('#tlde').classList.contains('on')&&tlT?.id===t.id?body.scrollTop:0;
+  tlT=t;if(lab)tlLab=lab;show('tlde');
+  const qs=tlQs(t),gv=GV(),k=key(t,0),done=P.pt&&P.pt[k],a=asgFor(t),as=a&&asgStatus(a,myPt);
+  P.tlh=P.tlh||{};
+  const hasHints=qs.some(q=>q.hints?.length);
+  body.innerHTML=`<header class="tl-exam-head">
+    <div class="tl-exam-meta"><span>${esc(tlLab||'Đề tự luận')}</span><span>${qs.length} câu tự luận</span>${done&&!gv?'<span class="tl-completed">✓ Đã hoàn thành</span>':''}</div>
+    <h1>${esc(t.title)}</h1>
+    ${gv||!hasHints?'':`<div class="tl-wallet"><b>Ví XP · <span id="tlBal">${fmtXP(bal())}</span> XP</b><span>Mỗi gợi ý mở lần đầu dùng ${HINT_XP} XP.</span></div>`}
+   </header>
+   ${a?`<aside class="tl-assignment"><b>Thầy giao · ${dueLabel(a,as)}</b>${a.note?`<span>${esc(a.note)}</span>`:''}</aside>`:''}
+   <div class="tl-exam-paper">${qs.map((q,i)=>{
+     const hints=q.hints||[],opened=gv?hints.length:Math.min(hints.length,P.tlh[q.key]||0),locked=!gv&&bal()<HINT_XP;
+     const report=canReport({...q,tid:t.id});
+     return `<section class="tl-question" aria-labelledby="tl-question-${i}">
+       <h2 id="tl-question-${i}">Câu ${i+1}</h2>
+       <div class="stem tl-question-text">${tex(q.stem)}</div>
+       ${hints.slice(0,opened).map((hint,n)=>`<div class="tl-annotation"><b>Gợi ý ${n+1}</b><div>${tex(hint)}</div></div>`).join('')}
+       ${gv&&q.sol?`<div class="tl-annotation tl-solution"><b>Lời giải giáo viên</b><div>${tex(q.sol)}</div></div>`:''}
+       ${opened<hints.length||report?`<div class="tl-question-actions">
+         ${opened<hints.length?`<button class="btn sm tlh" data-h="${i}" ${locked?'disabled':''}>Mở gợi ý ${opened+1}/${hints.length} · ${HINT_XP} XP</button>${locked?'<small>Ví chưa đủ XP.</small>':''}`:''}
+         ${report?`<div class="tlrp">${repBtn(q,'rpT'+i)}</div>`:''}
+       </div>`:''}
+     </section>`;
+   }).join('')||'<p class="tl-empty">Đề chưa có câu hỏi.</p>'}</div>
+   <footer class="tl-exam-footer">${gv?`<button class="btn alt" id="tlEd">Sửa đề này</button>`:done?`<p class="tl-completed">✓ Đã làm xong ngày ${new Date(done).toLocaleDateString('vi-VN')}.</p>`:qs.length?`<span>Trình bày lời giải vào vở.</span><button class="btn" id="tlOk">Em đã làm xong</button>`:''}</footer>`;
+  body.scrollTop=scrollTop;
   typeset($('#tlBody'));
   $$('#tlBody [data-h]').forEach(b=>b.onclick=()=>{sfx.tap();const q=qs[+b.dataset.h],u=P.tlh[q.key]||0;if(bal()<HINT_XP)return;
     overlay(`<h2>Mở gợi ý ${u+1}?</h2><p>Gợi ý này trừ <b>${HINT_XP} XP</b> trong Ví XP (còn ${fmtXP(bal())} XP). Em đã thử tự làm chưa?</p><button class="btn" id="hY">Mở gợi ý</button><button class="btn alt" id="hN">Để em thử thêm</button>`);

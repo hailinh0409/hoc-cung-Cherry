@@ -474,16 +474,36 @@ function onTap(){
 /* ---------- đề tự luận: đề bài + gợi ý (mua bằng XP), học sinh làm vào vở ---------- */
 let tlT=null,tlLab='';const TLQ={};
 function tlQs(t){return t.levels.flatMap(l=>l.qs).map(q=>{if(!q.params)return q;if(!TLQ[q.key])try{TLQ[q.key]=instantiate(q)}catch(e){TLQ[q.key]=q}return {...TLQ[q.key],key:q.key}})}
-function tlDe(t,lab){if(t.khoi===CHUYEN_TOAN&&!canOpenSpecial())return grades();tlT=t;if(lab)tlLab=lab;show('tlde');const qs=tlQs(t),gv=GV(),k=key(t,0),done=P.pt&&P.pt[k],a=asgFor(t),as=a&&asgStatus(a,myPt);P.tlh=P.tlh||{};
-  $('#tlBody').innerHTML=`<div class="phead" style="--c:#f08a24;--d:#c96a0c"><b>${esc(tlLab)} · ${esc(t.title)}</b><span>${qs.length} câu tự luận. Em làm bài vào vở bài tập, trình bày đầy đủ như khi đi thi.</span></div>
-   ${a?`<div class="tbox"><span class="chip hwc ${as.complete?'giao':as.overdue?'late':'nhap'}">Thầy giao · ${dueLabel(a,as)}</span>${a.note?` <small>${esc(a.note)}</small>`:''}</div>`:''}
-   <div class="tbox tlwal">${gv?'<b>Giáo viên xem được mọi gợi ý và lời giải, không bị trừ XP.</b>':`Bí quá thì mở gợi ý. Mỗi gợi ý mở lần đầu trừ <b>${HINT_XP} XP</b>, gợi ý đã mở thì xem lại miễn phí.<br>Ví XP của em: <b id="tlBal">${fmtXP(bal())}</b> XP`}</div>`+
-   qs.map((q,i)=>{const nh=(q.hints||[]).length,u=gv?nh:Math.min(nh,P.tlh[q.key]||0);
-     return `<div class="tbox tlq"><span class="tag">Câu ${i+1}</span><div class="stem">${tex(q.stem)}</div>
-      ${(q.hints||[]).slice(0,u).map((h,j)=>`<div class="vh"><b>Gợi ý ${j+1}.</b> ${tex(h)}</div>`).join('')}
-      ${u<nh?`<button class="btn sm tlh" data-h="${i}" ${bal()<HINT_XP?'disabled':''}>💡 Mở gợi ý ${u+1}/${nh} · −${HINT_XP} XP</button>${bal()<HINT_XP?'<small class="tnote">Ví XP chưa đủ để mở gợi ý.</small>':''}`:nh?'':'<small class="tnote">Câu này không có gợi ý.</small>'}
-      ${gv&&q.sol?`<div class="sol"><b>Lời giải (chỉ giáo viên thấy).</b> ${tex(q.sol)}</div>`:''}${canReport({...q,tid:t.id})?`<div class="tlrp">${repBtn(q,'rpT'+i)}</div>`:''}</div>`}).join('')+
-   (gv?`<button class="btn alt" id="tlEd">✎ Sửa đề này</button>`:done?`<div class="tbox tldone">✓ Em đã đánh dấu làm xong ngày ${new Date(done).toLocaleDateString('vi-VN')}.</div>`:`<button class="btn big" id="tlOk">Em đã làm xong vào vở</button>`);
+function tlDe(t,lab){
+  if(t.khoi===CHUYEN_TOAN&&!canOpenSpecial())return grades();
+  const body=$('#tlBody');
+  const scrollTop=$('#tlde').classList.contains('on')&&tlT?.id===t.id?body.scrollTop:0;
+  tlT=t;if(lab)tlLab=lab;show('tlde');
+  const qs=tlQs(t),gv=GV(),k=key(t,0),done=P.pt&&P.pt[k],a=asgFor(t),as=a&&asgStatus(a,myPt);
+  P.tlh=P.tlh||{};
+  const hasHints=qs.some(q=>q.hints?.length);
+  body.innerHTML=`<header class="tl-exam-head">
+    <div class="tl-exam-meta"><span>${esc(tlLab||'Đề tự luận')}</span><span>${qs.length} câu tự luận</span>${done&&!gv?'<span class="tl-completed">✓ Đã hoàn thành</span>':''}</div>
+    <h1>${esc(t.title)}</h1>
+    ${gv||!hasHints?'':`<div class="tl-wallet"><b>Ví XP · <span id="tlBal">${fmtXP(bal())}</span> XP</b><span>Mỗi gợi ý mở lần đầu dùng ${HINT_XP} XP.</span></div>`}
+   </header>
+   ${a?`<aside class="tl-assignment"><b>Thầy giao · ${dueLabel(a,as)}</b>${a.note?`<span>${esc(a.note)}</span>`:''}</aside>`:''}
+   <div class="tl-exam-paper">${qs.map((q,i)=>{
+     const hints=q.hints||[],opened=gv?hints.length:Math.min(hints.length,P.tlh[q.key]||0),locked=!gv&&bal()<HINT_XP;
+     const report=canReport({...q,tid:t.id});
+     return `<section class="tl-question" aria-labelledby="tl-question-${i}">
+       <h2 id="tl-question-${i}">Câu ${i+1}</h2>
+       <div class="stem tl-question-text">${tex(q.stem)}</div>
+       ${hints.slice(0,opened).map((hint,n)=>`<div class="tl-annotation"><b>Gợi ý ${n+1}</b><div>${tex(hint)}</div></div>`).join('')}
+       ${gv&&q.sol?`<div class="tl-annotation tl-solution"><b>Lời giải giáo viên</b><div>${tex(q.sol)}</div></div>`:''}
+       ${opened<hints.length||report?`<div class="tl-question-actions">
+         ${opened<hints.length?`<button class="btn sm tlh" data-h="${i}" ${locked?'disabled':''}>Mở gợi ý ${opened+1}/${hints.length} · ${HINT_XP} XP</button>${locked?'<small>Ví chưa đủ XP.</small>':''}`:''}
+         ${report?`<div class="tlrp">${repBtn(q,'rpT'+i)}</div>`:''}
+       </div>`:''}
+     </section>`;
+   }).join('')||'<p class="tl-empty">Đề chưa có câu hỏi.</p>'}</div>
+   <footer class="tl-exam-footer">${gv?`<button class="btn alt" id="tlEd">Sửa đề này</button>`:done?`<p class="tl-completed">✓ Đã làm xong ngày ${new Date(done).toLocaleDateString('vi-VN')}.</p>`:qs.length?`<span>Trình bày lời giải vào vở.</span><button class="btn" id="tlOk">Em đã làm xong</button>`:''}</footer>`;
+  body.scrollTop=scrollTop;
   typeset($('#tlBody'));
   $$('#tlBody [data-h]').forEach(b=>b.onclick=()=>{sfx.tap();const q=qs[+b.dataset.h],u=P.tlh[q.key]||0;if(bal()<HINT_XP)return;
     overlay(`<h2>Mở gợi ý ${u+1}?</h2><p>Gợi ý này trừ <b>${HINT_XP} XP</b> trong Ví XP (còn ${fmtXP(bal())} XP). Em đã thử tự làm chưa?</p><button class="btn" id="hY">Mở gợi ý</button><button class="btn alt" id="hN">Để em thử thêm</button>`);
