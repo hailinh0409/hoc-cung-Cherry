@@ -1,6 +1,6 @@
 import { admin } from '@/lib/supabase/admin';
 import { getAccount, json, fail } from '@/lib/session';
-import { loadTopics } from '@/lib/topics';
+import { loadTopics, SPECIAL_TOPIC } from '@/lib/topics';
 import { publicOf } from '@/lib/validate';
 
 // Chỉ lấy các trường publicOf dùng cho danh sách bạn bè và bảng xếp hạng.
@@ -11,8 +11,9 @@ export async function GET(request) {
   const a = await getAccount();
   if (!a) return fail('Chưa đăng nhập', 401);
   const T = a.role === 'teacher', db = admin();
+  const specialAccess = T || (a.mon || []).includes(SPECIAL_TOPIC);
   const [catalog, asg, pl, accs, rep, st] = await Promise.all([
-    loadTopics(T, new URL(request.url).searchParams.get('topics')),
+    loadTopics(T, new URL(request.url).searchParams.get('topics'), specialAccess),
     db.from('ltt_assignments').select('id,class,levels,due_at,note,created_at,topic:ltt_topics(slug)'),
     db.from('ltt_players').select(T ? 'account_id,data,mau' : publicPlayerColumns),
     db.from('ltt_accounts').select(T ? 'id,name,khoi,mon,reset_req,is_default,active' : 'id,active').eq('role', 'student'),
@@ -36,5 +37,5 @@ export async function GET(request) {
   }
   // Mốc Thi đấu theo khối (bảng chưa có thì coi như chưa đặt mốc)
   const moc = (st?.data || []).find(r => r.key === 'moc_thi_dau')?.value || {};
-  return json({ ...catalog, assignments, players, accounts, removed, reports, moc });
+  return json({ ...catalog, specialAccess, assignments, players, accounts, removed, reports, moc });
 }

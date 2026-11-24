@@ -270,6 +270,8 @@ mjx-container{max-width:100%;overflow-x:auto;overflow-y:hidden}
 .mgrid.stack .mcol+.mcol{padding-top:12px;border-top:2px dashed #cfe2e2}
 .mgrid.stack .mi{min-height:52px}
 .mgrid.stack .mi .bd{right:8px;top:50%;margin-top:-12px}
+
+.gtile[data-k="chuyen-toan"] .gn{font-size:clamp(24px,4vw,42px);line-height:1.05}
 /* ===== v4: đăng nhập, thanh người dùng, 5 phần, thi đấu, hồ sơ ===== */
 .scrollv{flex:1;overflow-y:auto;padding:4px 16px 24px;-webkit-overflow-scrolling:touch}
 .lwrap{flex:1;overflow-y:auto;padding:24px 20px}
@@ -1454,6 +1456,11 @@ function parseTopic(raw){const P=parseBank(raw);return {title:P.topic,levels:P.l
 /* ---------- hằng số ---------- */
 const GRADES=[{k:'6',c:'#ff7a59',d:'#e85a3a'},{k:'7',c:'#3aa8e0',d:'#2584b8'},{k:'8',c:'#ffd23f',d:'#d6a90b',dark:1},{k:'9',c:'#ff5d8f',d:'#d93e70'},{k:'10',c:'#5cc96b',d:'#3a9e4a'},{k:'11',c:'#9b6dff',d:'#7448d6'},{k:'12',c:'#ff9f1c',d:'#d67b00'}];
 const KHOI=GRADES.map(g=>g.k);
+const CHUYEN_TOAN = 'chuyen-toan';
+const SPECIAL_GRADE = { k: CHUYEN_TOAN, c: '#4679c1', d: '#325d9b' };
+let specialAccess = false;
+const canOpenSpecial = () => GV() || specialAccess;
+const gradeTiles = () => canOpenSpecial() ? [...GRADES, SPECIAL_GRADE] : GRADES;
 const PHAN={'dai-so':{name:'Đại số',c:'#3aa8e0',d:'#2584b8'},'hinh-hoc':{name:'Hình học',c:'#2fb787',d:'#1f8a63'},'thong-ke':{name:'Thống kê & Xác suất',c:'#ff9f1c',d:'#d97f00'},'on-tap':{name:'Ôn tập',c:'#8d7bff',d:'#6a57e0'},'thi-dau':{name:'Kho Thi đấu',c:'#ef3b55',d:'#c22a40'}};
 const TIERS=[{n:'Đồng',lp:0,c:'#c08457',d:'#8a5a33'},{n:'Bạc',lp:100,c:'#c3ced6',d:'#8a9aa6'},{n:'Vàng',lp:200,c:'#ffd23f',d:'#c99a08'},{n:'Bạch Kim',lp:350,c:'#4fd1c5',d:'#2a9d93'},
   {n:'Kim Cương',lp:500,c:'#6aa8ff',d:'#3f78d6'},{n:'Cao Thủ',lp:700,c:'#b36bff',d:'#8442d6'},{n:'Đại Cao Thủ',lp:900,c:'#ff5d6c',d:'#c8323f'},{n:'Thách Đấu',lp:1200,c:'#ffb800',d:'#b97f00'}];
@@ -1753,7 +1760,7 @@ const deTopics=k=>gradeTopics(k).filter(isDe);
 const deDone=t=>!!(P.pt&&P.pt[key(t,0)]);
 function topicOpen(ts,j){const t=ts[j];return j===0||GV()||!!asgFor(t)||topicPassed(t)>0||topicPassed(ts[j-1])>=1}
 const lvlOpen=(ts,j,i)=>topicOpen(ts,j)&&(i===0||GV()||bestOf(ts[j],i-1)>0);
-const G0=k=>GRADES.find(g=>g.k===k)||GRADES[0];
+const G0=k=>k===CHUYEN_TOAN?SPECIAL_GRADE:GRADES.find(g=>g.k===k)||GRADES[0];
 const level=xp=>Math.floor(Math.sqrt((xp||0)/60))+1;
 const lvBounds=l=>[60*(l-1)**2,60*l**2];
 
@@ -1775,7 +1782,7 @@ function ubar(el){if(!ACC||!P){el.innerHTML='';return}
   el.dataset.lastMarkup = markup;
   el.innerHTML = markup;
   el.querySelector('[data-me]').onclick=()=>{sfx.tap();profFrom=id;profile(ACC.id)};
-  const bk=el.querySelector('[data-back]');if(bk)bk.onclick=()=>{sfx.tap();id==='grades'||id==='anh'?subjects():id==='area'||id==='journey'?grades():id==='tlde'?onTap():journey()}}
+  const bk=el.querySelector('[data-back]');if(bk)bk.onclick=()=>{sfx.tap();id==='grades'||id==='anh'?subjects():id==='area'||id==='journey'||(id==='ontap'&&curK===CHUYEN_TOAN)?grades():id==='tlde'?onTap():journey()}}
 
 /* ---------- đăng nhập ---------- */
 const normName=s=>String(s||'').normalize('NFC').toLowerCase().replace(/\s+/g,' ').trim();
@@ -1858,11 +1865,16 @@ function subjects(){show('subj');
 function anh(){show('anh');$('#anhBody').innerHTML=`<div class="empty"><div style="width:130px;margin:0 auto">${owlSVG}</div><h2 style="margin-top:8px">Tiếng Anh</h2><p>Bản đồ môn Tiếng Anh đang được chuẩn bị. Cherry sẽ báo em khi mở nhé!</p></div>`}
 
 function gradeCounts(g) {
+  if (g.k === CHUYEN_TOAN) {
+    const exams = deTopics(g.k).filter(isTL);
+    return { topics: exams.length + ' đề', stars: exams.filter(deDone).length + '/' + exams.length };
+  }
   const ts=routeTopics(g.k);const st=ts.reduce((s,t)=>s+topicStars(t),0),mx=ts.reduce((s,t)=>s+nMan(t)*3,0);
   return { topics: ts.length + ' chủ đề', stars: st + '/' + mx };
 }
 function refreshGrades() {
-  for (const g of GRADES) {
+  if (!!$('#ggrid [data-k="chuyen-toan"]') !== canOpenSpecial()) return grades();
+  for (const g of gradeTiles()) {
     const tile = $('#ggrid [data-k="' + g.k + '"]');
     if (!tile) continue;
     const counts = gradeCounts(g);
@@ -1875,9 +1887,9 @@ function refreshGrades() {
 }
 function grades(){show('grades');
   $('#gsub').textContent=`Khối của em: ${ACC.khoi}. Chọn khu vực để vào học.`;
-  $('#ggrid').innerHTML=GRADES.map(g=>{const counts=gradeCounts(g);
+  $('#ggrid').innerHTML=gradeTiles().map(g=>{const counts=gradeCounts(g);
     return `<button class="gtile${ACC.khoi===g.k?' mine':''}" data-k="${g.k}" style="--c:${g.c};--d:${g.d};--t:${g.dark?'#4a3300':'#fff'}">
-      <span class="gk">Khối</span><span class="gn">${g.k}</span><span class="gm">${counts.topics}</span><span class="gs">${star(1)} <span class="grade-stars">${counts.stars}</span></span>${ACC.khoi===g.k?'<span class="gme">Khối của em</span>':''}</button>`}).join('');
+      <span class="gk">Khối</span><span class="gn">${g.k===CHUYEN_TOAN?'Chuyên Toán':g.k}</span><span class="gm">${counts.topics}</span><span class="gs">${g.k===CHUYEN_TOAN?'Đã làm ':star(1)} <span class="grade-stars">${counts.stars}</span></span>${ACC.khoi===g.k?'<span class="gme">Khối của em</span>':''}</button>`}).join('');
   $$('#ggrid .gtile').forEach(b=>b.onclick=()=>{sfx.tap();curK=b.dataset.k;area()});
   $('#gteach').innerHTML=''}
 
@@ -1891,7 +1903,7 @@ const myPt=k=>(P.pt&&P.pt[k])||(P.best[k]>0?'1970':null);
 const asgFor=t=>ASG.filter(a=>a.topicId===t.id&&a.khoi===t.khoi).sort((a,b)=>(a.due||'9').localeCompare(b.due||'9'))[0];
 function counts(){const ix=qIndex();let nb=0;for(const [k,r] of Object.entries(P.rev||{}))if(ix[k]&&r.in_notebook)nb++;return {nb,saved:Object.keys(P.saved||{}).length}}
 // Khu vực khối = bản đồ kho báu (các mục khác thu gọn thành biểu tượng nhỏ ở góc bản đồ)
-function area(){journey()}
+function area(){if(curK===CHUYEN_TOAN)return onTap();journey()}
 let JOPEN='';
 const JICO={
   ontap:'<svg viewBox="0 0 24 24" width="28" height="28"><path d="M5 4h10l4 4v12H5z" fill="#fff"/><path d="M15 4v4h4" fill="#d9d2ff"/><path d="M8 11h8M8 14h8M8 17h5" stroke="#6a57e0" stroke-width="1.8" stroke-linecap="round"/></svg>',
@@ -2035,13 +2047,19 @@ function deTile(t,lab,i){const a=asgFor(t),as=a&&asgStatus(a,myPt),tl=isTL(t),do
     <span class="dst">${tl?(done?'✓ Đã làm':'Làm vào vở'):(sc!=null?sc+'%':'Chưa làm')}</span>
     ${GV()?`<span class="chip ${t.status}">${({nhap:'Nháp',giao:'Đã duyệt',an:'Đã ẩn'})[t.status]}${t.errors.length?' · lỗi':''}</span>`:''}</button>
     ${GV()?`<button class="dtset" data-ds="${t.id}" aria-label="Cài đặt">⚙</button>`:''}</div>`}
-function onTap(){show('ontap');const de=deTopics(curK),tn=de.filter(t=>!isTL(t)),tl=de.filter(isTL);
+function onTap(){
+  const special=curK===CHUYEN_TOAN;
+  if(special&&!canOpenSpecial())return grades();
+  show('ontap');const tl=deTopics(curK).filter(isTL),tn=special?[]:deTopics(curK).filter(t=>!isTL(t)),de=[...tl,...tn];
   const sect=(h,sub,list,pre,c)=>`<div class="dsect" style="--c:${c}"><b>${h}</b><span>${sub}</span></div>`+
     (list.length?`<div class="dgrid">${list.map((t,i)=>deTile(t,pre+(i+1),i)).join('')}</div>`:`<div class="tbox dnone">${DBSTATE==='ok'?'Chưa có đề nào ở phần này.':'Đang tải…'}</div>`);
-  $('#ontapBody').innerHTML=`<div class="phead" style="--c:#8d7bff;--d:#6a57e0"><b>Ôn tập</b><span>Đề tổng hợp để ôn thi. Phần 1 làm ngay trên app, Phần 2 làm vào vở.</span></div>`+
+  $('#ontapBody').innerHTML=(special?
+    `<div class="phead" style="--c:#4679c1;--d:#325d9b"><b>Chuyên Toán</b><span>Đề thi học sinh giỏi và đề thi chuyên. Làm vào vở.</span></div>`+
+    sect('Đề tự luận','',tl,'TL','#4679c1'):
+    `<div class="phead" style="--c:#8d7bff;--d:#6a57e0"><b>Ôn tập</b><span>Đề tổng hợp để ôn thi. Phần 1 làm ngay trên app, Phần 2 làm vào vở.</span></div>`+
     sect('Phần 1 · Trắc nghiệm','Trắc nghiệm, đúng/sai, trả lời ngắn, nối ý. Làm xong biết điểm ngay.',tn,'TN','#8d7bff')+
-    sect('Phần 2 · Tự luận',`Làm bài vào vở bài tập. Mỗi gợi ý mở lần đầu trừ ${HINT_XP} XP.`,tl,'TL','#f08a24')+
-    (GV()?`<button class="btn alt" id="deNew" style="margin-top:14px">+ Tạo đề ôn tập mới</button>`:'');
+    sect('Phần 2 · Tự luận',`Làm bài vào vở bài tập. Mỗi gợi ý mở lần đầu trừ ${HINT_XP} XP.`,tl,'TL','#f08a24'))+
+    (GV()?`<button class="btn alt" id="deNew" style="margin-top:14px">+ ${special?'Tạo đề Chuyên Toán':'Tạo đề ôn tập mới'}</button>`:'');
   const byId=id=>de.find(t=>t.id===id);
   $$('#ontapBody [data-de]').forEach(b=>b.onclick=()=>{sfx.tap();const t=byId(b.dataset.de),lab=(isTL(t)?'TL':'TN')+((isTL(t)?tl:tn).indexOf(t)+1);
     if(isTL(t))return tlDe(t,lab);
@@ -2049,12 +2067,12 @@ function onTap(){show('ontap');const de=deTopics(curK),tn=de.filter(t=>!isTL(t))
     overlay(`<h2>${lab} · ${esc(t.title)}</h2><p>${n} câu · không có gợi ý, không giới hạn tim. Làm xong mới xem điểm.</p><button class="btn" id="dGo">Bắt đầu làm đề</button><button class="btn alt" id="dNo">Để sau</button>`);
     $('#dGo').onclick=()=>{closeOvl();startDe(t)};$('#dNo').onclick=closeOvl});
   $$('#ontapBody [data-ds]').forEach(b=>b.onclick=()=>{sfx.tap();tOpts(byId(b.dataset.ds))});
-  $('#deNew')&&($('#deNew').onclick=()=>{sfx.tap();bankNewDe(curK,d=>{closeOvl();sfx.ok();qedit(d)})})}
+  $('#deNew')&&($('#deNew').onclick=()=>{sfx.tap();bankNewDe(curK,d=>{closeOvl();sfx.ok();if(special){BANKON=false;curT=d}qedit(d)})})}
 
 /* ---------- đề tự luận: đề bài + gợi ý (mua bằng XP), học sinh làm vào vở ---------- */
 let tlT=null,tlLab='';const TLQ={};
 function tlQs(t){return t.levels.flatMap(l=>l.qs).map(q=>{if(!q.params)return q;if(!TLQ[q.key])try{TLQ[q.key]=instantiate(q)}catch(e){TLQ[q.key]=q}return {...TLQ[q.key],key:q.key}})}
-function tlDe(t,lab){tlT=t;if(lab)tlLab=lab;show('tlde');const qs=tlQs(t),gv=GV(),k=key(t,0),done=P.pt&&P.pt[k],a=asgFor(t),as=a&&asgStatus(a,myPt);P.tlh=P.tlh||{};
+function tlDe(t,lab){if(t.khoi===CHUYEN_TOAN&&!canOpenSpecial())return grades();tlT=t;if(lab)tlLab=lab;show('tlde');const qs=tlQs(t),gv=GV(),k=key(t,0),done=P.pt&&P.pt[k],a=asgFor(t),as=a&&asgStatus(a,myPt);P.tlh=P.tlh||{};
   $('#tlBody').innerHTML=`<div class="phead" style="--c:#f08a24;--d:#c96a0c"><b>${esc(tlLab)} · ${esc(t.title)}</b><span>${qs.length} câu tự luận. Em làm bài vào vở bài tập, trình bày đầy đủ như khi đi thi.</span></div>
    ${a?`<div class="tbox"><span class="chip hwc ${as.complete?'giao':as.overdue?'late':'nhap'}">Thầy giao · ${dueLabel(a,as)}</span>${a.note?` <small>${esc(a.note)}</small>`:''}</div>`:''}
    <div class="tbox tlwal">${gv?'<b>Giáo viên xem được mọi gợi ý và lời giải, không bị trừ XP.</b>':`Bí quá thì mở gợi ý. Mỗi gợi ý mở lần đầu trừ <b>${HINT_XP} XP</b>, gợi ý đã mở thì xem lại miễn phí.<br>Ví XP của em: <b id="tlBal">${fmtXP(bal())}</b> XP`}</div>`+
@@ -2079,13 +2097,14 @@ function startDe(t){curT=t;let qs;try{qs=t.levels.flatMap((l,li)=>l.qs.map(q=>in
 function tOpts(t){overlay(`<h2 style="font-size:26px">${esc(t.title)}</h2><div class="form">
    <div><span class="chip ${t.status}">${({nhap:'Nháp',giao:'Đã duyệt',an:'Đã ẩn'})[t.status]}</span> <small>${t.levels.reduce((a,l)=>a+l.qs.length,0)} câu · ${t.levels.length} mức${t.nguon?' · '+esc(t.nguon):''}</small></div>
    ${t.errors.length?`<div class="err">${t.errors.map(esc).join('<br>')}</div>`:''}
-   <label>Thuộc phần<select class="name" id="oPh">${Object.entries(PHAN).map(([k,v])=>`<option value="${k}" ${k===t.phan?'selected':''}>${v.name}${k==='on-tap'?' (đề)':''}</option>`).join('')}</select></label>
+   ${t.khoi===CHUYEN_TOAN?'':`<label>Thuộc phần<select class="name" id="oPh">${Object.entries(PHAN).map(([k,v])=>`<option value="${k}" ${k===t.phan?'selected':''}>${v.name}${k==='on-tap'?' (đề)':''}</option>`).join('')}</select></label>
    ${isKho(t)?`<label>Chương<select class="name" id="oCh">${chapsOf(t.khoi).filter(c=>c.ch).map(c=>`<option value="k${t.khoi}-c${c.ch.n}" ${t.chuong===`k${t.khoi}-c${c.ch.n}`?'selected':''}>Chương ${c.ch.n}. ${esc(c.ch.title)}</option>`).join('')}</select></label>`:`<label>Bài trên bản đồ<select class="name" id="oCh"><option value="">Chủ đề bổ sung (cuối bản đồ)</option>${currOf(t.khoi).filter(c=>c.ch&&!c.id).map(c=>`<optgroup label="Chương ${c.ch.n}. ${esc(c.ch.title)}">${currOf(t.khoi).filter(x=>x.id&&x.ch===c.ch).map(x=>`<option value="${x.id}" ${(t.chuong||ALIAS[t.id])===x.id?'selected':''}>${esc(x.lt?'Luyện tập chung':'Bài '+x.num+'. '+x.title)}</option>`).join('')}</optgroup>`).join('')}</select></label>`}
+   `}
    <label>Thứ tự nếu nhiều chủ đề cùng một bài<input class="name" id="oOrd" type="number" value="${t.order}"></label>
    <button class="btn" id="oSave">Lưu</button>${t.status!=='giao'?`<button class="btn" id="oGiao" ${t.errors.length?'disabled':''}>Duyệt cho học sinh</button>`:''}${t.status!=='an'?`<button class="btn alt" id="oAn">Ẩn khỏi học sinh</button>`:''}
    <button class="btn" id="oQ">Sửa câu hỏi</button><button class="btn alt" id="oC">Đóng</button></div>`);
   const up=async v=>{try{const r=await DB.doc('topics/'+t.id).update({...v,capnhat:new Date().toISOString()});if(r&&r.updated_at)t.upd=r.updated_at;sfx.ok();closeOvl()}catch(e){msgBox('Chưa lưu được',esc(e&&e.message||'Lỗi kết nối'))}};
-  $('#oSave').onclick=()=>up({phan:$('#oPh').value,chuong:$('#oCh').value,thutu:Number($('#oOrd').value)||0});
+  $('#oSave').onclick=()=>up({...($('#oPh')?{phan:$('#oPh').value,chuong:$('#oCh').value}:{}),thutu:Number($('#oOrd').value)||0});
   $('#oGiao')&&($('#oGiao').onclick=()=>up({trangthai:'giao'}));$('#oAn')&&($('#oAn').onclick=()=>up({trangthai:'an'}));$('#oC').onclick=closeOvl;$('#oQ').onclick=()=>{closeOvl();qedit(t)}}
 
 /* ---------- làm lại câu sai + câu đã lưu ---------- */
@@ -2727,16 +2746,16 @@ function accounts(){show('track');$('#trTitle').textContent='Tài khoản học 
   $('#trk').innerHTML=`<div class="tbox"><b>Thêm học sinh</b><p class="tnote">Mỗi dòng: <b>Họ và tên; khối; môn</b>. Môn ghi <b>Toán</b>, <b>Anh</b> hoặc <b>Toán Anh</b>; bỏ trống là Toán. Mật khẩu mặc định 0000.</p>
      <textarea class="name ta" id="aLines" placeholder="Nguyễn Văn An; 8; Toán&#10;Trần Thị Bình; 8; Toán Anh&#10;Lê Minh; 7; Anh"></textarea><button class="btn sm" id="aAdd">Tạo tài khoản</button><div id="aMsg"></div></div>
    ${req.length?`<div class="tbox warn"><b>Xin đặt lại mật khẩu (${req.length})</b>${req.map(a=>`<div class="row2"><span>${esc(a.name)} · khối ${a.khoi}</span><button class="btn sm" data-reset="${a.id}">Đặt lại 0000</button></div>`).join('')}</div>`:''}
-   ${KHOI.map(k=>{const L=ACCS.filter(a=>a.khoi===k).sort((a,b)=>a.name.localeCompare(b.name,'vi'));return L.length?`<div class="tbox"><b>Khối ${k} (${L.length})</b>${L.map(a=>`<div class="row2 acc"><span>${esc(a.name)}${a.isDefault!==false?' <small>(mật khẩu 0000)</small>':''}<span class="mtg">${Object.entries(MON).map(([m,x])=>`<button class="mt${monOf(a).includes(m)?' on':''}" data-acc="${a.id}" data-mon="${m}" style="--c:${x.c}">${x.n}</button>`).join('')}</span></span><span class="abtn"><button class="btn sm alt" data-reset="${a.id}">Đặt lại 0000</button><button class="btn sm del" data-del="${a.id}">Xoá</button></span></div>`).join('')}</div>`:''}).join('')}
+   ${KHOI.map(k=>{const L=ACCS.filter(a=>a.khoi===k).sort((a,b)=>a.name.localeCompare(b.name,'vi'));return L.length?`<div class="tbox"><b>Khối ${k} (${L.length})</b>${L.map(a=>`<div class="row2 acc"><span>${esc(a.name)}${a.isDefault!==false?' <small>(mật khẩu 0000)</small>':''}<span class="mtg">${Object.entries({...MON,[CHUYEN_TOAN]:{n:'Chuyên Toán',c:'#4679c1'}}).map(([m,x])=>`<button class="mt${monOf(a).includes(m)?' on':''}" data-acc="${a.id}" data-mon="${m}" style="--c:${x.c}">${x.n}</button>`).join('')}</span></span><span class="abtn"><button class="btn sm alt" data-reset="${a.id}">Đặt lại 0000</button><button class="btn sm del" data-del="${a.id}">Xoá</button></span></div>`).join('')}</div>`:''}).join('')}
    ${ACCS_DEL.length?`<details class="tbox adel"><summary><b>Tài khoản đã xoá (${ACCS_DEL.length})</b></summary><p class="tnote">Tiến độ của các em vẫn được giữ. Bấm Khôi phục nếu lỡ xoá nhầm.</p>${[...ACCS_DEL].sort((a,b)=>a.khoi-b.khoi||a.name.localeCompare(b.name,'vi')).map(a=>`<div class="row2"><span>${esc(a.name)} · khối ${esc(a.khoi)}</span><button class="btn sm alt" data-restore="${a.id}">Khôi phục</button></div>`).join('')}</details>`:''}`;
   $('#trBack').onclick=()=>{sfx.tap();subjects()};
   $('#aAdd').onclick=async()=>{const lines=$('#aLines').value.split('\n').map(s=>s.trim()).filter(Boolean);let ok=0,bad=[];
-    for(const l of lines){const [n,k,mm]=l.split(/[;,\t]/).map(s=>(s||'').trim());const pm=plain(mm||''),mon=[...(!pm||/toan/.test(pm)?['toan']:[]),...(/anh/.test(pm)?['anh']:[])];if(!mon.length){bad.push(l+' (môn?)');continue}if(!n||!/^(6|7|8|9|1[0-2])$/.test(k||'')){bad.push(l);continue}
+    for(const l of lines){const [n,k,mm]=l.split(/[;,\t]/).map(s=>(s||'').trim());const pm=plain(mm||''),mon=[...(!pm||/toan/.test(pm)?['toan']:[]),...(/anh/.test(pm)?['anh']:[]),...(/chuyen\s+toan/.test(pm)?[CHUYEN_TOAN]:[])];if(!mon.length){bad.push(l+' (môn?)');continue}if(!n||!/^(6|7|8|9|1[0-2])$/.test(k||'')){bad.push(l);continue}
       if(findAcc(n,k).some(a=>normName(a.name)===normName(n))){bad.push(l+' (đã có)');continue}
       const salt=Math.random().toString(36).slice(2,10);try{await DB.collection('accounts').doc().set({name:n.replace(/\s+/g,' '),khoi:k,salt,ph:await hashPin(salt,'0000'),isDefault:true,reset:false,mon,created:new Date().toISOString()});ok++}catch(e){bad.push(l)}}
     $('#aMsg').innerHTML=`<div class="okbox">Đã tạo ${ok} tài khoản.</div>${bad.length?`<div class="err">Không tạo được: ${bad.map(esc).join('; ')}</div>`:''}`};
   $$('#trk [data-mon]').forEach(b=>b.onclick=async()=>{const a=ACCS.find(x=>x.id===b.dataset.acc),m=b.dataset.mon,cur=monOf(a),nx=cur.includes(m)?cur.filter(x=>x!==m):[...cur,m];
-    if(!nx.length)return toast('Mỗi tài khoản cần ít nhất một môn.');try{await DB.doc('accounts/'+a.id).update({mon:nx});sfx.tap()}catch(e){msgBox('Chưa lưu được',esc(e.message))}});
+    if(!nx.some(x=>x!==CHUYEN_TOAN))return toast('Mỗi tài khoản cần ít nhất một môn.');try{await DB.doc('accounts/'+a.id).update({mon:nx});sfx.tap()}catch(e){msgBox('Chưa lưu được',esc(e.message))}});
   $$('#trk [data-reset]').forEach(b=>b.onclick=async()=>{const a=ACCS.find(x=>x.id===b.dataset.reset);try{await DB.doc('accounts/'+a.id).update({ph:await hashPin(a.salt,'0000'),reset:false,isDefault:true});toast(`Đã đặt lại mật khẩu của ${esc(a.name)} về 0000`)}catch(e){msgBox('Chưa lưu được',esc(e.message))}});
   $$('#trk [data-del]').forEach(b=>b.onclick=()=>{const a=ACCS.find(x=>x.id===b.dataset.del);if(!a)return;sfx.tap();
     overlay(`<h2>Xoá tài khoản?</h2><p>Xoá tài khoản của <b>${esc(a.name)}</b> (khối ${esc(a.khoi)})? Em ấy sẽ không đăng nhập được nữa và không còn hiện trên bảng xếp hạng.</p><p class="tnote">Tiến độ vẫn được giữ; thầy khôi phục được ở mục <b>Tài khoản đã xoá</b> cuối trang.</p><button class="btn del" id="dY">Xoá tài khoản</button><button class="btn alt" id="dN">Huỷ</button>`);
@@ -2836,11 +2855,11 @@ function qedit(t){QE=t.id;t=TOPICS.find(x=>x.id===QE)||t;show('track');$('#trTit
   $('#qAll').onclick=()=>{overlay(`<h2>LaTeX của chủ đề</h2><textarea class="code" id="qa" spellcheck="false">${esc(t.raw)}</textarea><div id="qaErr"></div><button class="btn" id="qaS">Lưu</button><button class="btn alt" id="qaC">Hủy</button>`);
     $('#qaC').onclick=closeOvl;$('#qaS').onclick=()=>{const v=$('#qa').value,P=parseTopic(v);if(P.errors.length){$('#qaErr').innerHTML=`<div class="err">${P.errors.map(esc).join('<br>')}</div>`;return}saveText(t,v,'Đã lưu chủ đề.')}};
   $('#qUndo')&&($('#qUndo').onclick=()=>saveText(t,t.prev,'Đã hoàn tác.'))}
-function journeyOr(){const t=TOPICS.find(x=>x.id===curT?.id);if(t&&isDe(t))onTap();else journey()}
+function journeyOr(){if(curK===CHUYEN_TOAN)return onTap();const t=TOPICS.find(x=>x.id===curT?.id);if(t&&isDe(t))onTap();else journey()}
 async function saveText(t,text,msg){try{const r=await DB.doc('topics/'+t.id).update({text,banTruoc:t.raw,capnhat:new Date().toISOString(),base:t.upd});if(r&&r.updated_at){t.upd=r.updated_at;t.prev=t.raw;t.raw=text;t.theory=parseTopic(text).theory||null}closeOvl();sfx.ok();toast(msg);const on=$$('.scr.on')[0]?.id;if(QE&&on==='track')qedit(TOPICS.find(x=>x.id===QE)||t);else if(BANKON&&on==='track')bank(true)}
   catch(e){msgBox('Chưa lưu được',esc(e&&e.message||'Lỗi kết nối'));if(e&&e.status===409&&typeof loadAll==='function')loadAll().then(()=>{const on=$$('.scr.on')[0]?.id;if(on!=='track')return;if(QE){const x=TOPICS.find(y=>y.id===QE);if(x)qedit(x)}else if(BANKON)bank(true)}).catch(()=>{})}}
-function editQ(t,bi,lvNew){const bs=qBlocks(t.raw),b=bi!=null?bs[bi]:null;let raw=b?b.raw:QT.ex;
-  overlay(`<h2 style="font-size:26px">${b?'Sửa câu hỏi':'Thêm câu mới'}</h2>${b?'':`<div class="seg qtype">${Object.entries(TYPE).map(([k,v])=>`<button data-qt="${k}" class="${k==='ex'?'on':''}">${v}</button>`).join('')}</div>`}
+function editQ(t,bi,lvNew){const bs=qBlocks(t.raw),b=bi!=null?bs[bi]:null;const initialType=t.khoi===CHUYEN_TOAN?'extl':'ex';let raw=b?b.raw:QT[initialType];
+  overlay(`<h2 style="font-size:26px">${b?'Sửa câu hỏi':'Thêm câu mới'}</h2>${b?'':`<div class="seg qtype">${Object.entries(TYPE).filter(([k])=>t.khoi!==CHUYEN_TOAN||k==='extl').map(([k,v])=>`<button data-qt="${k}" class="${k===initialType?'on':''}">${v}</button>`).join('')}</div>`}
     <textarea class="code" id="qx" spellcheck="false">${esc(raw)}</textarea>
     <p class="tnote" style="text-align:left">Đáp án đúng đánh dấu <b>\\True</b>. Báo lỗi khi chọn sai: <b>\\sai{…}</b> trong phương án/ý, câu điền số dùng <b>\\saithuong{đáp số sai}{vì sao}</b>. Gợi ý: <b>\\goiy{…}</b>, lời giải: <b>\\loigiai{…}</b>. Tham số: dòng <b>%@ a = ngaunhien(2,9)</b> rồi dùng <b>{{a}}</b>.</p>
     <div class="qpv" id="qpv"></div><button class="btn" id="qS">Lưu câu</button><button class="btn alt" id="qC">Hủy</button>`);
@@ -2971,12 +2990,12 @@ function bankCopy(x){const des=bankDes(x.t.khoi).filter(d=>d!==x.t);
 function bankPaste(x,d){const blk=x.b.raw.trim();if(d.raw.includes(blk)){closeOvl();return toast('Câu này đã có trong đề.')}
   const text=d.raw.replace(/\s*$/,'')+'\n\n'+blk+'\n';if(parseTopic(text).errors.length>d.errors.length)return msgBox('Chưa chép được','Chép câu này làm đề phát sinh lỗi.');
   saveText(d,text,'Đã chép vào '+esc(d.title)+'.')}
-function bankNewDe(k,then){overlay(`<h2>Tạo đề ôn tập mới</h2><div class="form"><label>Tên đề<input class="name" id="nT" placeholder="Ví dụ: Đề ôn giữa học kì I số 1"></label>
-    <label>Khối<select class="name" id="nK">${KHOI.map(x=>`<option ${x===k?'selected':''}>${x}</option>`).join('')}</select></label>
-    <label>Loại đề<select class="name" id="nL"><option value="tn">Phần 1 · Trắc nghiệm (TN)</option><option value="tl">Phần 2 · Tự luận (TL)</option></select></label><div id="nE"></div>
+function bankNewDe(k,then){const special=k===CHUYEN_TOAN;overlay(`<h2>${special?'Tạo đề Chuyên Toán':'Tạo đề ôn tập mới'}</h2><div class="form"><label>Tên đề<input class="name" id="nT" placeholder="Ví dụ: Đề ôn giữa học kì I số 1"></label>
+    ${special?'<p>Đề tự luận</p>':`<label>Khối<select class="name" id="nK">${KHOI.map(x=>`<option ${x===k?'selected':''}>${x}</option>`).join('')}</select></label>
+    <label>Loại đề<select class="name" id="nL"><option value="tn">Phần 1 · Trắc nghiệm (TN)</option><option value="tl">Phần 2 · Tự luận (TL)</option></select></label>`}<div id="nE"></div>
     <button class="btn" id="nS">Tạo đề (nháp)</button><button class="btn alt" id="nC">Hủy</button></div>`);
-  $('#nC').onclick=closeOvl;$('#nS').onclick=async()=>{const title=$('#nT').value.trim(),khoi=$('#nK').value;if(!title){$('#nE').innerHTML='<div class="err">Thầy nhập tên đề.</div>';return}
-    $('#nS').disabled=true;try{const tl=$('#nL').value==='tl',r=await DB.collection('topics').doc().set({title,khoi,phan:'on-tap',...(tl?{text:`\\chude{${title.replace(/[{}\\]/g,'')}}\n\n\\man{1}{Đề}\n${QT.extl}\n`}:{})});const d=r&&TOPICS.find(t=>t.id===r.id);
+  $('#nC').onclick=closeOvl;$('#nS').onclick=async()=>{const title=$('#nT').value.trim(),khoi=special?CHUYEN_TOAN:$('#nK').value;if(!title){$('#nE').innerHTML='<div class="err">Thầy nhập tên đề.</div>';return}
+    $('#nS').disabled=true;try{const tl=special||$('#nL').value==='tl',r=await DB.collection('topics').doc().set({title,khoi,phan:'on-tap',...(tl?{text:`\\chude{${title.replace(/[{}\\]/g,'')}}\n\n\\man{1}{Đề}\n${QT.extl}\n`}:{})});const d=r&&TOPICS.find(t=>t.id===r.id);
       if(then&&d){then(d);return}closeOvl();sfx.ok();toast('Đã tạo đề '+esc(title)+'.');BK.tab='de';BK.k=khoi;bank()}catch(e){$('#nS').disabled=false;$('#nE').innerHTML=`<div class="err">${esc(e&&e.message||'Lỗi kết nối')}</div>`}}}
 function bankDeHTML(){const des=bankDes(BK.k);
   return `<div class="tbox"><b>Đề ôn tập khối ${BK.k}</b><p class="tnote">Đề mới ở trạng thái Nháp. Ghép đề bằng nút <b>Chép vào đề…</b> ở thẻ Tất cả câu hoặc Thi đấu, hoặc mở đề để soạn câu mới.</p><div class="qbtn"><button class="btn sm" id="bkNew">+ Tạo đề mới</button></div></div>`+
@@ -3038,6 +3057,7 @@ async function loadAll(force = false) {
   const version = !force && Date.now() - lastCatalog < 15 * 60000 ? topicVersion : '';
   const j = await api('/api/sync' + (version ? '?topics=' + encodeURIComponent(version) : ''));
   if (sequence !== syncSequence) return;
+  specialAccess = j.specialAccess === true;
   if (Array.isArray(j.topics)) {
     TOPICS = j.topics.map(t => fromDoc(wrapDoc(t)));
     FIGS = j.figs || {};
@@ -3124,6 +3144,7 @@ if('serviceWorker' in navigator)navigator.serviceWorker.register('/sw.js').catch
 async function changePin(o,n){await api('/api/me/pin',{old:o,pin:n})}
 
 function refresh(){const on=$$('.scr.on')[0]?.id;
+  if(curK===CHUYEN_TOAN&&((on==='ontap'&&!canOpenSpecial())||(on==='tlde'&&(!canOpenSpecial()||!TOPICS.some(t=>t.id===tlT?.id)))))return grades();
   if(on==='login'&&!$('#lName')?.value)login();else if(on==='grades')refreshGrades();else if(on==='subj')subjects();else if(on==='shop')shop();else if(on==='friends'&&!$('#fq'))friends();else if(on==='area')area();else if(on==='journey')journey();else if(on==='theory'&&thT){const x=TOPICS.find(y=>y.id===thT.id);if(x)theory(x)}else if(on==='ontap')onTap();else if(on==='tlde'&&tlT){const x=TOPICS.find(y=>y.id===tlT.id);if(x)tlDe(x)}else if(on==='redo')redo();else if(on==='ranked')ranked();else if(on==='board')board();
 }
 
