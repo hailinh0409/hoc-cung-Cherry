@@ -19,8 +19,8 @@ html,body{margin:0;height:100%;background:var(--bg2);overflow:hidden}
 body{color:var(--ink);font:16px/1.5 "Be Vietnam Pro",system-ui,sans-serif}
 button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
 button:focus-visible,input:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
-.app{position:relative;max-width:480px;height:100dvh;margin:0 auto;overflow:hidden;background:radial-gradient(120% 70% at 50% 0%,#127083 0%,var(--bg) 45%,var(--bg2) 100%);padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
-.scr{position:absolute;inset:0;display:none;flex-direction:column;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+.app{position:relative;height:100%;height:100dvh;overflow:hidden;background:radial-gradient(120% 70% at 50% 0%,#127083 0%,var(--bg) 45%,var(--bg2) 100%)}
+.scr{position:absolute;inset:0;display:none;flex-direction:column;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
 .scr.on{display:flex;animation:fade .35s ease}
 h1,h2,.disp{font-family:"Baloo 2",system-ui,sans-serif;line-height:1.05;margin:0}
 .btn{display:flex;align-items:center;justify-content:center;gap:8px;min-height:52px;padding:0 22px;border-radius:16px;font-weight:700;font-size:17px;background:var(--sun);color:#3a2a00;box-shadow:0 5px 0 #c99a08;transition:transform .08s}
@@ -145,8 +145,8 @@ mjx-container{max-width:100%;overflow-x:auto;overflow-y:hidden}
 @keyframes up{to{transform:translateY(-70px);opacity:0}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 .scr{overflow:hidden}
-.gwrap{position:relative;flex:1;display:flex;align-items:center;padding:12px 16px}
-.ggrid{width:100%;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px}
+.gwrap{position:relative;flex:1;min-height:0;overflow-y:auto;display:flex;padding:12px 16px}
+.ggrid{width:100%;margin:auto;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px}
 .gtile{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:2px;min-height:170px;padding:16px;border-radius:26px;background:var(--c);color:var(--t);box-shadow:inset 0 -9px 0 var(--d),0 10px 0 -2px #0003;text-align:left;overflow:hidden;animation:pop .5s cubic-bezier(.3,1.5,.5,1) both;transition:transform .1s}
 .gtile:active{transform:scale(.96)}
 .gtile::after{content:"";position:absolute;right:-30px;bottom:-30px;width:110px;height:110px;border-radius:50%;background:#ffffff26}
@@ -313,7 +313,7 @@ input.pin::placeholder{color:#b8cccc}
 .svcard small{color:#7a9399}.stem.clamp{max-height:5.2em;overflow:hidden;font-size:15px}
 .seg{margin:6px 0 10px}
 .viewq{text-align:left;max-height:58dvh;overflow-y:auto;margin-bottom:6px;-webkit-overflow-scrolling:touch}
-.panel{max-height:calc(100dvh - 40px);overflow-y:auto}
+.panel{max-height:100%;overflow-y:auto}
 .va{padding:6px 10px;border-radius:10px;background:#eef6f6;margin-top:6px;font-size:15px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}.va.y{background:#dcfbe9;color:#0c4a2f;font-weight:700}
 .vh{background:#fff6d6;border-radius:10px;padding:8px 10px;margin-top:8px;font-size:15px}
 .viewq .sol,.tbox .sol{background:#eef6f6;border-radius:12px;padding:10px;margin-top:10px;font-size:15px}
@@ -367,8 +367,8 @@ mjx-container svg{max-width:none}
 .ach b{font-size:13px;line-height:1.2;margin-top:4px}.ach small{font-size:11px;color:#7a9399;line-height:1.2}
 .avas{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:10px 0}.avas button{border-radius:50%;padding:3px}.avas button.on{box-shadow:0 0 0 4px var(--sun)}
 /* toast */
-.toast{position:absolute;left:16px;right:16px;top:14px;z-index:9;display:flex;align-items:center;gap:10px;background:var(--card);color:var(--cink);border-radius:16px;padding:10px 14px;box-shadow:0 10px 30px #0006;transform:translateY(-140%);transition:transform .35s cubic-bezier(.2,1.2,.4,1);font-size:14px}
-.toast.on{transform:none}
+.toast{position:absolute;left:16px;right:16px;top:14px;z-index:9;display:flex;align-items:center;gap:10px;background:var(--card);color:var(--cink);border-radius:16px;padding:10px 14px;box-shadow:0 10px 30px #0006;transform:translateY(-140%);visibility:hidden;transition:transform .35s cubic-bezier(.2,1.2,.4,1),visibility 0s .35s;font-size:14px}
+.toast.on{transform:none;visibility:visible;transition-delay:0s}
 textarea.ta{min-height:110px;padding:10px 12px;font:15px/1.4 "Be Vietnam Pro";resize:vertical;margin:8px 0}
 .tbox.warn{box-shadow:inset 0 0 0 3px var(--sun)}
 .chkl{display:flex!important;align-items:center;gap:10px}.chkl input{width:22px;height:22px}
@@ -409,8 +409,8 @@ input[type=checkbox]{accent-color:var(--coral)}
 .tmap{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;background:
  radial-gradient(circle at 20% 15%,#0000 0 60%,#a0702a14 100%),radial-gradient(#b8894a22 1.2px,#0000 1.4px) 0 0/22px 22px,linear-gradient(180deg,#f3e2b8,#ecd29a);
  box-shadow:inset 0 0 40px #8a5a2b55;border-radius:22px 22px 0 0;margin:0 6px}
-.tmapin{position:relative;margin:0 auto}
-.tpath{position:absolute;left:0;top:0;pointer-events:none}
+.tmapin{position:relative;width:100%;max-width:860px;margin:0 auto}
+.tpath{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none}
 .deco{position:absolute;pointer-events:none;opacity:.9}
 .plank{position:absolute;left:50%;transform:translate(-50%,-50%);width:84%;max-width:380px;min-height:62px;padding:8px 14px;border-radius:12px;
  background:linear-gradient(180deg,#b9743c,#9a5a28);border:3px solid #6e3c16;box-shadow:0 5px 0 #6e3c16,0 10px 16px #0003;color:#fff7e6;display:flex;flex-direction:column;align-items:center;text-align:center;z-index:2;animation:rise .45s both}
@@ -661,6 +661,123 @@ textarea.code.light{background:#fff;color:#12313a;font:14px/1.5 "Be Vietnam Pro"
 .q2kho .btn{margin-top:4px}
 .rlock{background:#ffe8df;border-left:4px solid var(--coral2)}.rlock b{color:#b8401f}.rlock div{font-size:14px;margin-top:4px;color:#5b3a30}
 .q2b{font-weight:700}
+
+/* Chiều rộng nội dung theo từng màn, nền app luôn phủ hết khung nhìn. */
+@media (min-width: 600px) {
+  .app {
+    --content-width: 960px;
+    --reading-width: 760px;
+    --gutter: clamp(20px, 4vw, 44px);
+  }
+
+  .scrollv, .gwrap, .ubar, .scr > .top, #gsub {
+    width: 100%;
+    max-width: var(--content-width);
+    margin-inline: auto;
+    padding-inline: var(--gutter);
+  }
+
+  #thBody, #tlBody, #redoBody, #frBody, #profBody, #boardBody {
+    max-width: var(--reading-width);
+  }
+
+  .lwrap {
+    width: 100%;
+    max-width: 500px;
+    margin-inline: auto;
+    padding: 32px var(--gutter);
+  }
+
+  .mons, #subjBody > .foot, .opts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  #subjBody > .foot { display: grid; padding-inline: 0; }
+  #sOut:only-child { grid-column: 1 / -1; justify-self: center; min-width: 160px; }
+  .ggrid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .dgrid { grid-template-columns: repeat(auto-fill, minmax(155px, 1fr)); }
+  .shgrid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
+
+  .tmap {
+    width: calc(100% - 2 * var(--gutter));
+    max-width: 1100px;
+    margin-inline: auto;
+  }
+  .plank { max-width: 460px; }
+  .jbtns { right: max(var(--gutter), calc((100% - 1100px) / 2 + 12px)); }
+  .jpanel {
+    width: calc(100% - 108px);
+    max-width: 440px;
+    left: auto;
+    right: max(calc(var(--gutter) + 72px), calc((100% - 1100px) / 2 + 84px));
+  }
+
+  #play > .bar, #play > .meta, #play > #dock, .stage {
+    width: 100%;
+    max-width: var(--reading-width);
+    margin-inline: auto;
+  }
+  #play > .timer {
+    width: calc(100% - 32px);
+    max-width: calc(var(--reading-width) - 32px);
+    margin-inline: auto;
+  }
+  .stage .card { padding: 24px; }
+  .opt .ot { overflow-wrap: anywhere; }
+  .pad { max-width: 420px; margin-inline: auto; border-radius: 18px 18px 0 0; }
+  .chk .btn { max-width: 360px; margin-inline: auto; }
+  .sheet, .shbar { width: 100%; max-width: var(--reading-width); margin-inline: auto; }
+  .panel { max-width: 520px; }
+}
+
+@media (min-width: 720px) {
+  #login .lwrap {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+    align-items: center;
+    gap: 28px;
+    max-width: 860px;
+  }
+  .lhead { margin-bottom: 0; }
+}
+
+@media (min-width: 960px) {
+  .ggrid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+
+@media (min-width: 480px) and (max-height: 580px) {
+  .jbtns {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    left: 10px;
+    bottom: calc(18px + env(safe-area-inset-bottom));
+  }
+  .jbtns .jbtn { width: 48px; height: 48px; }
+  .jbtns .jbtn + .jbtn { margin-top: 0; }
+  .jpanel {
+    bottom: calc(84px + env(safe-area-inset-bottom));
+    max-height: calc(100% - 140px);
+  }
+}
+
+/* Đề và bàn phím đáp số cùng hàng khi chiều cao bị giới hạn. */
+@media (min-width: 600px) and (max-height: 680px) {
+  #play.on:has(#dock .pad) {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(214px, 32%);
+    grid-template-rows: auto auto auto minmax(0, 1fr);
+    max-width: 1000px;
+    margin-inline: auto;
+  }
+  #play:has(#dock .pad) > :is(.bar, .timer, .meta) { grid-column: 1 / -1; }
+  #play:has(#dock .pad) > .bar { grid-row: 1; }
+  #play:has(#dock .pad) > .timer { grid-row: 2; }
+  #play:has(#dock .pad) > .meta { grid-row: 3; }
+  #play:has(#dock .pad) > .stage { grid-area: 4 / 1; min-height: 0; }
+  #play:has(#dock .pad) > #dock { grid-area: 4 / 2; min-height: 0; overflow-y: auto; }
+  #play:has(#dock .pad) .pad { padding-top: 4px; }
+}
 
 .gvlink{margin-top:4px;font-size:13px;color:#7a9399;text-decoration:underline;align-self:center}
 .figmiss{display:inline-block;padding:6px 10px;border-radius:8px;background:#fff3c4;color:#7a5a00;font-size:13px}
@@ -1793,40 +1910,41 @@ const chestSVG=(open,sz=60)=>`<svg viewBox="0 0 64 56" width="${sz}" height="${s
  <rect x="27" y="26" width="10" height="12" rx="2" fill="#ffd23f" stroke="#c99a08" stroke-width="1.5"/><circle cx="32" cy="31" r="1.8" fill="#7d4219"/>
  <path d="M14 24v28M50 24v28" stroke="#ffd23f" stroke-width="3"/></svg>`;
 const lockSVG='<svg width="26" height="26" viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="11" rx="3" fill="#b9a27a"/><path d="M8 10V7a4 4 0 018 0v3" stroke="#b9a27a" stroke-width="2.6" fill="none"/></svg>';
-const palm=(x,y,f)=>`<svg class="deco" style="left:${x}px;top:${y}px${f?';transform:scaleX(-1)':''}" width="54" height="64" viewBox="0 0 54 64"><path d="M27 62c2-16 2-30-2-42" stroke="#8a5a2b" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M25 20c-8-8-18-8-22-2 8-2 14 0 22 2zM25 20c4-10 14-14 22-10-8 0-14 4-22 10zM25 20c-12-2-20 6-20 14 4-8 10-12 20-14zM25 20c10-4 20 2 22 10-6-6-12-8-22-10z" fill="#4fae4a"/></svg>`;
-const xmark=(x,y)=>`<svg class="deco" style="left:${x}px;top:${y}px" width="26" height="26" viewBox="0 0 24 24"><path d="M5 5l14 14M19 5L5 19" stroke="#c0392b" stroke-width="3.5" stroke-linecap="round"/></svg>`;
-const wave=(x,y)=>`<svg class="deco" style="left:${x}px;top:${y}px" width="44" height="14" viewBox="0 0 44 14"><path d="M2 8q5-6 10 0t10 0 10 0 10 0" stroke="#5aa6b8" stroke-width="2.4" fill="none" stroke-linecap="round"/></svg>`;
-const flag=(x,y,txt)=>`<div class="hkflag" style="top:${y}px"><svg width="40" height="52" viewBox="0 0 40 52"><path d="M6 50V4" stroke="#6e3c16" stroke-width="3.5" stroke-linecap="round"/><path d="M7 5h26l-6 8 6 8H7z" fill="#ef3b55"/></svg><b>${txt}</b></div>`;
+const palm=(x,y,f)=>`<svg class="deco" style="left:${x};top:${y}px${f?';transform:scaleX(-1)':''}" width="54" height="64" viewBox="0 0 54 64"><path d="M27 62c2-16 2-30-2-42" stroke="#8a5a2b" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M25 20c-8-8-18-8-22-2 8-2 14 0 22 2zM25 20c4-10 14-14 22-10-8 0-14 4-22 10zM25 20c-12-2-20 6-20 14 4-8 10-12 20-14zM25 20c10-4 20 2 22 10-6-6-12-8-22-10z" fill="#4fae4a"/></svg>`;
+const xmark=(x,y)=>`<svg class="deco" style="left:${x};top:${y}px" width="26" height="26" viewBox="0 0 24 24"><path d="M5 5l14 14M19 5L5 19" stroke="#c0392b" stroke-width="3.5" stroke-linecap="round"/></svg>`;
+const wave=(x,y)=>`<svg class="deco" style="left:${x};top:${y}px" width="44" height="14" viewBox="0 0 44 14"><path d="M2 8q5-6 10 0t10 0 10 0 10 0" stroke="#5aa6b8" stroke-width="2.4" fill="none" stroke-linecap="round"/></svg>`;
+const flag=(y,txt)=>`<div class="hkflag" style="top:${y}px"><svg width="40" height="52" viewBox="0 0 40 52"><path d="M6 50V4" stroke="#6e3c16" stroke-width="3.5" stroke-linecap="round"/><path d="M7 5h26l-6 8 6 8H7z" fill="#ef3b55"/></svg><b>${txt}</b></div>`;
 function journey(){show('journey');jdock();if(curK===ACC.khoi&&!ACC.teacher&&!P.tut)setTimeout(tutorial,400);const items=mapItems(curK),ts=items.filter(x=>x.t&&hasQ(x.t)).map(x=>x.t),el=$('#tmap');
   if(!items.length){el.innerHTML=`<div class="empty dark"><div style="width:110px;margin:0 auto">${owlSVG}</div><p>Khối ${curK} chưa có bản đồ.</p></div>`;return}
-  const W=Math.min(el.clientWidth||390,480),BAN=86,STEP=112,TOP=210,BOT=90,HKH=96;
+  // Dùng phần trăm chiều ngang để đường đi và các nút cùng co giãn khi xoay máy.
+  const W=100,BAN=86,STEP=112,TOP=210,BOT=90,HKH=96;
   const H=BOT+TOP+items.reduce((s,x)=>s+(x.hk?HKH:x.ch&&!x.L?BAN+30:STEP),0);
   let y=H-BOT,pts=[],html='',deco='',cur=null,k=0,ni=0;
   const chStat=ch=>{const L=items.filter(x=>x.L&&x.L.ch===ch);const has=L.filter(x=>x.t);return {n:L.length,done:has.filter(x=>topicPassed(x.t)>0).length,st:has.reduce((s,x)=>s+topicStars(x.t),0),has:has.length}};
   items.forEach(x=>{
-    if(x.hk){const fy=y-HKH/2;pts.push([W/2,fy]);html+=flag(W/2,fy,'Hết học kì I · Sang học kì II');y-=HKH;return}
+    if(x.hk){const fy=y-HKH/2;pts.push([W/2,fy]);html+=flag(fy,'Hết học kì I · Sang học kì II');y-=HKH;return}
     if(x.ch&&!x.L){const c=x.ch,by=y-BAN/2,odd=k++%2,ph=PHAN[c.phan]||PHAN['dai-so'],S=chStat(c);pts.push([W/2,by]);
-      deco+=(odd?palm(W-60,by-80,1):palm(8,by-84))+wave(odd?20:W-70,by+34);
+      deco+=(odd?palm('calc(100% - 60px)',by-80,1):palm('8px',by-84))+wave(odd?'20px':'calc(100% - 70px)',by+34);
       html+=`<div class="plank${S.has?'':' wait'}" style="top:${by}px;--c:${ph.c}"><span class="ptag">${ph.name}</span>${c.n?`<span class="cno">Chương ${c.n}</span>`:''}<b>${esc(c.title)}</b>
         <span class="pinfo">${S.has?`${star(1)} ${S.st}/${S.has*3} · đã qua ${S.done}/${S.n} bài`:'Sắp mở · đang chờ câu hỏi'}</span></div>`;
       y-=BAN+30;return}
     const L=x.L,t=x.t,side=[.3,.7,.62,.38][ni++%4],x2=side*W,ny=y-STEP/2;pts.push([x2,ny]);
     const lab=`<span class="tlab"><b>${L.lt?L.title:L.num?'Bài '+L.num:'Bổ sung'}</b>${L.lt?'':`<i>${esc(t&&!L.num?t.title:L.title)}</i>`}</span>`;
-    if(!t){const gv=GV()&&L.id;html+=`<${gv?'button':'div'} class="tnode ghost${x2<W/2?' l':' r'}"${gv?` data-gl="${esc(L.id)}"`:''} style="left:${x2}px;top:${ny}px"><span class="coin">${L.lt?L.coin:L.num||'?'}</span>${lab}${gv?'<em class="hwn st">+ Dán bài</em>':''}</${gv?'button':'div'}>`;y-=STEP;return}
-    if(!hasQ(t)){html+=`<button class="tnode ghost thy${x2<W/2?' l':' r'}" data-th="${esc(t.id)}" style="left:${x2}px;top:${ny}px"><span class="coin">${L.lt?L.coin:L.num||'?'}</span>${lab}<i class="thb">${bookSVG}</i>${GV()&&t.status!=='giao'?`<em class="hwn st">${({nhap:'Nháp',an:'Đã ẩn'})[t.status]||t.status}</em>`:''}</button>`;y-=STEP;return}
+    if(!t){const gv=GV()&&L.id;html+=`<${gv?'button':'div'} class="tnode ghost${x2<W/2?' l':' r'}"${gv?` data-gl="${esc(L.id)}"`:''} style="left:${x2}%;top:${ny}px"><span class="coin">${L.lt?L.coin:L.num||'?'}</span>${lab}${gv?'<em class="hwn st">+ Dán bài</em>':''}</${gv?'button':'div'}>`;y-=STEP;return}
+    if(!hasQ(t)){html+=`<button class="tnode ghost thy${x2<W/2?' l':' r'}" data-th="${esc(t.id)}" style="left:${x2}%;top:${ny}px"><span class="coin">${L.lt?L.coin:L.num||'?'}</span>${lab}<i class="thb">${bookSVG}</i>${GV()&&t.status!=='giao'?`<em class="hwn st">${({nhap:'Nháp',an:'Đã ẩn'})[t.status]||t.status}</em>`:''}</button>`;y-=STEP;return}
     const j=ts.indexOf(t),lo=topicOpen(ts,j),b=bestOf(t,0),a=asgFor(t),as=a&&asgStatus(a,myPt),st=!lo?'lock':b?'done':'open';
     if(st==='open'&&!cur)cur={x:x2,y:ny};
-    html+=`<button class="tnode ${st}${x2<W/2?' l':' r'}" data-t="${j}" style="left:${x2}px;top:${ny}px"><span class="coin">${st==='lock'?lockSVG:L.lt?L.coin:L.num||'★'}</span>${lab}${stars(b)}${t.theory?`<i class="thb">${bookSVG}</i>`:''}
+    html+=`<button class="tnode ${st}${x2<W/2?' l':' r'}" data-t="${j}" style="left:${x2}%;top:${ny}px"><span class="coin">${st==='lock'?lockSVG:L.lt?L.coin:L.num||'★'}</span>${lab}${stars(b)}${t.theory?`<i class="thb">${bookSVG}</i>`:''}
       ${a&&!as.complete?`<em class="hwn ${as.overdue?'late':''}">Thầy giao · ${dueLabel(a,as)}</em>`:''}${GV()&&t.status!=='giao'?`<em class="hwn st">${({nhap:'Nháp',an:'Đã ẩn'})[t.status]||t.status}</em>`:''}</button>`;
     y-=STEP});
   const allDone=ts.length>0&&ts.every(t=>topicPassed(t)>0)&&!items.some(x=>x.L&&x.L.id&&!x.t),cy=y-TOP/2+20;pts.push([W/2,cy+78]);
   if(!cur)cur=ts.length?{x:W/2,y:cy}:{x:pts[1]?pts[1][0]:W/2,y:pts[1]?pts[1][1]:H-200};
   let d=`M${pts[0][0]} ${pts[0][1]}`;for(let q=1;q<pts.length;q++){const p=pts[q-1],n=pts[q];d+=` C${p[0]} ${p[1]-STEP*.42} ${n[0]} ${n[1]+STEP*.42} ${n[0]} ${n[1]}`}
-  el.innerHTML=`<div class="tmapin" style="height:${H}px;width:${W}px"><svg class="tpath" width="${W}" height="${H}"><path d="${d}" stroke="#8a5a2b" stroke-width="4" fill="none" stroke-dasharray="2 11" stroke-linecap="round"/></svg>
-    ${deco}${xmark(W/2+52,cy-44)}<div class="tchest" style="top:${cy}px">${chestSVG(allDone,104)}<b>${allDone?'Đã mở kho báu!':'Kho báu cuối năm'}</b><small>Qua mọi bài của lớp ${curK} để mở</small></div>
+  el.innerHTML=`<div class="tmapin" style="height:${H}px"><svg class="tpath" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true"><path vector-effect="non-scaling-stroke" d="${d}" stroke="#8a5a2b" stroke-width="4" fill="none" stroke-dasharray="2 11" stroke-linecap="round"/></svg>
+    ${deco}${xmark('calc(50% + 52px)',cy-44)}<div class="tchest" style="top:${cy}px">${chestSVG(allDone,104)}<b>${allDone?'Đã mở kho báu!':'Kho báu cuối năm'}</b><small>Qua mọi bài của lớp ${curK} để mở</small></div>
     <div class="tstart" style="top:${H-34}px">Khởi hành · Lớp ${curK}</div>
-    <svg class="deco compass" style="left:${W-78}px;top:${H-96}px" width="64" height="64" viewBox="0 0 64 64"><circle cx="32" cy="32" r="28" fill="#f6e7c4" stroke="#8a5a2b" stroke-width="2"/><path d="M32 8l5 24-5 24-5-24z" fill="#c0392b"/><path d="M8 32l24-5 24 5-24 5z" fill="#8a5a2b"/><text x="32" y="7" font-size="8" text-anchor="middle" fill="#8a5a2b" font-weight="700">B</text></svg>
-    ${html}<div class="girl" style="left:${cur.x+(cur.x<W/2?66:-66)}px;top:${cur.y+30}px">${owlSVG}</div></div>`;
+    <svg class="deco compass" style="right:14px;top:${H-96}px" width="64" height="64" viewBox="0 0 64 64"><circle cx="32" cy="32" r="28" fill="#f6e7c4" stroke="#8a5a2b" stroke-width="2"/><path d="M32 8l5 24-5 24-5-24z" fill="#c0392b"/><path d="M8 32l24-5 24 5-24 5z" fill="#8a5a2b"/><text x="32" y="7" font-size="8" text-anchor="middle" fill="#8a5a2b" font-weight="700">B</text></svg>
+    ${html}<div class="girl" style="left:calc(${cur.x}% + ${cur.x<W/2?66:-66}px);top:${cur.y+30}px">${owlSVG}</div></div>`;
   el.scrollTop=Math.max(0,cur.y-el.clientHeight*.55);
   $$('#tmap .tnode[data-t]').forEach(n=>n.onclick=()=>{const j=+n.dataset.t,t=ts[j];sfx.tap();
     if(GV()){overlay(`<h2 style="font-size:24px">${esc(t.title)}</h2><button class="btn" id="g1">Chơi thử</button><button class="btn alt" id="g2">Cài đặt & sửa câu hỏi</button><button class="btn alt" id="g3">Đóng</button>`);

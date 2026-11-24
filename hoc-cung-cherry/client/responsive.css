@@ -1,0 +1,117 @@
+
+/* Chiều rộng nội dung theo từng màn, nền app luôn phủ hết khung nhìn. */
+@media (min-width: 600px) {
+  .app {
+    --content-width: 960px;
+    --reading-width: 760px;
+    --gutter: clamp(20px, 4vw, 44px);
+  }
+
+  .scrollv, .gwrap, .ubar, .scr > .top, #gsub {
+    width: 100%;
+    max-width: var(--content-width);
+    margin-inline: auto;
+    padding-inline: var(--gutter);
+  }
+
+  #thBody, #tlBody, #redoBody, #frBody, #profBody, #boardBody {
+    max-width: var(--reading-width);
+  }
+
+  .lwrap {
+    width: 100%;
+    max-width: 500px;
+    margin-inline: auto;
+    padding: 32px var(--gutter);
+  }
+
+  .mons, #subjBody > .foot, .opts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  #subjBody > .foot { display: grid; padding-inline: 0; }
+  #sOut:only-child { grid-column: 1 / -1; justify-self: center; min-width: 160px; }
+  .ggrid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .dgrid { grid-template-columns: repeat(auto-fill, minmax(155px, 1fr)); }
+  .shgrid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
+
+  .tmap {
+    width: calc(100% - 2 * var(--gutter));
+    max-width: 1100px;
+    margin-inline: auto;
+  }
+  .plank { max-width: 460px; }
+  .jbtns { right: max(var(--gutter), calc((100% - 1100px) / 2 + 12px)); }
+  .jpanel {
+    width: calc(100% - 108px);
+    max-width: 440px;
+    left: auto;
+    right: max(calc(var(--gutter) + 72px), calc((100% - 1100px) / 2 + 84px));
+  }
+
+  #play > .bar, #play > .meta, #play > #dock, .stage {
+    width: 100%;
+    max-width: var(--reading-width);
+    margin-inline: auto;
+  }
+  #play > .timer {
+    width: calc(100% - 32px);
+    max-width: calc(var(--reading-width) - 32px);
+    margin-inline: auto;
+  }
+  .stage .card { padding: 24px; }
+  .opt .ot { overflow-wrap: anywhere; }
+  .pad { max-width: 420px; margin-inline: auto; border-radius: 18px 18px 0 0; }
+  .chk .btn { max-width: 360px; margin-inline: auto; }
+  .sheet, .shbar { width: 100%; max-width: var(--reading-width); margin-inline: auto; }
+  .panel { max-width: 520px; }
+}
+
+@media (min-width: 720px) {
+  #login .lwrap {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+    align-items: center;
+    gap: 28px;
+    max-width: 860px;
+  }
+  .lhead { margin-bottom: 0; }
+}
+
+@media (min-width: 960px) {
+  .ggrid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+
+@media (min-width: 480px) and (max-height: 580px) {
+  .jbtns {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    left: 10px;
+    bottom: calc(18px + env(safe-area-inset-bottom));
+  }
+  .jbtns .jbtn { width: 48px; height: 48px; }
+  .jbtns .jbtn + .jbtn { margin-top: 0; }
+  .jpanel {
+    bottom: calc(84px + env(safe-area-inset-bottom));
+    max-height: calc(100% - 140px);
+  }
+}
+
+/* Đề và bàn phím đáp số cùng hàng khi chiều cao bị giới hạn. */
+@media (min-width: 600px) and (max-height: 680px) {
+  #play.on:has(#dock .pad) {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(214px, 32%);
+    grid-template-rows: auto auto auto minmax(0, 1fr);
+    max-width: 1000px;
+    margin-inline: auto;
+  }
+  #play:has(#dock .pad) > :is(.bar, .timer, .meta) { grid-column: 1 / -1; }
+  #play:has(#dock .pad) > .bar { grid-row: 1; }
+  #play:has(#dock .pad) > .timer { grid-row: 2; }
+  #play:has(#dock .pad) > .meta { grid-row: 3; }
+  #play:has(#dock .pad) > .stage { grid-area: 4 / 1; min-height: 0; }
+  #play:has(#dock .pad) > #dock { grid-area: 4 / 2; min-height: 0; overflow-y: auto; }
+  #play:has(#dock .pad) .pad { padding-top: 4px; }
+}

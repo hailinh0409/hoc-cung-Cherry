@@ -11,7 +11,7 @@ let head = head0.slice(0, head0.indexOf('</style>'));
 const mj = head0.slice(head0.indexOf('</style>'), head0.indexOf('<!-- ====='));
 head = head.replace(/<title>[^<]*<\/title>/, '<title>Học cùng Cherry</title>')
   .replace('<head>', '<head>\n<link rel="manifest" href="/manifest.webmanifest"><meta name="theme-color" content="#0b4654"><link rel="apple-touch-icon" href="/apple-icon.png"><link rel="icon" href="/icon.svg" type="image/svg+xml">');
-const css = R('client/app1.css') + R('client/app2.css') + `
+const css = R('client/app1.css') + R('client/app2.css') + R('client/responsive.css') + `
 .gvlink{margin-top:4px;font-size:13px;color:#7a9399;text-decoration:underline;align-self:center}
 .figmiss{display:inline-block;padding:6px 10px;border-radius:8px;background:#fff3c4;color:#7a5a00;font-size:13px}
 img.fig{display:block;max-width:100%;height:auto;margin:8px auto;background:#fff;border-radius:8px}
