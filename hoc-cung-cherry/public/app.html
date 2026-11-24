@@ -1854,11 +1854,27 @@ function subjects(){show('subj');
   $('#sAcc')&&($('#sAcc').onclick=()=>{sfx.tap();accounts()});$('#sRep')&&($('#sRep').onclick=()=>{sfx.tap();reportsPage()});$('#sBank')&&($('#sBank').onclick=()=>{sfx.tap();bank()});$('#sOut').onclick=()=>{sfx.tap();logout()}}
 function anh(){show('anh');$('#anhBody').innerHTML=`<div class="empty"><div style="width:130px;margin:0 auto">${owlSVG}</div><h2 style="margin-top:8px">Tiếng Anh</h2><p>Bản đồ môn Tiếng Anh đang được chuẩn bị. Cherry sẽ báo em khi mở nhé!</p></div>`}
 
+function gradeCounts(g) {
+  const ts=routeTopics(g.k);const st=ts.reduce((s,t)=>s+topicStars(t),0),mx=ts.reduce((s,t)=>s+nMan(t)*3,0);
+  return { topics: ts.length + ' chủ đề', stars: st + '/' + mx };
+}
+function refreshGrades() {
+  for (const g of GRADES) {
+    const tile = $('#ggrid [data-k="' + g.k + '"]');
+    if (!tile) return grades();
+    const counts = gradeCounts(g);
+    for (const [selector, value] of [['.gm', counts.topics], ['.grade-stars', counts.stars]]) {
+      const label = tile.querySelector(selector);
+      if (label.textContent !== value) label.textContent = value;
+    }
+  }
+  ubar($('#grades [data-ubar]'));
+}
 function grades(){show('grades');
   $('#gsub').textContent=`Khối của em: ${ACC.khoi}. Chọn khu vực để vào học.`;
-  $('#ggrid').innerHTML=GRADES.map((g,i)=>{const ts=routeTopics(g.k);const st=ts.reduce((s,t)=>s+topicStars(t),0),mx=ts.reduce((s,t)=>s+nMan(t)*3,0);
+  $('#ggrid').innerHTML=GRADES.map((g,i)=>{const counts=gradeCounts(g);
     return `<button class="gtile${ACC.khoi===g.k?' mine':''}" data-k="${g.k}" style="--c:${g.c};--d:${g.d};--t:${g.dark?'#4a3300':'#fff'};animation-delay:${i*.08}s">
-      <span class="gk">Khối</span><span class="gn">${g.k}</span><span class="gm">${ts.length} chủ đề</span><span class="gs">${star(1)} ${st}/${mx}</span>${ACC.khoi===g.k?'<span class="gme">Khối của em</span>':''}</button>`}).join('');
+      <span class="gk">Khối</span><span class="gn">${g.k}</span><span class="gm">${counts.topics}</span><span class="gs">${star(1)} <span class="grade-stars">${counts.stars}</span></span>${ACC.khoi===g.k?'<span class="gme">Khối của em</span>':''}</button>`}).join('');
   $$('#ggrid .gtile').forEach(b=>b.onclick=()=>{sfx.tap();curK=b.dataset.k;area()});
   $('#gteach').innerHTML=''}
 
@@ -3105,7 +3121,7 @@ if('serviceWorker' in navigator)navigator.serviceWorker.register('/sw.js').catch
 async function changePin(o,n){await api('/api/me/pin',{old:o,pin:n})}
 
 function refresh(){const on=$$('.scr.on')[0]?.id;
-  if(on==='login'&&!$('#lName')?.value)login();else if(on==='grades')grades();else if(on==='subj')subjects();else if(on==='shop')shop();else if(on==='friends'&&!$('#fq'))friends();else if(on==='area')area();else if(on==='journey')journey();else if(on==='theory'&&thT){const x=TOPICS.find(y=>y.id===thT.id);if(x)theory(x)}else if(on==='ontap')onTap();else if(on==='tlde'&&tlT){const x=TOPICS.find(y=>y.id===tlT.id);if(x)tlDe(x)}else if(on==='redo')redo();else if(on==='ranked')ranked();else if(on==='board')board();
+  if(on==='login'&&!$('#lName')?.value)login();else if(on==='grades')refreshGrades();else if(on==='subj')subjects();else if(on==='shop')shop();else if(on==='friends'&&!$('#fq'))friends();else if(on==='area')area();else if(on==='journey')journey();else if(on==='theory'&&thT){const x=TOPICS.find(y=>y.id===thT.id);if(x)theory(x)}else if(on==='ontap')onTap();else if(on==='tlde'&&tlT){const x=TOPICS.find(y=>y.id===tlT.id);if(x)tlDe(x)}else if(on==='redo')redo();else if(on==='ranked')ranked();else if(on==='board')board();
 }
 
 }
