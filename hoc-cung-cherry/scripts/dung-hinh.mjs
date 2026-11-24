@@ -21,9 +21,30 @@ const args = process.argv.slice(2);
 const countOnly = args.includes('--dem'), skipErr = args.includes('--bo-qua-loi');
 const usePdf = !countOnly && has('pdftocairo');
 
+// pic {angle = ...} và {right angle = ...} chỉ nhận điểm có tên. Trợ lý AI hay viết toạ độ
+// ({(2.4,1.1)}--A--...) làm xelatex báo "No shape named `(2.4,1.1)'". Đặt tên tạm cho các toạ độ đó
+// ngay sau \begin{tikzpicture}[...]. Mã hình lưu trong bài giữ nguyên (khóa hash không đổi).
+const PT = String.raw`(?:\{\s*\([^()]*\)\s*\}|\([^()]*\)|[A-Za-z0-9_']+)`;
+const ANG = new RegExp(String.raw`((?:right\s+)?angle\s*=\s*)(${PT}\s*--\s*${PT}\s*--\s*${PT})`, 'g');
+export function fixAngles(b) {
+  const defs = []; let n = 0;
+  const out = b.replace(ANG, (all, head, body) => head + body.split(/\s*--\s*/).map(p => {
+    const c = p.trim().replace(/^\{\s*|\s*\}$/g, '');
+    if (!/^\(.*\)$/.test(c)) return p.trim();
+    const inner = c.slice(1, -1).trim();
+    if (!/[,:]/.test(inner)) return inner; // (A) → A
+    const name = `cqgoc${++n}`; defs.push(`\\coordinate (${name}) at ${c};`); return name;
+  }).join('--'));
+  if (!defs.length) return b;
+  const m = out.match(/\\begin\{tikzpicture\}\s*/); if (!m) return b;
+  let i = m.index + m[0].length;
+  if (out[i] === '[') { let d = 0; for (; i < out.length; i++) { if (out[i] === '[') d++; else if (out[i] === ']' && --d === 0) { i++; break; } } }
+  return out.slice(0, i) + '\n' + defs.join('\n') + '\n' + out.slice(i);
+}
+
 function compile(block) {
   const dir = mkdtempSync(join(tmpdir(), 'ltt-'));
-  writeFileSync(join(dir, 'h.tex'), wrapFigure(block));
+  writeFileSync(join(dir, 'h.tex'), wrapFigure(fixAngles(block)));
   try {
     execFileSync('xelatex', ['-interaction=nonstopmode', '-halt-on-error', ...(usePdf ? [] : ['-no-pdf']), 'h.tex'], { cwd: dir, stdio: 'pipe', timeout: 60000 });
   } catch {
