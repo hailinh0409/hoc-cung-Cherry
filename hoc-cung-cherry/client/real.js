@@ -10,6 +10,7 @@ async function loadAll(force = false) {
   const version = !force && Date.now() - lastCatalog < 15 * 60000 ? topicVersion : '';
   const j = await api('/api/sync' + (version ? '?topics=' + encodeURIComponent(version) : ''));
   if (sequence !== syncSequence) return;
+  specialAccess = j.specialAccess === true;
   if (Array.isArray(j.topics)) {
     TOPICS = j.topics.map(t => fromDoc(wrapDoc(t)));
     FIGS = j.figs || {};

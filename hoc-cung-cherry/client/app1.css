@@ -124,3 +124,5 @@
 .mgrid.stack .mcol+.mcol{padding-top:12px;border-top:2px dashed #cfe2e2}
 .mgrid.stack .mi{min-height:52px}
 .mgrid.stack .mi .bd{right:8px;top:50%;margin-top:-12px}
+
+.gtile[data-k="chuyen-toan"] .gn{font-size:clamp(24px,4vw,42px);line-height:1.05}
