@@ -3,7 +3,22 @@ let SERVERP=null,SESS=null,FIGS={};
 const api=async(path,body,method)=>{const r=await fetch(path,{method:method||(body?'POST':'GET'),headers:body?{'content-type':'application/json'}:{},body:body?JSON.stringify(body):undefined,credentials:'same-origin'});
   let j=null;try{j=await r.json()}catch(e){}if(!r.ok)throw Object.assign(new Error((j&&j.error)||('Lỗi kết nối ('+r.status+')')),{status:r.status,data:j});return j};
 const wrapDoc=x=>({id:x.id,exists:true,data:()=>x});
-async function loadAll(){const j=await api('/api/sync');FIGS=j.figs||{};TOPICS=(j.topics||[]).map(t=>fromDoc(wrapDoc(t)));ASG=j.assignments||[];PLAYERS=j.players||[];ACCS=j.accounts||[];ACCS_DEL=j.removed||[];REPS=j.reports||[];MOC=j.moc||{}}
+let topicVersion = '', lastCatalog = 0, lastSync = 0, syncSequence = 0;
+async function loadAll(force = false) {
+  const sequence = ++syncSequence;
+  // Làm mới cả hình đã dịch định kỳ, vì hình có thể đổi độc lập với bài.
+  const version = !force && Date.now() - lastCatalog < 15 * 60000 ? topicVersion : '';
+  const j = await api('/api/sync' + (version ? '?topics=' + encodeURIComponent(version) : ''));
+  if (sequence !== syncSequence) return;
+  if (Array.isArray(j.topics)) {
+    TOPICS = j.topics.map(t => fromDoc(wrapDoc(t)));
+    FIGS = j.figs || {};
+    topicVersion = j.topicVersion || '';
+    lastCatalog = Date.now();
+  }
+  ASG=j.assignments||[]; PLAYERS=j.players||[]; ACCS=j.accounts||[]; ACCS_DEL=j.removed||[]; REPS=j.reports||[]; MOC=j.moc||{};
+  lastSync = Date.now();
+}
 function softRefresh(){const on=$$('.scr.on')[0]?.id;if($('#ovl').classList.contains('on')||on==='play')return;
   if(BANKON&&!QE&&on==='track'){if(document.activeElement&&document.activeElement.id==='bkQ')return;return bank(true)}
   if(QE&&on==='track'){const t=TOPICS.find(x=>x.id===QE);if(t)qedit(t);return}
@@ -59,12 +74,22 @@ function login(view='in',msg='',pre={}){show('login');const w=$('#lwrap');
       onLogin(r)
     }catch(err){sfx.no();login(view,esc(err.message),{...P0,choose:$('#lK')?[...$('#lK').options].map(o=>o.value):undefined})}}}
 async function onLogin(r){TEACHER=r.acc.role==='teacher';SERVERP=r.data||null;
-  try{await loadAll()}catch(e){return msgBox('Chưa tải được dữ liệu',esc(e.message))}DBSTATE='ok';
+  topicVersion=''; lastCatalog=0;
+  try{await loadAll(true)}catch(e){return msgBox('Chưa tải được dữ liệu',esc(e.message))}DBSTATE='ok';
   if(TEACHER)enter({id:'gv',name:r.acc.name||'Giáo viên',khoi:'8',teacher:true});else enter(r.acc,r.isDefault)}
 function start(){started=true;if(SESS){const s=SESS;SESS=null;onLogin(s)}else login()}
 (async()=>{try{const me=await api('/api/me');if(me&&me.acc)SESS=me}catch(e){}DBSTATE='ok';if(!started)start();else if(!ACC&&SESS){const s=SESS;SESS=null;onLogin(s)}})();
-setInterval(()=>{if(ACC&&!document.hidden)loadAll().then(softRefresh).catch(e=>{if(e.status===401){ACC=null;P=null;login('in','Phiên đăng nhập đã hết, em đăng nhập lại nhé.')}})},60000);
-document.addEventListener('visibilitychange',()=>{if(!document.hidden&&ACC)loadAll().then(softRefresh).catch(()=>{})});
+let refreshing = false;
+async function refreshVisible() {
+  if (!ACC || document.hidden || refreshing || Date.now() - lastSync < 45000) return;
+  refreshing = true;
+  const account = ACC;
+  try { await loadAll(); if (ACC === account) softRefresh(); }
+  catch (e) { if (e.status === 401 && ACC === account) { ACC=null; P=null; login('in','Phiên đăng nhập đã hết, em đăng nhập lại nhé.'); } }
+  finally { refreshing = false; }
+}
+setInterval(refreshVisible, 60000);
+document.addEventListener('visibilitychange', refreshVisible);
 if('serviceWorker' in navigator)navigator.serviceWorker.register('/sw.js').catch(()=>{});
 
 /* đổi mật khẩu trong app: máy chủ kiểm tra mật khẩu cũ */
