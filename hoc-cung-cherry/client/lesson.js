@@ -36,12 +36,12 @@ const setLesson = [
   }
 ];
 
-function lessonPages(t){
+function builtInLesson(t){
   // Bài Tập hợp dùng bản minh họa sẵn cho đến khi giáo viên nhập nội dung tương tác riêng.
   if(t?.khoi==='6'&&t.chuong==='k6-b1'&&!t.theory?.some(it=>['loidan','minhhoa','thungay'].includes(it.k)))return setLesson;
   return null;
 }
-function hasTheory(t){return Boolean(lessonPages(t)||t?.theory?.length)}
+function hasTheory(t){return Boolean(t?.theory?.length||builtInLesson(t))}
 function theoryTopics(k){return mapItems(k).map(item=>item.t).filter(hasTheory)}
 
 function theoryIndex(){
@@ -56,7 +56,6 @@ const romanGroups=[['X',10],['IX',9],['V',5],['IV',4],['I',1]];
 const groupedNumber=n=>String(n).replace(/\B(?=(\d{3})+(?!\d))/g,'\u202f');
 
 function authoredTheoryHTML(item){
-  if(item.k==='loidan')return `<div class="lesson-guide authored-guide"><div aria-hidden="true">${owlSVG}</div><div><b>Cherry</b><div>${tex(item.body)}</div></div></div>`;
   if(item.k==='thungay'){
     const answer=[item.correct,item.wrong],feedback=[item.explainCorrect,item.explainWrong];
     return `<div class="lesson-check authored-check"><h3>Thử ngay</h3><p>${tex(item.body)}</p><div class="lesson-choices" role="group" aria-label="Chọn đáp án">${shuffle([0,1]).map(i=>`<button type="button" data-response="${i}" aria-pressed="false">${tex(answer[i])}</button>`).join('')}</div><div class="lesson-feedback" aria-live="polite"></div>${feedback.map((text,i)=>`<template data-explanation="${i}">${tex(text)}</template>`).join('')}</div>`;
@@ -113,33 +112,61 @@ function bindAuthoredTheory(root){
   }
 }
 
+function authoredLessonPages(items){
+  if(!items?.some(it=>['loidan','minhhoa','thungay'].includes(it.k)))return [];
+  const groups=[];
+  let group={guide:null,items:[]};
+  for(const item of items){
+    if(item.k==='loidan'){
+      if(group.guide||group.items.length)groups.push(group);
+      group={guide:item.body,items:[]};
+    }else group.items.push(item);
+  }
+  groups.push(group);
+  return groups.map(({guide,items},i)=>{
+    const visuals=items.filter(it=>it.k==='minhhoa');
+    const checks=items.filter(it=>it.k==='thungay');
+    const notes=items.filter(it=>it.k!=='minhhoa'&&it.k!=='thungay');
+    const label=notes.find(it=>it.title)?.title||`Ý ${i+1}`;
+    return {label,title:label,guide:guide?tex(guide):'',visual:visuals.map(authoredTheoryHTML).join(''),
+      notes:theoryHTML(notes),checks:checks.map(authoredTheoryHTML).join('')};
+  });
+}
+
+function builtInPageHTML(p){
+  return {label:p.concept,title:p.title,guide:esc(p.guide),
+    visual:`${p.visual}<p class="lesson-caption" aria-live="polite">${esc(p.captions[0])}</p>`,
+    notes:`<h3>${esc(p.concept)}</h3><p>${p.explanation}</p><h3>Ví dụ</h3><p>${p.example}</p>`,
+    checks:`<div class="lesson-check"><h3>Thử ngay</h3><p>${p.prompt}</p><div class="lesson-choices" role="group" aria-label="Chọn đáp án">${p.choices.map((choice,n)=>`<button type="button" data-lesson-answer="${n}" aria-pressed="false">${choice}</button>`).join('')}</div><p class="lesson-feedback" aria-live="polite"></p></div>`};
+}
+
 function renderLessonMaterial(root,t){
-  const pages=lessonPages(t),summary=theoryHTML(t.theory);
-  if(!pages){
+  const builtIn=builtInLesson(t),pages=builtIn?builtIn.map(builtInPageHTML):authoredLessonPages(t.theory);
+  const summary=(!pages.length||builtIn)?theoryHTML(t.theory):'';
+  if(!pages.length){
     root.innerHTML=summary||'<div class="tbox"><p>Bài này chưa có tóm tắt lý thuyết.</p></div>';
-    bindAuthoredTheory(root);
     typeset(root);
     return;
   }
-  root.innerHTML=`<nav class="lesson-nav" aria-label="Nội dung bài học">${pages.map((p,i)=>`<button type="button" data-lesson-page="${i}" ${i===0?'aria-current="step"':''}>${esc(p.concept)}</button>`).join('')}</nav>
-    ${pages.map((p,i)=>`<section class="lesson-page" ${i===0?'':'hidden'}>
-      <div class="lesson-guide"><div aria-hidden="true">${owlSVG}</div><div><b>Cherry</b><h2>${esc(p.title)}</h2><p>${esc(p.guide)}</p></div></div>
-      <div class="lesson-explore">
-        <div class="lesson-visual">${p.visual}<p class="lesson-caption" aria-live="polite">${esc(p.captions[0])}</p></div>
-        <div class="lesson-notes"><h3>${esc(p.concept)}</h3><p>${p.explanation}</p><h3>Ví dụ</h3><p>${p.example}</p></div>
-      </div>
-      <div class="lesson-check"><h3>Thử ngay</h3><p>${p.prompt}</p><div class="lesson-choices" role="group" aria-label="Chọn đáp án">${p.choices.map((choice,n)=>`<button type="button" data-lesson-answer="${n}" aria-pressed="false">${choice}</button>`).join('')}</div><p class="lesson-feedback" aria-live="polite"></p></div>
-    </section>`).join('')}
-    ${summary?`<details class="lesson-summary"><summary>Xem tóm tắt đầy đủ</summary>${summary}</details>`:''}`;
+  const navigation=pages.length>1?`<nav class="lesson-nav" aria-label="Nội dung bài học">${pages.map((p,i)=>`<button type="button" data-lesson-page="${i}" ${i===0?'aria-current="step"':''}>${esc(p.label)}</button>`).join('')}</nav>`:'';
+  root.innerHTML=navigation+pages.map((p,i)=>`<section class="lesson-page" aria-label="${esc(p.label)}" ${i===0?'':'hidden'}>
+    ${p.guide?`<div class="lesson-guide"><div aria-hidden="true">${owlSVG}</div><div><b>Cherry</b><h2>${esc(p.title)}</h2><div>${p.guide}</div></div></div>`:''}
+    ${p.visual||p.notes?`<div class="lesson-explore${p.visual&&p.notes?' lesson-explore--split':''}">
+      ${p.visual?`<div class="lesson-visual${builtIn?'':' lesson-visual--authored'}">${p.visual}</div>`:''}
+      ${p.notes?`<div class="lesson-notes">${p.notes}</div>`:''}
+    </div>`:''}
+    ${p.checks}
+  </section>`).join('')+ (summary?`<details class="lesson-summary"><summary>Xem tóm tắt đầy đủ</summary>${summary}</details>`:'');
 
   const tabs=[...root.querySelectorAll('[data-lesson-page]')];
   const sections=[...root.querySelectorAll('.lesson-page')];
   tabs.forEach((tab,i)=>tab.onclick=()=>{
     tabs.forEach((item,n)=>{if(n===i)item.setAttribute('aria-current','step');else item.removeAttribute('aria-current')});
     sections.forEach((section,n)=>{section.hidden=n!==i});
+    typeset(sections[i]);
   });
-  sections.forEach((section,i)=>{
-    const page=pages[i];
+  if(builtIn)sections.forEach((section,i)=>{
+    const page=builtIn[i];
     const bindChoices=(selector,handle)=>{
       const buttons=section.querySelectorAll(selector);
       buttons.forEach((button,n)=>button.onclick=()=>{

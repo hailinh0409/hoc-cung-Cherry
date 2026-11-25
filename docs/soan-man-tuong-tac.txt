@@ -9,6 +9,8 @@ Kết quả: Trả đúng một khối mã LaTeX hoàn chỉnh, bắt đầu b�
 \chude{Tên bài}. Dùng một khối \begin{lythuyet} … \end{lythuyet}
 ngay sau tên bài và trước \man{1}. Mỗi khối mã tương ứng một màn
 trên bản đồ. Có thể có nhiều ý nhỏ nối tiếp trong cùng khối lý thuyết.
+Mỗi lệnh \loidan mở một mục mới để học sinh chọn. App lấy tiêu đề
+đầu tiên có trong mục làm tên nút chọn, nên viết tiêu đề ngắn, rõ.
 
 Với mỗi ý chính, sắp nội dung theo trình tự sau:
 1. \loidan{Câu nói ngắn của Cherry dẫn học sinh vào tình huống}
