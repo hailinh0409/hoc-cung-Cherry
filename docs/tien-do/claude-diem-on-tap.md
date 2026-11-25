@@ -1,6 +1,6 @@
 # Tiến độ: Gửi điểm ôn tập về tài khoản giáo viên
 
-- Nhánh: `claude/diem-on-tap` · PR: (xem PR từ nhánh này)
+- Nhánh: `claude/diem-on-tap` · PR: #32
 - Người đang làm: Claude · Cập nhật lần cuối: 25/11/2026 16:05
 - Trạng thái: xong, chờ thầy duyệt
 
