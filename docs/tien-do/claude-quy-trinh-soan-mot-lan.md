@@ -2,7 +2,7 @@
 
 - Nhánh: `claude/quy-trinh-soan-mot-lan` · PR: xem PR nháp cùng tên
 - Người đang làm: Claude · Cập nhật lần cuối: 25/11/2026 11:30
-- Trạng thái: đang làm
+- Trạng thái: xong, chờ thầy duyệt
 
 ## Mục tiêu
 
@@ -21,8 +21,8 @@ Thầy yêu cầu (25/11): "Bài 1 và bài 2 Toán 6 đã có lý thuyết tư�
 
 ## Đã xong (đã commit)
 
-- [ ] Cập nhật `docs/soan-bai.md`, `docs/soan-man-tuong-tac.txt`
-- [ ] Bản chỉ dẫn Gem mới `docs/gem-soan-bai-cherry.md`
+- [x] Cập nhật `docs/soan-bai.md`, `docs/soan-man-tuong-tac.txt` (lý thuyết tương tác là mặc định, dán một lần)
+- [x] Bản chỉ dẫn Gem mới `docs/gem-soan-bai-cherry.md` (từ bản thầy gửi: thêm mục Quy trình một lần, khuôn một mục học, thứ tự chọn minh họa)
 
 ## Còn lại
 

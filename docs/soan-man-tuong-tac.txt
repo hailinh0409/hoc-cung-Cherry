@@ -1,6 +1,8 @@
 MẪU LỆNH CHO GEMINI HOẶC CLAUDE — HỌC CÙNG CHERRY
 
-Việc cần làm: Soạn hoặc bổ sung lý thuyết cho một màn học Toán.
+Việc cần làm: Soạn hoặc bổ sung lý thuyết tương tác cho một màn học Toán.
+Bài mới: trả một khối mã duy nhất gồm lý thuyết tương tác và bài tập (\man{1}…\man{4}),
+thầy dán một lần. Mỗi bài 2–4 mục học, mỗi mục một ý chính.
 Khối, mã bài, tên bài: [điền ở đây]
 Kiến thức học sinh cần hiểu: [điền ở đây]
 LaTeX của màn hiện có, nếu có: [dán đầy đủ ở đây]
