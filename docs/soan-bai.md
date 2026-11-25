@@ -39,6 +39,10 @@ Thi đấu rút câu Mức 1–4 của mọi bài **đã duyệt** của khối,
 
 ## Định dạng và kiểm tra
 
+**Màn có lý thuyết tương tác:** dùng [mẫu lệnh chung cho Gemini/Claude](soan-man-tuong-tac.txt). Các lệnh tùy chọn `\loidan`, `\minhhoa` và `\thungay` đặt bên trong khối `lythuyet`. Giữ nguyên phần `\man` khi bổ sung tương tác cho bài đã có.
+
+**Bài mẫu lớp 6:** mở bài **Cách ghi số tự nhiên** bằng tài khoản giáo viên, chọn **Học lý thuyết → Sửa lý thuyết** rồi dán [khối LaTeX của bài mẫu](vi-du/k6-b2-ly-thuyet.tex). Thử chạm chữ số 4, ghép XXIV và chọn cả hai đáp án trong phần xem trước. Sau khi lưu, kiểm tra lại với vai trò học sinh. Lưu qua cửa sổ này để giữ nguyên phần câu hỏi của bài.
+
 2. **Soạn LaTeX đúng định dạng app** — một khối mã cho một chủ đề:
 ```latex
 \chude{Tên chủ đề}

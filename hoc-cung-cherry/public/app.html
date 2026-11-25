@@ -812,6 +812,65 @@ textarea.code.light{background:#fff;color:#12313a;font:14px/1.5 "Be Vietnam Pro"
   #play:has(#dock .pad) > #dock { grid-area: 4 / 2; min-height: 0; overflow-y: auto; }
   #play:has(#dock .pad) .pad { padding-top: 4px; }
 }
+.lesson-index{display:grid;gap:8px;margin:12px 0;max-height:48vh;overflow:auto}
+.lesson-index .btn{text-align:left;line-height:1.3}
+.lesson-nav,.lesson-choices{display:flex;flex-wrap:wrap;gap:8px}
+.lesson-nav{margin:12px 0}
+.lesson-nav button,.lesson-choices button{min-height:44px;border-radius:12px;padding:8px 12px;font:inherit;line-height:1.2;cursor:pointer}
+.lesson-nav button{background:#1a5868;color:#fff;font-weight:800;flex:1}
+.lesson-nav button[aria-current]{background:#ffd23f;color:#203640}
+.lesson-guide{display:flex;align-items:center;gap:12px;margin:12px 0}
+.lesson-guide>div:first-child{flex:none;width:60px}
+.lesson-guide b{color:#ffd23f;font-size:13px}
+.lesson-guide h2{margin:0;font:800 24px/1.18 "Baloo 2",sans-serif}
+.lesson-guide p{margin:3px 0 0}
+.lesson-explore{display:grid;overflow:hidden;border-radius:18px;background:#fcf7ed;color:#133641}
+.lesson-notes,.lesson-visual{padding:13px 16px}
+.lesson-visual{display:grid;justify-items:center;align-content:center;gap:8px;text-align:center;background:#dceee4}
+.lesson-visual p,.lesson-notes p,.lesson-check p{margin:0}
+.lesson-caption{font-weight:800}
+.lesson-notes h3,.lesson-check h3{font:800 19px/1.2 "Baloo 2",sans-serif;margin:0 0 3px}
+.lesson-notes p+h3{margin-top:10px}
+.lesson-choices button{background:#fffdf6;color:#173c45;border:1px solid #98b9a8;font-weight:800}
+.lesson-choices button[aria-pressed="true"]{background:#21634e;color:#fff;border-color:#21634e}
+.lesson-choices button span{display:block;font-size:22px}
+.lesson-basket{background:repeating-linear-gradient(110deg,#f7d39a 0 12px,#ebbe78 12px 15px);color:#623b23;border:2px solid #a66a3f;border-radius:8px 8px 22px 22px;padding:0 18px;font-size:13px}
+.lesson-basket span{display:block;min-height:34px;font-size:22px}
+.lesson-numbers{display:flex;align-items:center;gap:7px;font-weight:800;white-space:nowrap}
+.lesson-numbers span{border:2px solid #3f7868;background:#bae0cc;border-radius:99px;padding:7px 8px}
+.lesson-check{background:#ffedc0;color:#133641;border-radius:16px;margin-top:12px;padding:12px 14px}
+.lesson-check .lesson-choices{margin-top:8px}
+.lesson-check .lesson-feedback:not(:empty){margin-top:7px;font-weight:800;color:#20634b}
+.lesson-check .lesson-feedback[data-correct="false"]{color:#804711}
+.lesson-summary{margin-top:14px}
+.lesson-summary summary{cursor:pointer;padding:8px 2px;font-weight:800}
+.lesson-page[hidden],#playTheory[hidden]{display:none}
+#playTheory{min-width:40px;min-height:40px}
+#theoryReview{width:min(720px,calc(100% - 20px));max-height:calc(100% - 24px);margin:auto;padding:0 14px 16px;border:1px solid #45818b;border-radius:19px;background:#103c48;color:#fff;overscroll-behavior:contain;box-shadow:0 12px 28px #04252e66}
+#theoryReview::backdrop{background:#031d29bd}
+.review-head{position:sticky;z-index:1;top:0;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;background:#103c48;padding:10px 0;border-bottom:1px solid #4b7a84}
+.review-head h2{font:800 21px/1.2 "Baloo 2",sans-serif;margin:0}
+.review-head .btn{min-height:44px;width:auto;margin:0}
+.authored-guide{margin-top:14px;padding:9px 12px;background:#1a5868;color:#fff;border-radius:16px}
+.authored-check,.theory-lab{margin-top:12px;text-align:left}
+.theory-lab{padding:14px 16px;background:#dceee4;color:#153c41;border-radius:16px}
+.theory-lab h3{font:800 21px/1.2 "Baloo 2",sans-serif;margin:0 0 4px}
+.theory-lab p{margin:0 0 10px;color:inherit}
+.place-cards button,.roman-options button{display:grid;place-items:center;align-content:center;gap:3px;min-width:48px}
+.place-cards b,.roman-options b{font:800 23px/1 "Baloo 2",sans-serif}
+.place-cards small,.roman-options small{font-size:12px}
+.lab-feedback:not(:empty){margin-top:10px;font-weight:800}
+.lab-feedback dl{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,120px),1fr));gap:6px;margin:0}
+.lab-feedback dl div{padding:6px 8px;border-radius:9px;background:#fffdf6}
+.lab-feedback dt{font-size:13px;font-weight:600}
+.lab-feedback dd{margin:0;font-size:17px;font-weight:800;overflow-wrap:anywhere}
+.roman-built{min-height:43px;padding:5px 10px;margin-bottom:9px;border-radius:9px;background:#fffdf6;font:800 22px/1.5 "Baloo 2",sans-serif}
+.roman-options button:disabled{opacity:.6;cursor:default}
+[data-roman-reset]{min-height:44px;margin-top:5px;background:transparent;color:#175447;text-decoration:underline;font:inherit;font-weight:800;cursor:pointer}
+.theory-author-help{text-align:left;margin:8px 0;overflow-wrap:anywhere}
+.theory-author-help summary{cursor:pointer}
+@media(min-width:600px){.lesson-explore{grid-template-columns:1fr 1fr}}
+@media(max-height:760px) and (max-width:599px){.jbtns .jbtn{min-height:0}.jbtns .jbtn+.jbtn{margin-top:5px}}
 
 .gvlink{margin-top:4px;font-size:13px;color:#7a9399;text-decoration:underline;align-self:center}
 .figmiss{display:inline-block;padding:6px 10px;border-radius:8px;background:#fff3c4;color:#7a5a00;font-size:13px}
@@ -921,6 +980,7 @@ startup:{typeset:false,ready(){MathJax.startup.defaultReady();MathJax.startup.pr
     <div class="bar">
       <button class="ico" id="quit" aria-label="Thoát"><svg width="20" height="20" viewBox="0 0 20 20"><path d="M4 4l12 12M16 4L4 16" stroke="#fff" stroke-width="3" stroke-linecap="round"/></svg></button>
       <div class="prog"><b id="progB"></b></div>
+      <button type="button" class="ico" id="playTheory" aria-label="Xem lý thuyết" hidden></button>
       <div class="hearts" id="hearts"></div><span class="pill sm" id="modeLbl" style="display:none"></span><button class="ico sm" id="snd" aria-label="Bật/tắt âm thanh"></button>
     </div>
     <div class="timer" id="timer" style="display:none"><b id="timerB"></b></div>
@@ -931,6 +991,10 @@ startup:{typeset:false,ready(){MathJax.startup.defaultReady();MathJax.startup.pr
   </section>
 
   <div class="ovl" id="ovl"><div class="panel" id="panel"></div></div>
+  <dialog id="theoryReview" aria-labelledby="theoryReviewTitle">
+    <div class="review-head"><h2 id="theoryReviewTitle"></h2><button type="button" class="btn sm" id="reviewClose">Tiếp tục làm bài</button></div>
+    <div id="reviewContent"></div>
+  </dialog>
   <div class="toast" id="toast"></div>
   <canvas id="fx"></canvas>
 </div>
@@ -1149,6 +1213,7 @@ function instantiate(q, rng = Math.random) {
 //     \an{2,3} ẩn mệnh đề, \anly{3} ẩn căn cứ, \nhieu{mệnh đề sai}{vì sao}, \nhieuly{căn cứ sai}{vì sao} \end{exsd}
 
 
+
 const QTYPES = 'ex|extf|exfb|exmatch|extl|exsx|exsd';
 const ENV = new RegExp('\\\\begin\\{(' + QTYPES + ')\\}([\\s\\S]*?)\\\\end\\{\\1\\}', 'g');
 
@@ -1278,6 +1343,9 @@ function parseBank(raw) {
   const lt = raw.match(/\\begin\{lythuyet\}([\s\S]*?)\\end\{lythuyet\}/);
   if (lt) { theory = parseTheory(lt[1], errors); raw = raw.slice(0, lt.index) + raw.slice(lt.index + lt[0].length); }
   else if (/\\begin\{lythuyet\}/.test(raw)) errors.push({ msg: 'Khối lý thuyết chưa đóng \\end{lythuyet}' });
+  if (/\\(?:loidan|minhhoa|thungay)\b/.test(raw)) {
+    errors.push({ msg: '\\loidan, \\minhhoa và \\thungay phải đặt trong khối lythuyet' });
+  }
 
   const marks = []; const re = /\\man\s*\{/g; let m;
   while ((m = re.exec(raw))) marks.push(m.index);
@@ -1393,9 +1461,52 @@ const isTLBank = levels => levels.some(l => l.qs.some(q => q.type === 'extl'));
 // Các mục của khối lý thuyết. Hai đối số {tiêu đề}{nội dung}, riêng \luuy{nội dung}; \vidu{đề}{lời giải}.
 const THEORY_KINDS = { dinhnghia: 'Định nghĩa', quytac: 'Quy tắc', congthuc: 'Công thức', dinhly: 'Định lý', tinhchat: 'Tính chất', luuy: 'Lưu ý', vidu: 'Ví dụ' };
 function parseTheory(body, errors) {
-  const items = [], re = /\\(dinhnghia|quytac|congthuc|dinhly|tinhchat|luuy|vidu)\b/g; let m;
+  const items = [], re = /\\(dinhnghia|quytac|congthuc|dinhly|tinhchat|luuy|vidu|loidan|minhhoa|thungay)\b/g; let m;
   while ((m = re.exec(body))) {
-    const k = m[1], g1 = group(body, m.index + m[0].length);
+    const k = m[1];
+    if (k === 'loidan' || k === 'minhhoa' || k === 'thungay') {
+      const args = [];
+      let at = re.lastIndex, arg;
+      while ((arg = group(body, at))) {
+        args.push(arg[0].trim());
+        at = arg[1];
+      }
+      re.lastIndex = at;
+      const count = k === 'loidan' ? 1 : k === 'minhhoa' ? 2 : 5;
+      if (args.length !== count || args.some(s => !s)) {
+        errors.push({ msg: 'Lý thuyết: \\' + k + ' cần đúng ' + count + ' cặp {…} có nội dung' });
+        continue;
+      }
+      if (k === 'minhhoa') {
+        const [template, value] = args;
+        if (template === 'gia-tri-theo-hang') {
+          if (!/^(?:0|[1-9]\d{0,11})$/.test(value)) {
+            errors.push({ msg: 'Mẫu gia-tri-theo-hang cần số tự nhiên tối đa 12 chữ số, viết liền và không thêm số 0 ở đầu' });
+            continue;
+          }
+        } else if (template === 'ghep-so-la-ma') {
+          if (!/^(?:[1-9]|[12]\d|3\d)$/.test(value)) {
+            errors.push({ msg: 'Mẫu ghep-so-la-ma cần số nguyên từ 1 đến 39' });
+            continue;
+          }
+        } else {
+          errors.push({ msg: 'Lý thuyết: chưa có mẫu minh họa ' + template });
+          continue;
+        }
+        items.push({ k, template, value });
+      } else if (k === 'thungay') {
+        const [body, correct, wrong, explainCorrect, explainWrong] = args;
+        if (correct === wrong) {
+          errors.push({ msg: 'Lý thuyết: hai đáp án của \\thungay phải khác nhau' });
+          continue;
+        }
+        items.push({ k, body, correct, wrong, explainCorrect, explainWrong });
+      } else {
+        items.push({ k, body: args[0] });
+      }
+      continue;
+    }
+    const g1 = group(body, re.lastIndex);
     if (!g1) { errors.push({ msg: `Lý thuyết: \\${k} thiếu {…}` }); continue; }
     if (k === 'luuy') { items.push({ k, title: '', body: g1[0].trim() }); re.lastIndex = g1[1]; continue; }
     const g2 = group(body, g1[1]);
@@ -1455,6 +1566,7 @@ function liveStreak(p, today = vnDay()) {
 
 // Thi đấu: mùa 30 ngày, điểm thi đấu sau mỗi trận, trần điểm mỗi ngày.
 // Dùng chung cho giao diện (scripts/build-app.mjs ghép vào app) và máy chủ (lib/validate.js).
+
 
 const SEASON0 = '2026-11-23';  // ngày bắt đầu Mùa 1
 const SEASON_DAYS = 30;        // mỗi mùa 30 ngày; sang mùa mới điểm thi đấu về 0
@@ -1948,6 +2060,7 @@ function jdock(){const el=$('#jdock');if(!el)return;const g=G0(curK),c=counts(),
   const items=[
     mine&&{k:'quest',n:'Nhiệm vụ',ico:chestSVG(q.chest,34),c:'#ffb703',d:'#d98e00',badge:qleft,
       big:()=>questCard()+classCard()},
+    theoryTopics(curK).length&&{k:'theory',n:'Lý thuyết',ico:bookSVG,c:'#2c91a5',d:'#1a697b',act:theoryIndex},
     {k:'ontap',n:'Ôn tập',ico:JICO.ontap,c:'#8d7bff',d:'#6a57e0',badge:pd,
       big:()=>`<button class="ptile wide" data-go="ontap" style="--c:#8d7bff;--d:#6a57e0">${JICO.ontap.replace(/28/g,'56')}<div><b>Ôn tập</b><span>${de.length} đề · đã làm ${de.filter(deDone).length}${pd?` · ${pd} đề thầy giao`:''}</span></div><i class="go">Vào ›</i></button>`},
     {k:'redo',n:'Câu sai',ico:JICO.redo,c:'#ff7a59',d:'#e85a3a',badge:c.nb,
@@ -2010,8 +2123,11 @@ function journey(){show('journey');jdock();if(curK===ACC.khoi&&!ACC.teacher&&!P.
     ${html}<div class="girl" style="left:calc(${cur.x}% + ${cur.x<W/2?66:-66}px);top:${cur.y+30}px">${owlSVG}</div></div>`;
   el.scrollTop=Math.max(0,cur.y-el.clientHeight*.55);
   $$('#tmap .tnode[data-t]').forEach(n=>n.onclick=()=>{const j=+n.dataset.t,t=ts[j];sfx.tap();
-    if(GV()){overlay(`<h2 style="font-size:24px">${esc(t.title)}</h2><button class="btn" id="g1">Chơi thử</button><button class="btn alt" id="g2">Cài đặt & sửa câu hỏi</button><button class="btn alt" id="g3">Đóng</button>`);
-      $('#g1').onclick=()=>{closeOvl();curT=t;startLevel()};$('#g2').onclick=()=>{closeOvl();tOpts(t)};$('#g3').onclick=closeOvl;return}
+    if(GV()){overlay(`<h2 style="font-size:24px">${esc(t.title)}</h2><button class="btn" id="g1">Chơi thử</button>${hasTheory(t)?'<button class="btn alt" id="gTheory">Học lý thuyết</button>':''}<button class="btn alt" id="g2">Cài đặt & sửa câu hỏi</button><button class="btn alt" id="g3">Đóng</button>`);
+      $('#g1').onclick=()=>{closeOvl();curT=t;startLevel()};$('#g2').onclick=()=>{closeOvl();tOpts(t)};$('#g3').onclick=closeOvl;
+      if($('#gTheory'))$('#gTheory').onclick=()=>{closeOvl();theory(t)};
+      return}
+    if(hasTheory(t))return theory(t);
     if(!topicOpen(ts,j)){n.animate([{transform:'translate(-50%,-50%) translateX(-6px)'},{transform:'translate(-50%,-50%) translateX(6px)'},{transform:'translate(-50%,-50%)'}],{duration:300});
       return toast('Qua bài trước để mở bài này nhé.')}
     curT=t;startLevel()});
@@ -2044,28 +2160,214 @@ function pasteNew(L){const k=curK,name=L.lt?lessonName(L):L.title;
 
 /* ---------- tóm tắt lý thuyết của bài ---------- */
 const bookSVG='<svg viewBox="0 0 24 24" width="18" height="18"><path d="M3 5.5C5.5 4 8.5 4 12 6c3.5-2 6.5-2 9-.5V19c-2.5-1.3-5.5-1.3-9 .7-3.5-2-6.5-2-9-.7z" fill="#fff" stroke="#2584b8" stroke-width="1.6" stroke-linejoin="round"/><path d="M12 6v13.7" stroke="#2584b8" stroke-width="1.6"/></svg>';
+const setLesson = [
+  {
+    title: 'Quả nào vào giỏ?',
+    guide: 'Giỏ A chỉ đựng quả màu đỏ. Em thử chọn một quả nhé!',
+    visual: `<div class="lesson-choices" role="group" aria-label="Chọn một quả">
+      <button type="button" data-visual="0" aria-pressed="true"><span aria-hidden="true">🍎</span>Táo đỏ</button>
+      <button type="button" data-visual="1" aria-pressed="false"><span aria-hidden="true">🍌</span>Chuối vàng</button>
+      <button type="button" data-visual="2" aria-pressed="false"><span aria-hidden="true">🍓</span>Dâu đỏ</button>
+    </div><div class="lesson-basket" aria-hidden="true"><span data-illustration>🍎</span><b>Giỏ A</b></div>`,
+    illustrations: ['🍎', '—', '🍓'],
+    captions: ['Táo đỏ thuộc A vì táo này có màu đỏ.', 'Chuối vàng không thuộc A vì giỏ chỉ đựng quả đỏ.', 'Dâu đỏ thuộc A vì dâu này có màu đỏ.'],
+    concept: 'Tập hợp và phần tử',
+    explanation: 'Một tập hợp gồm những đối tượng được xác định rõ. Mỗi đối tượng trong tập hợp là một phần tử.',
+    example: 'Gọi <i>a</i> là quả táo đỏ và <i>b</i> là quả chuối vàng. <b><i>a</i> ∈ A</b> đọc là “a thuộc A”. <b><i>b</i> ∉ A</b> đọc là “b không thuộc A”.',
+    prompt: 'Gọi <i>d</i> là quả dâu đỏ. Em viết thế nào?',
+    choices: ['<i>d</i> ∈ A', '<i>d</i> ∉ A'],
+    correct: 0,
+    feedback: ['Đúng rồi! Dâu có màu đỏ nên d thuộc A.', 'Em thử chạm vào quả dâu ở trên. Quả màu đỏ được vào giỏ A.']
+  },
+  {
+    title: 'Cùng một nhóm, hai cách viết',
+    guide: 'Chọn các số tự nhiên nhỏ hơn 4. Em có thể kể tên từng số hoặc nêu điều kiện chung.',
+    visual: `<div class="lesson-numbers" role="img" aria-label="Các số 0, 1, 2, 3 thuộc B. Các số 4 và 5 ở ngoài tập hợp."><span>0　1　2　3</span> 4　5</div>
+      <div class="lesson-choices" role="group" aria-label="Cách viết tập hợp">
+        <button type="button" data-visual="0" aria-pressed="true">Liệt kê</button>
+        <button type="button" data-visual="1" aria-pressed="false">Nêu điều kiện</button>
+      </div>`,
+    captions: ['B = {0; 1; 2; 3}', 'B = {x ∈ ℕ | x < 4}'],
+    concept: 'Hai cách mô tả tập hợp',
+    explanation: '<b>Liệt kê</b> là viết ra từng phần tử. <b>Nêu điều kiện</b> là chỉ ra tính chất chung của các phần tử.',
+    example: 'B gồm các số tự nhiên nhỏ hơn 4. Trong cách viết <b>B = {<i>x</i> ∈ ℕ | <i>x</i> &lt; 4}</b>, ℕ là tập hợp số tự nhiên.',
+    prompt: 'Nếu đổi thành “số tự nhiên nhỏ hơn hoặc bằng 4”, tập hợp có thêm số nào?',
+    choices: ['Số 4', 'Số 5'],
+    correct: 0,
+    feedback: ['Đúng rồi! Điều kiện mới lấy cả 4, vì 4 bằng 4.', 'Số 5 vẫn ở ngoài. Dấu ≤ cho phép lấy thêm chính số 4.']
+  }
+];
+
+function lessonPages(t){
+  // Bài Tập hợp dùng bản minh họa sẵn cho đến khi giáo viên nhập nội dung tương tác riêng.
+  if(t?.khoi==='6'&&t.chuong==='k6-b1'&&!t.theory?.some(it=>['loidan','minhhoa','thungay'].includes(it.k)))return setLesson;
+  return null;
+}
+function hasTheory(t){return Boolean(lessonPages(t)||t?.theory?.length)}
+function theoryTopics(k){return mapItems(k).map(item=>item.t).filter(hasTheory)}
+
+function theoryIndex(){
+  const topics=theoryTopics(curK);
+  overlay(`<h2>Lý thuyết lớp ${esc(curK)}</h2><div class="lesson-index">${topics.map((t,i)=>`<button type="button" class="btn alt" data-theory-topic="${i}">${esc(t.title)}</button>`).join('')}</div><button type="button" class="btn" id="theoryIndexClose">Về bản đồ</button>`);
+  $('#theoryIndexClose').onclick=closeOvl;
+  $$('#panel [data-theory-topic]').forEach(button=>button.onclick=()=>{closeOvl();theory(topics[Number(button.dataset.theoryTopic)])});
+}
+
+const placeNames=['đơn vị','chục','trăm','nghìn','chục nghìn','trăm nghìn','triệu','chục triệu','trăm triệu','tỷ','chục tỷ','trăm tỷ'];
+const romanGroups=[['X',10],['IX',9],['V',5],['IV',4],['I',1]];
+const groupedNumber=n=>String(n).replace(/\B(?=(\d{3})+(?!\d))/g,'\u202f');
+
+function authoredTheoryHTML(item){
+  if(item.k==='loidan')return `<div class="lesson-guide authored-guide"><div aria-hidden="true">${owlSVG}</div><div><b>Cherry</b><div>${tex(item.body)}</div></div></div>`;
+  if(item.k==='thungay'){
+    const answer=[item.correct,item.wrong],feedback=[item.explainCorrect,item.explainWrong];
+    return `<div class="lesson-check authored-check"><h3>Thử ngay</h3><p>${tex(item.body)}</p><div class="lesson-choices" role="group" aria-label="Chọn đáp án">${shuffle([0,1]).map(i=>`<button type="button" data-response="${i}" aria-pressed="false">${tex(answer[i])}</button>`).join('')}</div><div class="lesson-feedback" aria-live="polite"></div>${feedback.map((text,i)=>`<template data-explanation="${i}">${tex(text)}</template>`).join('')}</div>`;
+  }
+  if(item.template==='gia-tri-theo-hang'){
+    const digits=[...item.value];
+    return `<section class="theory-lab" data-place="${item.value}"><h3>Giá trị theo hàng</h3><p>Chạm vào một chữ số trong <strong>${groupedNumber(item.value)}</strong>.</p><div class="place-cards lesson-choices" role="group" aria-label="Các chữ số">${digits.map((digit,i)=>`<button type="button" data-place-index="${i}" aria-pressed="false"><b>${digit}</b><small>${placeNames[digits.length-i-1]}</small></button>`).join('')}</div><div class="lab-feedback" aria-live="polite"></div></section>`;
+  }
+  if(item.template==='ghep-so-la-ma')return `<section class="theory-lab" data-roman="${item.value}"><h3>Ghép số La Mã</h3><p>Ghép các mảnh từ trái sang phải để viết số <strong>${item.value}</strong>.</p><div class="roman-built" aria-live="polite">Chưa có mảnh nào</div><div class="lesson-choices roman-options" role="group" aria-label="Các mảnh số La Mã">${[...romanGroups].reverse().map(([symbol,value])=>`<button type="button" data-roman-piece="${symbol}"><b>${symbol}</b><small>${value}</small></button>`).join('')}</div><div class="lab-feedback" aria-live="polite"></div><button type="button" data-roman-reset>Ghép lại</button></section>`;
+  return '';
+}
+
+function bindAuthoredTheory(root){
+  for(const card of root.querySelectorAll('.authored-check')){
+    const buttons=card.querySelectorAll('[data-response]'),feedback=card.querySelector('.lesson-feedback');
+    buttons.forEach(button=>button.onclick=()=>{
+      buttons.forEach(option=>option.setAttribute('aria-pressed',String(option===button)));
+      const i=button.dataset.response;
+      feedback.dataset.correct=String(i==='0');
+      feedback.replaceChildren(card.querySelector(`[data-explanation="${i}"]`).content.cloneNode(true));
+      typeset(feedback);
+    });
+  }
+  for(const card of root.querySelectorAll('[data-place]')){
+    const number=card.dataset.place,buttons=card.querySelectorAll('[data-place-index]'),feedback=card.querySelector('.lab-feedback');
+    buttons.forEach(button=>button.onclick=()=>{
+      buttons.forEach(option=>option.setAttribute('aria-pressed',String(option===button)));
+      const index=Number(button.dataset.placeIndex),digit=Number(number[index]),position=number.length-index-1;
+      const unit=10**position,name=placeNames[position],value=groupedNumber(digit*unit),quantity=groupedNumber(number.slice(0,index+1));
+      feedback.innerHTML=`<dl><div><dt>Chữ số hàng ${name}</dt><dd>${digit}</dd></div><div><dt>Giá trị của chữ số</dt><dd>${digit} × ${groupedNumber(unit)} = ${value}</dd></div><div><dt>Số ${name} trong ${groupedNumber(number)}</dt><dd>${quantity}</dd></div></dl>`;
+    });
+  }
+  for(const card of root.querySelectorAll('[data-roman]')){
+    const total=Number(card.dataset.roman),steps=[];
+    let remaining=total;
+    for(const [symbol,value] of romanGroups)while(remaining>=value){steps.push({symbol,value});remaining-=value}
+    const output=card.querySelector('.roman-built'),feedback=card.querySelector('.lab-feedback'),buttons=card.querySelectorAll('[data-roman-piece]');
+    let count=0;
+    buttons.forEach(button=>button.onclick=()=>{
+      if(count===steps.length)return;
+      const step=steps[count];
+      if(button.dataset.romanPiece!==step.symbol){
+        feedback.textContent=`Thử lại nhé. Theo cách viết chuẩn, mảnh tiếp theo biểu diễn ${step.value}.`;
+        return;
+      }
+      const chosen=steps.slice(0,++count),sum=chosen.reduce((n,part)=>n+part.value,0);
+      output.textContent=chosen.map(part=>part.symbol).join('');
+      feedback.textContent=count===steps.length?`${chosen.map(part=>part.value).join(' + ')} = ${total}. Vậy ${total} viết là ${output.textContent}.`:`Đã ghép được ${sum}. Còn ${total-sum}.`;
+      if(count===steps.length)buttons.forEach(piece=>{piece.disabled=true});
+    });
+    card.querySelector('[data-roman-reset]').onclick=()=>{
+      count=0;output.textContent='Chưa có mảnh nào';feedback.textContent='';buttons.forEach(piece=>{piece.disabled=false});
+    };
+  }
+}
+
+function renderLessonMaterial(root,t){
+  const pages=lessonPages(t),summary=theoryHTML(t.theory);
+  if(!pages){
+    root.innerHTML=summary||'<div class="tbox"><p>Bài này chưa có tóm tắt lý thuyết.</p></div>';
+    bindAuthoredTheory(root);
+    typeset(root);
+    return;
+  }
+  root.innerHTML=`<nav class="lesson-nav" aria-label="Nội dung bài học">${pages.map((p,i)=>`<button type="button" data-lesson-page="${i}" ${i===0?'aria-current="step"':''}>${esc(p.concept)}</button>`).join('')}</nav>
+    ${pages.map((p,i)=>`<section class="lesson-page" ${i===0?'':'hidden'}>
+      <div class="lesson-guide"><div aria-hidden="true">${owlSVG}</div><div><b>Cherry</b><h2>${esc(p.title)}</h2><p>${esc(p.guide)}</p></div></div>
+      <div class="lesson-explore">
+        <div class="lesson-visual">${p.visual}<p class="lesson-caption" aria-live="polite">${esc(p.captions[0])}</p></div>
+        <div class="lesson-notes"><h3>${esc(p.concept)}</h3><p>${p.explanation}</p><h3>Ví dụ</h3><p>${p.example}</p></div>
+      </div>
+      <div class="lesson-check"><h3>Thử ngay</h3><p>${p.prompt}</p><div class="lesson-choices" role="group" aria-label="Chọn đáp án">${p.choices.map((choice,n)=>`<button type="button" data-lesson-answer="${n}" aria-pressed="false">${choice}</button>`).join('')}</div><p class="lesson-feedback" aria-live="polite"></p></div>
+    </section>`).join('')}
+    ${summary?`<details class="lesson-summary"><summary>Xem tóm tắt đầy đủ</summary>${summary}</details>`:''}`;
+
+  const tabs=[...root.querySelectorAll('[data-lesson-page]')];
+  const sections=[...root.querySelectorAll('.lesson-page')];
+  tabs.forEach((tab,i)=>tab.onclick=()=>{
+    tabs.forEach((item,n)=>{if(n===i)item.setAttribute('aria-current','step');else item.removeAttribute('aria-current')});
+    sections.forEach((section,n)=>{section.hidden=n!==i});
+  });
+  sections.forEach((section,i)=>{
+    const page=pages[i];
+    const bindChoices=(selector,handle)=>{
+      const buttons=section.querySelectorAll(selector);
+      buttons.forEach((button,n)=>button.onclick=()=>{
+        buttons.forEach(item=>item.setAttribute('aria-pressed',String(button===item)));
+        handle(n);
+      });
+    };
+    bindChoices('[data-visual]',n=>{
+      section.querySelector('.lesson-caption').textContent=page.captions[n];
+      if(page.illustrations)section.querySelector('[data-illustration]').textContent=page.illustrations[n];
+    });
+    bindChoices('[data-lesson-answer]',n=>{
+      const correct=n===page.correct,feedback=section.querySelector('.lesson-feedback');
+      feedback.dataset.correct=String(correct);
+      feedback.textContent=page.feedback[n];
+    });
+  });
+  bindAuthoredTheory(root);
+  typeset(root);
+}
+
+function openTheoryReview(t,returnLabel='Tiếp tục làm bài'){
+  if(!hasTheory(t))return;
+  const dialog=$('#theoryReview'),content=$('#reviewContent'),close=$('#reviewClose');
+  const lesson=lessonOf(t);
+  $('#theoryReviewTitle').textContent=lesson?lessonName(lesson):t.title;
+  close.textContent=returnLabel;
+  close.onclick=()=>dialog.close();
+  dialog.showModal();
+  renderLessonMaterial(content,t);
+  dialog.scrollTop=0;
+}
+
+$('#playTheory').innerHTML=bookSVG;
+
 const THK={dinhnghia:['Định nghĩa','#3aa8e0'],quytac:['Quy tắc','#2fb787'],congthuc:['Công thức','#ffb703'],dinhly:['Định lý','#8d7bff'],tinhchat:['Tính chất','#8d7bff'],luuy:['Lưu ý','#ef3b55'],vidu:['Ví dụ','#7a9399']};
 function theoryHTML(items){let nv=0;return (items||[]).map(it=>{const [n,c]=THK[it.k]||['',  '#7a9399'];
+  if(it.k==='loidan'||it.k==='minhhoa'||it.k==='thungay')return authoredTheoryHTML(it);
   if(it.k==='vidu'){nv++;return `<div class="thc vd" style="--c:${c}"><span class="thk">Ví dụ ${nv}</span><div class="thb2">${tex(it.body)}</div><details><summary>Xem lời giải</summary><div class="thb2">${tex(it.sol)}</div></details></div>`}
   return `<div class="thc" style="--c:${c}"><span class="thk">${n}</span>${it.title?`<h3>${tex(it.title)}</h3>`:''}<div class="thb2">${tex(it.body)}</div></div>`}).join('')}
 let thT=null;
-function theory(t){thT=t;curT=t;show('theory');const L=lessonOf(t),q=hasQ(t);
-  $('#thBody').innerHTML=`<div class="thhead"><span>${bookSVG} Tóm tắt lý thuyết</span><h1>${esc(L?lessonName(L):t.title)}</h1>${L&&L.ch?`<small>Chương ${L.ch.n} · ${esc(L.ch.title)}</small>`:''}</div>
-   ${theoryHTML(t.theory)||'<div class="tbox"><p>Bài này chưa có tóm tắt lý thuyết.</p></div>'}
-   <div class="thend">${q?'<button class="btn" id="thGo">Làm bài ngay</button>':`<p class="tnote2">${GV()?'Bài này chưa có câu hỏi.':'Bài này thầy đang chuẩn bị câu hỏi.'}</p>`}${GV()?'<button class="btn alt" id="thEd">Sửa lý thuyết</button>':''}<button class="btn alt" id="thBack">Về bản đồ</button></div>`;
-  typeset($('#thBody'));
+function theory(t){thT=t;curT=t;show('theory');const L=lessonOf(t),q=hasQ(t),route=routeTopics(t.khoi),index=route.findIndex(item=>item.id===t.id);
+  const canPractice=q&&(index<0||topicOpen(route,index));
+  const body=$('#thBody');
+  body.innerHTML=`<div class="thhead"><span>${bookSVG} Học lý thuyết</span><h1>${esc(L?lessonName(L):t.title)}</h1>${L&&L.ch?`<small>Chương ${L.ch.n} · ${esc(L.ch.title)}</small>`:''}</div>
+   <div class="lesson-material"></div>
+   <div class="thend">${canPractice?'<button class="btn" id="thGo">Luyện tập cả bài</button>':`<p class="tnote2">${q?'Qua bài trước để mở lượt luyện tập.':'Bài này chưa có câu hỏi luyện tập.'}</p>`}${GV()?'<button class="btn alt" id="thEd">Sửa lý thuyết</button>':''}<button class="btn alt" id="thBack">Về bản đồ</button></div>`;
+  renderLessonMaterial(body.querySelector('.lesson-material'),t);body.scrollTop=0;
   $('#thGo')&&($('#thGo').onclick=()=>{sfx.tap();curT=t;startLevel()});$('#thEd')&&($('#thEd').onclick=()=>{sfx.tap();editTheory(t)});$('#thBack').onclick=()=>{sfx.tap();thT=null;journey()}}
 const TH_TPL='\\begin{lythuyet}\n\\dinhnghia{Tên khái niệm}{Nội dung, công thức viết trong $...$}\n\\quytac{Tên quy tắc}{Nội dung}\n\\luuy{Lỗi hay gặp}\n\\vidu{Đề ví dụ}{Lời giải}\n\\end{lythuyet}';
 function editTheory(t){t=TOPICS.find(x=>x.id===t.id)||t;const m=t.raw.match(/\\begin\{lythuyet\}[\s\S]*?\\end\{lythuyet\}/);
   overlay(`<h2 style="font-size:24px">Lý thuyết · ${esc(t.title)}</h2><textarea class="code" id="tx" spellcheck="false">${esc(m?m[0]:TH_TPL)}</textarea>
     <p class="tnote" style="text-align:left">Mục: <b>\\dinhnghia</b>, <b>\\quytac</b>, <b>\\congthuc</b>, <b>\\dinhly</b>, <b>\\tinhchat</b> dạng {tiêu đề}{nội dung}; <b>\\luuy{…}</b>; <b>\\vidu{đề}{lời giải}</b>. Xuống dòng: <b>\\\\</b>.</p>
+    <details class="tnote theory-author-help"><summary>Thêm lời dẫn, hình tương tác và câu Thử ngay</summary><p><code>\\loidan{Lời của Cherry}</code><br><code>\\minhhoa{gia-tri-theo-hang}{2485}</code><br><code>\\minhhoa{ghep-so-la-ma}{24}</code><br><code>\\thungay{Câu hỏi}{Đáp án đúng}{Đáp án sai}{Vì sao đúng}{Vì sao sai}</code></p></details>
     <div class="qpv thpv" id="tpv"></div><button class="btn" id="tS">Lưu lý thuyết</button>${m?'<button class="btn alt" id="tD">Xóa lý thuyết</button>':''}<button class="btn alt" id="tC">Hủy</button>`);
   const pv=()=>{const v=$('#tx').value,P=parseBank('\\chude{x}\n'+v);let h=P.errors.length?`<div class="err">${P.errors.map(e=>esc(errorText(e))).join('<br>')}</div>`:'';
     if(!/\\begin\{lythuyet\}[\s\S]*\\end\{lythuyet\}/.test(v))h=`<div class="err">Cần bọc trong \\begin{lythuyet} … \\end{lythuyet}</div>`;
-    $('#tpv').innerHTML=h+theoryHTML(P.theory);typeset($('#tpv'));return !h};
+    const preview=$('#tpv');preview.innerHTML=h+theoryHTML(P.theory);bindAuthoredTheory(preview);typeset(preview);return !h};
   let tm=null;$('#tx').oninput=()=>{clearTimeout(tm);tm=setTimeout(pv,500)};pv();$('#tC').onclick=closeOvl;
-  const put=blk=>{let text;if(m)text=t.raw.replace(m[0],()=>blk);else{const c=t.raw.match(/\\chude\s*\{[^}]*\}[^\n]*\n?/);const at=c?c.index+c[0].length:0;text=t.raw.slice(0,at)+(blk?'\n'+blk+'\n\n':'')+t.raw.slice(at)}
-    return text.replace(/\n{3,}/g,'\n\n')};
+  const put=blk=>{
+    if(m)return t.raw.slice(0,m.index)+blk+t.raw.slice(m.index+m[0].length);
+    if(!blk)return t.raw;
+    const title=t.raw.match(/\\chude\s*\{/),heading=title&&group(t.raw,title.index+6);
+    const at=heading?.[1]||0;
+    return t.raw.slice(0,at)+'\n\n'+blk+'\n\n'+t.raw.slice(at);
+  };
   $('#tS').onclick=()=>{if(!pv())return;const text=put($('#tx').value.trim());if(parseTopic(text).errors.length>t.errors.length)return $('#tpv').insertAdjacentHTML('afterbegin','<div class="err">Lưu như vậy làm bài phát sinh lỗi.</div>');
     saveText(t,text,'Đã lưu lý thuyết.').then(()=>{const x=TOPICS.find(y=>y.id===t.id)||t;x.theory=parseTopic(x.raw).theory;if($$('.scr.on')[0]?.id==='theory')theory(x)})};
   $('#tD')&&($('#tD').onclick=()=>saveText(t,put(''),'Đã xóa lý thuyết.').then(()=>{const x=TOPICS.find(y=>y.id===t.id)||t;x.theory=null;if($$('.scr.on')[0]?.id==='theory')theory(x)}))}
@@ -2477,6 +2779,7 @@ let G=null,TM=null;
 const cur=()=>G.twin||G.qs[G.k];
 function inst(q,meta){const x=instantiate(q);return {...x,key:q.key,raw:q.params?q:null,...meta}}
 function newG(mode,qs,extra){clearInterval(TM);G={mode,qs,k:0,hearts:mode==='man'?3:99,score:0,combo:0,miss:0,t0:Date.now(),twin:null,twinUsed:{},hu:0,over:false,...extra};
+  $('#playTheory').hidden=true;
   $('#hearts').style.display=mode==='man'?'':'none';$('#modeLbl').style.display=mode==='man'?'none':'';$('#modeLbl').textContent=MODE[mode]||'';$('#timer').style.display=mode==='rank'?'':'none'}
 function buildMan(t){const out=[],used=new Set();
   LESSON_PLAN.forEach((n,m)=>shuffle((t.levels[m]||{qs:[]}).qs).slice(0,n).forEach(q=>{out.push({q,m});used.add(q)}));
@@ -2490,8 +2793,8 @@ function startLevel(i=0){const t=curT,items=buildMan(t),L=lessonOf(t);
   show('play');$('#stage').innerHTML='';$('#dock').innerHTML='';
   const cnt=[0,1,2].map(m=>items.filter(x=>x.m===m).length);
   overlay(`<div class="lvlcard"><p style="margin:0">${L&&L.ch?'Chương '+L.ch.n+' · '+esc(L.ch.title):esc(t.title)}</p><div class="num">${L?(L.lt?L.coin:L.num):'★'}</div><h2 style="font-size:26px">${esc(L?(L.title):t.title)}</h2>
-    <p>${items.length} câu, khó dần: ${cnt[0]} nhận biết · ${cnt[1]} thông hiểu · ${cnt[2]} vận dụng<br>3 tim, hết tim vẫn được hồi để làm tiếp.</p><button class="btn" id="go">Bắt đầu</button>${t.theory?`<button class="btn alt thbtn" id="th">${bookSVG} Tóm tắt lý thuyết</button><small class="thnote">Trong lúc làm bài không mở được lý thuyết, em đọc trước nhé.</small>`:''}</div>`);
-  $('#go').onclick=()=>{sfx.tap();closeOvl();renderQ()};$('#th')&&($('#th').onclick=()=>{sfx.tap();closeOvl();G=null;theory(t)})}
+    <p>${items.length} câu, khó dần: ${cnt[0]} nhận biết · ${cnt[1]} thông hiểu · ${cnt[2]} vận dụng<br>3 tim, hết tim vẫn được hồi để làm tiếp.</p><button class="btn" id="go">Bắt đầu</button>${hasTheory(t)?`<button class="btn alt thbtn" id="th">${bookSVG} Xem lý thuyết</button>`:''}</div>`);
+  $('#go').onclick=()=>{sfx.tap();closeOvl();renderQ()};$('#th')&&($('#th').onclick=()=>{sfx.tap();openTheoryReview(t)})}
 function startReview(){const ix=qIndex();const e=Object.entries(P.rev||{}).filter(([k,r])=>ix[k]&&r.in_notebook).sort((a,b)=>(a[1].nb_hits>0)-(b[1].nb_hits>0)||a[1].due.localeCompare(b[1].due)).slice(0,10);
   if(!e.length)return msgBox('Làm lại câu sai','Chưa có câu sai nào cần làm lại.');
   let items;try{items=shuffle(e.map(([k])=>{const {q,t,li}=ix[k];return inst(q,{tid:t.id,level:li,title:t.title})}))}catch(err){return msgBox('Câu hỏi lỗi',esc(err.message))}
@@ -2506,6 +2809,9 @@ function toggleSave(q,btn){const ex=Object.entries(P.saved||{}).find(([,s])=>s.k
     const {raw,...q2}=q;P.saved[(q.key||'q')+'-'+Date.now().toString(36)]={k:q.key,title:q.title||(G.t&&G.t.title)||'',q:q2,at:new Date().toISOString()};toast(`${bookmark(true)}<span>Đã lưu câu hỏi và lời giải vào <b>Làm lại câu sai › Đã lưu</b></span>`)}
   save();syncMine();if(btn)btn.innerHTML=bookmark(isSaved(q))+(btn.dataset.lbl?' '+(isSaved(q)?'Đã lưu':'Lưu câu này'):'')}
 function renderQ(){hud();const q=cur();const st=$('#stage');$('#dock').innerHTML='';st.scrollTop=0;G.done=false;G.hu=0;G.ansTxt=null;G.frac=0;
+  const reviewTopic=G.mode==='man'?G.t:['so','one'].includes(G.mode)?TOPICS.find(t=>t.id===q.tid):null;
+  const reviewButton=$('#playTheory');reviewButton.hidden=!hasTheory(reviewTopic);
+  reviewButton.onclick=reviewButton.hidden?null:()=>{sfx.tap();openTheoryReview(reviewTopic)};
   const nh=['man','so','one'].includes(G.mode)&&q.hints?q.hints.length:0;
   let h=`<div class="card${G.twin?' twin':''}" id="qc"><div class="ctop"><span class="tag">${G.twin?'Câu tương tự':TYPE[q.type]}</span>${G.mode!=='man'?`<span class="tag tt">${esc(q.title)}</span>`:''}
     ${nh?`<button class="hintbtn" id="hintB">Gợi ý (${nh})${G.mode==='man'?' · −30 điểm':''}</button>`:''}${GV()&&q.tid?`<button class="savebtn" id="editB" aria-label="Sửa câu này">✎</button>`:''}<button class="savebtn" id="saveB" aria-label="Lưu câu hỏi">${bookmark(isSaved(q))}</button></div>
@@ -2784,8 +3090,8 @@ function finish(){clearInterval(TM);const sec=Math.round((Date.now()-G.t0)/1000)
    <div class="bigstars">${[1,2,3].map(x=>star(x<=st)).join('')}</div>
    <div class="stat"><div><b>${G.score}</b>điểm</div><div><b>${nOk}/${G.qs.length}</b>câu đúng</div>${tm}</div>${streakLine(s)}
    ${nt?`<button class="btn" id="r1">Bài tiếp theo ›</button>`:''}
-   ${!pass||st<3?`<button class="btn ${pass?'alt':''}" id="r2">Làm lại bài này</button>`:''}${t.theory&&(!pass||st<3)?`<button class="btn alt thbtn" id="r4">${bookSVG} Xem lại lý thuyết</button>`:''}<button class="btn alt" id="r3">Về bản đồ</button>`);
-  $('#r4')&&($('#r4').onclick=()=>{closeOvl();theory(t)});
+   ${!pass||st<3?`<button class="btn ${pass?'alt':''}" id="r2">Làm lại bài này</button>`:''}${hasTheory(t)?`<button class="btn alt thbtn" id="r4">${bookSVG} Xem lại lý thuyết</button>`:''}<button class="btn alt" id="r3">Về bản đồ</button>`);
+  $('#r4')&&($('#r4').onclick=()=>openTheoryReview(t,'Về kết quả'));
   $('#r1')&&($('#r1').onclick=()=>{closeOvl();curT=nt;startLevel()});$('#r2')&&($('#r2').onclick=()=>{closeOvl();startLevel(i)});$('#r3').onclick=()=>{closeOvl();journey()}}
 $('#quit').onclick=()=>{const m=G&&G.mode;overlay(`<h2>Thoát?</h2><p>${m==='rank'?'Thoát giữa trận: các câu chưa làm tính là sai.':m==='man'||m==='de'?'Kết quả lượt này sẽ không được lưu.':'Các câu đã làm vẫn được ghi nhận.'}</p><button class="btn co" id="q1">Thoát</button><button class="btn alt" id="q2">Làm tiếp</button>`);
   $('#q1').onclick=()=>{closeOvl();$('#sheet').classList.remove('on');clearInterval(TM);

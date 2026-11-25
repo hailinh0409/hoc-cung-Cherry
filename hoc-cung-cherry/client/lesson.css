@@ -1,0 +1,59 @@
+.lesson-index{display:grid;gap:8px;margin:12px 0;max-height:48vh;overflow:auto}
+.lesson-index .btn{text-align:left;line-height:1.3}
+.lesson-nav,.lesson-choices{display:flex;flex-wrap:wrap;gap:8px}
+.lesson-nav{margin:12px 0}
+.lesson-nav button,.lesson-choices button{min-height:44px;border-radius:12px;padding:8px 12px;font:inherit;line-height:1.2;cursor:pointer}
+.lesson-nav button{background:#1a5868;color:#fff;font-weight:800;flex:1}
+.lesson-nav button[aria-current]{background:#ffd23f;color:#203640}
+.lesson-guide{display:flex;align-items:center;gap:12px;margin:12px 0}
+.lesson-guide>div:first-child{flex:none;width:60px}
+.lesson-guide b{color:#ffd23f;font-size:13px}
+.lesson-guide h2{margin:0;font:800 24px/1.18 "Baloo 2",sans-serif}
+.lesson-guide p{margin:3px 0 0}
+.lesson-explore{display:grid;overflow:hidden;border-radius:18px;background:#fcf7ed;color:#133641}
+.lesson-notes,.lesson-visual{padding:13px 16px}
+.lesson-visual{display:grid;justify-items:center;align-content:center;gap:8px;text-align:center;background:#dceee4}
+.lesson-visual p,.lesson-notes p,.lesson-check p{margin:0}
+.lesson-caption{font-weight:800}
+.lesson-notes h3,.lesson-check h3{font:800 19px/1.2 "Baloo 2",sans-serif;margin:0 0 3px}
+.lesson-notes p+h3{margin-top:10px}
+.lesson-choices button{background:#fffdf6;color:#173c45;border:1px solid #98b9a8;font-weight:800}
+.lesson-choices button[aria-pressed="true"]{background:#21634e;color:#fff;border-color:#21634e}
+.lesson-choices button span{display:block;font-size:22px}
+.lesson-basket{background:repeating-linear-gradient(110deg,#f7d39a 0 12px,#ebbe78 12px 15px);color:#623b23;border:2px solid #a66a3f;border-radius:8px 8px 22px 22px;padding:0 18px;font-size:13px}
+.lesson-basket span{display:block;min-height:34px;font-size:22px}
+.lesson-numbers{display:flex;align-items:center;gap:7px;font-weight:800;white-space:nowrap}
+.lesson-numbers span{border:2px solid #3f7868;background:#bae0cc;border-radius:99px;padding:7px 8px}
+.lesson-check{background:#ffedc0;color:#133641;border-radius:16px;margin-top:12px;padding:12px 14px}
+.lesson-check .lesson-choices{margin-top:8px}
+.lesson-check .lesson-feedback:not(:empty){margin-top:7px;font-weight:800;color:#20634b}
+.lesson-check .lesson-feedback[data-correct="false"]{color:#804711}
+.lesson-summary{margin-top:14px}
+.lesson-summary summary{cursor:pointer;padding:8px 2px;font-weight:800}
+.lesson-page[hidden],#playTheory[hidden]{display:none}
+#playTheory{min-width:40px;min-height:40px}
+#theoryReview{width:min(720px,calc(100% - 20px));max-height:calc(100% - 24px);margin:auto;padding:0 14px 16px;border:1px solid #45818b;border-radius:19px;background:#103c48;color:#fff;overscroll-behavior:contain;box-shadow:0 12px 28px #04252e66}
+#theoryReview::backdrop{background:#031d29bd}
+.review-head{position:sticky;z-index:1;top:0;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;background:#103c48;padding:10px 0;border-bottom:1px solid #4b7a84}
+.review-head h2{font:800 21px/1.2 "Baloo 2",sans-serif;margin:0}
+.review-head .btn{min-height:44px;width:auto;margin:0}
+.authored-guide{margin-top:14px;padding:9px 12px;background:#1a5868;color:#fff;border-radius:16px}
+.authored-check,.theory-lab{margin-top:12px;text-align:left}
+.theory-lab{padding:14px 16px;background:#dceee4;color:#153c41;border-radius:16px}
+.theory-lab h3{font:800 21px/1.2 "Baloo 2",sans-serif;margin:0 0 4px}
+.theory-lab p{margin:0 0 10px;color:inherit}
+.place-cards button,.roman-options button{display:grid;place-items:center;align-content:center;gap:3px;min-width:48px}
+.place-cards b,.roman-options b{font:800 23px/1 "Baloo 2",sans-serif}
+.place-cards small,.roman-options small{font-size:12px}
+.lab-feedback:not(:empty){margin-top:10px;font-weight:800}
+.lab-feedback dl{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,120px),1fr));gap:6px;margin:0}
+.lab-feedback dl div{padding:6px 8px;border-radius:9px;background:#fffdf6}
+.lab-feedback dt{font-size:13px;font-weight:600}
+.lab-feedback dd{margin:0;font-size:17px;font-weight:800;overflow-wrap:anywhere}
+.roman-built{min-height:43px;padding:5px 10px;margin-bottom:9px;border-radius:9px;background:#fffdf6;font:800 22px/1.5 "Baloo 2",sans-serif}
+.roman-options button:disabled{opacity:.6;cursor:default}
+[data-roman-reset]{min-height:44px;margin-top:5px;background:transparent;color:#175447;text-decoration:underline;font:inherit;font-weight:800;cursor:pointer}
+.theory-author-help{text-align:left;margin:8px 0;overflow-wrap:anywhere}
+.theory-author-help summary{cursor:pointer}
+@media(min-width:600px){.lesson-explore{grid-template-columns:1fr 1fr}}
+@media(max-height:760px) and (max-width:599px){.jbtns .jbtn{min-height:0}.jbtns .jbtn+.jbtn{margin-top:5px}}

@@ -1,0 +1,67 @@
+MẪU LỆNH CHO GEMINI HOẶC CLAUDE — HỌC CÙNG CHERRY
+
+Việc cần làm: Soạn hoặc bổ sung lý thuyết cho một màn học Toán.
+Khối, mã bài, tên bài: [điền ở đây]
+Kiến thức học sinh cần hiểu: [điền ở đây]
+LaTeX của màn hiện có, nếu có: [dán đầy đủ ở đây]
+
+Kết quả: Trả đúng một khối mã LaTeX hoàn chỉnh, bắt đầu bằng
+\chude{Tên bài}. Dùng một khối \begin{lythuyet} … \end{lythuyet}
+ngay sau tên bài và trước \man{1}. Mỗi khối mã tương ứng một màn
+trên bản đồ. Có thể có nhiều ý nhỏ nối tiếp trong cùng khối lý thuyết.
+
+Với mỗi ý chính, sắp nội dung theo trình tự sau:
+1. \loidan{Câu nói ngắn của Cherry dẫn học sinh vào tình huống}
+2. Giải thích bằng \dinhnghia, \quytac, \congthuc, \dinhly hoặc
+   \tinhchat, mỗi lệnh có hai cặp {tiêu đề}{nội dung}.
+3. Thêm minh họa khi nó giúp học sinh thấy được điều cần hiểu.
+   Chỉ dùng các mẫu đang có trong danh sách bên dưới. Nếu chỉ cần
+   quan sát hình, có thể chèn TikZ theo quy trình soạn bài hiện hành.
+4. \vidu{Đề ví dụ}{Lời giải}. Thêm \luuy{Lỗi hay gặp} nếu hữu ích.
+5. \thungay{Câu hỏi}{Đáp án đúng}{Đáp án sai}
+   {Giải thích vì sao đúng}{Phản hồi để sửa lỗi sai}
+   Điền đủ năm cặp ngoặc. Hai đáp án phải khác nhau. Hãy chọn
+   đáp án sai phản ánh một nhầm lẫn thường gặp. Cherry đổi vị trí
+   đáp án khi hiển thị. Câu này không được đưa vào lượt chấm điểm.
+
+Mẫu hình tương tác đã hỗ trợ:
+- \minhhoa{gia-tri-theo-hang}{2485}
+  Thay 2485 bằng một số tự nhiên từ 1 đến 12 chữ số, viết liền,
+  không có số 0 ở đầu. Có thể dùng riêng số 0. Học sinh chạm vào
+  chữ số để thấy tên hàng, giá trị của chữ số và số đơn vị ở hàng đó.
+- \minhhoa{ghep-so-la-ma}{24}
+  Thay 24 bằng số nguyên từ 1 đến 39. Học sinh chọn các mảnh I, V,
+  X, IV, IX để ghép cách viết chuẩn, với phản hồi sau mỗi lượt chọn.
+
+Ví dụ lắp ghép một ý nhỏ:
+\loidan{Chạm vào một chữ số để xem nó có giá trị bao nhiêu.}
+\quytac{Giá trị theo hàng}{Cùng một chữ số sẽ có giá trị khác nhau khi đổi hàng.}
+\minhhoa{gia-tri-theo-hang}{2485}
+\vidu{Trong $6052$, chữ số $5$ có giá trị bao nhiêu?}{$5$ ở hàng chục nên có giá trị $50$.}
+\thungay{Trong $3672$, chữ số $6$ có giá trị bao nhiêu?}{$600$}{$36$}
+{$6$ ở hàng trăm nên có giá trị $600$.}{$36$ là số trăm. Giá trị riêng của chữ số $6$ là $600$.}
+
+Nếu đang nâng cấp một màn đã có, chỉ sửa khối lythuyet. Chép nguyên
+từ \man{1} đến cuối, gồm đề, thứ tự, lựa chọn, đáp án, lời giải,
+gợi ý và mọi dòng tham số %@. Nếu soạn màn mới, viết bài tập theo
+định dạng hiện hành của Cherry trong docs/soan-bai.md. Khi dùng
+Gemini hoặc Claude ngoài kho mã, gửi kèm tệp LaTeX mẫu hoặc tài liệu
+đó để mô hình thấy đầy đủ cú pháp ngân hàng. Màn học thường cần ít
+nhất 5 câu Mức 1, 5 câu Mức 2, 3 câu Mức 3. Nếu dùng Mức 4, soạn
+2–4 câu cho Thi đấu.
+
+Trước khi trả lời, kiểm tra từng công thức, ví dụ và phản hồi.
+Chỉ dùng các mẫu có trong danh sách. Nếu chưa có mẫu phù hợp, dùng
+hình tĩnh hoặc lời giải thích. Viết công thức trong $...$.
+
+SAU KHI NHẬN MÃ
+1. Bài mới: vào bản đồ bằng tài khoản giáo viên, chọn bài và bấm
+   + Dán bài. Dán cả khối rồi bấm Kiểm tra và tạo bài nháp.
+   Bài đã có: mở Học lý thuyết → Sửa lý thuyết và dán riêng khối
+   lythuyet. App hiện bản xem trước tương tác ngay trong cửa sổ.
+2. Thử hình và cả hai đáp án của từng câu Thử ngay. Kiểm tra tên bài,
+   số câu theo từng mức và một câu có %@ nếu có. Thử mở lý thuyết
+   giữa lượt luyện tập rồi quay lại đúng câu đang làm.
+3. Với bài mới, lưu nháp và duyệt sau khi kiểm tra. Nếu thay lý
+   thuyết của bài đã duyệt, bấm thử trong bản xem trước trước khi
+   lưu vì phần đã lưu có thể hiện ngay cho học sinh.

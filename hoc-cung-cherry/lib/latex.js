@@ -150,6 +150,9 @@ export function parseBank(raw) {
   const lt = raw.match(/\\begin\{lythuyet\}([\s\S]*?)\\end\{lythuyet\}/);
   if (lt) { theory = parseTheory(lt[1], errors); raw = raw.slice(0, lt.index) + raw.slice(lt.index + lt[0].length); }
   else if (/\\begin\{lythuyet\}/.test(raw)) errors.push({ msg: 'Khối lý thuyết chưa đóng \\end{lythuyet}' });
+  if (/\\(?:loidan|minhhoa|thungay)\b/.test(raw)) {
+    errors.push({ msg: '\\loidan, \\minhhoa và \\thungay phải đặt trong khối lythuyet' });
+  }
 
   const marks = []; const re = /\\man\s*\{/g; let m;
   while ((m = re.exec(raw))) marks.push(m.index);
@@ -265,9 +268,52 @@ export const isTLBank = levels => levels.some(l => l.qs.some(q => q.type === 'ex
 // Các mục của khối lý thuyết. Hai đối số {tiêu đề}{nội dung}, riêng \luuy{nội dung}; \vidu{đề}{lời giải}.
 export const THEORY_KINDS = { dinhnghia: 'Định nghĩa', quytac: 'Quy tắc', congthuc: 'Công thức', dinhly: 'Định lý', tinhchat: 'Tính chất', luuy: 'Lưu ý', vidu: 'Ví dụ' };
 function parseTheory(body, errors) {
-  const items = [], re = /\\(dinhnghia|quytac|congthuc|dinhly|tinhchat|luuy|vidu)\b/g; let m;
+  const items = [], re = /\\(dinhnghia|quytac|congthuc|dinhly|tinhchat|luuy|vidu|loidan|minhhoa|thungay)\b/g; let m;
   while ((m = re.exec(body))) {
-    const k = m[1], g1 = group(body, m.index + m[0].length);
+    const k = m[1];
+    if (k === 'loidan' || k === 'minhhoa' || k === 'thungay') {
+      const args = [];
+      let at = re.lastIndex, arg;
+      while ((arg = group(body, at))) {
+        args.push(arg[0].trim());
+        at = arg[1];
+      }
+      re.lastIndex = at;
+      const count = k === 'loidan' ? 1 : k === 'minhhoa' ? 2 : 5;
+      if (args.length !== count || args.some(s => !s)) {
+        errors.push({ msg: 'Lý thuyết: \\' + k + ' cần đúng ' + count + ' cặp {…} có nội dung' });
+        continue;
+      }
+      if (k === 'minhhoa') {
+        const [template, value] = args;
+        if (template === 'gia-tri-theo-hang') {
+          if (!/^(?:0|[1-9]\d{0,11})$/.test(value)) {
+            errors.push({ msg: 'Mẫu gia-tri-theo-hang cần số tự nhiên tối đa 12 chữ số, viết liền và không thêm số 0 ở đầu' });
+            continue;
+          }
+        } else if (template === 'ghep-so-la-ma') {
+          if (!/^(?:[1-9]|[12]\d|3\d)$/.test(value)) {
+            errors.push({ msg: 'Mẫu ghep-so-la-ma cần số nguyên từ 1 đến 39' });
+            continue;
+          }
+        } else {
+          errors.push({ msg: 'Lý thuyết: chưa có mẫu minh họa ' + template });
+          continue;
+        }
+        items.push({ k, template, value });
+      } else if (k === 'thungay') {
+        const [body, correct, wrong, explainCorrect, explainWrong] = args;
+        if (correct === wrong) {
+          errors.push({ msg: 'Lý thuyết: hai đáp án của \\thungay phải khác nhau' });
+          continue;
+        }
+        items.push({ k, body, correct, wrong, explainCorrect, explainWrong });
+      } else {
+        items.push({ k, body: args[0] });
+      }
+      continue;
+    }
+    const g1 = group(body, re.lastIndex);
     if (!g1) { errors.push({ msg: `Lý thuyết: \\${k} thiếu {…}` }); continue; }
     if (k === 'luuy') { items.push({ k, title: '', body: g1[0].trim() }); re.lastIndex = g1[1]; continue; }
     const g2 = group(body, g1[1]);

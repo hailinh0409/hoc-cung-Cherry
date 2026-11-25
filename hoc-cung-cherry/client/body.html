@@ -96,6 +96,7 @@
     <div class="bar">
       <button class="ico" id="quit" aria-label="Thoát"><svg width="20" height="20" viewBox="0 0 20 20"><path d="M4 4l12 12M16 4L4 16" stroke="#fff" stroke-width="3" stroke-linecap="round"/></svg></button>
       <div class="prog"><b id="progB"></b></div>
+      <button type="button" class="ico" id="playTheory" aria-label="Xem lý thuyết" hidden></button>
       <div class="hearts" id="hearts"></div><span class="pill sm" id="modeLbl" style="display:none"></span><button class="ico sm" id="snd" aria-label="Bật/tắt âm thanh"></button>
     </div>
     <div class="timer" id="timer" style="display:none"><b id="timerB"></b></div>
@@ -106,6 +107,10 @@
   </section>
 
   <div class="ovl" id="ovl"><div class="panel" id="panel"></div></div>
+  <dialog id="theoryReview" aria-labelledby="theoryReviewTitle">
+    <div class="review-head"><h2 id="theoryReviewTitle"></h2><button type="button" class="btn sm" id="reviewClose">Tiếp tục làm bài</button></div>
+    <div id="reviewContent"></div>
+  </dialog>
   <div class="toast" id="toast"></div>
   <canvas id="fx"></canvas>
 </div>
