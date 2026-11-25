@@ -4,7 +4,7 @@ import { loadTopics, SPECIAL_TOPIC } from '@/lib/topics';
 import { publicOf } from '@/lib/validate';
 
 // Chỉ lấy các trường publicOf dùng cho danh sách bạn bè và bảng xếp hạng.
-const playerFields = ['name','khoi','nick','avatar','eq','xp','lp','matches','season','seasons','wk','st','stats','ach','own','follow','best','hist'];
+const playerFields = ['name','khoi','nick','avatar','eq','xp','lp','tier','tdh','matches','season','seasons','wk','st','stats','ach','own','follow','best','hist'];
 const publicPlayerColumns = ['account_id','mau', ...playerFields.map(k => k + ':data->' + k)].join(',');
 
 export async function GET(request) {

@@ -1,23 +1,55 @@
-// Thi đấu: mùa 30 ngày, điểm thi đấu sau mỗi trận, trần điểm mỗi ngày.
+// Thi đấu: mùa 30 ngày, bậc và thanh tiến trình, bài kiểm tra thăng hạng, điểm phong độ Thách Đấu.
 // Dùng chung cho giao diện (scripts/build-app.mjs ghép vào app) và máy chủ (lib/validate.js).
 import { vnDay, addDays, dayDiff } from './srs.js';
 
 export const SEASON0 = '2026-11-23';  // ngày bắt đầu Mùa 1
-export const SEASON_DAYS = 30;        // mỗi mùa 30 ngày; sang mùa mới điểm thi đấu về 0
-export const RANK_DAY_CAP = 80;       // trần mềm mỗi ngày: quá bấy nhiêu điểm thì phần cộng thêm chỉ được 1/RANK_OVER_DIV
-export const RANK_OVER_DIV = 3;       // sau trần mềm, điểm cộng chỉ còn 1/3 (điểm trừ giữ nguyên)
+export const SEASON_DAYS = 30;        // mỗi mùa 30 ngày; sang mùa mới tụt SEASON_DROP bậc
+export const SEASON_DROP = 2;
 export const RANK_UP = 30, RANK_DOWN = 20; // mỗi trận cộng tối đa / trừ tối đa
 export const NB_LOCK = 10;            // quá bấy nhiêu câu sai chưa làm lại đúng thì tạm khóa Thi đấu
 export const NB_UNLOCK = 5;           // đang khóa: làm lại đến khi còn không quá bấy nhiêu câu sai thì mở lại
 export const RANK_WRONG = 1 / 3;      // câu trả lời sai bị trừ 1/3 điểm câu: chọn bừa 1 trong 4 trung bình được 0 điểm
 export const RANK_SPEED = 0.15;       // thưởng thời gian tối đa (15% điểm trận), tính theo thời gian còn dư của cả trận
 
-// Điểm cộng thực nhận khi hôm nay đã cộng g điểm và trận này được d điểm (d > 0): trần mềm RANK_DAY_CAP.
-export function softGain(g, d) {
-  if (!(d > 0)) return d;
-  const room = Math.max(0, RANK_DAY_CAP - Math.max(0, g)), a = Math.min(d, room);
-  return a + Math.floor((d - a) / RANK_OVER_DIV);
+// Bậc: Đồng, Bạc, Vàng, Bạch Kim, Kim Cương, Cao Thủ, Đại Cao Thủ, Thách Đấu.
+// Điểm thi đấu (lp) chỉ là thanh tiến trình: ở bậc t, lp chạy từ TIER_LP[t] đến TIER_LP[t+1] (đầy thanh).
+// Đầy thanh thì phải làm bài kiểm tra thăng hạng; đạt mới lên bậc. Thách Đấu: lp từ 1200 đến TOP_CAP ("độ vững bậc").
+export const TIER_LP = [0, 100, 200, 350, 500, 700, 900, 1200];
+export const TOP = TIER_LP.length - 1;
+export const TOP_CAP = 1300;
+export const tierFromLp = lp => { let t = 0; TIER_LP.forEach((x, i) => { if ((lp || 0) >= x) t = i; }); return t; };
+export const tierOfP = p => (p && Number.isInteger(p.tier) ? Math.max(0, Math.min(TOP, p.tier)) : tierFromLp(p && p.lp));
+export const capOf = t => (t >= TOP ? TOP_CAP : TIER_LP[t + 1]);
+export const barFull = (t, lp) => t < TOP && (lp || 0) >= TIER_LP[t + 1];
+export const barPct = (t, lp) => t >= TOP ? Math.round(100 * Math.max(0, Math.min(1, ((lp || 0) - TIER_LP[TOP]) / (TOP_CAP - TIER_LP[TOP]))))
+  : Math.round(100 * Math.max(0, Math.min(1, ((lp || 0) - TIER_LP[t]) / (TIER_LP[t + 1] - TIER_LP[t]))));
+export const SHIELD = 5;              // vừa lên bậc: 5 trận đầu không bị tụt bậc
+
+// Sau một trận được d điểm: thanh không vượt mốc bậc trên; tụt dưới mốc bậc mình thì xuống bậc (trừ khi đang được bảo vệ).
+export function applyMatch({ tier, lp, shield = 0 }, d) {
+  let t = tier, x = Math.max(0, (lp || 0) + d);
+  x = Math.min(x, capOf(t));
+  if (x < TIER_LP[t]) { if (shield > 0) x = TIER_LP[t]; else if (t > 0) t--; }
+  return { tier: t, lp: x, shield: Math.max(0, shield - 1), down: t < tier };
 }
+// Sang mùa mới: tụt SEASON_DROP bậc, thanh tiến trình về đầu bậc
+export const seasonStart = tier => { const t = Math.max(0, (tier || 0) - SEASON_DROP); return { tier: t, lp: TIER_LP[t] }; };
+
+// Bài kiểm tra thăng hạng
+export const PROMO_N = 12;            // số câu
+export const PROMO_PER_DAY = 2;       // mỗi ngày thi tối đa 2 lần
+export const PROMO_FAIL = 20;         // trượt: thanh tiến trình lùi 20 điểm
+export const promoPass = to => 0.55 + 0.05 * to;          // lên Bạc 60%, mỗi bậc +5%, lên Thách Đấu 90%
+export const promoNeed3 = to => (to >= 3 ? 2 : 0);         // từ Bạch Kim: đúng ít nhất 2 câu mức 3 trở lên
+// Chấm bài kiểm tra: score là điểm bài (đã trừ câu sai), max là tổng điểm các câu; ok3/n3: số câu mức ≥ 3 đúng / có trong đề.
+export function promoResult({ score, max, ok3, n3, to }) {
+  const pc = max > 0 ? Math.max(0, score) / max : 0, need3 = Math.min(promoNeed3(to), n3);
+  return { pc: Math.round(pc * 100), pass: pc >= promoPass(to) - 1e-9 && ok3 >= need3, need3 };
+}
+
+// Thách Đấu: điểm phong độ = trung bình tỉ lệ điểm trận của PD_N trận gần nhất × 1000 (đánh nhiều không tăng điểm)
+export const PD_N = 10, PD_MIN = 3;
+export const pdOf = h => { const a = (Array.isArray(h) ? h : []).slice(-PD_N).map(Number).filter(Number.isFinite); return a.length ? Math.round(1000 * a.reduce((s, x) => s + Math.max(0, Math.min(1, x)), 0) / a.length) : 0; };
 
 export function seasonOf(day = vnDay()) {
   const k = Math.max(0, Math.floor(dayDiff(SEASON0, day) / SEASON_DAYS));
