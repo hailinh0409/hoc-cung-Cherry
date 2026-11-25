@@ -22,11 +22,12 @@ Thầy yêu cầu (25/11): "Bài 1 và bài 2 Toán 6 đã có lý thuyết tư�
 ## Đã xong (đã commit)
 
 - [x] Cập nhật `docs/soan-bai.md`, `docs/soan-man-tuong-tac.txt` (lý thuyết tương tác là mặc định, dán một lần)
-- [x] Bản chỉ dẫn Gem mới `docs/gem-soan-bai-cherry.md` (từ bản thầy gửi: thêm mục Quy trình một lần, khuôn một mục học, thứ tự chọn minh họa)
+- [x] Bỏ bản chỉ dẫn Gem (thầy báo không còn dùng Gem, Gemini dùng chung skill với Claude); đưa mục *Quy trình một lần* vào `docs/soan-bai.md`
+- [ ] Cập nhật skill `nap-bai-leo-thap` (đề xuất qua thẻ skill, thầy lưu)
 
 ## Còn lại
 
-- [ ] Thầy dán `docs/gem-soan-bai-cherry.md` vào Instructions của Gem, thử soạn một bài lớp 7
+- [ ] Thầy lưu bản skill mới, thử nhờ Gemini soạn một bài lớp 7
 - [ ] (Tùy thầy) Thêm mẫu `\minhhoa` tổng quát cho các khối khác
 
 ## File liên quan
@@ -34,7 +35,6 @@ Thầy yêu cầu (25/11): "Bài 1 và bài 2 Toán 6 đã có lý thuyết tư�
 - `AGENTS.md`
 - `docs/soan-bai.md`
 - `docs/soan-man-tuong-tac.txt`
-- `docs/gem-soan-bai-cherry.md`
 - `hoc-cung-cherry/lib/latex.js`
 - `hoc-cung-cherry/client/lesson.js`
 
