@@ -9,6 +9,7 @@ export const RANK_OVER_DIV = 3;       // sau trần mềm, điểm cộng chỉ 
 export const RANK_UP = 30, RANK_DOWN = 20; // mỗi trận cộng tối đa / trừ tối đa
 export const NB_LOCK = 10;            // quá bấy nhiêu câu sai chưa làm lại đúng thì tạm khóa Thi đấu
 export const NB_UNLOCK = 5;           // đang khóa: làm lại đến khi còn không quá bấy nhiêu câu sai thì mở lại
+export const RANK_WRONG = 1 / 3;      // câu trả lời sai bị trừ 1/3 điểm câu: chọn bừa 1 trong 4 trung bình được 0 điểm
 export const RANK_SPEED = 0.15;       // thưởng thời gian tối đa (15% điểm trận), tính theo thời gian còn dư của cả trận
 
 // Điểm cộng thực nhận khi hôm nay đã cộng g điểm và trận này được d điểm (d > 0): trần mềm RANK_DAY_CAP.
@@ -26,9 +27,12 @@ export function seasonOf(day = vnDay()) {
 }
 export const seasonName = (day = vnDay()) => seasonOf(day).name;
 
-// Mức chuẩn của bậc (tỉ lệ điểm trận so với điểm tối đa): Đồng 45%, mỗi bậc +6%, Thách Đấu 87%.
+// Mức chuẩn của bậc (tỉ lệ điểm trận so với điểm tối đa): Đồng 40%, mỗi bậc +6%, Thách Đấu 82%.
 // Điểm tối đa = điểm các câu × (1 + RANK_SPEED); thưởng thời gian nhỏ nên mức chuẩn chủ yếu đo số câu đúng.
-export const rankTarget = tier => 0.45 + 0.06 * tier;
+// Câu sai bị trừ điểm (RANK_WRONG) nên mức chuẩn để như cũ: học sinh đúng 60% vẫn lên được ở Đồng, chọn bừa thì tụt.
+export const rankTarget = tier => 0.4 + 0.06 * tier;
+// Điểm bị trừ khi trả lời sai một câu được pts điểm
+export const wrongPenalty = pts => Math.round(pts * RANK_WRONG);
 // Thưởng thời gian cuối trận: điểm câu đúng × RANK_SPEED × tỉ lệ thời gian còn dư
 export const speedBonus = (score, leftFrac) => Math.round(score * RANK_SPEED * Math.max(0, Math.min(1, leftFrac)));
 // Thưởng chính xác theo số câu đúng trong trận

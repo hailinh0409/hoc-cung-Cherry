@@ -1582,6 +1582,7 @@ const RANK_OVER_DIV = 3;       // sau trần mềm, điểm cộng chỉ còn 1/
 const RANK_UP = 30, RANK_DOWN = 20; // mỗi trận cộng tối đa / trừ tối đa
 const NB_LOCK = 10;            // quá bấy nhiêu câu sai chưa làm lại đúng thì tạm khóa Thi đấu
 const NB_UNLOCK = 5;           // đang khóa: làm lại đến khi còn không quá bấy nhiêu câu sai thì mở lại
+const RANK_WRONG = 1 / 3;      // câu trả lời sai bị trừ 1/3 điểm câu: chọn bừa 1 trong 4 trung bình được 0 điểm
 const RANK_SPEED = 0.15;       // thưởng thời gian tối đa (15% điểm trận), tính theo thời gian còn dư của cả trận
 
 // Điểm cộng thực nhận khi hôm nay đã cộng g điểm và trận này được d điểm (d > 0): trần mềm RANK_DAY_CAP.
@@ -1599,9 +1600,12 @@ function seasonOf(day = vnDay()) {
 }
 const seasonName = (day = vnDay()) => seasonOf(day).name;
 
-// Mức chuẩn của bậc (tỉ lệ điểm trận so với điểm tối đa): Đồng 45%, mỗi bậc +6%, Thách Đấu 87%.
+// Mức chuẩn của bậc (tỉ lệ điểm trận so với điểm tối đa): Đồng 40%, mỗi bậc +6%, Thách Đấu 82%.
 // Điểm tối đa = điểm các câu × (1 + RANK_SPEED); thưởng thời gian nhỏ nên mức chuẩn chủ yếu đo số câu đúng.
-const rankTarget = tier => 0.45 + 0.06 * tier;
+// Câu sai bị trừ điểm (RANK_WRONG) nên mức chuẩn để như cũ: học sinh đúng 60% vẫn lên được ở Đồng, chọn bừa thì tụt.
+const rankTarget = tier => 0.4 + 0.06 * tier;
+// Điểm bị trừ khi trả lời sai một câu được pts điểm
+const wrongPenalty = pts => Math.round(pts * RANK_WRONG);
 // Thưởng thời gian cuối trận: điểm câu đúng × RANK_SPEED × tỉ lệ thời gian còn dư
 const speedBonus = (score, leftFrac) => Math.round(score * RANK_SPEED * Math.max(0, Math.min(1, leftFrac)));
 // Thưởng chính xác theo số câu đúng trong trận
@@ -2544,7 +2548,7 @@ function ranked(){show('ranked');const t=tierOf(P.lp),T=TIERS[t],N=TIERS[t+1],lp
      ${N?`<div class="rnext"><i style="width:${(lp-T.lp)/(N.lp-T.lp)*100}%"></i></div><small>Còn ${N.lp-lp} điểm để lên ${N.n}</small>`:'<small>Bậc cao nhất!</small>'}</div>
    ${lk?`<div class="tbox rlock"><b>Thi đấu đang tạm khóa</b><div>Em còn <b>${lk} câu sai</b> chưa làm lại đúng. Làm lại đến khi còn không quá <b>${NB_UNLOCK} câu</b> là mở lại Thi đấu (còn ${lk-NB_UNLOCK} câu nữa): hiểu chắc bài cũ thì thi đấu mới lên hạng bền.</div></div><button class="btn big co" id="rFix">Làm lại câu sai (${lk})</button>`:`<button class="btn big" id="rPlay">Vào trận</button>`}
    <p class="tnote2">${lpdE().g>=RANK_DAY_CAP?`Hôm nay đã cộng ${lpdE().g} điểm, quá ${RANK_DAY_CAP}: các trận tiếp chỉ nhận 1/${RANK_OVER_DIV} điểm cộng`:`Hôm nay đã cộng ${lpdE().g}/${RANK_DAY_CAP} điểm thi đấu`} · ${esc(SO.name)}, còn ${SO.left} ngày.</p>
-   <div class="tbox rules"><b>Luật thi đấu</b><div>• Mỗi mùa ${SEASON_DAYS} ngày. Sang mùa mới mọi người bắt đầu lại từ 0 điểm, thành tích mùa cũ lưu ở trang cá nhân.</div><div>• Có hơn ${NB_LOCK} câu sai chưa làm lại đúng thì tạm khóa Thi đấu; làm lại đến khi còn không quá ${NB_UNLOCK} câu là mở lại.</div><div>• Mỗi ngày cộng đủ ${RANK_DAY_CAP} điểm thi đấu; quá ${RANK_DAY_CAP} điểm thì mỗi trận chỉ nhận 1/${RANK_OVER_DIV} số điểm cộng (điểm trừ giữ nguyên).</div><div>• Mỗi trận 10 câu của khối ${ACC.khoi}, không có gợi ý. Bậc ${T.n}: ${(RANK_BY_TIER[t]||RANK_PICK).map((n,i)=>n?n+' câu mức '+(i+1):'').filter(Boolean).join(', ')}. Bậc càng cao câu càng khó.</div>${mocOf(ACC.khoi)?`<div>• Đang thi kiến thức ${chRange(mocOf(ACC.khoi))} (đến chương ${esc(chapTitle(ACC.khoi,mocOf(ACC.khoi)))}). Khoảng một nửa số câu thuộc chương mới học nhất.</div>`:''}<div>• Câu đã gặp ở trận trước sẽ không ra lại; câu cùng dạng thì được đổi số.</div><div>• Thời gian tính cho cả trận (khoảng 30 giây mỗi câu mức 1, 45 giây mức 2, 60 giây mức 3, 90 giây mức 4, cộng lại). Em tự chia thời gian: câu dễ làm nhanh, câu khó nghĩ lâu hơn. Đồng hồ dừng khi em đọc lời giải.</div><div>• Câu chưa chọn đáp án có thể bấm <b>Bỏ qua, làm sau</b>; câu đó được xếp xuống cuối trận. Hết giờ thì các câu chưa làm tính là sai.</div><div>• Điểm trận chủ yếu tính theo số câu đúng (câu càng khó càng nhiều điểm). Xong sớm được thưởng thêm tối đa ${Math.round(RANK_SPEED*100)}% điểm trận. Bậc ${T.n} cần đạt ${Math.round(rankTarget(t)*100)}% điểm trận tối đa mới được cộng điểm; bậc càng cao mức chuẩn càng cao.</div><div>• Thưởng chính xác: đúng 10/10 câu +6, 9/10 +4, 8/10 +2.</div><div>• Câu sắp xếp lời giải, sơ đồ: đúng một phần được điểm theo số dòng/ô đúng.</div></div>
+   <div class="tbox rules"><b>Luật thi đấu</b><div>• Mỗi mùa ${SEASON_DAYS} ngày. Sang mùa mới mọi người bắt đầu lại từ 0 điểm, thành tích mùa cũ lưu ở trang cá nhân.</div><div>• Có hơn ${NB_LOCK} câu sai chưa làm lại đúng thì tạm khóa Thi đấu; làm lại đến khi còn không quá ${NB_UNLOCK} câu là mở lại.</div><div>• Mỗi ngày cộng đủ ${RANK_DAY_CAP} điểm thi đấu; quá ${RANK_DAY_CAP} điểm thì mỗi trận chỉ nhận 1/${RANK_OVER_DIV} số điểm cộng (điểm trừ giữ nguyên).</div><div>• Mỗi trận 10 câu của khối ${ACC.khoi}, không có gợi ý. Bậc ${T.n}: ${(RANK_BY_TIER[t]||RANK_PICK).map((n,i)=>n?n+' câu mức '+(i+1):'').filter(Boolean).join(', ')}. Bậc càng cao câu càng khó.</div>${mocOf(ACC.khoi)?`<div>• Đang thi kiến thức ${chRange(mocOf(ACC.khoi))} (đến chương ${esc(chapTitle(ACC.khoi,mocOf(ACC.khoi)))}). Khoảng một nửa số câu thuộc chương mới học nhất.</div>`:''}<div>• Câu đã gặp ở trận trước sẽ không ra lại; câu cùng dạng thì được đổi số.</div><div>• Thời gian tính cho cả trận (khoảng 30 giây mỗi câu mức 1, 45 giây mức 2, 60 giây mức 3, 90 giây mức 4, cộng lại). Em tự chia thời gian: câu dễ làm nhanh, câu khó nghĩ lâu hơn. Đồng hồ dừng khi em đọc lời giải.</div><div>• Câu chưa chọn đáp án có thể bấm <b>Bỏ qua, làm sau</b>; câu đó được xếp xuống cuối trận. Hết giờ thì các câu chưa làm tính là sai.</div><div>• Điểm trận chủ yếu tính theo số câu đúng (câu càng khó càng nhiều điểm). <b>Trả lời sai bị trừ 1/3 điểm câu đó</b>, nên chọn bừa không có lợi; chưa chắc thì bỏ qua làm sau. Hết giờ mà chưa trả lời thì không bị trừ. Xong sớm được thưởng thêm tối đa ${Math.round(RANK_SPEED*100)}% điểm trận. Bậc ${T.n} cần đạt ${Math.round(rankTarget(t)*100)}% điểm trận tối đa mới được cộng điểm; bậc càng cao mức chuẩn càng cao.</div><div>• Thưởng chính xác: đúng 10/10 câu +6, 9/10 +4, 8/10 +2.</div><div>• Câu sắp xếp lời giải, sơ đồ: đúng một phần được điểm theo số dòng/ô đúng.</div></div>
    <button class="btn alt" id="rBoard">Bảng xếp hạng</button>
    ${(P.hist||[]).length?`<h2 class="sect">Trận gần đây</h2><div class="tbox">${P.hist.slice(-6).reverse().map(h=>`<div class="row2"><span>${new Date(h.at).toLocaleString('vi-VN',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})} · ${h.c}/${h.n} câu · ${h.s} điểm trận</span><b class="${h.d>=0?'y':'n'}">${h.d>=0?'+':''}${h.d}</b></div>`).join('')}</div>`:''}`;
   $('#rPlay')&&($('#rPlay').onclick=()=>{sfx.tap();startRank()});$('#rFix')&&($('#rFix').onclick=()=>{sfx.tap();redoTab='sai';redo()});$('#rBoard').onclick=()=>{sfx.tap();boardT=null;board()}}
@@ -3101,12 +3105,13 @@ function result(ok,el,why,timeout){if(G.mode==='rank')pauseTimer();else clearInt
     G.score+=pts;sfx.ok();confetti(50,.45);if(el)floatText('+'+pts,el)}
   else{// Thi đấu, câu sắp xếp / sơ đồ đúng một phần: được điểm theo tỉ lệ dòng/ô đúng
     if(G.mode==='rank'&&G.frac>0){pts=Math.round(RANK_PTS[Math.min(3,q.level||0)]*G.frac);G.score+=pts;if(pts&&el)floatText('+'+pts,el)}
+    else if(G.mode==='rank'&&!timeout){pts=-wrongPenalty(RANK_PTS[Math.min(3,q.level||0)]);G.score+=pts;if(el)floatText(String(pts).replace('-','−'),el)}
     G.combo=0;G.miss++;if(G.mode==='man'&&G.hearts<50)G.hearts--;sfx.no();navigator.vibrate&&navigator.vibrate(120)}
   $('#dock').innerHTML='';const wi=G.k;G.k++;if(G.timeUp){G.miss+=G.qs.length-G.k;G.k=G.qs.length}hud();checkAch();
   const out=!ok&&G.hearts<=0;G.needRevive=out;G.over=G.k>=G.qs.length;if(out){const fk=key(G.t,G.i);P.fails[fk]=(P.fails[fk]||0)+1;save()}
   const canTwin=!ok&&!G.over&&G.mode==='man'&&q.raw&&!G.twinUsed[wi];
   const praise=['Chính xác!','Tuyệt vời!','Quá đỉnh!','Giỏi lắm!'];
-  const sh=sheetOpen(ok,ok?praise[Math.random()*4|0]+(G.mode==='rank'?` +${pts}`:''):timeout?(G.timeUp?'Hết giờ cả trận!':'Hết giờ!'):out?'Hết tim rồi!':pts>0?`Đúng một phần +${pts}`:'Chưa đúng rồi',timeout?why:why,q,
+  const sh=sheetOpen(ok,ok?praise[Math.random()*4|0]+(G.mode==='rank'?` +${pts}`:''):timeout?(G.timeUp?'Hết giờ cả trận!':'Hết giờ!'):out?'Hết tim rồi!':pts>0?`Đúng một phần +${pts}`:pts<0?`Chưa đúng rồi −${-pts}`:'Chưa đúng rồi',timeout?why:why,q,
     `${canTwin?`<button class="btn" id="tw">Thử câu tương tự${G.hearts<3?' (đúng được hồi 1 tim)':''}</button>`:''}<button class="btn ${ok?'':'co'}" id="nx">${out?'Tiếp tục':G.over?(G.mode==='man'?'Hoàn thành màn':'Xem kết quả'):'Câu tiếp theo'}</button>`);
   if(canTwin)$('#tw').onclick=()=>{sfx.tap();G.twinUsed[wi]=1;try{G.twin=inst(q.raw,{tid:q.tid,level:q.level,title:q.title})}catch(e){return}sh.classList.remove('on');renderQ()};
   $('#nx').onclick=()=>{sfx.tap();sh.classList.remove('on');G.needRevive?revive():G.over?finish():renderQ()}}
@@ -3115,7 +3120,7 @@ function revive(){overlay(`<div style="width:96px;margin:0 auto">${owlSVG}</div>
 
 function streakLine(s){return s?`<div class="streakup">${flame(false,22)} <b>Chuỗi ${s.streak} ngày!</b>${s.shieldUsed?' Lá chắn đã giữ chuỗi cho em.':' Mai nhớ quay lại nhé.'}</div>`:''}
 function finish(){clearInterval(TM);const sec=Math.round((Date.now()-G.t0)/1000),tm=`<div><b>${Math.floor(sec/60)}:${String(sec%60).padStart(2,'0')}</b>thời gian</div>`,nOk=G.qs.length-G.miss;
-  if(G.mode==='rank'){qev('rank');pauseTimer();const lf=G.timeUp?0:timeLeft()/G.tot,sb=speedBonus(G.score,lf);G.score+=sb;
+  if(G.mode==='rank'){qev('rank');pauseTimer();G.score=Math.max(0,G.score);const lf=G.timeUp?0:timeLeft()/G.tot,sb=speedBonus(G.score,lf);G.score+=sb;
     const t0=tierOf(P.lp),mx=G.qs.reduce((s,q)=>s+RANK_PTS[Math.min(3,q.level||0)]*(1+RANK_SPEED),0),RD=rankDelta({score:G.score,max:mx,correct:nOk,n:G.qs.length,tier:t0}),L=lpdE();
     let d=RD.d,capped=false;if(d>0){const d2=softGain(L.g,d);capped=d2<d;d=d2;L.g+=d}
     const before=P.lp||0;P.lp=Math.max(0,before+d);d=P.lp-before;P.matches=(P.matches||0)+1;P.hist=[...(P.hist||[]),{at:new Date().toISOString(),s:G.score,c:nOk,n:G.qs.length,d}].slice(-20);

@@ -1,7 +1,7 @@
 // Thi đấu: mùa 30 ngày, điểm sau trận, trần điểm mỗi ngày (máy chủ)
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { seasonOf, rankDelta, accBonus, softGain, speedBonus, RANK_DAY_CAP } from '../lib/rank.js';
+import { seasonOf, rankDelta, accBonus, softGain, speedBonus, wrongPenalty, rankTarget, RANK_DAY_CAP } from '../lib/rank.js';
 import { sanitize } from '../lib/validate.js';
 
 test('mùa 30 ngày bắt đầu 23/11/2026', () => {
@@ -30,6 +30,17 @@ test('trần mềm: quá 80 điểm thì chỉ nhận 1/3 điểm cộng', () =>
   assert.equal(softGain(90, -15), -15);        // điểm trừ giữ nguyên
   assert.equal(speedBonus(100, 0.5), 8);       // 15% × 50% thời gian còn dư
   assert.equal(speedBonus(100, 0), 0);
+});
+
+test('trừ điểm câu sai: chọn bừa trung bình được 0 điểm và bị tụt hạng', () => {
+  assert.deepEqual([10, 15, 20, 30].map(wrongPenalty), [3, 5, 7, 10]);
+  // 40 câu mức 1 chọn bừa: đúng 10 câu, sai 30 câu
+  const guess = 10 * 10 - 30 * wrongPenalty(10);
+  assert.ok(guess <= 10);
+  assert.ok(rankDelta({ score: Math.max(0, guess / 4), max: 115, correct: 2, n: 10, tier: 0 }).d < 0);
+  // học sinh đúng 6/10 câu mức 1 vẫn được cộng ở Đồng
+  const s6 = 6 * 10 - 4 * wrongPenalty(10);
+  assert.ok(s6 / 115 >= rankTarget(0));
 });
 
 test('máy chủ: trần mềm mỗi ngày', () => {
