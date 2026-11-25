@@ -697,6 +697,9 @@ textarea.code.light{background:#fff;color:#12313a;font:14px/1.5 "Be Vietnam Pro"
 .tl-empty{margin:0;padding:24px;color:var(--exam-muted)}
 @media(max-width:480px){.tl-exam-footer .btn{width:100%}}
 
+/* Khối không phải của học sinh: xám, có khoá, không vào được */
+.gtile.off{background:#5d6f74;box-shadow:inset 0 -8px 0 #45555a;color:#c9d3d5;filter:grayscale(1);cursor:not-allowed}.gtile.off:active{transform:none}.gtile.off .gm{font-size:12px;opacity:.85}
+
 /* Chiều rộng nội dung theo từng màn, nền app luôn phủ hết khung nhìn. */
 @media (min-width: 600px) {
   .app {
@@ -1662,6 +1665,8 @@ const SPECIAL_GRADE = { k: CHUYEN_TOAN, c: '#4679c1', d: '#325d9b' };
 let specialAccess = false;
 const canOpenSpecial = () => GV() || specialAccess;
 const gradeTiles = () => canOpenSpecial() ? [...GRADES, SPECIAL_GRADE] : GRADES;
+// Học sinh chỉ vào được khối của mình (và Chuyên Toán nếu được mở); các khối khác hiện màu xám, có khoá. Giáo viên vào mọi khối.
+const gradeLocked = k => !GV() && !!ACC && !!ACC.khoi && k !== CHUYEN_TOAN && k !== ACC.khoi;
 const PHAN={'dai-so':{name:'Đại số',c:'#3aa8e0',d:'#2584b8'},'hinh-hoc':{name:'Hình học',c:'#2fb787',d:'#1f8a63'},'thong-ke':{name:'Thống kê & Xác suất',c:'#ff9f1c',d:'#d97f00'},'on-tap':{name:'Ôn tập',c:'#8d7bff',d:'#6a57e0'},'thi-dau':{name:'Kho Thi đấu',c:'#ef3b55',d:'#c22a40'}};
 const TIERS=[{n:'Đồng',lp:0,c:'#c08457',d:'#8a5a33'},{n:'Bạc',lp:100,c:'#c3ced6',d:'#8a9aa6'},{n:'Vàng',lp:200,c:'#ffd23f',d:'#c99a08'},{n:'Bạch Kim',lp:350,c:'#4fd1c5',d:'#2a9d93'},
   {n:'Kim Cương',lp:500,c:'#6aa8ff',d:'#3f78d6'},{n:'Cao Thủ',lp:700,c:'#b36bff',d:'#8442d6'},{n:'Đại Cao Thủ',lp:900,c:'#ff5d6c',d:'#c8323f'},{n:'Thách Đấu',lp:1200,c:'#ffb800',d:'#b97f00'}];
@@ -2081,7 +2086,7 @@ function refreshGrades() {
   if (!!$('#ggrid [data-k="chuyen-toan"]') !== canOpenSpecial()) return grades();
   for (const g of gradeTiles()) {
     const tile = $('#ggrid [data-k="' + g.k + '"]');
-    if (!tile) continue;
+    if (!tile || gradeLocked(g.k)) continue;
     const counts = gradeCounts(g);
     for (const [selector, value] of [['.gm', counts.topics], ['.grade-stars', counts.stars]]) {
       const label = tile.querySelector(selector);
@@ -2092,10 +2097,13 @@ function refreshGrades() {
 }
 function grades(){show('grades');
   $('#gsub').textContent=`Khối của em: ${ACC.khoi}. Chọn khu vực để vào học.`;
-  $('#ggrid').innerHTML=gradeTiles().map(g=>{const counts=gradeCounts(g);
+  $('#ggrid').innerHTML=gradeTiles().map(g=>{const lock=gradeLocked(g.k);
+    if(lock)return `<button class="gtile off" data-k="${g.k}" aria-disabled="true" style="--c:${g.c};--d:${g.d};--t:#fff">
+      <span class="gk">Khối</span><span class="gn">${g.k}</span><span class="gm">Đã khoá</span><i class="mlock">${lockSVG}</i></button>`;
+    const counts=gradeCounts(g);
     return `<button class="gtile${ACC.khoi===g.k?' mine':''}" data-k="${g.k}" style="--c:${g.c};--d:${g.d};--t:${g.dark?'#4a3300':'#fff'}">
       <span class="gk">Khối</span><span class="gn">${g.k===CHUYEN_TOAN?'Chuyên Toán':g.k}</span><span class="gm">${counts.topics}</span><span class="gs">${g.k===CHUYEN_TOAN?'Đã làm ':star(1)} <span class="grade-stars">${counts.stars}</span></span>${ACC.khoi===g.k?'<span class="gme">Khối của em</span>':''}</button>`}).join('');
-  $$('#ggrid .gtile').forEach(b=>b.onclick=()=>{sfx.tap();curK=b.dataset.k;area()});
+  $$('#ggrid .gtile').forEach(b=>b.onclick=()=>{if(gradeLocked(b.dataset.k)){sfx.no();return toast('Em chỉ học được khối '+ACC.khoi+' nhé!')}sfx.tap();curK=b.dataset.k;area()});
   $('#gteach').innerHTML=''}
 
 /* ---------- khu vực khối: 5 phần ---------- */
@@ -2108,7 +2116,7 @@ const myPt=k=>(P.pt&&P.pt[k])||(P.best[k]>0?'1970':null);
 const asgFor=t=>ASG.filter(a=>a.topicId===t.id&&a.khoi===t.khoi).sort((a,b)=>(a.due||'9').localeCompare(b.due||'9'))[0];
 function counts(){const ix=qIndex();let nb=0;for(const [k,r] of Object.entries(P.rev||{}))if(ix[k]&&r.in_notebook)nb++;return {nb,saved:Object.keys(P.saved||{}).length}}
 // Khu vực khối = bản đồ kho báu (các mục khác thu gọn thành biểu tượng nhỏ ở góc bản đồ)
-function area(){if(curK===CHUYEN_TOAN)return onTap();journey()}
+function area(){if(gradeLocked(curK))curK=ACC.khoi;if(curK===CHUYEN_TOAN)return onTap();journey()}
 let JOPEN='';
 const JICO={
   ontap:'<svg viewBox="0 0 24 24" width="28" height="28"><path d="M5 4h10l4 4v12H5z" fill="#fff"/><path d="M15 4v4h4" fill="#d9d2ff"/><path d="M8 11h8M8 14h8M8 17h5" stroke="#6a57e0" stroke-width="1.8" stroke-linecap="round"/></svg>',
@@ -3599,12 +3607,17 @@ let SERVERP=null,SESS=null,FIGS={};
 const api=async(path,body,method)=>{const r=await fetch(path,{method:method||(body?'POST':'GET'),headers:body?{'content-type':'application/json'}:{},body:body?JSON.stringify(body):undefined,credentials:'same-origin'});
   let j=null;try{j=await r.json()}catch(e){}if(!r.ok)throw Object.assign(new Error((j&&j.error)||('Lỗi kết nối ('+r.status+')')),{status:r.status,data:j});return j};
 const wrapDoc=x=>({id:x.id,exists:true,data:()=>x});
-let topicVersion = '', lastCatalog = 0, lastSync = 0, syncSequence = 0;
+let topicVersion = '', lastCatalog = 0, lastSync = 0, lastPlayers = 0, syncSequence = 0;
+// Danh sách người chơi (bảng xếp hạng, bạn bè, theo dõi) chỉ tải lại sau mỗi 10 phút để giảm lưu lượng Supabase.
+const PLAYERS_EVERY = 10 * 60000;
 async function loadAll(force = false) {
   const sequence = ++syncSequence;
-  // Làm mới cả hình đã dịch định kỳ, vì hình có thể đổi độc lập với bài.
-  const version = !force && Date.now() - lastCatalog < 15 * 60000 ? topicVersion : '';
-  const j = await api('/api/sync' + (version ? '?topics=' + encodeURIComponent(version) : ''));
+  // Phiên bản bài đã gồm cả hình đã dịch, nên chỉ tải lại kho bài khi bài hoặc hình thật sự đổi.
+  // Dự phòng: 3 giờ tải lại hẳn một lần, phòng khi bài bị sửa thẳng trên Supabase mà không đổi updated_at.
+  const version = !force && Date.now() - lastCatalog < 3 * 3600000 ? topicVersion : '';
+  const withPlayers = force || Date.now() - lastPlayers >= PLAYERS_EVERY;
+  const q = [version ? 'topics=' + encodeURIComponent(version) : '', withPlayers ? '' : 'players=0'].filter(Boolean).join('&');
+  const j = await api('/api/sync' + (q ? '?' + q : ''));
   if (sequence !== syncSequence) return;
   specialAccess = j.specialAccess === true;
   if (Array.isArray(j.topics)) {
@@ -3613,14 +3626,15 @@ async function loadAll(force = false) {
     topicVersion = j.topicVersion || '';
     lastCatalog = Date.now();
   }
-  ASG=j.assignments||[]; PLAYERS=j.players||[]; ACCS=j.accounts||[]; ACCS_DEL=j.removed||[]; REPS=j.reports||[]; MOC=j.moc||{};
+  ASG=j.assignments||[]; MOC=j.moc||{};
+  if (Array.isArray(j.players)) { PLAYERS=j.players; ACCS=j.accounts||[]; ACCS_DEL=j.removed||[]; REPS=j.reports||[]; lastPlayers = Date.now(); }
   lastSync = Date.now();
 }
 function softRefresh(){const on=$$('.scr.on')[0]?.id;if($('#ovl').classList.contains('on')||on==='play')return;
   if(BANKON&&!QE&&on==='track'){if(document.activeElement&&document.activeElement.id==='bkQ')return;return bank(true)}
   if(QE&&on==='track'){const t=TOPICS.find(x=>x.id===QE);if(t)qedit(t);return}
   if(on==='track'&&$('#trTitle').textContent.startsWith('Tài khoản'))return accounts();if(on==='track'&&$('#trTitle').textContent.startsWith('Câu báo lỗi'))return reportsPage();if(on==='track'&&$('#trTitle').textContent.startsWith('Theo dõi'))return track();refresh()}
-const after=p=>p.then(r=>{loadAll().then(softRefresh).catch(()=>{});return r});
+const after=p=>p.then(r=>{lastPlayers=0;loadAll().then(softRefresh).catch(()=>{});return r});
 DB={doc:path=>{const i=path.indexOf('/'),c=path.slice(0,i),id=path.slice(i+1);return {
     update:v=>c==='settings'?after(api('/api/admin/settings',{action:'moc',...v})):c==='reports'?after(api('/api/admin/report',v)):c==='topics'?after(api('/api/admin/topic',{id,...v})):c==='accounts'?after(v.restore?api('/api/admin/accounts',{action:'restore',id}):v.mon?api('/api/admin/accounts',{action:'mon',id,mon:v.mon}):('ph' in v)&&v.isDefault?api('/api/admin/accounts',{action:'reset',id}):Promise.resolve()):Promise.resolve(),
     set:v=>c==='players'?api('/api/me/save',{doc:v}):Promise.resolve(),

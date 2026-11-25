@@ -5,7 +5,9 @@ function makeFake(seed = {}) {
   const pk = { ltt_players: 'account_id', ltt_figures: 'hash', ltt_settings: 'key' };
   class Q {
     constructor(t) { this.t = t; this.f = []; this.op = 'select'; this.one = false; }
-    select(cols) { if (this.op === 'select') this.cols = cols; return this; }
+    select(cols, opt = {}) { if (this.op === 'select') { this.cols = cols; this.cnt = opt.count; this.head = opt.head; } return this; }
+    order(c, o = {}) { this.ord = [c, o.ascending !== false]; return this; }
+    limit(n) { this.lim = n; return this; }
     eq(c, v) { this.f.push(r => r[c] === v); return this; }
     like(c, p) { const re = new RegExp('^' + p.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/%/g, '.*') + '$'); this.f.push(r => re.test(r[c] || '')); return this; }
     in(c, a) { this.f.push(r => a.includes(r[c])); return this; }
@@ -23,7 +25,11 @@ function makeFake(seed = {}) {
       if (this.op === 'delete') { T[this.t] = tab.filter(r => !match(r)); return { data: null, error: null }; }
       let rows = tab.filter(match).map(r => ({ ...r }));
       if (this.cols && this.cols.includes('topic:ltt_topics(slug)')) rows = rows.map(r => ({ ...r, topic: (() => { const t = T.ltt_topics.find(x => x.id === r.topic_id); return t ? { slug: t.slug } : null; })() }));
-      return { data: this.one ? rows[0] || null : rows, error: null };
+      if (this.ord) { const [c, asc] = this.ord; rows.sort((a, b) => String(a[c] ?? '').localeCompare(String(b[c] ?? '')) * (asc ? 1 : -1)); }
+      const count = rows.length;
+      if (this.lim != null) rows = rows.slice(0, this.lim);
+      if (this.head) return { data: null, count, error: null };
+      return { data: this.one ? rows[0] || null : rows, count: this.cnt ? count : null, error: null };
     }
     then(res, rej) { try { res(this.run()); } catch (e) { rej(e); } }
   }
