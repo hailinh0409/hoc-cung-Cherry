@@ -20,7 +20,11 @@ const gradeTiles = () => canOpenSpecial() ? [...GRADES, SPECIAL_GRADE] : GRADES;
 const PHAN={'dai-so':{name:'Đại số',c:'#3aa8e0',d:'#2584b8'},'hinh-hoc':{name:'Hình học',c:'#2fb787',d:'#1f8a63'},'thong-ke':{name:'Thống kê & Xác suất',c:'#ff9f1c',d:'#d97f00'},'on-tap':{name:'Ôn tập',c:'#8d7bff',d:'#6a57e0'},'thi-dau':{name:'Kho Thi đấu',c:'#ef3b55',d:'#c22a40'}};
 const TIERS=[{n:'Đồng',lp:0,c:'#c08457',d:'#8a5a33'},{n:'Bạc',lp:100,c:'#c3ced6',d:'#8a9aa6'},{n:'Vàng',lp:200,c:'#ffd23f',d:'#c99a08'},{n:'Bạch Kim',lp:350,c:'#4fd1c5',d:'#2a9d93'},
   {n:'Kim Cương',lp:500,c:'#6aa8ff',d:'#3f78d6'},{n:'Cao Thủ',lp:700,c:'#b36bff',d:'#8442d6'},{n:'Đại Cao Thủ',lp:900,c:'#ff5d6c',d:'#c8323f'},{n:'Thách Đấu',lp:1200,c:'#ffb800',d:'#b97f00'}];
-const tierOf=lp=>{let t=0;TIERS.forEach((x,i)=>{if((lp||0)>=x.lp)t=i});return t};
+const tierOf=lp=>{let t=0;TIERS.forEach((x,i)=>{if((lp||0)>=x.lp)t=i});return t}; // chỉ dùng cho dữ liệu cũ (chưa có bậc riêng)
+// Bậc của một người chơi; người chưa vào mùa mới thì hiện bậc sau khi tụt SEASON_DROP bậc
+const tierP=p=>{let t=tierOfP(p);if(p&&p.season&&p.season!==seasonName())t=seasonStart(t).tier;return t};
+const tierMe=()=>Number.isInteger(P&&P.tier)?P.tier:tierOfP(P);
+const progTxt=(t,p)=>t>=TOP?`Phong độ ${pdOf(p.tdh)}`:barFull(t,p.lp)?'Chờ thi thăng hạng':barPct(t,p.lp)+'%';
 const TYPE={ex:'Trắc nghiệm',extf:'Đúng / Sai',exfb:'Điền đáp số',exmatch:'Nối ý',exsx:'Sắp xếp lời giải',exsd:'Sơ đồ đi lên',extl:'Tự luận'};
 const HINT_XP=10; // mỗi gợi ý tự luận mở lần đầu trừ 10 XP trong Ví XP (khớp HINT_XP ở lib/validate.js)
 const MODE={so:'Làm lại câu sai',one:'Câu đã lưu',rank:'Thi đấu',de:'Ôn tập'};
@@ -30,7 +34,7 @@ const MPC=[['#ffe1d6','#ff7a59'],['#d8eeff','#2b9bd6'],['#e8e0ff','#8d7bff'],['#
 /* ---------- kho dữ liệu ---------- */
 let TOPICS=[],ACCS=[],ACCS_DEL=[],REPS=[],MOC={},PLAYERS=[],ASG=[],TEACHER=false,DBSTATE='loading',DB=null;
 let ACC=null,P=null,curK='',curPhan='',curT=null,profFrom='grades';
-const newP=()=>({xp:0,lp:0,matches:0,hist:[],st:{},best:{},score:{},pt:{},rev:{},saved:{},wst:{},stats:{correct:0,maxCombo:0,levels:0,perfect:0,top:0,cleared:0,chests:0},own:{},eq:{},spent:0,dq:null,wk:{},season:'',seasons:[],fails:{},lvt:{},ccl:{},tut:0,follow:{},fseen:'',rseen:{},ach:{},avatar:0,nick:'',tlh:{}});
+const newP=()=>({xp:0,lp:0,matches:0,hist:[],st:{},best:{},score:{},pt:{},deh:{},rev:{},saved:{},wst:{},stats:{correct:0,maxCombo:0,levels:0,perfect:0,top:0,cleared:0,chests:0},own:{},eq:{},spent:0,dq:null,wk:{},season:'',seasons:[],fails:{},lvt:{},ccl:{},tut:0,follow:{},fseen:'',rseen:{},ach:{},avatar:0,nick:'',tlh:{}});
 function fromDoc(d){const v=d.data()||{};const P=parseTopic(v.text);
   return {id:d.id,khoi:String(v.khoi||'?'),phan:PHAN[v.phan]?v.phan:'dai-so',title:v.title||P.title||d.id,status:v.trangthai||'nhap',order:Number(v.thutu)||0,levels:P.levels,errors:P.errors,nguon:v.nguon||'',chuong:v.chuong||'',raw:v.text||'',prev:v.banTruoc||'',upd:v.capnhat||'',theory:P.theory||null}}
 // \\ ngoài công thức = xuống dòng; trong $...$, $$...$$, \(...\), \[...\] giữ nguyên (cases, aligned, ma trận cần \\)
@@ -238,7 +242,7 @@ function login(view='in',msg=''){show('login');const w=$('#lwrap');
     enter(a,old==='0000')}}
 
 function enter(a,isDefault){ACC={id:a.id,name:a.name,khoi:a.khoi,teacher:!!a.teacher,mon:a.teacher?['toan','anh']:monOf(a)};store.set('ltt:acc',ACC);
-  P=Object.assign(newP(),store.get('ltt:p:'+ACC.id,{}));const doc=PLAYERS.find(x=>x.id===ACC.id);if(doc)mergeP(doc);
+  P=Object.assign(newP(),store.get('ltt:p:'+ACC.id,{}));const doc=PLAYERS.find(x=>x.id===ACC.id);if(doc)mergeP(doc);if(!Number.isInteger(P.tier))P.tier=tierOf(P.lp);
   if(!P.nick)P.nick='';curK=ACC.khoi;if(!ACC.teacher)checkSeason();save();sfx.win();
   if(!ACC.teacher&&isDefault){subjects();overlay(`<h2>Đổi mật khẩu nhé!</h2><p>Mật khẩu của em đang là <b>0000</b>. Em nên đổi sang 4 chữ số khác để bạn khác không vào nhầm.</p><button class="btn" id="dc">Đổi ngay</button><button class="btn alt" id="dl">Để sau</button>`);
     $('#dc').onclick=()=>{closeOvl();logout('chg')};$('#dl').onclick=closeOvl}
@@ -312,7 +316,7 @@ const JICO={
   redo:'<svg viewBox="0 0 24 24" width="28" height="28"><path d="M19 12a7 7 0 11-2.05-4.95" stroke="#fff" stroke-width="2.8" fill="none" stroke-linecap="round"/><path d="M19 4v5h-5" stroke="#fff" stroke-width="2.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>',
   asg:'<svg viewBox="0 0 24 24" width="26" height="26"><rect x="5" y="4" width="14" height="17" rx="2" fill="#fff"/><rect x="9" y="2.5" width="6" height="3.5" rx="1" fill="#ffd23f"/><path d="M8.5 13l2.3 2.3 4.7-5" stroke="#2584b8" stroke-width="2.2" fill="none" stroke-linecap="round"/></svg>',
   track:'<svg viewBox="0 0 24 24" width="26" height="26"><path d="M5 19V11M10 19V6M15 19v-6M20 19V9" stroke="#fff" stroke-width="3" stroke-linecap="round"/></svg>'};
-function jdock(){const el=$('#jdock');if(!el)return;const g=G0(curK),c=counts(),T=TIERS[tierOf(P.lp)],de=deTopics(curK),mine=g.k===ACC.khoi&&!ACC.teacher;
+function jdock(){const el=$('#jdock');if(!el)return;const g=G0(curK),c=counts(),T=TIERS[tierMe()],de=deTopics(curK),mine=g.k===ACC.khoi&&!ACC.teacher;
   const pend=x=>x.filter(t=>{const a=asgFor(t);return a&&!asgStatus(a,myPt).complete}).length,pd=pend(de);
   const q=mine?dq():null,qleft=q?q.ids.filter(id=>!q.c[id]).length+(q.ids.every(id=>q.c[id])&&!q.chest?1:0):0;
   const items=[
@@ -323,8 +327,8 @@ function jdock(){const el=$('#jdock');if(!el)return;const g=G0(curK),c=counts(),
       big:()=>`<button class="ptile wide" data-go="ontap" style="--c:#8d7bff;--d:#6a57e0">${JICO.ontap.replace(/28/g,'56')}<div><b>Ôn tập</b><span>${de.length} đề · đã làm ${de.filter(deDone).length}${pd?` · ${pd} đề thầy giao`:''}</span></div><i class="go">Vào ›</i></button>`},
     {k:'redo',n:'Câu sai',ico:JICO.redo,c:'#ff7a59',d:'#e85a3a',badge:c.nb,
       big:()=>`<button class="ptile wide" data-go="redo" style="--c:#ff7a59;--d:#e85a3a">${JICO.redo.replace(/28/g,'56')}<div><b>Làm lại câu sai</b><span>${c.nb} câu sai · ${c.saved} câu đã lưu</span></div><i class="go">Vào ›</i></button>`},
-    {k:'ranked',n:'Thi đấu',ico:emblem(tierOf(P.lp),38),c:'#20374a',d:'#120f24',bd:T.c,
-      big:()=>`<button class="ptile wide rk" data-go="ranked" style="--c:${T.c};--d:${T.d}">${emblem(tierOf(P.lp),56)}<div><b>Thi đấu</b><span>${T.n} · ${P.lp||0} điểm</span></div><i class="go">Vào trận ›</i></button>`},
+    {k:'ranked',n:'Thi đấu',ico:emblem(tierMe(),38),c:'#20374a',d:'#120f24',bd:T.c,
+      big:()=>`<button class="ptile wide rk" data-go="ranked" style="--c:${T.c};--d:${T.d}">${emblem(tierMe(),56)}<div><b>Thi đấu</b><span>${T.n} · ${progTxt(tierMe(),P)}</span></div><i class="go">Vào trận ›</i></button>`},
     GV()&&{k:'asg',n:'Giao bài',ico:JICO.asg,c:'#3aa8e0',d:'#2584b8',act:asgForm},
     GV()&&{k:'track',n:'Theo dõi',ico:JICO.track,c:'#2fb787',d:'#1f8a63',act:track}].filter(Boolean);
   if(!items.some(x=>x.k===JOPEN&&x.big))JOPEN='';
@@ -548,7 +552,7 @@ let redoTab='sai';
 function qIndex(){const ix={};for(const t of TOPICS){if(!visible(t)||t.khoi!==(ACC?.khoi||curK))continue;t.levels.forEach((l,li)=>l.qs.forEach(q=>{ix[q.key]={q,t,li}}))}return ix}
 function redo(){show('redo');const ix=qIndex(),wr=Object.entries(P.rev||{}).filter(([k,r])=>ix[k]&&r.in_notebook),sv=Object.entries(P.saved||{}).sort((a,b)=>b[1].at.localeCompare(a[1].at));
   const byT={};wr.forEach(([k])=>{const t=ix[k].t.title;byT[t]=(byT[t]||0)+1});
-  $('#redoBody').innerHTML=`<div class="phead" style="--c:#ff7a59;--d:#e85a3a"><b>Làm lại câu sai</b><span>Đúng lại ở 2 ngày khác nhau thì câu được gạch khỏi danh sách.${ACC&&!ACC.teacher?` Còn <b>${nbOpen()}</b> câu chưa làm lại đúng lần nào${P.rlock?' (Thi đấu đang khóa đến khi về 0)':''}.`:''}</span></div>
+  $('#redoBody').innerHTML=`<div class="phead" style="--c:#ff7a59;--d:#e85a3a"><b>Làm lại câu sai</b><span>Đúng lại ở 2 ngày khác nhau thì câu được gạch khỏi danh sách.${ACC&&!ACC.teacher?` Còn <b>${nbOpen()}</b> câu chưa làm lại đúng lần nào${P.rlock?` (Thi đấu đang khóa đến khi còn không quá ${NB_UNLOCK} câu)`:''}.`:''}</span></div>
    <div class="seg"><button data-tab="sai" class="${redoTab==='sai'?'on':''}">Câu sai (${wr.length})</button><button data-tab="luu" class="${redoTab==='luu'?'on':''}">Đã lưu (${sv.length})</button></div>
    ${redoTab==='sai'?(wr.length?`<button class="btn big" id="rGo">Làm lại ${Math.min(10,wr.length)} câu</button><div class="tbox">${Object.entries(byT).map(([t,n])=>`<div class="row2"><span>${esc(t)}</span><b>${n} câu</b></div>`).join('')}</div>`
       :`<div class="empty"><div style="width:90px;margin:0 auto">${owlSVG}</div><p>Chưa có câu sai nào cần làm lại. Giỏi lắm!</p></div>`)
@@ -574,15 +578,39 @@ function viewSaved(id){const s=P.saved[id];if(!s)return;
   $('#vT').onclick=()=>{closeOvl();const q=JSON.parse(JSON.stringify(s.q));newG('one',[{...q,title:s.title}],{});hud();show('play');renderQ()}}
 
 /* ---------- thi đấu ---------- */
-function ranked(){show('ranked');const t=tierOf(P.lp),T=TIERS[t],N=TIERS[t+1],lp=P.lp||0,lk=rankLock(),SO=seasonOf();
-  $('#rankedBody').innerHTML=`<div class="rcard" style="--c:${T.c};--d:${T.d}">${emblem(t,110)}<h2>${T.n}</h2><div class="rlp">${lp} điểm</div>
-     ${N?`<div class="rnext"><i style="width:${(lp-T.lp)/(N.lp-T.lp)*100}%"></i></div><small>Còn ${N.lp-lp} điểm để lên ${N.n}</small>`:'<small>Bậc cao nhất!</small>'}</div>
-   ${lk?`<div class="tbox rlock"><b>Thi đấu đang tạm khóa</b><div>Em còn <b>${lk} câu sai</b> chưa làm lại đúng. Dọn sạch kho câu sai rồi vào trận nhé: hiểu chắc bài cũ thì thi đấu mới lên hạng bền.</div></div><button class="btn big co" id="rFix">Làm lại câu sai (${lk})</button>`:`<button class="btn big" id="rPlay">Vào trận</button>`}
-   <p class="tnote2">Hôm nay đã cộng ${Math.min(RANK_DAY_CAP,lpdE().g)}/${RANK_DAY_CAP} điểm thi đấu · ${esc(SO.name)}, còn ${SO.left} ngày.</p>
-   <div class="tbox rules"><b>Luật thi đấu</b><div>• Mỗi mùa ${SEASON_DAYS} ngày. Sang mùa mới mọi người bắt đầu lại từ 0 điểm, thành tích mùa cũ lưu ở trang cá nhân.</div><div>• Có hơn ${NB_LOCK} câu sai chưa làm lại đúng thì tạm khóa Thi đấu, dọn sạch kho câu sai mới mở lại.</div><div>• Mỗi ngày cộng tối đa ${RANK_DAY_CAP} điểm thi đấu.</div><div>• Mỗi trận 10 câu của khối ${ACC.khoi}, không có gợi ý. Bậc ${T.n}: ${(RANK_BY_TIER[t]||RANK_PICK).map((n,i)=>n?n+' câu mức '+(i+1):'').filter(Boolean).join(', ')}. Bậc càng cao câu càng khó.</div>${mocOf(ACC.khoi)?`<div>• Đang thi kiến thức ${chRange(mocOf(ACC.khoi))} (đến chương ${esc(chapTitle(ACC.khoi,mocOf(ACC.khoi)))}). Khoảng một nửa số câu thuộc chương mới học nhất.</div>`:''}<div>• Câu đã gặp ở trận trước sẽ không ra lại; câu cùng dạng thì được đổi số.</div><div>• Thời gian mỗi câu: mức 1: 30 giây, mức 2: 45 giây, mức 3: 60 giây, mức 4: 90 giây. Hết giờ tính là sai.</div><div>• Đúng càng nhanh càng nhiều điểm trận. Bậc ${T.n} cần đạt ${Math.round(rankTarget(t)*100)}% điểm trận tối đa mới được cộng điểm; bậc càng cao mức chuẩn càng cao.</div><div>• Thưởng chính xác: đúng 10/10 câu +6, 9/10 +4, 8/10 +2.</div><div>• Câu sắp xếp lời giải, sơ đồ: đúng một phần được điểm theo số dòng/ô đúng.</div></div>
+/* Thi đấu: dưới Thách Đấu chỉ có thanh tiến trình; đầy thanh thì bắt buộc làm bài kiểm tra thăng hạng
+   (còn bài thầy giao chưa xong thì làm trước). Thách Đấu xếp hạng bằng điểm phong độ. */
+const hwLeft=()=>ACC&&!ACC.teacher?ASG.filter(a=>a.khoi===ACC.khoi&&TOPICS.some(t=>t.id===a.topicId)&&!asgStatus(a,myPt).complete):[];
+const promoLeft=()=>PROMO_PER_DAY-(P.pr&&P.pr.d===vnDay()?P.pr.n||0:0);
+const promoWrong=()=>(P.prw||[]).filter(k=>{const r=(P.rev||{})[k];return r&&r.in_notebook&&!(r.nb_hits>0)});
+function ranked(){show('ranked');const t=tierMe(),T=TIERS[t],N=TIERS[t+1],lp=P.lp||0,lk=rankLock(),SO=seasonOf(),full=barFull(t,lp),pc=barPct(t,lp);
+  const hw=full?hwLeft():[],pw=full?promoWrong():[],left=promoLeft();
+  const act=lk?`<div class="tbox rlock"><b>Thi đấu đang tạm khóa</b><div>Em còn <b>${lk} câu sai</b> chưa làm lại đúng. Làm lại đến khi còn không quá <b>${NB_UNLOCK} câu</b> là mở lại Thi đấu (còn ${lk-NB_UNLOCK} câu nữa): hiểu chắc bài cũ thì thi đấu mới lên hạng bền.</div></div><button class="btn big co" id="rFix">Làm lại câu sai (${lk})</button>`
+    :!full?`<button class="btn big" id="rPlay">Vào trận</button>`
+    :hw.length?`<div class="tbox rlock"><b>Làm xong bài thầy giao trước nhé</b><div>Thanh tiến trình đã đầy! Em còn <b>${hw.length} bài</b> thầy giao chưa xong: ${hw.slice(0,3).map(a=>esc((TOPICS.find(x=>x.id===a.topicId)||{}).title||'?')).join(', ')}${hw.length>3?'…':''}. Làm xong là được thi lên ${N.n}.</div></div><button class="btn big co" id="rHw">Đến Hành trình</button>`
+    :pw.length?`<div class="tbox rlock"><b>Làm lại câu sai của bài kiểm tra trước</b><div>Em còn <b>${pw.length} câu</b> sai ở lần thi trước chưa làm lại đúng. Làm lại xong là được thi tiếp.</div></div><button class="btn big co" id="rPw">Làm lại ${pw.length} câu</button>`
+    :left<=0?`<div class="tbox rlock"><b>Hết lượt thi hôm nay</b><div>Mỗi ngày được thi thăng hạng ${PROMO_PER_DAY} lần. Mai em thi tiếp nhé!</div></div>`
+    :`<button class="btn big" id="rPromo">Làm bài kiểm tra lên ${N.n}</button><p class="tnote2">Còn ${left} lượt thi hôm nay.</p>`;
+  $('#rankedBody').innerHTML=`<div class="rcard" style="--c:${T.c};--d:${T.d}">${emblem(t,110)}<h2>${T.n}</h2>
+     ${N?`<div class="rnext"><i style="width:${pc}%"></i></div><small>${full?`Thanh đã đầy! Làm bài kiểm tra để lên <b>${N.n}</b>`:`Thanh tiến trình ${pc}% · đầy thanh thì được thi lên ${N.n}`}</small>`
+       :`<div class="rlp">${pdOf(P.tdh)} điểm phong độ</div><small>Trung bình ${Math.min(PD_N,(P.tdh||[]).length)} trận gần nhất</small><div class="rnext"><i style="width:${pc}%"></i></div><small>Độ vững bậc ${pc}%: thua nhiều về 0% sẽ tụt Đại Cao Thủ</small>`}
+     ${P.shield>0&&t>0?`<small>Bảo vệ bậc: còn ${P.shield} trận không bị tụt</small>`:''}</div>
+   ${act}
+   <p class="tnote2">${esc(SO.name)}, còn ${SO.left} ngày.</p>
+   <div class="tbox rules"><b>Luật thi đấu</b>
+    <div>• Dưới Thách Đấu: thắng trận thì thanh tiến trình tăng, thua thì giảm. <b>Đầy thanh thì phải làm bài kiểm tra thăng hạng</b> mới được đánh tiếp; còn bài thầy giao chưa xong thì làm trước. Tụt dưới đầu thanh thì xuống bậc dưới (5 trận đầu sau khi lên bậc được bảo vệ).</div>
+    <div>• Bài kiểm tra thăng hạng: ${PROMO_N} câu khó hơn bậc hiện tại, ít nhất một nửa không phải trắc nghiệm chọn đáp án. Lên ${N?N.n:'bậc trên'} cần đạt ${Math.round(promoPass(Math.min(TOP,t+1))*100)}% điểm bài${promoNeed3(Math.min(TOP,t+1))?' và đúng ít nhất 2 câu mức 3':''} (bậc càng cao càng khó). Mỗi ngày thi tối đa ${PROMO_PER_DAY} lần. Trượt: thanh lùi ${PROMO_FAIL} điểm và phải làm lại các câu sai.</div>
+    <div>• Thách Đấu: xếp hạng bằng <b>điểm phong độ</b> = trung bình ${PD_N} trận gần nhất, đánh nhiều không tăng điểm, chỉ đánh tốt mới tăng.</div>
+    <div>• Mỗi mùa ${SEASON_DAYS} ngày. Sang mùa mới mọi người <b>tụt ${SEASON_DROP} bậc</b>, thành tích mùa cũ lưu ở trang cá nhân.</div>
+    <div>• Có hơn ${NB_LOCK} câu sai chưa làm lại đúng thì tạm khóa Thi đấu; làm lại đến khi còn không quá ${NB_UNLOCK} câu là mở lại.</div>
+    <div>• Mỗi trận 10 câu của khối ${ACC.khoi}, không có gợi ý. Bậc ${T.n}: ${(RANK_BY_TIER[t]||RANK_PICK).map((n,i)=>n?n+' câu mức '+(i+1):'').filter(Boolean).join(', ')}. Bậc càng cao câu càng khó.</div>${mocOf(ACC.khoi)?`<div>• Đang thi kiến thức ${chRange(mocOf(ACC.khoi))} (đến chương ${esc(chapTitle(ACC.khoi,mocOf(ACC.khoi)))}). Khoảng một nửa số câu thuộc chương mới học nhất.</div>`:''}<div>• Câu đã gặp ở trận trước sẽ không ra lại; câu cùng dạng thì được đổi số.</div><div>• Thời gian tính cho cả trận (khoảng 30 giây mỗi câu mức 1, 45 giây mức 2, 60 giây mức 3, 90 giây mức 4, cộng lại). Em tự chia thời gian: câu dễ làm nhanh, câu khó nghĩ lâu hơn. Đồng hồ dừng khi em đọc lời giải.</div><div>• Câu chưa chọn đáp án có thể bấm <b>Bỏ qua, làm sau</b>; câu đó được xếp xuống cuối trận. Hết giờ thì các câu chưa làm tính là sai.</div><div>• Điểm trận chủ yếu tính theo số câu đúng (câu càng khó càng nhiều điểm). <b>Trả lời sai bị trừ 1/3 điểm câu đó</b>, nên chọn bừa không có lợi; chưa chắc thì bỏ qua làm sau. Hết giờ mà chưa trả lời thì không bị trừ. Xong sớm được thưởng thêm tối đa ${Math.round(RANK_SPEED*100)}% điểm trận. Bậc ${T.n} cần đạt ${Math.round(rankTarget(t)*100)}% điểm trận tối đa thì thanh mới tăng; bậc càng cao mức chuẩn càng cao.</div><div>• Thưởng chính xác: đúng 10/10 câu +6, 9/10 +4, 8/10 +2.</div><div>• Câu sắp xếp lời giải, sơ đồ: đúng một phần được điểm theo số dòng/ô đúng.</div></div>
    <button class="btn alt" id="rBoard">Bảng xếp hạng</button>
+   ${(P.prh||[]).length?`<h2 class="sect">Bài kiểm tra thăng hạng</h2><div class="tbox">${P.prh.slice(-4).reverse().map(h=>`<div class="row2"><span>${new Date(h.at).toLocaleString('vi-VN',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})} · lên ${TIERS[h.to].n} · ${h.pc}%</span><b class="${h.ok?'y':'n'}">${h.ok?'Đạt':'Chưa đạt'}</b></div>`).join('')}</div>`:''}
    ${(P.hist||[]).length?`<h2 class="sect">Trận gần đây</h2><div class="tbox">${P.hist.slice(-6).reverse().map(h=>`<div class="row2"><span>${new Date(h.at).toLocaleString('vi-VN',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})} · ${h.c}/${h.n} câu · ${h.s} điểm trận</span><b class="${h.d>=0?'y':'n'}">${h.d>=0?'+':''}${h.d}</b></div>`).join('')}</div>`:''}`;
-  $('#rPlay')&&($('#rPlay').onclick=()=>{sfx.tap();startRank()});$('#rFix')&&($('#rFix').onclick=()=>{sfx.tap();redoTab='sai';redo()});$('#rBoard').onclick=()=>{sfx.tap();boardT=null;board()}}
+  $('#rPlay')&&($('#rPlay').onclick=()=>{sfx.tap();startRank()});$('#rFix')&&($('#rFix').onclick=()=>{sfx.tap();redoTab='sai';redo()});
+  $('#rHw')&&($('#rHw').onclick=()=>{sfx.tap();curK=ACC.khoi;journey()});$('#rPw')&&($('#rPw').onclick=()=>{sfx.tap();startRedoKeys(promoWrong())});
+  $('#rPromo')&&($('#rPromo').onclick=()=>{sfx.tap();startPromo()});
+  $('#rBoard').onclick=()=>{sfx.tap();boardT=null;board()}}
 /* Thi đấu: không lặp câu với cùng một người chơi.
    P.rseen[key] = "số trận|mã đề đã ra" — ưu tiên câu chưa gặp; câu có tham số gặp lại thì bắt buộc đổi số;
    câu cố định đã gặp chỉ dùng khi kho cạn, và lấy câu gặp lâu nhất. */
@@ -617,16 +645,45 @@ function rankMix(R,want){if(!R.m)return rankPick(R.all,want);
   const fill=w=>{const need=tot-got.length;if(need>0)got.push(...rankPick(R.all,w,used).slice(0,need))};
   fill(want.map((n,i)=>Math.max(0,n-cntLv(got,i))));fill([0,0,0,tot-got.length]);
   return got.sort((a,b)=>a.li-b.li)}
-function startRank(){if(ACC.teacher&&!TEACHER)return;if(rankLock())return ranked();const R=rankPools(ACC.khoi);
+function startRank(){if(ACC.teacher&&!TEACHER)return;if(rankLock()||(!ACC.teacher&&barFull(tierMe(),P.lp)))return ranked();const R=rankPools(ACC.khoi);
   const total=R.all.reduce((s,p)=>s+p.length,0);if(total<4)return msgBox('Chưa đủ câu hỏi','Khối này cần thêm chủ đề đã giao để mở thi đấu.');
-  const picks=rankMix(R,RANK_BY_TIER[tierOf(P.lp)]||RANK_PICK);
+  const picks=rankMix(R,RANK_BY_TIER[tierMe()]||RANK_PICK);
   let qs;try{qs=picks.map(x=>rankInst(x))}catch(e){return msgBox('Câu hỏi lỗi',esc(e.message))}
-  newG('rank',qs,{});hud();show('play');$('#stage').innerHTML='';$('#dock').innerHTML='';
-  overlay(`${emblem(tierOf(P.lp),80)}<h2>Sẵn sàng?</h2><p>${qs.length} câu · không gợi ý · có giới hạn thời gian. Thoát giữa trận vẫn bị tính kết quả.</p><button class="btn" id="go">Bắt đầu trận</button><button class="btn alt" id="gb">Để sau</button>`);
+  newG('rank',qs,{used:0});G.tot=qs.reduce((a,q)=>a+qLim(q),0);hud();show('play');$('#stage').innerHTML='';$('#dock').innerHTML='';
+  overlay(`${emblem(tierMe(),80)}<h2>Sẵn sàng?</h2><p>${qs.length} câu · không gợi ý · ${fmtT(G.tot)} cho cả trận, được bỏ qua câu để làm sau. Thoát giữa trận vẫn bị tính kết quả.</p><button class="btn" id="go">Bắt đầu trận</button><button class="btn alt" id="gb">Để sau</button>`);
   $('#go').onclick=()=>{sfx.tap();closeOvl();G.started=true;rankSeen(qs);save();renderQ()};$('#gb').onclick=()=>{closeOvl();ranked()}}
+/* Bài kiểm tra thăng hạng: PROMO_N câu theo cơ cấu mức của bậc sắp lên, ít nhất một nửa không phải trắc nghiệm chọn đáp án. */
+function promoMix(to){const w=[...(RANK_BY_TIER[to]||RANK_PICK)];let add=PROMO_N-w.reduce((a,b)=>a+b,0);const ix=w.map((n,i)=>n?i:-1).filter(i=>i>=0).reverse();for(let k=0;add>0;k++,add--)w[ix[k%ix.length]]++;return w}
+function promoPicks(to){const R=rankPools(ACC.khoi),picks=rankMix(R,promoMix(to)),used=new Set(picks.map(x=>x.q.key)),nonMC=x=>x.q.type!=='ex',need=Math.ceil(picks.length/2);
+  for(let i=0;i<picks.length&&picks.filter(nonMC).length<need;i++){if(nonMC(picks[i]))continue;const li=picks[i].li;
+    const c=(R.all[li]||[]).filter(x=>nonMC(x)&&!used.has(x.q.key)).sort((a,b)=>rankRank(a)-rankRank(b))[0];if(c){used.add(c.q.key);picks[i]=c}}
+  return {R,picks:picks.sort((a,b)=>a.li-b.li)}}
+function startPromo(){const t=tierMe(),to=t+1;if(to>TOP||rankLock()||!barFull(t,P.lp)||hwLeft().length||promoWrong().length||promoLeft()<=0)return ranked();
+  const {R,picks}=promoPicks(to);if(R.all.reduce((s,p)=>s+p.length,0)<4)return msgBox('Chưa đủ câu hỏi','Khối này cần thêm chủ đề đã giao để làm bài kiểm tra.');
+  let qs;try{qs=picks.map(x=>rankInst(x))}catch(e){return msgBox('Câu hỏi lỗi',esc(e.message))}
+  newG('rank',qs,{used:0,promo:{from:t,to},ok3:0,wk:[]});G.tot=qs.reduce((a,q)=>a+qLim(q),0);hud();show('play');$('#stage').innerHTML='';$('#dock').innerHTML='';$('#modeLbl').textContent='Thăng hạng';
+  const T=TIERS[to],n3=qs.filter(q=>(q.level||0)>=2).length,need3=Math.min(promoNeed3(to),n3);
+  overlay(`${emblem(to,80)}<h2>Thi lên ${T.n}</h2><p>${qs.length} câu · ${fmtT(G.tot)} cho cả bài · không gợi ý.<br>Cần đạt <b>${Math.round(promoPass(to)*100)}%</b> điểm bài${need3?` và đúng ít nhất <b>${need3} câu mức 3</b>`:''}. Trả lời sai bị trừ điểm; chưa chắc thì bỏ qua làm sau.<br>Thoát giữa chừng tính là chưa đạt.</p><button class="btn" id="go">Bắt đầu thi</button><button class="btn alt" id="gb">Để sau</button>`);
+  $('#go').onclick=()=>{sfx.tap();closeOvl();G.started=true;rankSeen(qs);save();renderQ()};$('#gb').onclick=()=>{closeOvl();ranked()}}
+function promoFinish(nOk,tm){const {from,to}=G.promo,mx=G.qs.reduce((s,q)=>s+RANK_PTS[Math.min(3,q.level||0)],0),n3=G.qs.filter(q=>(q.level||0)>=2).length;
+  const r=promoResult({score:G.score,max:mx,ok3:G.ok3||0,n3,to}),today=vnDay(),T=TIERS[to];
+  P.matches=(P.matches||0)+1;P.pr={d:today,n:(P.pr&&P.pr.d===today?P.pr.n||0:0)+1};
+  P.prh=[...(P.prh||[]),{at:new Date().toISOString(),from,to,pc:r.pc,ok:r.pass,c:nOk,n:G.qs.length,ok3:G.ok3||0,n3}].slice(-20);
+  if(r.pass){P.tier=to;P.lp=Math.max(P.lp||0,TIER_LP[to]);P.shield=SHIELD;P.prw=[];if(to===TOP)P.tdh=[]}
+  else{P.lp=Math.max(TIER_LP[from],(P.lp||0)-PROMO_FAIL);P.prw=[...new Set(G.wk||[])]}
+  const s=bumpStreak();save();syncMine();checkAch();if(r.pass){sfx.win();confetti(200,.3)}
+  overlay(`${emblem(r.pass?to:from,90)}<h2>${r.pass?'Lên '+T.n+'!':'Chưa đạt'}</h2>
+    <div class="lpd ${r.pass?'up':'down'}">${r.pc}%</div><p>Cần ${Math.round(promoPass(to)*100)}%${r.need3?` và ${r.need3} câu mức 3 đúng (em đúng ${G.ok3||0})`:''}</p>
+    <div class="stat"><div><b>${nOk}/${G.qs.length}</b>câu đúng</div>${tm}</div>
+    <p style="font-size:14px">${r.pass?`Chúc mừng em! 5 trận tới em được bảo vệ, không bị tụt bậc.`:`Thanh tiến trình lùi ${PROMO_FAIL} điểm. ${P.prw.length?`Làm lại đúng ${P.prw.length} câu sai, `:''}đánh thêm trận cho đầy thanh rồi thi lại nhé.`}</p>${streakLine(s)}
+    <button class="btn" id="r3">Về thi đấu</button>${r.pass?'<button class="btn alt" id="r2">Bảng xếp hạng</button>':''}`);
+  $('#r3').onclick=()=>{closeOvl();ranked()};$('#r2')&&($('#r2').onclick=()=>{closeOvl();boardT=null;board()})}
+function startRedoKeys(keys){const ix=qIndex();let items;try{items=shuffle(keys.filter(k=>ix[k]).map(k=>{const {q,t,li}=ix[k];return inst(q,{tid:t.id,level:li,title:t.title})}))}catch(err){return msgBox('Câu hỏi lỗi',esc(err.message))}
+  if(!items.length){P.prw=[];save();return ranked()}
+  newG('so',items,{});hud();show('play');$('#stage').innerHTML='';$('#dock').innerHTML='';renderQ()}
 let boardT=null,boardTab='rank',boardK='mine';
 function board(){show('board');const me=ACC.id,ses=seasonName();
-  const meDoc={...(PLAYERS.find(p=>p.id===me)||{}),id:me,name:ACC.name,khoi:ACC.khoi,nick:P.nick,avatar:P.avatar,eq:P.eq,lp:P.lp||0,wk:P.wk,season:P.season,matches:P.matches};
+  const meDoc={...(PLAYERS.find(p=>p.id===me)||{}),id:me,name:ACC.name,khoi:ACC.khoi,nick:P.nick,avatar:P.avatar,eq:P.eq,lp:P.lp||0,tier:tierMe(),tdh:P.tdh||[],wk:P.wk,season:P.season,matches:P.matches};
   const all=[...PLAYERS.filter(p=>p.id!==me),...(ACC.teacher?[]:[meDoc])];
   const tabs=`<div class="seg"><button data-bt="rank" class="${boardTab==='rank'?'on':''}">Thi đấu · ${esc(ses)}</button><button data-bt="week" class="${boardTab==='week'?'on':''}">Tiến bộ tuần</button></div>`;
   if(boardTab==='week'){const w=weekId(),rows=all.filter(p=>p.wk&&p.wk.w===w&&(p.wk.xp||0)>0&&(boardK==='all'||(boardK==='friends'?(p.id===ACC.id||isFollow(p.id)):p.khoi===(ACC.khoi||curK)))).sort((a,b)=>(b.wk.xp||0)-(a.wk.xp||0));
@@ -634,12 +691,14 @@ function board(){show('board');const me=ACC.id,ses=seasonName();
     $('#boardBody').innerHTML=tabs+`<div class="seg sm"><button data-bk="mine" class="${boardK==='mine'?'on':''}">Khối ${esc(ACC.khoi||curK)}</button>${ACC.teacher?'':`<button data-bk="friends" class="${boardK==='friends'?'on':''}">Bạn bè</button>`}<button data-bk="all" class="${boardK==='all'?'on':''}">Toàn CLB</button></div>
       <p class="tnote2">XP kiếm được từ thứ Hai tuần này. Ai cũng có cơ hội đứng đầu, làm mới mỗi tuần!</p>`+
       (rows.length?rows.map((p,i)=>`<button class="brow${p.id===me?' me':''}${i<3?' top'+i:''}" data-p="${p.id}"><span class="bno">${i<3?['🥇','🥈','🥉'][i]:i+1}</span>${avatarOf(p,36)}<span class="bn"><b>${esc(p.nick||p.name||'?')}</b><small>Khối ${esc(p.khoi||'?')} · ${p.wk.c||0} câu đúng</small></span><b class="blp">+${p.wk.xp}</b></button>`).join(''):'<div class="tempty">Tuần này chưa ai kiếm XP. Em mở màn đầu tiên nhé!</div>')}
-  else{const ps=all.filter(p=>(p.lp>0||p.id===me||p.matches)&&(!p.season||p.season===ses));const myT=tierOf(P.lp);if(boardT==null)boardT=myT;
-    const cnt=TIERS.map((_,i)=>ps.filter(p=>tierOf(p.lp)===i).length);
-    const rows=ps.filter(p=>tierOf(p.lp)===boardT).sort((a,b)=>(b.lp||0)-(a.lp||0)),T=TIERS[boardT],N=TIERS[boardT+1];
+  else{const ps=all.filter(p=>p.lp>0||p.id===me||p.matches);const myT=ACC.teacher?0:tierMe();if(boardT==null)boardT=myT;
+    const cnt=TIERS.map((_,i)=>ps.filter(p=>tierP(p)===i).length),top=boardT===TOP,T=TIERS[boardT];
+    // dưới Thách Đấu không xếp thứ hạng (chỉ có thanh tiến trình); Thách Đấu xếp theo điểm phong độ
+    const rows=ps.filter(p=>tierP(p)===boardT).sort(top?(a,b)=>((b.tdh||[]).length>=PD_MIN)-((a.tdh||[]).length>=PD_MIN)||pdOf(b.tdh)-pdOf(a.tdh):(a,b)=>(a.nick||a.name||'').localeCompare(b.nick||b.name||'','vi'));
+    const ok=p=>(p.tdh||[]).length>=PD_MIN;
     $('#boardBody').innerHTML=tabs+`<div class="tgrid">${TIERS.map((x,i)=>i).reverse().map(i=>`<button class="tt${i===boardT?' on':''}" data-t="${i}" style="--c:${TIERS[i].c};--d:${TIERS[i].d}">${emblem(i,36)}<b>${TIERS[i].n}</b><small>${cnt[i]} bạn</small>${i===myT&&!ACC.teacher?'<i>Em</i>':''}</button>`).join('')}</div>
-     <div class="tier" style="--c:${T.c};--d:${T.d}"><div class="thd">${emblem(boardT,40)}<b>${T.n}</b><small>${T.lp}${N?'–'+(N.lp-1):'+'} điểm · ${rows.length} bạn</small></div>
-      ${rows.map((p,i)=>`<button class="brow${p.id===me?' me':''}" data-p="${p.id}"><span class="bno">${i+1}</span>${avatarOf(p,36)}<span class="bn"><b>${esc(p.nick||p.name||'?')}</b>${titleOf(p)?`<em class="ttl">${esc(titleOf(p))}</em>`:''}<small>${p.nick?esc(p.name)+' · ':''}Khối ${esc(p.khoi||'?')}${p.mau?' · mẫu':''}</small></span><b class="blp">${p.lp||0}</b></button>`).join('')||'<div class="tempty">Chưa có bạn nào ở bậc này.</div>'}</div>`}
+     <div class="tier" style="--c:${T.c};--d:${T.d}"><div class="thd">${emblem(boardT,40)}<b>${T.n}</b><small>${top?`Xếp theo điểm phong độ (${PD_N} trận gần nhất)`:'Đầy thanh tiến trình và thi đạt để lên bậc'} · ${rows.length} bạn</small></div>
+      ${rows.map((p,i)=>`<button class="brow${p.id===me?' me':''}" data-p="${p.id}"><span class="bno">${top&&ok(p)?i+1:''}</span>${avatarOf(p,36)}<span class="bn"><b>${esc(p.nick||p.name||'?')}</b>${titleOf(p)?`<em class="ttl">${esc(titleOf(p))}</em>`:''}<small>${p.nick?esc(p.name)+' · ':''}Khối ${esc(p.khoi||'?')}${p.mau?' · mẫu':''}${top&&!ok(p)?` · chưa đủ ${PD_MIN} trận`:''}</small></span><b class="blp">${top&&ok(p)?pdOf(p.tdh):''}</b></button>`).join('')||'<div class="tempty">Chưa có bạn nào ở bậc này.</div>'}</div>`}
   $('#boardBody').innerHTML+=(GV()&&PLAYERS.some(p=>p.mau)?'<button class="btn sm alt" id="clrMau" style="margin:14px auto">Xóa dữ liệu mẫu</button>':'');
   $$('#boardBody [data-bt]').forEach(b=>b.onclick=()=>{sfx.tap();boardTab=b.dataset.bt;board()});
   $$('#boardBody [data-bk]').forEach(b=>b.onclick=()=>{sfx.tap();boardK=b.dataset.bk;board()});
@@ -665,24 +724,24 @@ const ACH=[
   {id:'fix10',n:'Sửa sai',d:'Gạch được 10 câu khỏi danh sách câu sai',t:p=>p.stats.cleared>=10},
   {id:'s7',n:'Bền bỉ 7 ngày',d:'Chuỗi 7 ngày học',t:p=>(p.st.best_streak||0)>=7},
   {id:'s30',n:'Bền bỉ 30 ngày',d:'Chuỗi 30 ngày học',t:p=>(p.st.best_streak||0)>=30},
-  {id:'gold',n:'Lên Vàng',d:'Đạt bậc Vàng trong thi đấu',t:p=>(p.lp||0)>=200},
-  {id:'dia',n:'Lên Kim Cương',d:'Đạt bậc Kim Cương',t:p=>(p.lp||0)>=500},
-  {id:'chal',n:'Thách Đấu',d:'Đạt bậc Thách Đấu',t:p=>(p.lp||0)>=1200}];
+  {id:'gold',n:'Lên Vàng',d:'Đạt bậc Vàng trong thi đấu',t:p=>tierOfP(p)>=2},
+  {id:'dia',n:'Lên Kim Cương',d:'Đạt bậc Kim Cương',t:p=>tierOfP(p)>=4},
+  {id:'chal',n:'Thách Đấu',d:'Đạt bậc Thách Đấu',t:p=>tierOfP(p)>=TOP}];
 const medal=(on,sz=40)=>`<svg viewBox="0 0 40 40" width="${sz}" height="${sz}"><path d="M12 2h6l2 10h-8zM22 2h6l-2 10h-6z" fill="${on?'#ff7a59':'#55707a'}"/><circle cx="20" cy="25" r="12" fill="${on?'#ffd23f':'#3d5a63'}" stroke="${on?'#c99a08':'#2c464e'}" stroke-width="2.5"/><path d="M20 18l2.1 4.3 4.7.6-3.4 3.2.9 4.6L20 28.4l-4.3 2.3.9-4.6-3.4-3.2 4.7-.6z" fill="${on?'#fff':'#55707a'}"/></svg>`;
 function checkAch(){let n=0;for(const a of ACH)if(!P.ach[a.id]&&a.t(P)){P.ach[a.id]=new Date().toISOString();n++;setTimeout(()=>toast(`${medal(true,32)}<span><b>Thành tích mới!</b><br>${a.n}</span>`),900*n)}if(n){save();syncMine()}}
 function profile(id){try{profile_(id)}catch(e){console.error(e);show('profile');$('#profBody').innerHTML=`<div class="tbox"><b>Chưa mở được trang cá nhân</b><div style="margin:8px 0;word-break:break-word">Lỗi: ${esc(String(e&&e.message||e))}</div><button class="btn" id="pErr">Quay lại</button></div>`;
   $('#pBack').onclick=$('#pErr').onclick=()=>{sfx.tap();subjects()}}}
 function profile_(id){show('profile');const own=ACC&&id===ACC.id;const p=own?{...P,name:ACC.name,khoi:ACC.khoi}:(PLAYERS.find(x=>x.id===id)||{});
-  const st=p.st||{},t=tierOf(p.lp),T=TIERS[t],lv=level(p.xp),[a,b]=lvBounds(lv),ach=p.ach||{},stats=p.stats||{};
+  const st=p.st||{},t=own?tierMe():tierP(p),T=TIERS[t],lv=level(p.xp),[a,b]=lvBounds(lv),ach=p.ach||{},stats=p.stats||{};
   $('#profBody').innerHTML=`<div class="pcard"><button class="pava" ${own?'id="pAva"':''}>${avatarOf(p,96)}${own?'<i>Đổi</i>':''}</button>
      <h2>${esc(p.nick||p.name)}</h2>${titleOf(p)?`<div class="ttlb">${esc(titleOf(p))}</div>`:''}<div class="preal">${esc(p.name||'')} · Khối ${esc(p.khoi||'?')}</div><div class="pfol"><a data-pf="following">${followingOf(p).length} đang theo dõi</a> · <a data-pf="followers">${followersOf(id).length} người theo dõi</a></div>${!own&&ACC&&!ACC.teacher?`<button class="fbtn big${isFollow(id)?' on':''}" id="pFol">${isFollow(id)?'Đang theo dõi':p.follow&&p.follow[ACC.id]?'Theo dõi lại':'Theo dõi'}</button>`:''}${own?'<div class="pbtns"><button class="btn sm alt" id="pNick">Đặt nickname</button><button class="btn sm" id="pShop">Tủ đồ & cửa hàng</button></div>':`<small class="pcol">Bộ sưu tập: ${Object.keys(p.own||{}).length} vật phẩm</small>`}</div>
    <div class="pstats"><div>${flame(!st.last_day,26)}<b>${liveStreak(st,vnDay())}</b><small>chuỗi ngày (kỷ lục ${st.best_streak||0})</small></div>
      <div><span class="lvb">${lv}</span><b>${p.xp||0}</b><small>XP · cấp ${lv}</small><i class="xpb"><i style="width:${Math.min(100,((p.xp||0)-a)/(b-a)*100)}%"></i></i></div>
-     <div style="--c:${T.c}">${emblem(t,30)}<b>${p.lp||0}</b><small>${T.n} · ${p.matches||0} trận</small></div></div>
+     <div style="--c:${T.c}">${emblem(t,30)}<b>${t>=TOP?pdOf(p.tdh):barPct(t,p.lp)+'%'}</b><small>${T.n} · ${p.matches||0} trận</small></div></div>
    <div class="tbox"><div class="row2"><span>Câu làm đúng</span><b>${stats.correct||0}</b></div><div class="row2"><span>Chuỗi đúng dài nhất</span><b>${stats.maxCombo||0}</b></div><div class="row2"><span>Bài đã qua</span><b>${stats.levels||0}</b></div></div>
    <h2 class="sect">Thành tích (${Object.keys(ach).length}/${ACH.length})</h2>
    <div class="achs">${ACH.map(x=>`<div class="ach${ach[x.id]?' on':''}">${medal(!!ach[x.id])}<b>${x.n}</b><small>${x.d}</small></div>`).join('')}</div>
-   ${(Array.isArray(p.seasons)?p.seasons:[]).length?`<h2 class="sect">Các mùa thi đấu</h2><div class="tbox">${p.seasons.slice().reverse().map(x=>`<div class="row2"><span>${esc(x.s)}</span><b>${TIERS[tierOf(x.lp)].n} · ${x.lp}</b></div>`).join('')}</div>`:''}
+   ${(Array.isArray(p.seasons)?p.seasons:[]).length?`<h2 class="sect">Các mùa thi đấu</h2><div class="tbox">${p.seasons.slice().reverse().map(x=>`<div class="row2"><span>${esc(x.s)}</span><b>${TIERS[x.t!=null?x.t:tierOf(x.lp)].n}</b></div>`).join('')}</div>`:''}
    ${own?`<h2 class="sect">Tài khoản của em</h2><div class="tbox"><div class="row2"><span>Họ và tên<br><small>Theo đăng kí với thầy, không đổi được</small></span><b>${esc(ACC.name)}</b></div><div class="row2"><span>Khối · Môn</span><b>${esc(ACC.khoi||'')} · ${(ACC.mon||['toan']).map(m=>m===CHUYEN_TOAN?'Chuyên Toán':MON[m]?MON[m].n:m).join(', ')}</b></div>${ACC.teacher?'':`<div class="row2"><span>Mật khẩu</span><button class="btn sm alt" id="pPin">Đổi mật khẩu</button></div>`}<div class="row2"><span>Âm thanh</span><button class="btn sm alt" id="pSnd">${muted?'Đang tắt · Bật':'Đang bật · Tắt'}</button></div></div>`:''}
    ${own&&!ACC.teacher?'<button class="btn alt" id="pOut" style="margin-top:14px">Đăng xuất</button>':''}`;
   $('#pBack').onclick=()=>{sfx.tap();(({board,area,grades,subj:subjects,anh,journey,ontap:onTap,redo,ranked,shop,friends})[profFrom]||area)()};
@@ -704,12 +763,11 @@ function addXP(n){P.xp=(P.xp||0)+n;wkE().xp+=n}
 const bal=()=>Math.max(0,(P.xp||0)-(P.spent||0));
 const titleOf=p=>{const id=p&&p.eq&&p.eq.title;return id&&ITEM[id]?ITEM[id].name:''};
 function checkSeason(){const s=seasonName();if(!P.season){P.season=s;return}if(P.season===s)return;
-  P.seasons=[...(P.seasons||[]),{s:P.season,lp:P.lp||0}].slice(-12);const old=P.lp||0;P.lp=0;P.season=s;P.lpd=null;
-  setTimeout(()=>msgBox(`${s} bắt đầu!`,`${old?`Mùa trước em đạt <b>${TIERS[tierOf(old)].n}</b> (${old} điểm), đã lưu vào trang cá nhân. `:''}Mỗi mùa kéo dài ${SEASON_DAYS} ngày, mọi người cùng bắt đầu lại từ <b>0 điểm</b>.`),800)}
-/* Thi đấu: câu sai chưa làm lại đúng lần nào. Quá NB_LOCK câu thì khóa; khóa rồi phải dọn về 0 mới mở lại. */
+  const old=tierMe();P.seasons=[...(P.seasons||[]),{s:P.season,lp:P.lp||0,t:old}].slice(-12);const S=seasonStart(old);P.tier=S.tier;P.lp=S.lp;P.shield=0;P.tdh=[];P.prw=[];P.season=s;
+  setTimeout(()=>msgBox(`${s} bắt đầu!`,`Mùa trước em đạt <b>${TIERS[old].n}</b>, đã lưu vào trang cá nhân. Sang mùa mới mọi người tụt ${SEASON_DROP} bậc: em bắt đầu ở <b>${TIERS[S.tier].n}</b>. Mỗi mùa kéo dài ${SEASON_DAYS} ngày.`),800)}
+/* Thi đấu: câu sai chưa làm lại đúng lần nào. Quá NB_LOCK câu thì khóa; khóa rồi làm lại đến khi còn ≤ NB_UNLOCK câu mới mở lại. */
 function nbOpen(){const ix=qIndex();return Object.entries(P.rev||{}).filter(([k,r])=>ix[k]&&r.in_notebook&&!(r.nb_hits>0)).length}
-function rankLock(){if(!ACC||ACC.teacher)return 0;const n=nbOpen();if(n>NB_LOCK)P.rlock=1;else if(!n&&P.rlock){P.rlock=0;save()}return P.rlock?n:0}
-function lpdE(){const d=vnDay();if(!P.lpd||P.lpd.d!==d)P.lpd={d,g:0};return P.lpd}
+function rankLock(){if(!ACC||ACC.teacher)return 0;const n=nbOpen();if(n>NB_LOCK)P.rlock=1;else if(n<=NB_UNLOCK&&P.rlock){P.rlock=0;save()}return P.rlock?n:0}
 
 /* ---------- âm thanh ---------- */
 const sndIco=()=>muted?`<svg width="20" height="20" viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4z" fill="#fff"/><path d="M16 9l5 6M21 9l-5 6" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/></svg>`:`<svg width="20" height="20" viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4z" fill="#fff"/><path d="M16 8.5a5 5 0 010 7M18.5 6a8.5 8.5 0 010 12" stroke="#fff" stroke-width="2.2" fill="none" stroke-linecap="round"/></svg>`;
@@ -783,24 +841,51 @@ function shop(){show('shop');if(!tryEq)tryEq={...(P.eq||{})};const own=P.own||{}
   $('#shBack').onclick=()=>{sfx.tap();shopSel=null;tryEq=null;$('#shopBar').classList.remove('on');shopFrom==='profile'?profile(ACC.id):shopFrom==='subj'?subjects():area()}}
 
 /* ---------- giáo viên: chú ý, báo cáo phụ huynh, thời gian màn ---------- */
+/* Bài kiểm tra thăng hạng 14 ngày gần nhất + em đang chờ thi (đầy thanh) */
+function promoBox(st){const lim=Date.now()-14*864e5,dt=a=>new Date(a).toLocaleString('vi-VN',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+  const rows=[];for(const v of st)for(const h of (v.prh||[]))if(Date.parse(h.at)>lim)rows.push({v,h});rows.sort((a,b)=>b.h.at.localeCompare(a.h.at));
+  const wait=st.filter(v=>barFull(tierP(v),v.lp));
+  return `<h2 class="sect">Bài kiểm tra thăng hạng (14 ngày)</h2><div class="tbox">${wait.length?`<p class="tnote">Đầy thanh, đang chờ thi: ${wait.map(v=>`${esc(v.name)} (lên ${TIERS[tierP(v)+1].n})`).join(', ')}.</p>`:''}${rows.length?rows.slice(0,15).map(({v,h})=>`<div class="row2"><span>${esc(v.name)}<br><small>${dt(h.at)} · ${TIERS[h.from].n} → ${TIERS[h.to].n} · ${h.c}/${h.n} câu${h.n3?` · mức 3 đúng ${h.ok3}/${h.n3}`:''}</small></span><b class="${h.ok?'y':'n'}">${h.pc}% ${h.ok?'Đạt':'Trượt'}</b></div>`).join(''):'<p class="tnote">Chưa có em nào làm bài kiểm tra thăng hạng.</p>'}</div>`}
 function teacherExtra(kh,st,ix){const today=vnDay(),real=st.filter(v=>!v.mau);
   const idle=real.map(v=>{const d=v.st&&v.st.last_day;return {v,d:d?dayDiff(d,today):999}}).filter(x=>x.d>=3).sort((a,b)=>b.d-a.d);
   const stuck=[];for(const v of real)for(const [k,n] of Object.entries(v.fails||{})){if(n<3)continue;const b=v.best&&v.best[k];if(b&&b.st>0)continue;const [tid,lv]=k.split('|'),t=TOPICS.find(x=>x.id===tid);if(t)stuck.push({v,t,lv:+lv,n})}
   const tm={};for(const v of real)for(const [k,x] of Object.entries(v.lvt||{})){const g=tm[k]||(tm[k]={n:0,s:0});g.n+=x.n;g.s+=x.s}
   const tms=Object.entries(tm).map(([k,g])=>{const [tid,lv]=k.split('|'),t=TOPICS.find(x=>x.id===tid);return t&&t.khoi===kh?{t,lv:+lv,avg:g.s/g.n,n:g.n}:null}).filter(Boolean).sort((a,b)=>b.avg-a.avg);
   const mm=s=>`${Math.floor(s/60)}:${String(Math.round(s%60)).padStart(2,'0')}`;
-  return `<h2 class="sect">Cần chú ý</h2><div class="tbox">${idle.length||stuck.length?
+  return promoBox(st)+`<h2 class="sect">Cần chú ý</h2><div class="tbox">${idle.length||stuck.length?
      idle.map(x=>`<div class="row2"><span>${esc(x.v.name)}</span><b class="n">${x.d>=999?'Chưa học lần nào':`Nghỉ ${x.d} ngày`}</b></div>`).join('')+
      stuck.map(x=>`<div class="row2"><span>${esc(x.v.name)}<br><small>${esc(x.t.title)}</small></span><b class="n">Hết tim ${x.n} lần</b></div>`).join('')
     :'<p class="tnote">Chưa có em nào nghỉ từ 3 ngày hoặc kẹt màn.</p>'}</div>
    <h2 class="sect">Thời gian trung bình mỗi bài</h2><div class="tbox">${tms.length?tms.slice(0,12).map(x=>`<div class="row2"><span>${esc(x.t.title)}<br><small>${x.n} lượt</small></span><b class="${x.avg>600?'n':''}">${mm(x.avg)}</b></div>`).join('')+'<p class="tnote">Đỏ: quá 10 phút, nên bớt câu hoặc chia nhỏ bài.</p>':'<p class="tnote">Chưa có dữ liệu.</p>'}</div>`}
+/* ---------- điểm ôn tập cho giáo viên ---------- */
+// Đề của khối có học sinh làm hoặc đã duyệt; nhãn TN1, TN2… / TL1, TL2… như màn Ôn tập của học sinh.
+function deList(kh,st){const all=deTopics(kh),used=t=>t.status==='giao'||st.some(v=>v.best&&v.best[key(t,0)]);
+  const tn=all.filter(t=>!isTL(t)),tl=all.filter(isTL);
+  return [...tn.map((t,i)=>({t,lab:'TN'+(i+1)})),...tl.map((t,i)=>({t,lab:'TL'+(i+1)}))].filter(x=>used(x.t))}
+// Một ô điểm của học sinh v ở đề t: điểm cao nhất, lần đầu, số lần làm (đề trắc nghiệm); đã làm/chưa (đề tự luận, học sinh tự báo)
+function deCell(v,t){const k=key(t,0),b=v.best&&v.best[k],h=(v.deh&&v.deh[k])||[];
+  if(!b)return {c:'part',txt:'—'};
+  if(isTL(t))return {c:'ok',txt:'✓'};
+  const best=b.s||0,first=h.length?h[0].pc:null,n=h.length;
+  return {c:best>=80?'ok':best>=50?'late':'miss',txt:best+'%',sub:n>1?`đầu ${first}% · ${n} lần`:n===1?'1 lần':''}}
+function deScores(kh,st){const D=deList(kh,st);
+  if(!D.length)return `<h2 class="sect">Điểm ôn tập</h2><div class="tbox"><p class="tnote">Khối ${kh} chưa có đề ôn tập nào được duyệt.</p></div>`;
+  const avg=x=>{const ps=st.map(v=>v.best&&v.best[key(x.t,0)]).filter(Boolean);return isTL(x.t)?`${ps.length}/${st.length} em`:ps.length?Math.round(ps.reduce((a,b)=>a+(b.s||0),0)/ps.length)+'% TB':'chưa ai làm'};
+  return `<h2 class="sect">Điểm ôn tập</h2><div class="tbox"><div class="scrollx"><table class="trk de"><thead><tr><th>Học sinh</th>${D.map(x=>`<th>${x.lab}<div class="th2">${esc(x.t.title.slice(0,14))}</div></th>`).join('')}</tr></thead>
+    <tbody>${st.map(v=>`<tr><td class="nm">${esc(v.name||'?')}${v.mau?' <small>(mẫu)</small>':''}</td>${D.map(x=>{const c=deCell(v,x.t);return `<td class="cell ${c.c}">${c.txt!=='—'&&!isTL(x.t)?`<button class="lnk dh" data-dh="${v.id}|${x.t.id}">${c.txt}</button>`:c.txt}${c.sub?`<div class="th2">${c.sub}</div>`:''}</td>`}).join('')}</tr>`).join('')}
+    <tr class="avg"><td class="nm"><b>Cả khối</b></td>${D.map(x=>`<td class="th2">${avg(x)}</td>`).join('')}</tr></tbody></table></div>
+    <p class="tnote">TN: điểm cao nhất (xanh ≥ 80%, vàng ≥ 50%, đỏ dưới 50%), dòng nhỏ là điểm lần đầu và số lần làm. Bấm điểm để xem từng lần. TL: ✓ là em đã bấm "Đã làm xong" (bài làm trong vở, thầy chấm trên lớp).</p></div>`}
+function deHistBox(v,t){if(!v||!t)return;const h=(v.deh&&v.deh[key(t,0)])||[],b=(v.best||{})[key(t,0)]||{};
+  const mm=s=>`${Math.floor((s||0)/60)}:${String((s||0)%60).padStart(2,'0')}`,dt=a=>{const d=new Date(a);return d.toLocaleDateString('vi-VN',{day:'2-digit',month:'2-digit'})+' '+d.toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'})};
+  msgBox(esc(v.name),`<b>${esc(t.title)}</b><br>`+(h.length?h.map((x,i)=>`Lần ${i+1} · ${dt(x.at)}: <b>${x.pc}%</b> (${x.c}/${x.n} câu, ${mm(x.sec)})`).join('<br>'):`Điểm cao nhất <b>${b.s||0}%</b>. Em làm đề này trước khi app ghi lịch sử từng lần.`))}
 function parentReport(v){const w=weekId(),wk=v.wk&&v.wk.w===w?v.wk:{xp:0,c:0,lv:0},today=vnDay(),A=ASG.filter(a=>a.khoi===v.khoi);
   const ptOf=k=>{const b=v.best&&v.best[k];return b&&b.st>0?(b.t||'1970'):null};
   const lines=[`BÁO CÁO TUẦN · Học cùng Cherry`,`Học sinh: ${v.name} (khối ${v.khoi})`,`Tuần từ ${w.split('-').reverse().join('/')}`,``,
     `• Điểm kinh nghiệm tuần này: ${wk.xp||0} XP (${wk.c||0} câu đúng, qua ${wk.lv||0} màn)`,
     `• Chuỗi ngày học: ${liveStreak(v.st||{},today)} ngày (kỷ lục ${(v.st||{}).best_streak||0})`,
-    `• Thi đấu: bậc ${TIERS[tierOf(v.lp)].n} (${v.lp||0} điểm)`,
+    `• Thi đấu: bậc ${TIERS[tierP(v)].n} (${progTxt(tierP(v),v)})`,
     `• Câu sai cần làm lại: ${Object.values(v.rev||{}).filter(r=>r.in_notebook).length} câu`,
+    ...(()=>{const D=deList(v.khoi,[v]).filter(x=>!isTL(x.t)&&v.best&&v.best[key(x.t,0)]);return D.length?[`• Đề ôn tập trắc nghiệm:`,...D.slice(-5).map(x=>{const c=deCell(v,x.t);return `   - ${x.lab} ${x.t.title}: ${c.txt}${c.sub?' ('+c.sub+')':''}`})]:[]})(),
     ...(A.length?[`• Bài thầy giao:`,...A.slice(-5).map(a=>{const t=TOPICS.find(x=>x.id===a.topicId),s=asgStatus(a,ptOf);return `   - ${t?t.title:'?'}: ${s.complete?(s.late?'xong (muộn)':'đã xong'):s.overdue?'quá hạn, chưa xong':`đang làm ${s.passed}/${s.need} màn`}`})]:[]),
     ``,`Nhận xét của thầy: `];
   overlay(`<h2 style="font-size:26px">Báo cáo phụ huynh</h2><p>Thầy sửa nhận xét rồi bấm sao chép để gửi qua Zalo.</p><textarea class="code light" id="rp">${esc(lines.join('\n'))}</textarea><button class="btn" id="rpC">Sao chép</button><button class="btn alt" id="rpX">Đóng</button>`);
@@ -815,7 +900,7 @@ const followingOf=p=>Object.keys((p&&p.follow)||{}).filter(id=>PLAYERS.some(x=>x
 const newFollowers=()=>ACC&&!ACC.teacher?followersOf(ACC.id).filter(p=>(p.follow[ACC.id]||'')>(P.fseen||'')).length:0;
 function toggleFollow(id){if(!P.follow)P.follow={};const on=!P.follow[id];if(on)P.follow[id]=new Date().toISOString();else delete P.follow[id];save();syncMine();sfx[on?'ok':'tap']();if(on)toast('Đã theo dõi! Hoạt động của bạn sẽ hiện trong <b>Bảng tin</b>.');return on}
 const ago=iso=>{const m=(Date.now()-Date.parse(iso))/6e4;return m<1?'vừa xong':m<60?Math.floor(m)+' phút trước':m<1440?Math.floor(m/60)+' giờ trước':Math.floor(m/1440)+' ngày trước'};
-function personRow(p,sub){const me=ACC&&p.id===ACC.id,f=isFollow(p.id),back=p.follow&&ACC&&p.follow[ACC.id],t=tierOf(p.lp);
+function personRow(p,sub){const me=ACC&&p.id===ACC.id,f=isFollow(p.id),back=p.follow&&ACC&&p.follow[ACC.id],t=tierP(p);
   return `<div class="frow"><button class="fmain" data-p="${p.id}">${avatarOf(p,44)}<span class="bn"><b>${esc(p.nick||p.name||'?')}</b><small>${p.nick?esc(p.name)+' · ':''}Khối ${esc(p.khoi||'?')}${sub?' · '+sub:''}</small></span>
     <span class="fmeta">${emblem(t,22)}<i>${flame(!(p.st&&p.st.last_day),14)}${liveStreak(p.st||{},vnDay())}</i></span></button>
     ${me||!ACC||ACC.teacher?'':`<button class="fbtn${f?' on':''}" data-f="${p.id}">${f?'Đang theo dõi':back?'Theo dõi lại':'Theo dõi'}</button>`}</div>`}
@@ -824,7 +909,7 @@ function feedItems(){const ids=Object.keys(myFollow()),lim=Date.now()-14*864e5,o
     for(const [k,at] of Object.entries(p.ach||{})){const a=ACH.find(x=>x.id===k);if(a&&Date.parse(at)>lim)out.push({p,at,ico:medal(true,30),txt:`đạt thành tích <b>${esc(a.n)}</b>`})}
     for(const [k,b] of Object.entries(p.best||{})){if(!b||!b.t||Date.parse(b.t)<lim)continue;const [tid,i]=k.split('|'),t=TOPICS.find(x=>x.id===tid);if(!t)continue;
       out.push({p,at:b.t,ico:`<span class="fic">${star(1)}</span>`,txt:isDe(t)?`làm xong đề <b>${esc(t.title)}</b>`:`qua bài <b>${esc(t.title)}</b> ${'★'.repeat(b.st||0)}`})}
-    for(const h of (p.hist||[]).slice(-5))if(h.d>0&&Date.parse(h.at)>lim)out.push({p,at:h.at,ico:emblem(tierOf(p.lp),28),txt:`thắng trận thi đấu <b>+${h.d}</b> điểm`});
+    for(const h of (p.hist||[]).slice(-5))if(h.d>0&&Date.parse(h.at)>lim)out.push({p,at:h.at,ico:emblem(tierP(p),28),txt:`thắng trận thi đấu <b>+${h.d}</b> điểm`});
     for(const [k,at] of Object.entries(p.own||{})){const it=ITEM[k];if(it&&typeof at==='string'&&Date.parse(at)>lim&&it.rar>=1)out.push({p,at,ico:`<span class="fic">🎁</span>`,txt:`sưu tầm <b>${esc(it.name)}</b> <i style="color:${RAR[it.rar].c};font-style:normal">${RAR[it.rar].n}</i>`})}}
   return out.sort((a,b)=>b.at.localeCompare(a.at)).slice(0,60)}
 function friends(){show('friends');const me=ACC.id,fl=followingOf(P),fw=followersOf(me),nf=newFollowers();
@@ -885,7 +970,7 @@ function startReview(){const ix=qIndex();const e=Object.entries(P.rev||{}).filte
   newG('so',items,{});hud();show('play');$('#stage').innerHTML='';$('#dock').innerHTML='';renderQ()}
 function hud(){$('#progB').style.width=(G.k/G.qs.length*100)+'%';
   $('#hearts').innerHTML=G.hearts>50?'':[0,1,2].map(i=>heart.replace('<svg',`<svg class="${i<G.hearts?'':'lost'}"`)).join('');
-  $('#qnum').textContent=`Câu ${Math.min(G.k+1,G.qs.length)}/${G.qs.length}`;$('#score').textContent=G.score+' điểm';
+  const nsk=G.mode==='rank'?G.qs.slice(G.k).filter(x=>x._sk).length:0;$('#qnum').textContent=`Câu ${Math.min(G.k+1,G.qs.length)}/${G.qs.length}`+(nsk?` · ${nsk} câu làm sau`:'');$('#score').textContent=G.score+' điểm';
   $('#combo').textContent=G.combo>=2?`Chuỗi đúng ×${G.combo}`:''}
 function isSaved(q){return Object.values(P.saved||{}).some(s=>s.k===q.key&&s.q.stem===q.stem)}
 function toggleSave(q,btn){const ex=Object.entries(P.saved||{}).find(([,s])=>s.k===q.key&&s.q.stem===q.stem);
@@ -898,7 +983,7 @@ function renderQ(){hud();const q=cur();const st=$('#stage');$('#dock').innerHTML
   reviewButton.onclick=reviewButton.hidden?null:()=>{sfx.tap();openTheoryReview(reviewTopic)};
   const nh=['man','so','one'].includes(G.mode)&&q.hints?q.hints.length:0;
   let h=`<div class="card${G.twin?' twin':''}" id="qc"><div class="ctop"><span class="tag">${G.twin?'Câu tương tự':TYPE[q.type]}</span>${G.mode!=='man'?`<span class="tag tt">${esc(q.title)}</span>`:''}
-    ${nh?`<button class="hintbtn" id="hintB">Gợi ý (${nh})${G.mode==='man'?' · −30 điểm':''}</button>`:''}${GV()&&q.tid?`<button class="savebtn" id="editB" aria-label="Sửa câu này">✎</button>`:''}<button class="savebtn" id="saveB" aria-label="Lưu câu hỏi">${bookmark(isSaved(q))}</button></div>
+    ${G.mode==='rank'&&q._sk?'<span class="tag tt">Câu làm sau</span>':''}${G.mode==='rank'&&G.k<G.qs.length-1?'<button class="hintbtn" id="skipB">Bỏ qua, làm sau</button>':''}${nh?`<button class="hintbtn" id="hintB">Gợi ý (${nh})${G.mode==='man'?' · −30 điểm':''}</button>`:''}${GV()&&q.tid?`<button class="savebtn" id="editB" aria-label="Sửa câu này">✎</button>`:''}<button class="savebtn" id="saveB" aria-label="Lưu câu hỏi">${bookmark(isSaved(q))}</button></div>
     <div class="stem">${tex(q.stem)}</div><div class="hints" id="hintsBox" style="display:none"></div>`;
   if(q.type==='ex'){G.opts=shuffle(q.opts);h+=`<div class="opts">${G.opts.map((o,i)=>`<button class="opt" data-i="${i}" style="animation-delay:${.08*i+.1}s"><span class="k">${'ABCDEF'[i]}</span><span class="ot">${tex(o.t)}</span></button>`).join('')}</div>`}
   if(q.type==='extf'){G.tf=q.items.map(()=>null);h+=`<div class="tf">${q.items.map((it,i)=>`<div class="tfrow" style="animation-delay:${.07*i}s"><div class="lbl"><b>${'abcdef'[i]})</b> ${tex(it.t)}</div><div class="tfb"><button class="t" data-i="${i}" data-v="1">Đ</button><button class="f" data-i="${i}" data-v="0">S</button></div></div>`).join('')}</div>`}
@@ -911,6 +996,7 @@ function renderQ(){hud();const q=cur();const st=$('#stage');$('#dock').innerHTML
   st.innerHTML=h+'</div>';typeset(st);if(isQ2(q)){q2Init(q);q2Draw()}
   $('#editB')&&($('#editB').onclick=()=>{const t=TOPICS.find(x=>x.id===q.tid);if(!t)return;const bs=qBlocks(t.raw),b=bs.findIndex(x=>!x.man&&parseOne(x.raw).q?.key===q.key);if(b<0)return toast('Không tìm thấy câu này trong chủ đề (có thể đã được sửa).');editQ(t,b)});
   $('#saveB').onclick=e=>{sfx.tap();toggleSave(q,e.currentTarget)};
+  $('#skipB')&&($('#skipB').onclick=()=>{if(G.done)return;sfx.tap();pauseTimer();const x=G.qs.splice(G.k,1)[0];x._sk=1;G.qs.push(x);renderQ()});
   if(nh)$('#hintB').onclick=()=>{if(G.done)return;sfx.tap();G.hu=Math.min(G.hu+1,nh);G.htot=(G.htot||0)+1;const box=$('#hintsBox');box.style.display='';
     box.innerHTML=q.hints.slice(0,G.hu).map((x,i)=>`<div><b>Gợi ý ${i+1}.</b> ${tex(x)}</div>`).join('');typeset(box);
     const left=nh-G.hu;if(left)$('#hintB').textContent=`Gợi ý (${left})${G.mode==='man'?' · −30 điểm':''}`;else $('#hintB').remove()};
@@ -923,9 +1009,15 @@ function renderQ(){hud();const q=cur();const st=$('#stage');$('#dock').innerHTML
   if(q.type==='exmatch'){$$('#stage .mi').forEach(b=>b.onclick=()=>tapMatch(b));
     $('#dock').innerHTML=`<div class="chk"><button class="btn" id="mchk" disabled>Kiểm tra</button></div>`;$('#mchk').onclick=checkMatch}
   if(G.mode==='rank')startTimer(q)}
-function startTimer(q){clearInterval(TM);const lim=(RANK_TIME[Math.min(3,q.level||0)]+(q.type==='exmatch'||q.type==='extf'?15:0)+(q.type==='exsd'?SD_SLOT_S*q2Slots(q):q.type==='exsx'?SX_EXTRA_S:0))*1000;G.lim=lim;G.qt0=Date.now();
-  const tick=()=>{const left=Math.max(0,lim-(Date.now()-G.qt0));$('#timerB').style.width=(left/lim*100)+'%';$('#timer').classList.toggle('low',left<10000);$('#modeLbl').textContent=Math.ceil(left/1000)+' giây';
-    if(left<=0&&!G.done){clearInterval(TM);G.done=true;G.ansTxt='(hết giờ, chưa trả lời)';$('#qc').classList.add('lock');result(false,null,'<b>Hết giờ!</b><div class="vans">'+answerHTML(cur())+'</div>',true)}};tick();TM=setInterval(tick,200)}
+/* Thi đấu: một đồng hồ cho cả trận (tổng thời gian chuẩn của các câu); đồng hồ dừng khi đọc lời giải. */
+const qLim=q=>(RANK_TIME[Math.min(3,q.level||0)]+(q.type==='exmatch'||q.type==='extf'?15:0)+(q.type==='exsd'?SD_SLOT_S*q2Slots(q):q.type==='exsx'?SX_EXTRA_S:0))*1000;
+const fmtT=ms=>{const s=Math.ceil(ms/1000);return Math.floor(s/60)+':'+String(s%60).padStart(2,'0')};
+const timeLeft=()=>Math.max(0,G.tot-G.used-(G.qt0?Date.now()-G.qt0:0));
+function pauseTimer(){clearInterval(TM);if(G&&G.qt0){G.used+=Date.now()-G.qt0;G.qt0=0}}
+function startTimer(q){clearInterval(TM);G.qt0=Date.now();
+  const tick=()=>{const left=timeLeft();$('#timerB').style.width=(left/G.tot*100)+'%';$('#timer').classList.toggle('low',left<30000);$('#modeLbl').textContent=fmtT(left);
+    if(left<=0&&!G.done){clearInterval(TM);G.done=true;G.timeUp=true;G.ansTxt='(hết giờ, chưa trả lời)';$('#qc').classList.add('lock');
+      const rest=G.qs.length-G.k-1;result(false,null,(rest>0?`Còn ${rest} câu chưa làm, tính là sai.`:'')+'<div class="vans">'+answerHTML(cur())+'</div>',true)}};tick();TM=setInterval(tick,200)}
 const whyBox=xs=>xs.length?`<div class="loi"><b>Vì sao chưa đúng?</b>${xs.map(x=>`<div>${x}</div>`).join('')}</div>`:'';
 function answerMC(b){if(G.done)return;G.done=true;const o=G.opts[+b.dataset.i];G.ansTxt=o.t;$('#qc').classList.add('lock');
   const okI=G.opts.findIndex(x=>x.ok);$$('#qc .opt')[okI].classList.add('ok');
@@ -985,23 +1077,25 @@ function reportQ(q,btn,extra){sfx.tap();let kind='';
     try{await DB.collection('reports').doc().set({tid:q.tid,qkey:q.key,kind,note:$('#rpN').value,snap});MYREP.add(q.key);closeOvl();sfx.ok();toast('Đã gửi cho thầy. Cảm ơn em!');
       if(btn){btn.classList.add('sent');btn.innerHTML=flagSVG+' Đã báo lỗi'}}
     catch(e){s.disabled=false;s.textContent='Gửi cho thầy';const er=$('#rpE');er.style.display='';er.textContent=e.message||'Chưa gửi được, em thử lại.'}}}
-function result(ok,el,why,timeout){clearInterval(TM);const q=cur();recordQ(q,ok);
+function result(ok,el,why,timeout){if(G.mode==='rank')pauseTimer();else clearInterval(TM);const q=cur();recordQ(q,ok);
+  if(G.promo){if(ok&&(q.level||0)>=2)G.ok3++;if(!ok&&q.key)G.wk.push(q.key)}
   if(G.twin){const healed=ok&&G.mode==='man'&&G.hearts<3;if(healed)G.hearts++;hud();ok?(sfx.ok(),confetti(40,.45)):sfx.no();$('#dock').innerHTML='';
     const sh=sheetOpen(ok,ok?(healed?'Đúng rồi! Hồi 1 tim':'Đúng rồi!'):'Chưa đúng rồi',why,q,`<button class="btn ${ok?'':'co'}" id="nx">${G.over?'Xem kết quả':'Câu tiếp theo'}</button>`);
     $('#nx').onclick=()=>{sfx.tap();sh.classList.remove('on');G.twin=null;G.over?finish():renderQ()};return}
   let pts=0;
   if(ok){G.combo++;P.stats.maxCombo=Math.max(P.stats.maxCombo,G.combo);qev('chuoi5',G.combo,true);
-    if(G.mode==='rank'){const lv=Math.min(3,q.level||0),left=Math.max(0,G.lim-(Date.now()-G.qt0));pts=Math.round(RANK_PTS[lv]*(1+0.5*left/G.lim))}
+    if(G.mode==='rank')pts=RANK_PTS[Math.min(3,q.level||0)];
     else pts=G.mode==='man'?Math.max(40,100+20*Math.min(G.combo-1,5)-30*G.hu):100;
     G.score+=pts;sfx.ok();confetti(50,.45);if(el)floatText('+'+pts,el)}
   else{// Thi đấu, câu sắp xếp / sơ đồ đúng một phần: được điểm theo tỉ lệ dòng/ô đúng
-    if(G.mode==='rank'&&G.frac>0){const lv=Math.min(3,q.level||0),left=Math.max(0,G.lim-(Date.now()-G.qt0));pts=Math.round(RANK_PTS[lv]*(1+0.5*left/G.lim)*G.frac);G.score+=pts;if(pts&&el)floatText('+'+pts,el)}
+    if(G.mode==='rank'&&G.frac>0){pts=Math.round(RANK_PTS[Math.min(3,q.level||0)]*G.frac);G.score+=pts;if(pts&&el)floatText('+'+pts,el)}
+    else if(G.mode==='rank'&&!timeout){pts=-wrongPenalty(RANK_PTS[Math.min(3,q.level||0)]);G.score+=pts;if(el)floatText(String(pts).replace('-','−'),el)}
     G.combo=0;G.miss++;if(G.mode==='man'&&G.hearts<50)G.hearts--;sfx.no();navigator.vibrate&&navigator.vibrate(120)}
-  $('#dock').innerHTML='';const wi=G.k;G.k++;hud();checkAch();
+  $('#dock').innerHTML='';const wi=G.k;G.k++;if(G.timeUp){G.miss+=G.qs.length-G.k;G.k=G.qs.length}hud();checkAch();
   const out=!ok&&G.hearts<=0;G.needRevive=out;G.over=G.k>=G.qs.length;if(out){const fk=key(G.t,G.i);P.fails[fk]=(P.fails[fk]||0)+1;save()}
   const canTwin=!ok&&!G.over&&G.mode==='man'&&q.raw&&!G.twinUsed[wi];
   const praise=['Chính xác!','Tuyệt vời!','Quá đỉnh!','Giỏi lắm!'];
-  const sh=sheetOpen(ok,ok?praise[Math.random()*4|0]+(G.mode==='rank'?` +${pts}`:''):timeout?'Hết giờ!':out?'Hết tim rồi!':pts>0?`Đúng một phần +${pts}`:'Chưa đúng rồi',timeout?why:why,q,
+  const sh=sheetOpen(ok,ok?praise[Math.random()*4|0]+(G.mode==='rank'?` +${pts}`:''):timeout?(G.timeUp?'Hết giờ cả trận!':'Hết giờ!'):out?'Hết tim rồi!':pts>0?`Đúng một phần +${pts}`:pts<0?`Chưa đúng rồi −${-pts}`:'Chưa đúng rồi',timeout?why:why,q,
     `${canTwin?`<button class="btn" id="tw">Thử câu tương tự${G.hearts<3?' (đúng được hồi 1 tim)':''}</button>`:''}<button class="btn ${ok?'':'co'}" id="nx">${out?'Tiếp tục':G.over?(G.mode==='man'?'Hoàn thành màn':'Xem kết quả'):'Câu tiếp theo'}</button>`);
   if(canTwin)$('#tw').onclick=()=>{sfx.tap();G.twinUsed[wi]=1;try{G.twin=inst(q.raw,{tid:q.tid,level:q.level,title:q.title})}catch(e){return}sh.classList.remove('on');renderQ()};
   $('#nx').onclick=()=>{sfx.tap();sh.classList.remove('on');G.needRevive?revive():G.over?finish():renderQ()}}
@@ -1010,18 +1104,23 @@ function revive(){overlay(`<div style="width:96px;margin:0 auto">${owlSVG}</div>
 
 function streakLine(s){return s?`<div class="streakup">${flame(false,22)} <b>Chuỗi ${s.streak} ngày!</b>${s.shieldUsed?' Lá chắn đã giữ chuỗi cho em.':' Mai nhớ quay lại nhé.'}</div>`:''}
 function finish(){clearInterval(TM);const sec=Math.round((Date.now()-G.t0)/1000),tm=`<div><b>${Math.floor(sec/60)}:${String(sec%60).padStart(2,'0')}</b>thời gian</div>`,nOk=G.qs.length-G.miss;
-  if(G.mode==='rank'){qev('rank');const t0=tierOf(P.lp),mx=G.qs.reduce((s,q)=>s+RANK_PTS[Math.min(3,q.level||0)]*1.5,0),RD=rankDelta({score:G.score,max:mx,correct:nOk,n:G.qs.length,tier:t0}),L=lpdE();
-    let d=RD.d,capped=false;if(d>0){const room=Math.max(0,RANK_DAY_CAP-L.g);if(d>room){d=room;capped=true}L.g+=d}
-    const before=P.lp||0;P.lp=Math.max(0,before+d);d=P.lp-before;P.matches=(P.matches||0)+1;P.hist=[...(P.hist||[]),{at:new Date().toISOString(),s:G.score,c:nOk,n:G.qs.length,d}].slice(-20);
-    const s=bumpStreak();save();syncMine();checkAch();const t1=tierOf(P.lp);if(t1>t0){sfx.win();confetti(160,.3)}
-    overlay(`${emblem(t1,90)}<h2>${t1>t0?'Lên '+TIERS[t1].n+'!':t1<t0?'Xuống '+TIERS[t1].n:d>=0?'Thắng điểm!':'Cố lên!'}</h2>
-      <div class="lpd ${d>=0?'up':'down'}">${d>=0?'+':''}${d} điểm</div><p>${TIERS[t1].n} · ${P.lp} điểm</p>
+  if(G.mode==='rank'&&G.promo){pauseTimer();return promoFinish(nOk,tm)}
+  if(G.mode==='rank'){qev('rank');pauseTimer();G.score=Math.max(0,G.score);const lf=G.timeUp?0:timeLeft()/G.tot,sb=speedBonus(G.score,lf);G.score+=sb;
+    const t0=tierMe(),mx=G.qs.reduce((s,q)=>s+RANK_PTS[Math.min(3,q.level||0)]*(1+RANK_SPEED),0),RD=rankDelta({score:G.score,max:mx,correct:nOk,n:G.qs.length,tier:t0});
+    const before=P.lp||0,A=applyMatch({tier:t0,lp:before,shield:P.shield||0},RD.d);P.tier=A.tier;P.lp=A.lp;P.shield=A.shield;const d=P.lp-before;
+    if(t0>=TOP&&!A.down)P.tdh=[...(P.tdh||[]),Math.round(1000*Math.min(1,G.score/mx))/1000].slice(-PD_N);
+    P.matches=(P.matches||0)+1;P.hist=[...(P.hist||[]),{at:new Date().toISOString(),s:G.score,c:nOk,n:G.qs.length,d}].slice(-20);
+    const s=bumpStreak();save();syncMine();checkAch();const t1=P.tier,full=barFull(t1,P.lp);if(full&&!barFull(t0,before)){sfx.win();confetti(120,.3)}
+    overlay(`${emblem(t1,90)}<h2>${t1<t0?'Xuống '+TIERS[t1].n:full?'Đầy thanh!':d>0?'Thắng điểm!':'Cố lên!'}</h2>
+      <div class="lpd ${d>=0?'up':'down'}">${d>=0?'+':''}${d} điểm</div><p>${TIERS[t1].n} · ${t1>=TOP?'Phong độ '+pdOf(P.tdh):'thanh tiến trình '+barPct(t1,P.lp)+'%'}</p>
+      ${full?`<p class="tnote">Thanh tiến trình đã đầy: làm bài kiểm tra để lên <b>${TIERS[t1+1].n}</b>.</p>`:''}${t1<t0?`<p class="tnote">Thanh tiến trình tụt dưới mốc ${TIERS[t0].n}. Đầy thanh lại thì thi để lên lại nhé.</p>`:''}
       <div class="stat"><div><b>${G.score}</b>điểm trận</div><div><b>${nOk}/${G.qs.length}</b>câu đúng</div>${tm}</div>
-      <p style="font-size:14px">${RD.bonus?`Thưởng chính xác <b>+${RD.bonus}</b>. `:''}${capped?`Hôm nay em đã đạt trần <b>+${RANK_DAY_CAP}</b> điểm, mai thi tiếp nhé!`:''}</p>${streakLine(s)}
-      ${rankLock()?`<p class="tnote">Em đang có hơn ${NB_LOCK} câu sai chưa làm lại. Dọn kho câu sai để mở lại Thi đấu.</p><button class="btn" id="r4">Làm lại câu sai</button>`:'<button class="btn" id="r1">Trận nữa</button>'}<button class="btn alt" id="r2">Bảng xếp hạng</button><button class="btn alt" id="r3">Về thi đấu</button>`);
-    $('#r1')&&($('#r1').onclick=()=>{closeOvl();startRank()});$('#r4')&&($('#r4').onclick=()=>{closeOvl();redoTab='sai';redo()});$('#r2').onclick=()=>{closeOvl();boardT=null;board()};$('#r3').onclick=()=>{closeOvl();ranked()};return}
+      <p style="font-size:14px">${sb?`Xong sớm, thưởng thời gian <b>+${sb}</b> điểm trận. `:''}${RD.bonus?`Thưởng chính xác <b>+${RD.bonus}</b>. `:''}</p>${streakLine(s)}
+      ${rankLock()?`<p class="tnote">Em đang có hơn ${NB_LOCK} câu sai chưa làm lại. Làm lại đến khi còn không quá ${NB_UNLOCK} câu để mở lại Thi đấu.</p><button class="btn" id="r4">Làm lại câu sai</button>`:full?'<button class="btn" id="r3b">Làm bài kiểm tra</button>':'<button class="btn" id="r1">Trận nữa</button>'}<button class="btn alt" id="r2">Bảng xếp hạng</button><button class="btn alt" id="r3">Về thi đấu</button>`);
+    $('#r1')&&($('#r1').onclick=()=>{closeOvl();startRank()});$('#r3b')&&($('#r3b').onclick=()=>{closeOvl();ranked()});$('#r4')&&($('#r4').onclick=()=>{closeOvl();redoTab='sai';redo()});$('#r2').onclick=()=>{closeOvl();boardT=null;board()};$('#r3').onclick=()=>{closeOvl();ranked()};return}
   if(G.mode==='de'){qev('de');const t=G.t,k=key(t,0),pc=Math.round(nOk/G.qs.length*100),st=pc>=90?3:pc>=70?2:pc>=50?1:0;
-    if(st>(P.best[k]||0))P.best[k]=st;if(pc>(P.score[k]??-1))P.score[k]=pc;P.pt[k]=P.pt[k]||new Date().toISOString();
+    if(st>(P.best[k]||0)||P.best[k]==null)P.best[k]=Math.max(st,P.best[k]||0);if(pc>(P.score[k]??-1))P.score[k]=pc;P.pt[k]=P.pt[k]||new Date().toISOString();
+    P.deh=P.deh||{};P.deh[k]=[...(P.deh[k]||[]),{at:new Date().toISOString(),pc,c:nOk,n:G.qs.length,sec}].slice(-10); // lịch sử làm đề: giáo viên xem ở Theo dõi khối
     const s=bumpStreak();save();syncMine();checkAch();if(st>=2){sfx.win();confetti(120,.3)}
     overlay(`<h2>${pc>=90?'Xuất sắc!':pc>=70?'Làm tốt lắm!':pc>=50?'Đạt rồi!':'Cố gắng thêm nhé!'}</h2><p>${esc(t.title)}</p><div class="bigstars">${[1,2,3].map(x=>star(x<=st)).join('')}</div>
      <div class="stat"><div><b>${pc}%</b>điểm</div><div><b>${nOk}/${G.qs.length}</b>câu đúng</div>${tm}</div>${streakLine(s)}
@@ -1044,7 +1143,7 @@ function finish(){clearInterval(TM);const sec=Math.round((Date.now()-G.t0)/1000)
    ${!pass||st<3?`<button class="btn ${pass?'alt':''}" id="r2">Làm lại bài này</button>`:''}${hasTheory(t)?`<button class="btn alt thbtn" id="r4">${bookSVG} Xem lại lý thuyết</button>`:''}<button class="btn alt" id="r3">Về bản đồ</button>`);
   $('#r4')&&($('#r4').onclick=()=>openTheoryReview(t,'Về kết quả'));
   $('#r1')&&($('#r1').onclick=()=>{closeOvl();curT=nt;startLevel()});$('#r2')&&($('#r2').onclick=()=>{closeOvl();startLevel(i)});$('#r3').onclick=()=>{closeOvl();journey()}}
-$('#quit').onclick=()=>{const m=G&&G.mode;overlay(`<h2>Thoát?</h2><p>${m==='rank'?'Thoát giữa trận: các câu chưa làm tính là sai.':m==='man'||m==='de'?'Kết quả lượt này sẽ không được lưu.':'Các câu đã làm vẫn được ghi nhận.'}</p><button class="btn co" id="q1">Thoát</button><button class="btn alt" id="q2">Làm tiếp</button>`);
+$('#quit').onclick=()=>{const m=G&&G.mode;overlay(`<h2>Thoát?</h2><p>${m==='rank'?(G.promo?'Thoát giữa bài kiểm tra: tính là chưa đạt.':'Thoát giữa trận: các câu chưa làm tính là sai.'):m==='man'||m==='de'?'Kết quả lượt này sẽ không được lưu.':'Các câu đã làm vẫn được ghi nhận.'}</p><button class="btn co" id="q1">Thoát</button><button class="btn alt" id="q2">Làm tiếp</button>`);
   $('#q1').onclick=()=>{closeOvl();$('#sheet').classList.remove('on');clearInterval(TM);
     if(m==='rank'&&G.started){G.miss+=G.qs.length-G.k;G.k=G.qs.length;finish();return}
     m==='man'?journey():m==='rank'?ranked():m==='de'?onTap():redo()};$('#q2').onclick=closeOvl};
@@ -1118,14 +1217,16 @@ function track(){show('track');$('#trTitle').textContent='Theo dõi khối '+cur
   const agg={};for(const v of st)for(const [k,w] of Object.entries(v.wst||{})){if(!w.d||w.d<addDays(today,-14))continue;const g=agg[k]||(agg[k]={n:0,w:0,who:0});g.n+=w.n;g.w+=w.w;if(w.w)g.who++}
   const hard=Object.entries(agg).filter(([k,g])=>g.n>=3&&g.w>0&&ix[k]).sort((a,b)=>b[1].w/b[1].n-a[1].w/a[1].n||b[1].w-a[1].w).slice(0,8);
   $('#trk').innerHTML=`<div class="tbox"><div class="scrollx"><table class="trk"><thead><tr><th>Học sinh</th><th>Chuỗi</th><th>Rank</th>${A.map(a=>`<th>${esc(((TOPICS.find(t=>t.id===a.topicId)||{}).title||'?').slice(0,14))}<div class="th2">${a.due?fmtDue(a.due):'không hạn'}</div></th>`).join('')}<th>Câu sai</th></tr></thead>
-    <tbody>${st.map(v=>`<tr><td class="nm"><button class="lnk" data-rp="${v.id}">${esc(v.name||'?')}</button>${v.mau?' <small>(mẫu)</small>':''}</td><td>${liveStreak(v.st||{},today)||'—'}</td><td>${TIERS[tierOf(v.lp)].n}</td>${A.map(a=>{const s=asgStatus(a,ptOf(v));const c=s.complete?(s.late?'late':'ok'):s.overdue?'miss':'part';return `<td class="cell ${c}">${s.complete?(s.late?'Muộn':'✓'):s.passed+'/'+s.need}</td>`}).join('')}<td>${Object.values(v.rev||{}).filter(r=>r.in_notebook).length}</td></tr>`).join('')}</tbody></table></div>
+    <tbody>${st.map(v=>`<tr><td class="nm"><button class="lnk" data-rp="${v.id}">${esc(v.name||'?')}</button>${v.mau?' <small>(mẫu)</small>':''}</td><td>${liveStreak(v.st||{},today)||'—'}</td><td>${TIERS[tierP(v)].n}<div class="th2">${progTxt(tierP(v),v)}</div></td>${A.map(a=>{const s=asgStatus(a,ptOf(v));const c=s.complete?(s.late?'late':'ok'):s.overdue?'miss':'part';return `<td class="cell ${c}">${s.complete?(s.late?'Muộn':'✓'):s.passed+'/'+s.need}</td>`}).join('')}<td>${Object.values(v.rev||{}).filter(r=>r.in_notebook).length}</td></tr>`).join('')}</tbody></table></div>
     ${st.length?'':'<p>Chưa có học sinh khối này chơi.</p>'}<p class="tnote">✓ đúng hạn · Muộn: xong sau hạn · a/b: đã qua a trên b màn · đỏ: quá hạn chưa xong. Bấm tên học sinh để tạo báo cáo gửi phụ huynh.</p></div>
+   ${deScores(kh,st)}
    ${teacherExtra(kh,st,ix)}
    <h2 class="sect">Câu khối ${kh} sai nhiều nhất (14 ngày)</h2>
    ${hard.length?hard.map(([k,g])=>{const {q,t,li}=ix[k];let q2=q;try{q2=instantiate(q)}catch(e){}
      return `<div class="tbox hq"><div class="hqh"><span class="chip nhap">${Math.round(g.w/g.n*100)}% sai</span><span class="chip">${g.w}/${g.n} lượt · ${g.who} em</span><small>${esc(t.title)} · mức ${li+1}</small></div><div class="stem">${tex(q2.stem)}</div><div class="vans">${answerHTML(q2)}</div><button class="btn sm alt" data-eq="${t.id}|${k}" style="margin-top:8px">✎ Sửa câu này</button></div>`}).join('')
      :'<div class="tbox"><p>Chưa đủ dữ liệu (cần ít nhất 3 lượt trả lời mỗi câu).</p></div>'}`;
   typeset($('#trk'));$('#trBack').onclick=()=>{sfx.tap();area()};$$('#trk [data-rp]').forEach(b=>b.onclick=()=>parentReport(PLAYERS.find(p=>p.id===b.dataset.rp)));
+  $$('#trk [data-dh]').forEach(b=>b.onclick=()=>{sfx.tap();const [vid,tid]=b.dataset.dh.split('|');deHistBox(PLAYERS.find(p=>p.id===vid),TOPICS.find(t=>t.id===tid))});
   $$('#trk [data-eq]').forEach(b=>b.onclick=()=>{const [tid,k]=b.dataset.eq.split('|'),t=TOPICS.find(x=>x.id===tid),bs=qBlocks(t.raw),i=bs.findIndex(x=>!x.man&&parseOne(x.raw).q?.key===k);if(i<0)return toast('Không tìm thấy câu này.');editQ(t,i)})}
 
 
@@ -1323,20 +1424,24 @@ let syncT=null,wq=Promise.resolve();
 function syncMine(){if(!DB||!ACC||ACC.teacher||DBSTATE!=='ok')return;clearTimeout(syncT);syncT=setTimeout(()=>{syncT=null;pushMine()},1200)}
 function pushMine(){if(!DB||!ACC||ACC.teacher||DBSTATE!=='ok')return;wq=wq.then(async()=>{const lim=addDays(vnDay(),-30),w={};for(const [k,v] of Object.entries(P.wst||{}))if(v.d>=lim)w[k]=v;
   const doc={name:ACC.name,khoi:ACC.khoi,nick:P.nick||'',avatar:P.avatar||0,xp:P.xp||0,lp:P.lp||0,matches:P.matches||0,hist:P.hist||[],st:P.st||{},stats:P.stats,ach:P.ach,
-    best:Object.fromEntries(Object.entries(P.best).map(([k,s])=>[k,{st:s,s:P.score[k]||0,t:P.pt[k]||null}])),rev:P.rev,saved:P.saved,wst:w,eq:P.eq||{},own:P.own||{},spent:P.spent||0,dq:P.dq,wk:P.wk||{},season:P.season||'',seasons:P.seasons||[],fails:P.fails||{},lvt:P.lvt||{},ccl:P.ccl||{},tut:P.tut||0,follow:P.follow||{},fseen:P.fseen||'',rseen:P.rseen||{},tlh:P.tlh||{},lpd:P.lpd||null,capnhat:new Date().toISOString()};
+    best:Object.fromEntries(Object.keys({...P.best,...P.score}).map(k=>[k,{st:P.best[k]||0,s:P.score[k]||0,t:P.pt[k]||null}])),deh:P.deh||{},rev:P.rev,saved:P.saved,wst:w,eq:P.eq||{},own:P.own||{},spent:P.spent||0,dq:P.dq,wk:P.wk||{},season:P.season||'',seasons:P.seasons||[],fails:P.fails||{},lvt:P.lvt||{},ccl:P.ccl||{},tut:P.tut||0,follow:P.follow||{},fseen:P.fseen||'',rseen:P.rseen||{},tlh:P.tlh||{},tier:tierMe(),shield:P.shield||0,tdh:P.tdh||[],pr:P.pr||null,prw:P.prw||[],prh:P.prh||[],capnhat:new Date().toISOString()};
   await DB.doc('players/'+ACC.id).set(doc)}).catch(()=>{})}
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&syncT){clearTimeout(syncT);syncT=null;pushMine()}});
-function mergeP(d){
+function mergeP(d){const m0=P.matches||0;
   if(d.rev&&Object.keys(d.rev).length>Object.keys(P.rev||{}).length)P.rev=d.rev;
   if(d.saved&&Object.keys(d.saved).length>Object.keys(P.saved||{}).length)P.saved=d.saved;
   if(d.st&&(d.st.last_day||'')>(P.st.last_day||''))P.st=d.st;
-  for(const f of ['xp','lp','matches'])if((d[f]||0)>(P[f]||0)&&!(f==='lp'&&d.season&&P.season&&d.season!==P.season))P[f]=d[f];
-  if(d.lpd&&d.lpd.d===vnDay()&&(!P.lpd||P.lpd.d!==d.lpd.d||(d.lpd.g||0)>(P.lpd.g||0)))P.lpd=d.lpd;
+  for(const f of ['xp','matches'])if((d[f]||0)>(P[f]||0))P[f]=d[f];
+  // bậc + thanh tiến trình đi cùng nhau: lấy bản ghi của máy có nhiều trận hơn (cùng mùa)
+  if(!(d.season&&P.season&&d.season!==P.season)&&((d.matches||0)>m0||!Number.isInteger(P.tier))&&(Number.isInteger(d.tier)||d.lp!=null)){P.tier=tierOfP(d);P.lp=d.lp||0;if(d.shield!=null)P.shield=d.shield}
+  for(const f of ['tdh','prh','prw'])if(Array.isArray(d[f])&&d[f].length>(P[f]||[]).length)P[f]=d[f];
+  if(d.pr&&d.pr.d===vnDay()&&(!P.pr||P.pr.d!==d.pr.d||(d.pr.n||0)>(P.pr.n||0)))P.pr=d.pr;
   if(d.hist&&d.hist.length>(P.hist||[]).length)P.hist=d.hist;
   if(d.nick&&!P.nick)P.nick=d.nick;if(d.avatar!=null&&!P.avatar)P.avatar=d.avatar;
   if(d.ach)for(const [k,v] of Object.entries(d.ach))if(!P.ach[k])P.ach[k]=v;
   if(d.stats)for(const [k,v] of Object.entries(d.stats))if((v||0)>(P.stats[k]||0))P.stats[k]=v;
   if(d.best)for(const [k,b] of Object.entries(d.best)){if((b.st||0)>(P.best[k]||0))P.best[k]=b.st;if((b.s||0)>(P.score[k]||0))P.score[k]=b.s;if(b.t&&!P.pt[k])P.pt[k]=b.t}
+  if(d.deh){P.deh=P.deh||{};for(const [k,h] of Object.entries(d.deh))if(Array.isArray(h)&&h.length>(P.deh[k]||[]).length)P.deh[k]=h}
   if(d.own)for(const [k,v] of Object.entries(d.own))if(!P.own[k])P.own[k]=v;
   if((d.spent||0)>(P.spent||0))P.spent=d.spent;if(d.eq&&!Object.keys(P.eq||{}).length)P.eq=d.eq;
   if(d.wk&&d.wk.w&&(!P.wk||!P.wk.w||d.wk.w>P.wk.w||(d.wk.w===P.wk.w&&(d.wk.xp||0)>(P.wk.xp||0))))P.wk=d.wk;
