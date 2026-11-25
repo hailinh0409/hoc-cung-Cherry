@@ -824,13 +824,22 @@ textarea.code.light{background:#fff;color:#12313a;font:14px/1.5 "Be Vietnam Pro"
 .lesson-guide b{color:#ffd23f;font-size:13px}
 .lesson-guide h2{margin:0;font:800 24px/1.18 "Baloo 2",sans-serif}
 .lesson-guide p{margin:3px 0 0}
-.lesson-explore{display:grid;overflow:hidden;border-radius:18px;background:#fcf7ed;color:#133641}
+.lesson-explore{display:grid;grid-template-columns:minmax(0,1fr);overflow:hidden;border-radius:18px;background:#fcf7ed;color:#133641}
 .lesson-notes,.lesson-visual{padding:13px 16px}
 .lesson-visual{display:grid;justify-items:center;align-content:center;gap:8px;text-align:center;background:#dceee4}
+.lesson-visual--authored{display:block;align-content:center;text-align:left}
+.lesson-visual--authored .theory-lab{margin:0;padding:0;background:transparent}
+.lesson-visual--authored .theory-lab+.theory-lab{margin-top:16px}
 .lesson-visual p,.lesson-notes p,.lesson-check p{margin:0}
 .lesson-caption{font-weight:800}
 .lesson-notes h3,.lesson-check h3{font:800 19px/1.2 "Baloo 2",sans-serif;margin:0 0 3px}
 .lesson-notes p+h3{margin-top:10px}
+.lesson-notes .thc{margin:0;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none;animation:none}
+.lesson-notes .thc+.thc{margin-top:12px}
+.lesson-notes .thc h3{margin:0 0 3px}
+.lesson-notes .thc .thb2{margin-top:1px}
+.lesson-notes .thc:has(h3)>.thk{display:none}
+.lesson-notes .thc details .thb2{margin-top:4px}
 .lesson-choices button{background:#fffdf6;color:#173c45;border:1px solid #98b9a8;font-weight:800}
 .lesson-choices button[aria-pressed="true"]{background:#21634e;color:#fff;border-color:#21634e}
 .lesson-choices button span{display:block;font-size:22px}
@@ -851,7 +860,6 @@ textarea.code.light{background:#fff;color:#12313a;font:14px/1.5 "Be Vietnam Pro"
 .review-head{position:sticky;z-index:1;top:0;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;background:#103c48;padding:10px 0;border-bottom:1px solid #4b7a84}
 .review-head h2{font:800 21px/1.2 "Baloo 2",sans-serif;margin:0}
 .review-head .btn{min-height:44px;width:auto;margin:0}
-.authored-guide{margin-top:14px;padding:9px 12px;background:#1a5868;color:#fff;border-radius:16px}
 .authored-check,.theory-lab{margin-top:12px;text-align:left}
 .theory-lab{padding:14px 16px;background:#dceee4;color:#153c41;border-radius:16px}
 .theory-lab h3{font:800 21px/1.2 "Baloo 2",sans-serif;margin:0 0 4px}
@@ -869,7 +877,8 @@ textarea.code.light{background:#fff;color:#12313a;font:14px/1.5 "Be Vietnam Pro"
 [data-roman-reset]{min-height:44px;margin-top:5px;background:transparent;color:#175447;text-decoration:underline;font:inherit;font-weight:800;cursor:pointer}
 .theory-author-help{text-align:left;margin:8px 0;overflow-wrap:anywhere}
 .theory-author-help summary{cursor:pointer}
-@media(min-width:600px){.lesson-explore{grid-template-columns:1fr 1fr}}
+#tpv .lesson-guide b{color:#855619}
+@media(min-width:600px){.lesson-explore--split{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-height:760px) and (max-width:599px){.jbtns .jbtn{min-height:0}.jbtns .jbtn+.jbtn{margin-top:5px}}
 
 .gvlink{margin-top:4px;font-size:13px;color:#7a9399;text-decoration:underline;align-self:center}
@@ -2198,12 +2207,12 @@ const setLesson = [
   }
 ];
 
-function lessonPages(t){
+function builtInLesson(t){
   // Bài Tập hợp dùng bản minh họa sẵn cho đến khi giáo viên nhập nội dung tương tác riêng.
   if(t?.khoi==='6'&&t.chuong==='k6-b1'&&!t.theory?.some(it=>['loidan','minhhoa','thungay'].includes(it.k)))return setLesson;
   return null;
 }
-function hasTheory(t){return Boolean(lessonPages(t)||t?.theory?.length)}
+function hasTheory(t){return Boolean(t?.theory?.length||builtInLesson(t))}
 function theoryTopics(k){return mapItems(k).map(item=>item.t).filter(hasTheory)}
 
 function theoryIndex(){
@@ -2218,7 +2227,6 @@ const romanGroups=[['X',10],['IX',9],['V',5],['IV',4],['I',1]];
 const groupedNumber=n=>String(n).replace(/\B(?=(\d{3})+(?!\d))/g,'\u202f');
 
 function authoredTheoryHTML(item){
-  if(item.k==='loidan')return `<div class="lesson-guide authored-guide"><div aria-hidden="true">${owlSVG}</div><div><b>Cherry</b><div>${tex(item.body)}</div></div></div>`;
   if(item.k==='thungay'){
     const answer=[item.correct,item.wrong],feedback=[item.explainCorrect,item.explainWrong];
     return `<div class="lesson-check authored-check"><h3>Thử ngay</h3><p>${tex(item.body)}</p><div class="lesson-choices" role="group" aria-label="Chọn đáp án">${shuffle([0,1]).map(i=>`<button type="button" data-response="${i}" aria-pressed="false">${tex(answer[i])}</button>`).join('')}</div><div class="lesson-feedback" aria-live="polite"></div>${feedback.map((text,i)=>`<template data-explanation="${i}">${tex(text)}</template>`).join('')}</div>`;
@@ -2275,33 +2283,61 @@ function bindAuthoredTheory(root){
   }
 }
 
+function authoredLessonPages(items){
+  if(!items?.some(it=>['loidan','minhhoa','thungay'].includes(it.k)))return [];
+  const groups=[];
+  let group={guide:null,items:[]};
+  for(const item of items){
+    if(item.k==='loidan'){
+      if(group.guide||group.items.length)groups.push(group);
+      group={guide:item.body,items:[]};
+    }else group.items.push(item);
+  }
+  groups.push(group);
+  return groups.map(({guide,items},i)=>{
+    const visuals=items.filter(it=>it.k==='minhhoa');
+    const checks=items.filter(it=>it.k==='thungay');
+    const notes=items.filter(it=>it.k!=='minhhoa'&&it.k!=='thungay');
+    const label=notes.find(it=>it.title)?.title||`Ý ${i+1}`;
+    return {label,title:label,guide:guide?tex(guide):'',visual:visuals.map(authoredTheoryHTML).join(''),
+      notes:theoryHTML(notes),checks:checks.map(authoredTheoryHTML).join('')};
+  });
+}
+
+function builtInPageHTML(p){
+  return {label:p.concept,title:p.title,guide:esc(p.guide),
+    visual:`${p.visual}<p class="lesson-caption" aria-live="polite">${esc(p.captions[0])}</p>`,
+    notes:`<h3>${esc(p.concept)}</h3><p>${p.explanation}</p><h3>Ví dụ</h3><p>${p.example}</p>`,
+    checks:`<div class="lesson-check"><h3>Thử ngay</h3><p>${p.prompt}</p><div class="lesson-choices" role="group" aria-label="Chọn đáp án">${p.choices.map((choice,n)=>`<button type="button" data-lesson-answer="${n}" aria-pressed="false">${choice}</button>`).join('')}</div><p class="lesson-feedback" aria-live="polite"></p></div>`};
+}
+
 function renderLessonMaterial(root,t){
-  const pages=lessonPages(t),summary=theoryHTML(t.theory);
-  if(!pages){
+  const builtIn=builtInLesson(t),pages=builtIn?builtIn.map(builtInPageHTML):authoredLessonPages(t.theory);
+  const summary=(!pages.length||builtIn)?theoryHTML(t.theory):'';
+  if(!pages.length){
     root.innerHTML=summary||'<div class="tbox"><p>Bài này chưa có tóm tắt lý thuyết.</p></div>';
-    bindAuthoredTheory(root);
     typeset(root);
     return;
   }
-  root.innerHTML=`<nav class="lesson-nav" aria-label="Nội dung bài học">${pages.map((p,i)=>`<button type="button" data-lesson-page="${i}" ${i===0?'aria-current="step"':''}>${esc(p.concept)}</button>`).join('')}</nav>
-    ${pages.map((p,i)=>`<section class="lesson-page" ${i===0?'':'hidden'}>
-      <div class="lesson-guide"><div aria-hidden="true">${owlSVG}</div><div><b>Cherry</b><h2>${esc(p.title)}</h2><p>${esc(p.guide)}</p></div></div>
-      <div class="lesson-explore">
-        <div class="lesson-visual">${p.visual}<p class="lesson-caption" aria-live="polite">${esc(p.captions[0])}</p></div>
-        <div class="lesson-notes"><h3>${esc(p.concept)}</h3><p>${p.explanation}</p><h3>Ví dụ</h3><p>${p.example}</p></div>
-      </div>
-      <div class="lesson-check"><h3>Thử ngay</h3><p>${p.prompt}</p><div class="lesson-choices" role="group" aria-label="Chọn đáp án">${p.choices.map((choice,n)=>`<button type="button" data-lesson-answer="${n}" aria-pressed="false">${choice}</button>`).join('')}</div><p class="lesson-feedback" aria-live="polite"></p></div>
-    </section>`).join('')}
-    ${summary?`<details class="lesson-summary"><summary>Xem tóm tắt đầy đủ</summary>${summary}</details>`:''}`;
+  const navigation=pages.length>1?`<nav class="lesson-nav" aria-label="Nội dung bài học">${pages.map((p,i)=>`<button type="button" data-lesson-page="${i}" ${i===0?'aria-current="step"':''}>${esc(p.label)}</button>`).join('')}</nav>`:'';
+  root.innerHTML=navigation+pages.map((p,i)=>`<section class="lesson-page" aria-label="${esc(p.label)}" ${i===0?'':'hidden'}>
+    ${p.guide?`<div class="lesson-guide"><div aria-hidden="true">${owlSVG}</div><div><b>Cherry</b><h2>${esc(p.title)}</h2><div>${p.guide}</div></div></div>`:''}
+    ${p.visual||p.notes?`<div class="lesson-explore${p.visual&&p.notes?' lesson-explore--split':''}">
+      ${p.visual?`<div class="lesson-visual${builtIn?'':' lesson-visual--authored'}">${p.visual}</div>`:''}
+      ${p.notes?`<div class="lesson-notes">${p.notes}</div>`:''}
+    </div>`:''}
+    ${p.checks}
+  </section>`).join('')+ (summary?`<details class="lesson-summary"><summary>Xem tóm tắt đầy đủ</summary>${summary}</details>`:'');
 
   const tabs=[...root.querySelectorAll('[data-lesson-page]')];
   const sections=[...root.querySelectorAll('.lesson-page')];
   tabs.forEach((tab,i)=>tab.onclick=()=>{
     tabs.forEach((item,n)=>{if(n===i)item.setAttribute('aria-current','step');else item.removeAttribute('aria-current')});
     sections.forEach((section,n)=>{section.hidden=n!==i});
+    typeset(sections[i]);
   });
-  sections.forEach((section,i)=>{
-    const page=pages[i];
+  if(builtIn)sections.forEach((section,i)=>{
+    const page=builtIn[i];
     const bindChoices=(selector,handle)=>{
       const buttons=section.querySelectorAll(selector);
       buttons.forEach((button,n)=>button.onclick=()=>{
@@ -2339,7 +2375,6 @@ $('#playTheory').innerHTML=bookSVG;
 
 const THK={dinhnghia:['Định nghĩa','#3aa8e0'],quytac:['Quy tắc','#2fb787'],congthuc:['Công thức','#ffb703'],dinhly:['Định lý','#8d7bff'],tinhchat:['Tính chất','#8d7bff'],luuy:['Lưu ý','#ef3b55'],vidu:['Ví dụ','#7a9399']};
 function theoryHTML(items){let nv=0;return (items||[]).map(it=>{const [n,c]=THK[it.k]||['',  '#7a9399'];
-  if(it.k==='loidan'||it.k==='minhhoa'||it.k==='thungay')return authoredTheoryHTML(it);
   if(it.k==='vidu'){nv++;return `<div class="thc vd" style="--c:${c}"><span class="thk">Ví dụ ${nv}</span><div class="thb2">${tex(it.body)}</div><details><summary>Xem lời giải</summary><div class="thb2">${tex(it.sol)}</div></details></div>`}
   return `<div class="thc" style="--c:${c}"><span class="thk">${n}</span>${it.title?`<h3>${tex(it.title)}</h3>`:''}<div class="thb2">${tex(it.body)}</div></div>`}).join('')}
 let thT=null;
@@ -2359,7 +2394,8 @@ function editTheory(t){t=TOPICS.find(x=>x.id===t.id)||t;const m=t.raw.match(/\\b
     <div class="qpv thpv" id="tpv"></div><button class="btn" id="tS">Lưu lý thuyết</button>${m?'<button class="btn alt" id="tD">Xóa lý thuyết</button>':''}<button class="btn alt" id="tC">Hủy</button>`);
   const pv=()=>{const v=$('#tx').value,P=parseBank('\\chude{x}\n'+v);let h=P.errors.length?`<div class="err">${P.errors.map(e=>esc(errorText(e))).join('<br>')}</div>`:'';
     if(!/\\begin\{lythuyet\}[\s\S]*\\end\{lythuyet\}/.test(v))h=`<div class="err">Cần bọc trong \\begin{lythuyet} … \\end{lythuyet}</div>`;
-    const preview=$('#tpv');preview.innerHTML=h+theoryHTML(P.theory);bindAuthoredTheory(preview);typeset(preview);return !h};
+    const preview=$('#tpv');preview.innerHTML=h+'<div class="lesson-material"></div>';
+    renderLessonMaterial(preview.querySelector('.lesson-material'),{...t,theory:P.theory});return !h};
   let tm=null;$('#tx').oninput=()=>{clearTimeout(tm);tm=setTimeout(pv,500)};pv();$('#tC').onclick=closeOvl;
   const put=blk=>{
     if(m)return t.raw.slice(0,m.index)+blk+t.raw.slice(m.index+m[0].length);

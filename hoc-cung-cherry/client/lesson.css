@@ -10,13 +10,22 @@
 .lesson-guide b{color:#ffd23f;font-size:13px}
 .lesson-guide h2{margin:0;font:800 24px/1.18 "Baloo 2",sans-serif}
 .lesson-guide p{margin:3px 0 0}
-.lesson-explore{display:grid;overflow:hidden;border-radius:18px;background:#fcf7ed;color:#133641}
+.lesson-explore{display:grid;grid-template-columns:minmax(0,1fr);overflow:hidden;border-radius:18px;background:#fcf7ed;color:#133641}
 .lesson-notes,.lesson-visual{padding:13px 16px}
 .lesson-visual{display:grid;justify-items:center;align-content:center;gap:8px;text-align:center;background:#dceee4}
+.lesson-visual--authored{display:block;align-content:center;text-align:left}
+.lesson-visual--authored .theory-lab{margin:0;padding:0;background:transparent}
+.lesson-visual--authored .theory-lab+.theory-lab{margin-top:16px}
 .lesson-visual p,.lesson-notes p,.lesson-check p{margin:0}
 .lesson-caption{font-weight:800}
 .lesson-notes h3,.lesson-check h3{font:800 19px/1.2 "Baloo 2",sans-serif;margin:0 0 3px}
 .lesson-notes p+h3{margin-top:10px}
+.lesson-notes .thc{margin:0;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none;animation:none}
+.lesson-notes .thc+.thc{margin-top:12px}
+.lesson-notes .thc h3{margin:0 0 3px}
+.lesson-notes .thc .thb2{margin-top:1px}
+.lesson-notes .thc:has(h3)>.thk{display:none}
+.lesson-notes .thc details .thb2{margin-top:4px}
 .lesson-choices button{background:#fffdf6;color:#173c45;border:1px solid #98b9a8;font-weight:800}
 .lesson-choices button[aria-pressed="true"]{background:#21634e;color:#fff;border-color:#21634e}
 .lesson-choices button span{display:block;font-size:22px}
@@ -37,7 +46,6 @@
 .review-head{position:sticky;z-index:1;top:0;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;background:#103c48;padding:10px 0;border-bottom:1px solid #4b7a84}
 .review-head h2{font:800 21px/1.2 "Baloo 2",sans-serif;margin:0}
 .review-head .btn{min-height:44px;width:auto;margin:0}
-.authored-guide{margin-top:14px;padding:9px 12px;background:#1a5868;color:#fff;border-radius:16px}
 .authored-check,.theory-lab{margin-top:12px;text-align:left}
 .theory-lab{padding:14px 16px;background:#dceee4;color:#153c41;border-radius:16px}
 .theory-lab h3{font:800 21px/1.2 "Baloo 2",sans-serif;margin:0 0 4px}
@@ -55,5 +63,6 @@
 [data-roman-reset]{min-height:44px;margin-top:5px;background:transparent;color:#175447;text-decoration:underline;font:inherit;font-weight:800;cursor:pointer}
 .theory-author-help{text-align:left;margin:8px 0;overflow-wrap:anywhere}
 .theory-author-help summary{cursor:pointer}
-@media(min-width:600px){.lesson-explore{grid-template-columns:1fr 1fr}}
+#tpv .lesson-guide b{color:#855619}
+@media(min-width:600px){.lesson-explore--split{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-height:760px) and (max-width:599px){.jbtns .jbtn{min-height:0}.jbtns .jbtn+.jbtn{margin-top:5px}}
