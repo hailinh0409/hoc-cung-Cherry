@@ -114,6 +114,7 @@
 .trk th,.trk td{padding:6px 8px;border-bottom:1px solid #d9e6e6;text-align:center;white-space:nowrap}
 .trk th:first-child,.trk td.nm{text-align:left}
 .trk .th2{font-weight:400;font-size:11px;color:#5f7d82}
+.trk.de .cell .lnk{font-weight:800;color:inherit}.trk tr.avg td{background:#f4f8f8;font-weight:700}
 .cell{font-weight:800}.cell.ok{background:#dcfbe9;color:#0c6b3f}.cell.late{background:#fff3c4;color:#7a5a00}.cell.miss{background:#ffe3e6;color:#a1202f}.cell.part{color:#5f7d82}
 .tnote{font-size:12px;color:#5f7d82;margin:8px 0 0}
 .hq .hqh{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:6px}.hq small{color:#5f7d82}
