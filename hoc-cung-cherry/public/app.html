@@ -260,6 +260,7 @@ mjx-container{max-width:100%;overflow-x:auto;overflow-y:hidden}
 .trk th,.trk td{padding:6px 8px;border-bottom:1px solid #d9e6e6;text-align:center;white-space:nowrap}
 .trk th:first-child,.trk td.nm{text-align:left}
 .trk .th2{font-weight:400;font-size:11px;color:#5f7d82}
+.trk.de .cell .lnk{font-weight:800;color:inherit}.trk tr.avg td{background:#f4f8f8;font-weight:700}
 .cell{font-weight:800}.cell.ok{background:#dcfbe9;color:#0c6b3f}.cell.late{background:#fff3c4;color:#7a5a00}.cell.miss{background:#ffe3e6;color:#a1202f}.cell.part{color:#5f7d82}
 .tnote{font-size:12px;color:#5f7d82;margin:8px 0 0}
 .hq .hqh{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:6px}.hq small{color:#5f7d82}
@@ -1625,7 +1626,7 @@ const MPC=[['#ffe1d6','#ff7a59'],['#d8eeff','#2b9bd6'],['#e8e0ff','#8d7bff'],['#
 /* ---------- kho dữ liệu ---------- */
 let TOPICS=[],ACCS=[],ACCS_DEL=[],REPS=[],MOC={},PLAYERS=[],ASG=[],TEACHER=false,DBSTATE='loading',DB=null;
 let ACC=null,P=null,curK='',curPhan='',curT=null,profFrom='grades';
-const newP=()=>({xp:0,lp:0,matches:0,hist:[],st:{},best:{},score:{},pt:{},rev:{},saved:{},wst:{},stats:{correct:0,maxCombo:0,levels:0,perfect:0,top:0,cleared:0,chests:0},own:{},eq:{},spent:0,dq:null,wk:{},season:'',seasons:[],fails:{},lvt:{},ccl:{},tut:0,follow:{},fseen:'',rseen:{},ach:{},avatar:0,nick:'',tlh:{}});
+const newP=()=>({xp:0,lp:0,matches:0,hist:[],st:{},best:{},score:{},pt:{},deh:{},rev:{},saved:{},wst:{},stats:{correct:0,maxCombo:0,levels:0,perfect:0,top:0,cleared:0,chests:0},own:{},eq:{},spent:0,dq:null,wk:{},season:'',seasons:[],fails:{},lvt:{},ccl:{},tut:0,follow:{},fseen:'',rseen:{},ach:{},avatar:0,nick:'',tlh:{}});
 function fromDoc(d){const v=d.data()||{};const P=parseTopic(v.text);
   return {id:d.id,khoi:String(v.khoi||'?'),phan:PHAN[v.phan]?v.phan:'dai-so',title:v.title||P.title||d.id,status:v.trangthai||'nhap',order:Number(v.thutu)||0,levels:P.levels,errors:P.errors,nguon:v.nguon||'',chuong:v.chuong||'',raw:v.text||'',prev:v.banTruoc||'',upd:v.capnhat||'',theory:P.theory||null}}
 // \\ ngoài công thức = xuống dòng; trong $...$, $$...$$, \(...\), \[...\] giữ nguyên (cases, aligned, ma trận cần \\)
@@ -2746,6 +2747,27 @@ function teacherExtra(kh,st,ix){const today=vnDay(),real=st.filter(v=>!v.mau);
      stuck.map(x=>`<div class="row2"><span>${esc(x.v.name)}<br><small>${esc(x.t.title)}</small></span><b class="n">Hết tim ${x.n} lần</b></div>`).join('')
     :'<p class="tnote">Chưa có em nào nghỉ từ 3 ngày hoặc kẹt màn.</p>'}</div>
    <h2 class="sect">Thời gian trung bình mỗi bài</h2><div class="tbox">${tms.length?tms.slice(0,12).map(x=>`<div class="row2"><span>${esc(x.t.title)}<br><small>${x.n} lượt</small></span><b class="${x.avg>600?'n':''}">${mm(x.avg)}</b></div>`).join('')+'<p class="tnote">Đỏ: quá 10 phút, nên bớt câu hoặc chia nhỏ bài.</p>':'<p class="tnote">Chưa có dữ liệu.</p>'}</div>`}
+/* ---------- điểm ôn tập cho giáo viên ---------- */
+// Đề của khối có học sinh làm hoặc đã duyệt; nhãn TN1, TN2… / TL1, TL2… như màn Ôn tập của học sinh.
+function deList(kh,st){const all=deTopics(kh),used=t=>t.status==='giao'||st.some(v=>v.best&&v.best[key(t,0)]);
+  const tn=all.filter(t=>!isTL(t)),tl=all.filter(isTL);
+  return [...tn.map((t,i)=>({t,lab:'TN'+(i+1)})),...tl.map((t,i)=>({t,lab:'TL'+(i+1)}))].filter(x=>used(x.t))}
+// Một ô điểm của học sinh v ở đề t: điểm cao nhất, lần đầu, số lần làm (đề trắc nghiệm); đã làm/chưa (đề tự luận, học sinh tự báo)
+function deCell(v,t){const k=key(t,0),b=v.best&&v.best[k],h=(v.deh&&v.deh[k])||[];
+  if(!b)return {c:'part',txt:'—'};
+  if(isTL(t))return {c:'ok',txt:'✓'};
+  const best=b.s||0,first=h.length?h[0].pc:null,n=h.length;
+  return {c:best>=80?'ok':best>=50?'late':'miss',txt:best+'%',sub:n>1?`đầu ${first}% · ${n} lần`:n===1?'1 lần':''}}
+function deScores(kh,st){const D=deList(kh,st);
+  if(!D.length)return `<h2 class="sect">Điểm ôn tập</h2><div class="tbox"><p class="tnote">Khối ${kh} chưa có đề ôn tập nào được duyệt.</p></div>`;
+  const avg=x=>{const ps=st.map(v=>v.best&&v.best[key(x.t,0)]).filter(Boolean);return isTL(x.t)?`${ps.length}/${st.length} em`:ps.length?Math.round(ps.reduce((a,b)=>a+(b.s||0),0)/ps.length)+'% TB':'chưa ai làm'};
+  return `<h2 class="sect">Điểm ôn tập</h2><div class="tbox"><div class="scrollx"><table class="trk de"><thead><tr><th>Học sinh</th>${D.map(x=>`<th>${x.lab}<div class="th2">${esc(x.t.title.slice(0,14))}</div></th>`).join('')}</tr></thead>
+    <tbody>${st.map(v=>`<tr><td class="nm">${esc(v.name||'?')}${v.mau?' <small>(mẫu)</small>':''}</td>${D.map(x=>{const c=deCell(v,x.t);return `<td class="cell ${c.c}">${c.txt!=='—'&&!isTL(x.t)?`<button class="lnk dh" data-dh="${v.id}|${x.t.id}">${c.txt}</button>`:c.txt}${c.sub?`<div class="th2">${c.sub}</div>`:''}</td>`}).join('')}</tr>`).join('')}
+    <tr class="avg"><td class="nm"><b>Cả khối</b></td>${D.map(x=>`<td class="th2">${avg(x)}</td>`).join('')}</tr></tbody></table></div>
+    <p class="tnote">TN: điểm cao nhất (xanh ≥ 80%, vàng ≥ 50%, đỏ dưới 50%), dòng nhỏ là điểm lần đầu và số lần làm. Bấm điểm để xem từng lần. TL: ✓ là em đã bấm "Đã làm xong" (bài làm trong vở, thầy chấm trên lớp).</p></div>`}
+function deHistBox(v,t){if(!v||!t)return;const h=(v.deh&&v.deh[key(t,0)])||[],b=(v.best||{})[key(t,0)]||{};
+  const mm=s=>`${Math.floor((s||0)/60)}:${String((s||0)%60).padStart(2,'0')}`,dt=a=>{const d=new Date(a);return d.toLocaleDateString('vi-VN',{day:'2-digit',month:'2-digit'})+' '+d.toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'})};
+  msgBox(esc(v.name),`<b>${esc(t.title)}</b><br>`+(h.length?h.map((x,i)=>`Lần ${i+1} · ${dt(x.at)}: <b>${x.pc}%</b> (${x.c}/${x.n} câu, ${mm(x.sec)})`).join('<br>'):`Điểm cao nhất <b>${b.s||0}%</b>. Em làm đề này trước khi app ghi lịch sử từng lần.`))}
 function parentReport(v){const w=weekId(),wk=v.wk&&v.wk.w===w?v.wk:{xp:0,c:0,lv:0},today=vnDay(),A=ASG.filter(a=>a.khoi===v.khoi);
   const ptOf=k=>{const b=v.best&&v.best[k];return b&&b.st>0?(b.t||'1970'):null};
   const lines=[`BÁO CÁO TUẦN · Học cùng Cherry`,`Học sinh: ${v.name} (khối ${v.khoi})`,`Tuần từ ${w.split('-').reverse().join('/')}`,``,
@@ -2753,6 +2775,7 @@ function parentReport(v){const w=weekId(),wk=v.wk&&v.wk.w===w?v.wk:{xp:0,c:0,lv:
     `• Chuỗi ngày học: ${liveStreak(v.st||{},today)} ngày (kỷ lục ${(v.st||{}).best_streak||0})`,
     `• Thi đấu: bậc ${TIERS[tierOf(v.lp)].n} (${v.lp||0} điểm)`,
     `• Câu sai cần làm lại: ${Object.values(v.rev||{}).filter(r=>r.in_notebook).length} câu`,
+    ...(()=>{const D=deList(v.khoi,[v]).filter(x=>!isTL(x.t)&&v.best&&v.best[key(x.t,0)]);return D.length?[`• Đề ôn tập trắc nghiệm:`,...D.slice(-5).map(x=>{const c=deCell(v,x.t);return `   - ${x.lab} ${x.t.title}: ${c.txt}${c.sub?' ('+c.sub+')':''}`})]:[]})(),
     ...(A.length?[`• Bài thầy giao:`,...A.slice(-5).map(a=>{const t=TOPICS.find(x=>x.id===a.topicId),s=asgStatus(a,ptOf);return `   - ${t?t.title:'?'}: ${s.complete?(s.late?'xong (muộn)':'đã xong'):s.overdue?'quá hạn, chưa xong':`đang làm ${s.passed}/${s.need} màn`}`})]:[]),
     ``,`Nhận xét của thầy: `];
   overlay(`<h2 style="font-size:26px">Báo cáo phụ huynh</h2><p>Thầy sửa nhận xét rồi bấm sao chép để gửi qua Zalo.</p><textarea class="code light" id="rp">${esc(lines.join('\n'))}</textarea><button class="btn" id="rpC">Sao chép</button><button class="btn alt" id="rpX">Đóng</button>`);
@@ -3106,7 +3129,8 @@ function finish(){clearInterval(TM);const sec=Math.round((Date.now()-G.t0)/1000)
       ${rankLock()?`<p class="tnote">Em đang có hơn ${NB_LOCK} câu sai chưa làm lại. Dọn kho câu sai để mở lại Thi đấu.</p><button class="btn" id="r4">Làm lại câu sai</button>`:'<button class="btn" id="r1">Trận nữa</button>'}<button class="btn alt" id="r2">Bảng xếp hạng</button><button class="btn alt" id="r3">Về thi đấu</button>`);
     $('#r1')&&($('#r1').onclick=()=>{closeOvl();startRank()});$('#r4')&&($('#r4').onclick=()=>{closeOvl();redoTab='sai';redo()});$('#r2').onclick=()=>{closeOvl();boardT=null;board()};$('#r3').onclick=()=>{closeOvl();ranked()};return}
   if(G.mode==='de'){qev('de');const t=G.t,k=key(t,0),pc=Math.round(nOk/G.qs.length*100),st=pc>=90?3:pc>=70?2:pc>=50?1:0;
-    if(st>(P.best[k]||0))P.best[k]=st;if(pc>(P.score[k]??-1))P.score[k]=pc;P.pt[k]=P.pt[k]||new Date().toISOString();
+    if(st>(P.best[k]||0)||P.best[k]==null)P.best[k]=Math.max(st,P.best[k]||0);if(pc>(P.score[k]??-1))P.score[k]=pc;P.pt[k]=P.pt[k]||new Date().toISOString();
+    P.deh=P.deh||{};P.deh[k]=[...(P.deh[k]||[]),{at:new Date().toISOString(),pc,c:nOk,n:G.qs.length,sec}].slice(-10); // lịch sử làm đề: giáo viên xem ở Theo dõi khối
     const s=bumpStreak();save();syncMine();checkAch();if(st>=2){sfx.win();confetti(120,.3)}
     overlay(`<h2>${pc>=90?'Xuất sắc!':pc>=70?'Làm tốt lắm!':pc>=50?'Đạt rồi!':'Cố gắng thêm nhé!'}</h2><p>${esc(t.title)}</p><div class="bigstars">${[1,2,3].map(x=>star(x<=st)).join('')}</div>
      <div class="stat"><div><b>${pc}%</b>điểm</div><div><b>${nOk}/${G.qs.length}</b>câu đúng</div>${tm}</div>${streakLine(s)}
@@ -3205,12 +3229,14 @@ function track(){show('track');$('#trTitle').textContent='Theo dõi khối '+cur
   $('#trk').innerHTML=`<div class="tbox"><div class="scrollx"><table class="trk"><thead><tr><th>Học sinh</th><th>Chuỗi</th><th>Rank</th>${A.map(a=>`<th>${esc(((TOPICS.find(t=>t.id===a.topicId)||{}).title||'?').slice(0,14))}<div class="th2">${a.due?fmtDue(a.due):'không hạn'}</div></th>`).join('')}<th>Câu sai</th></tr></thead>
     <tbody>${st.map(v=>`<tr><td class="nm"><button class="lnk" data-rp="${v.id}">${esc(v.name||'?')}</button>${v.mau?' <small>(mẫu)</small>':''}</td><td>${liveStreak(v.st||{},today)||'—'}</td><td>${TIERS[tierOf(v.lp)].n}</td>${A.map(a=>{const s=asgStatus(a,ptOf(v));const c=s.complete?(s.late?'late':'ok'):s.overdue?'miss':'part';return `<td class="cell ${c}">${s.complete?(s.late?'Muộn':'✓'):s.passed+'/'+s.need}</td>`}).join('')}<td>${Object.values(v.rev||{}).filter(r=>r.in_notebook).length}</td></tr>`).join('')}</tbody></table></div>
     ${st.length?'':'<p>Chưa có học sinh khối này chơi.</p>'}<p class="tnote">✓ đúng hạn · Muộn: xong sau hạn · a/b: đã qua a trên b màn · đỏ: quá hạn chưa xong. Bấm tên học sinh để tạo báo cáo gửi phụ huynh.</p></div>
+   ${deScores(kh,st)}
    ${teacherExtra(kh,st,ix)}
    <h2 class="sect">Câu khối ${kh} sai nhiều nhất (14 ngày)</h2>
    ${hard.length?hard.map(([k,g])=>{const {q,t,li}=ix[k];let q2=q;try{q2=instantiate(q)}catch(e){}
      return `<div class="tbox hq"><div class="hqh"><span class="chip nhap">${Math.round(g.w/g.n*100)}% sai</span><span class="chip">${g.w}/${g.n} lượt · ${g.who} em</span><small>${esc(t.title)} · mức ${li+1}</small></div><div class="stem">${tex(q2.stem)}</div><div class="vans">${answerHTML(q2)}</div><button class="btn sm alt" data-eq="${t.id}|${k}" style="margin-top:8px">✎ Sửa câu này</button></div>`}).join('')
      :'<div class="tbox"><p>Chưa đủ dữ liệu (cần ít nhất 3 lượt trả lời mỗi câu).</p></div>'}`;
   typeset($('#trk'));$('#trBack').onclick=()=>{sfx.tap();area()};$$('#trk [data-rp]').forEach(b=>b.onclick=()=>parentReport(PLAYERS.find(p=>p.id===b.dataset.rp)));
+  $$('#trk [data-dh]').forEach(b=>b.onclick=()=>{sfx.tap();const [vid,tid]=b.dataset.dh.split('|');deHistBox(PLAYERS.find(p=>p.id===vid),TOPICS.find(t=>t.id===tid))});
   $$('#trk [data-eq]').forEach(b=>b.onclick=()=>{const [tid,k]=b.dataset.eq.split('|'),t=TOPICS.find(x=>x.id===tid),bs=qBlocks(t.raw),i=bs.findIndex(x=>!x.man&&parseOne(x.raw).q?.key===k);if(i<0)return toast('Không tìm thấy câu này.');editQ(t,i)})}
 
 
@@ -3408,7 +3434,7 @@ let syncT=null,wq=Promise.resolve();
 function syncMine(){if(!DB||!ACC||ACC.teacher||DBSTATE!=='ok')return;clearTimeout(syncT);syncT=setTimeout(()=>{syncT=null;pushMine()},1200)}
 function pushMine(){if(!DB||!ACC||ACC.teacher||DBSTATE!=='ok')return;wq=wq.then(async()=>{const lim=addDays(vnDay(),-30),w={};for(const [k,v] of Object.entries(P.wst||{}))if(v.d>=lim)w[k]=v;
   const doc={name:ACC.name,khoi:ACC.khoi,nick:P.nick||'',avatar:P.avatar||0,xp:P.xp||0,lp:P.lp||0,matches:P.matches||0,hist:P.hist||[],st:P.st||{},stats:P.stats,ach:P.ach,
-    best:Object.fromEntries(Object.entries(P.best).map(([k,s])=>[k,{st:s,s:P.score[k]||0,t:P.pt[k]||null}])),rev:P.rev,saved:P.saved,wst:w,eq:P.eq||{},own:P.own||{},spent:P.spent||0,dq:P.dq,wk:P.wk||{},season:P.season||'',seasons:P.seasons||[],fails:P.fails||{},lvt:P.lvt||{},ccl:P.ccl||{},tut:P.tut||0,follow:P.follow||{},fseen:P.fseen||'',rseen:P.rseen||{},tlh:P.tlh||{},lpd:P.lpd||null,capnhat:new Date().toISOString()};
+    best:Object.fromEntries(Object.keys({...P.best,...P.score}).map(k=>[k,{st:P.best[k]||0,s:P.score[k]||0,t:P.pt[k]||null}])),deh:P.deh||{},rev:P.rev,saved:P.saved,wst:w,eq:P.eq||{},own:P.own||{},spent:P.spent||0,dq:P.dq,wk:P.wk||{},season:P.season||'',seasons:P.seasons||[],fails:P.fails||{},lvt:P.lvt||{},ccl:P.ccl||{},tut:P.tut||0,follow:P.follow||{},fseen:P.fseen||'',rseen:P.rseen||{},tlh:P.tlh||{},lpd:P.lpd||null,capnhat:new Date().toISOString()};
   const r=await DB.doc('players/'+ACC.id).set(doc);reconcile(doc,r)}).catch(()=>{})}
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&syncT){clearTimeout(syncT);syncT=null;pushMine()}});
 function mergeP(d){
@@ -3422,6 +3448,7 @@ function mergeP(d){
   if(d.ach)for(const [k,v] of Object.entries(d.ach))if(!P.ach[k])P.ach[k]=v;
   if(d.stats)for(const [k,v] of Object.entries(d.stats))if((v||0)>(P.stats[k]||0))P.stats[k]=v;
   if(d.best)for(const [k,b] of Object.entries(d.best)){if((b.st||0)>(P.best[k]||0))P.best[k]=b.st;if((b.s||0)>(P.score[k]||0))P.score[k]=b.s;if(b.t&&!P.pt[k])P.pt[k]=b.t}
+  if(d.deh){P.deh=P.deh||{};for(const [k,h] of Object.entries(d.deh))if(Array.isArray(h)&&h.length>(P.deh[k]||[]).length)P.deh[k]=h}
   if(d.own)for(const [k,v] of Object.entries(d.own))if(!P.own[k])P.own[k]=v;
   if((d.spent||0)>(P.spent||0))P.spent=d.spent;if(d.eq&&!Object.keys(P.eq||{}).length)P.eq=d.eq;
   if(d.wk&&d.wk.w&&(!P.wk||!P.wk.w||d.wk.w>P.wk.w||(d.wk.w===P.wk.w&&(d.wk.xp||0)>(P.wk.xp||0))))P.wk=d.wk;
