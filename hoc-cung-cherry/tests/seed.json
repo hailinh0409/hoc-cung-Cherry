@@ -1,6 +1,32 @@
 {
  "ltt_topics": [
   {
+   "id": "9058ab58-f665-40ed-aa4b-e380b643ba29",
+   "slug": "lop6-b2-cach-ghi-so-tu-nhien",
+   "title": "Cách ghi số tự nhiên",
+   "grade": "6",
+   "status": "published",
+   "source": "\\chude{Cách ghi số tự nhiên}\n\n\\begin{lythuyet}\n\\loidan{Cùng Cherry xem vì sao một chữ số có thể mang giá trị khác nhau khi đổi chỗ.}\n\\quytac{Hệ thập phân}{Dùng mười chữ số $0;\\,1;\\,2;\\,\\dots;\\,9$ để ghi số. Cứ $10$ đơn vị ở một hàng thì bằng $1$ đơn vị ở hàng liền trước nó. Giá trị của mỗi chữ số phụ thuộc vào vị trí của nó trong số.}\n\\congthuc{Cấu tạo thập phân của số}{$\\overline{ab}=a\\cdot 10+b$ ($a\\ne 0$) \\\\ $\\overline{abc}=a\\cdot 100+b\\cdot 10+c$ ($a\\ne 0$)}\n\\minhhoa{gia-tri-theo-hang}{2485}\n\\luuy{Phân biệt chữ số hàng trăm và số trăm: số $2\\,485$ có chữ số hàng trăm là $4$, còn số trăm là $24$.}\n\\vidu{Trong số $6\\,052$, chữ số hàng nghìn và chữ số hàng chục đóng góp bao nhiêu?}{$6$ ở hàng nghìn có giá trị $6\\,000$. $5$ ở hàng chục có giá trị $50$.}\n\\thungay{Trong $3\\,672$, giá trị của chữ số $6$ là bao nhiêu?}{$600$}{$36$}{$6$ ở hàng trăm nên có giá trị $6\\cdot 100=600$.}{$36$ là số trăm trong $3\\,672$. Riêng chữ số $6$ ở hàng trăm có giá trị $600$.}\n\n\\loidan{Đồng hồ có thể dùng chữ thay cho chữ số. Em thử ghép các mảnh để viết số La Mã nhé!}\n\\quytac{Số La Mã}{$\\mathrm I=1$, $\\mathrm V=5$, $\\mathrm X=10$. Hai chữ đặc biệt: $\\mathrm{IV}=4$, $\\mathrm{IX}=9$. \\\\ Chữ có giá trị nhỏ hơn đứng sau thì cộng thêm: $\\mathrm{XII}=10+1+1=12$. Các chữ $\\mathrm I$, $\\mathrm X$ không đứng liền nhau quá ba lần.}\n\\minhhoa{ghep-so-la-ma}{24}\n\\vidu{Viết số $27$ bằng số La Mã.}{$27=10+10+5+1+1$ nên $27=\\mathrm{XXVII}$.}\n\\thungay{Số La Mã $\\mathrm{XVIII}$ có giá trị là bao nhiêu?}{$18$}{$13$}{Sau $\\mathrm{X}$ là $\\mathrm{V}$ và ba chữ $\\mathrm{I}$, nên ta cộng $10+5+1+1+1=18$.}{Khi cộng $10$ với ba chữ $\\mathrm{I}$, em còn cần cộng $5$ của chữ $\\mathrm{V}$.}\n\\end{lythuyet}\n\n\\man{1}{Nhận biết}\n\n\n\\begin{exfb}\nGiá trị của chữ số $7$ trong số $7\\,012$ là bao nhiêu?\n\\shortans{7000}\n\\end{exfb}\n\n\\begin{exfb}\nChữ số hàng đơn vị của $1\\,436$ là bao nhiêu?\n\\shortans{6}\n\\end{exfb}\n\n\\begin{exfb}\nSố La Mã $\\mathrm{VIII}$ có giá trị bao nhiêu?\n\\shortans{8}\n\\end{exfb}\n\n\\man{2}{Thông hiểu}\n\n\n\\begin{exfb}\n%@ n = ngaunhien(2000, 3999)\n%@ c = (n - n % 10)/10\nSố ${{n}}$ có bao nhiêu chục?\n\\shortans{{{c}}}\n\\end{exfb}\n\n\\begin{exfb}\nSố $8\\,341$ có bao nhiêu trăm?\n\\shortans{83}\n\\end{exfb}\n\n\\begin{exfb}\nCho số có $7$ nghìn, $2$ trăm, $0$ chục và $6$ đơn vị. Hãy viết số đó.\n\\shortans{7206}\n\\end{exfb}\n\n\\man{3}{Vận dụng}\n\n\n\\begin{exfb}\nViết số nhỏ nhất có bốn chữ số khác nhau lập từ $0$, $4$, $7$, $9$.\n\\shortans{4079}\n\\end{exfb}\n\n\\begin{exfb}\nNếu đổi chỗ chữ số hàng trăm và hàng chục của $7\\,281$ thì được số nào?\n\\shortans{7821}\n\\end{exfb}\n\n\\man{4}{Vận dụng cao}\n\n\n\\begin{exfb}\nSố lớn nhất có ba chữ số khác nhau với tổng các chữ số là $15$ là bao nhiêu?\n\\shortans{960}\n\\end{exfb}\n",
+   "sort": 10,
+   "nguon": "Bản thử cục bộ",
+   "phan": "dai-so",
+   "chuong": "k6-b2",
+   "ban_truoc": null
+  },
+  {
+   "id": "38d64c6e-74d2-465b-b4ee-88d07189f150",
+   "slug": "lop6-b1-tap-hop-mau",
+   "title": "Tập hợp",
+   "grade": "6",
+   "status": "published",
+   "source": "\\chude{Tập hợp}\n\\begin{lythuyet}\n\\dinhnghia{Tập hợp và phần tử}{Tập hợp là một nhóm các đối tượng được xác định rõ. Mỗi đối tượng trong nhóm là một phần tử. Kí hiệu $a\\in A$ nghĩa là $a$ thuộc $A$, còn $b\\notin A$ nghĩa là $b$ không thuộc $A$.}\n\\quytac{Hai cách mô tả tập hợp}{Liệt kê các phần tử, chẳng hạn $A=\\{0;1;2;3\\}$, hoặc nêu tính chất đặc trưng, chẳng hạn $A=\\{x\\in\\mathbb{N}\\mid x<4\\}$.}\n\\luuy{Viết mỗi phần tử một lần. Thứ tự liệt kê không làm thay đổi tập hợp. Số $0$ là số tự nhiên.}\n\\vidu{Viết tập hợp $B$ gồm các số tự nhiên lớn hơn $2$ và nhỏ hơn $7$ bằng hai cách.}{$B=\\{3;4;5;6\\}$ hoặc $B=\\{x\\in\\mathbb{N}\\mid 2<x<7\\}$.}\n\\end{lythuyet}\n\\man{1}{Nhận biết}\n\\begin{extf}\nCho $M=\\{1;3;5\\}$. Mỗi ý sau đúng hay sai?\n\\choiceTF{\\True $1\\in M$}{$2\\in M$}{\\True $5\\in M$}{$0\\in M$}\n\\loigiai{Các phần tử được liệt kê trong $M$ là $1$, $3$ và $5$.}\n\\end{extf}\n\\begin{extf}\nCho $P=\\{0;2;4;6\\}$. Mỗi ý sau đúng hay sai?\n\\choiceTF{\\True $0\\in P$}{$1\\in P$}{\\True $4\\in P$}{$8\\in P$}\n\\loigiai{$0$ và $4$ có trong danh sách phần tử của $P$.}\n\\end{extf}\n\\begin{extf}\nCho $H$ là tập hợp các chữ cái có trong từ MAM. Mỗi ý sau đúng hay sai?\n\\choiceTF{\\True Chữ M thuộc $H$}{Chữ N thuộc $H$}{\\True Chữ A thuộc $H$}{$H$ có ba phần tử}\n\\loigiai{Chữ M xuất hiện hai lần nhưng chỉ được liệt kê một lần.}\n\\end{extf}\n\\begin{exfb}\nTập hợp $V=\\{2;4;8\\}$ có bao nhiêu phần tử?\n\\shortans{3}\n\\loigiai{Ba phần tử là $2$, $4$ và $8$.}\n\\end{exfb}\n\\begin{exfb}\nCho $K=\\{0;4;9\\}$. Số lớn nhất thuộc $K$ là bao nhiêu?\n\\shortans{9}\n\\loigiai{Trong các số được liệt kê, $9$ là số lớn nhất.}\n\\end{exfb}\n\\man{2}{Thông hiểu}\n\\begin{exfb}\nTập hợp các số tự nhiên nhỏ hơn $3$ có bao nhiêu phần tử?\n\\shortans{3}\n\\loigiai{Cần tính cả $0$. Các phần tử là $0$, $1$ và $2$.}\n\\end{exfb}\n\\begin{extf}\nCho $F=\\{x\\in\\mathbb{N}\\mid 3<x\\le 6\\}$. Mỗi ý sau đúng hay sai?\n\\choiceTF{$3\\in F$}{\\True $4\\in F$}{\\True $6\\in F$}{$7\\in F$}\n\\loigiai{Cận $3$ không được lấy, cận $6$ được lấy. Vậy $F=\\{4;5;6\\}$.}\n\\end{extf}\n\\begin{exfb}\nTập hợp $C=\\{x\\in\\mathbb{N}\\mid 1<x<5\\}$ có bao nhiêu phần tử?\n\\shortans{3}\n\\loigiai{$C$ gồm $2$, $3$ và $4$.}\n\\end{exfb}\n\\begin{exfb}\nTập hợp các chữ số xuất hiện trong số $2026$ có bao nhiêu phần tử?\n\\shortans{3}\n\\loigiai{Các chữ số khác nhau là $0$, $2$ và $6$.}\n\\end{exfb}\n\\begin{extf}\nCho $U=\\{2;7;9\\}$. Các tập hợp sau có bằng $U$ không?\n\\choiceTF{\\True $\\{9;7;2\\}$}{$\\{2;7\\}$}{\\True $\\{7;2;9\\}$}{$\\{2;7;9;10\\}$}\n\\loigiai{Hai tập hợp bằng nhau khi có cùng các phần tử, dù thứ tự liệt kê khác nhau.}\n\\end{extf}\n\\man{3}{Vận dụng}\n\\begin{exfb}\nTập hợp các số tự nhiên chẵn lớn hơn $3$ và nhỏ hơn $12$ có bao nhiêu phần tử?\n\\shortans{4}\n\\loigiai{Các số cần tìm là $4$, $6$, $8$ và $10$.}\n\\end{exfb}\n\\begin{exfb}\nLan lập tập hợp các số tự nhiên có hai chữ số, chữ số hàng chục là $4$ và chữ số hàng đơn vị nhỏ hơn $3$. Tập hợp có mấy phần tử?\n\\shortans{3}\n\\loigiai{Các số là $40$, $41$ và $42$.}\n\\end{exfb}\n\\begin{exfb}\nCho $T=\\{x\\in\\mathbb{N}\\mid 2<x\\le8\\}$. Sau khi bỏ các số chẵn, tập hợp còn mấy phần tử?\n\\shortans{3}\n\\loigiai{Các phần tử còn lại là $3$, $5$ và $7$.}\n\\end{exfb}\n",
+   "sort": 0,
+   "nguon": "Bản thử cục bộ",
+   "phan": "dai-so",
+   "chuong": "k6-b1",
+   "ban_truoc": null
+  },
+  {
    "id": "57769cff-2fd5-4272-961a-3ad8f36788ae",
    "slug": "lop8-hang-dang-thuc",
    "title": "Hằng đẳng thức đáng nhớ",
@@ -107,6 +133,23 @@
  ],
  "ltt_accounts": [
   {
+   "id": "52018431-4b14-4cd6-94e4-7fd23d288096",
+   "role": "student",
+   "name": "Học sinh thử",
+   "name_norm": "học sinh thử",
+   "name_plain": "hoc sinh thu",
+   "khoi": "6",
+   "mon": [
+    "toan"
+   ],
+   "secret_hash": "scrypt$ab35ec8aacce58bf9b374e4d295c18a5$56625d0070f243674a47f2edae4af6e42f9a1438c16b96fe030266257b3528d8",
+   "is_default": false,
+   "reset_req": false,
+   "fails": 0,
+   "locked_until": null,
+   "active": true
+  },
+  {
    "id": "fdbbf2d6-0c7e-4398-8ed8-05619306ce0d",
    "role": "student",
    "name": "Nguyễn Văn An",
@@ -194,6 +237,17 @@
   }
  ],
  "ltt_players": [
+  {
+   "account_id": "52018431-4b14-4cd6-94e4-7fd23d288096",
+   "mau": true,
+   "data": {
+    "name": "Học sinh thử",
+    "khoi": "6",
+    "best": {
+     "lop6-b1-tap-hop-mau|0": { "st": 1, "s": 0 }
+    }
+   }
+  },
   {
    "account_id": "21466239-8ec2-48f8-aaa1-887816b9db78",
    "mau": false,

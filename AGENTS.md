@@ -51,7 +51,9 @@ Có sửa giao diện thì chạy thử bằng dữ liệu giả (`FAKE_DB=1 …
 - Dạng câu: `ex` (trắc nghiệm, đúng một `\True`), `extf` (đúng/sai), `exfb` (điền đáp số, chỉ số nguyên/thập phân/phân số), `exmatch` (nối ý), `exsx` (sắp xếp lời giải: `\buoc`, `\nhieu`), `exsd` (sơ đồ phân tích đi lên: `\nut`, `\an`, `\anly`, `\nhieu`, `\nhieuly`), `extl` (tự luận: chỉ đề + `\goiy`, chỉ dùng trong đề ôn tập riêng, không trộn với dạng khác). Mức `\man{1..4}`; Mức 4 không có trên bản đồ.
 - Báo lỗi theo đáp án sai: `\sai{…}` trong phương án/ý sai (`ex`, `extf`), `\saithuong{đáp số sai}{vì sao}` cho `exfb`. Câu `ex` mới phải có `\sai` ở mọi phương án sai (chi tiết: `docs/soan-bai.md`).
 - Tóm tắt lý thuyết: khối `\begin{lythuyet}…\end{lythuyet}` ngay sau `\chude`, với `\dinhnghia`, `\quytac`, `\congthuc`, `\dinhly`, `\tinhchat` `{tiêu đề}{nội dung}`, `\luuy{…}`, `\vidu{đề}{lời giải}`. Ngoài `$…$` không dùng lệnh LaTeX (trừ `\\`).
-- Câu hỏi và lý thuyết bám SGK nhưng **diễn đạt bằng lời của mình**, không chép nguyên văn sách.
+- Khi soạn màn có tương tác, dùng [mẫu soạn màn chung](docs/soan-man-tuong-tac.txt) cho `\loidan`, `\minhhoa` và `\thungay`. Khi nâng cấp một màn đã có, giữ nguyên nội dung từ `\man{1}` đến hết bài.
+- **Bám sát SGK Toán Kết nối tri thức.** Đúng khối, đúng bài, đúng phạm vi kiến thức. Dùng thuật ngữ và ký hiệu quen thuộc trong sách, diễn đạt bằng lời của mình và không chép nguyên văn.
+- **Mỗi bài phải trực quan và tương tác hơn trang SGK thông thường, để học sinh mức trung bình cũng theo kịp.** Dẫn vào bằng ví dụ cụ thể, giải thích từng bước và dùng hình minh họa hoặc thao tác phù hợp để học sinh thấy vì sao. Cho học sinh thử ngay và phản hồi rõ lỗi sai. Kiểm tra bằng một ví dụ mới để xem học sinh có tự áp dụng hoặc giải thích được ý chính hay không.
 - Câu khó phân loại theo **mức độ hiểu bài**, không dùng kiểu "tính mẹo".
 - Chủ đề mới luôn ở trạng thái nháp (`draft`); chỉ thầy duyệt cho học sinh.
 

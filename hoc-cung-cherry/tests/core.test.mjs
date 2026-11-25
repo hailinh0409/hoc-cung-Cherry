@@ -7,6 +7,34 @@ const seed = JSON.parse(readFileSync(new URL('./seed.json', import.meta.url), 'u
 test('mọi chủ đề mẫu đọc được, không lỗi', () => {
   for (const t of seed.ltt_topics) { const P = parseBank(t.source); assert.equal(P.errors.length, 0, t.slug + ': ' + JSON.stringify(P.errors)); }
 });
+test('lý thuyết tương tác giữ đúng thứ tự và độc lập với ngân hàng bài tập', () => {
+  const { source } = seed.ltt_topics.find(t => t.chuong === 'k6-b2');
+  const P = parseBank(source);
+  const old = parseBank(source.replace(/^\\(?:loidan|minhhoa|thungay)\b.*\n/gm, ''));
+  assert.deepEqual(P.levels.map(l => l.qs.length), [3, 3, 2, 1]);
+  assert.deepEqual(P.levels, old.levels);
+  const sample = readFileSync(new URL('../../docs/vi-du/k6-b2-ly-thuyet.tex', import.meta.url), 'utf8');
+  assert.deepEqual(parseBank('\\chude{Cách ghi số tự nhiên}\n' + sample).theory, P.theory);
+  assert.deepEqual(P.theory.filter(it => it.k === 'minhhoa'), [
+    { k: 'minhhoa', template: 'gia-tri-theo-hang', value: '2485' },
+    { k: 'minhhoa', template: 'ghep-so-la-ma', value: '24' }
+  ]);
+  assert.equal(P.theory.filter(it => it.k === 'thungay').length, 2);
+});
+test('từ chối mẫu tương tác không hỗ trợ, dữ liệu sai và lệnh đặt ngoài lý thuyết', () => {
+  const inside = body => parseBank('\\chude{Mẫu}\n\\begin{lythuyet}\n\\luuy{Ghi nhớ}\n' + body + '\n\\end{lythuyet}');
+  for (const cmd of [
+    '\\minhhoa{mau-khong-co}{1}',
+    '\\minhhoa{ghep-so-la-ma}{40}',
+    '\\minhhoa{gia-tri-theo-hang}{012}',
+    '\\minhhoa{gia-tri-theo-hang}{24}{thừa}',
+    '\\thungay{Đề}{a}{b}{Phản hồi}',
+    '\\thungay{Đề}{a}{a}{Đúng}{Sai}'
+  ]) assert.equal(inside(cmd).errors.length, 1, cmd);
+  assert.equal(inside('\\minhhoa{gia-tri-theo-hang}{0}').errors.length, 0);
+  assert.equal(inside('\\minhhoa{ghep-so-la-ma}{39}').errors.length, 0);
+  assert.match(parseBank('\\chude{Mẫu}\n\\loidan{Chào}').errors[0].msg, /trong khối lythuyet/);
+});
 test('câu có tham số sinh được số', () => {
   const P = parseBank(seed.ltt_topics.find(t => t.slug === 'lop8-hang-dang-thuc').source);
   const q = P.levels.flatMap(l => l.qs).find(q => q.params);
