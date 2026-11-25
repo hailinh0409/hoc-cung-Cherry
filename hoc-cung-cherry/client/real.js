@@ -3,12 +3,17 @@ let SERVERP=null,SESS=null,FIGS={};
 const api=async(path,body,method)=>{const r=await fetch(path,{method:method||(body?'POST':'GET'),headers:body?{'content-type':'application/json'}:{},body:body?JSON.stringify(body):undefined,credentials:'same-origin'});
   let j=null;try{j=await r.json()}catch(e){}if(!r.ok)throw Object.assign(new Error((j&&j.error)||('Lỗi kết nối ('+r.status+')')),{status:r.status,data:j});return j};
 const wrapDoc=x=>({id:x.id,exists:true,data:()=>x});
-let topicVersion = '', lastCatalog = 0, lastSync = 0, syncSequence = 0;
+let topicVersion = '', lastCatalog = 0, lastSync = 0, lastPlayers = 0, syncSequence = 0;
+// Danh sách người chơi (bảng xếp hạng, bạn bè, theo dõi) chỉ tải lại sau mỗi 10 phút để giảm lưu lượng Supabase.
+const PLAYERS_EVERY = 10 * 60000;
 async function loadAll(force = false) {
   const sequence = ++syncSequence;
-  // Làm mới cả hình đã dịch định kỳ, vì hình có thể đổi độc lập với bài.
-  const version = !force && Date.now() - lastCatalog < 15 * 60000 ? topicVersion : '';
-  const j = await api('/api/sync' + (version ? '?topics=' + encodeURIComponent(version) : ''));
+  // Phiên bản bài đã gồm cả hình đã dịch, nên chỉ tải lại kho bài khi bài hoặc hình thật sự đổi.
+  // Dự phòng: 3 giờ tải lại hẳn một lần, phòng khi bài bị sửa thẳng trên Supabase mà không đổi updated_at.
+  const version = !force && Date.now() - lastCatalog < 3 * 3600000 ? topicVersion : '';
+  const withPlayers = force || Date.now() - lastPlayers >= PLAYERS_EVERY;
+  const q = [version ? 'topics=' + encodeURIComponent(version) : '', withPlayers ? '' : 'players=0'].filter(Boolean).join('&');
+  const j = await api('/api/sync' + (q ? '?' + q : ''));
   if (sequence !== syncSequence) return;
   specialAccess = j.specialAccess === true;
   if (Array.isArray(j.topics)) {
@@ -17,14 +22,15 @@ async function loadAll(force = false) {
     topicVersion = j.topicVersion || '';
     lastCatalog = Date.now();
   }
-  ASG=j.assignments||[]; PLAYERS=j.players||[]; ACCS=j.accounts||[]; ACCS_DEL=j.removed||[]; REPS=j.reports||[]; MOC=j.moc||{};
+  ASG=j.assignments||[]; MOC=j.moc||{};
+  if (Array.isArray(j.players)) { PLAYERS=j.players; ACCS=j.accounts||[]; ACCS_DEL=j.removed||[]; REPS=j.reports||[]; lastPlayers = Date.now(); }
   lastSync = Date.now();
 }
 function softRefresh(){const on=$$('.scr.on')[0]?.id;if($('#ovl').classList.contains('on')||on==='play')return;
   if(BANKON&&!QE&&on==='track'){if(document.activeElement&&document.activeElement.id==='bkQ')return;return bank(true)}
   if(QE&&on==='track'){const t=TOPICS.find(x=>x.id===QE);if(t)qedit(t);return}
   if(on==='track'&&$('#trTitle').textContent.startsWith('Tài khoản'))return accounts();if(on==='track'&&$('#trTitle').textContent.startsWith('Câu báo lỗi'))return reportsPage();if(on==='track'&&$('#trTitle').textContent.startsWith('Theo dõi'))return track();refresh()}
-const after=p=>p.then(r=>{loadAll().then(softRefresh).catch(()=>{});return r});
+const after=p=>p.then(r=>{lastPlayers=0;loadAll().then(softRefresh).catch(()=>{});return r});
 DB={doc:path=>{const i=path.indexOf('/'),c=path.slice(0,i),id=path.slice(i+1);return {
     update:v=>c==='settings'?after(api('/api/admin/settings',{action:'moc',...v})):c==='reports'?after(api('/api/admin/report',v)):c==='topics'?after(api('/api/admin/topic',{id,...v})):c==='accounts'?after(v.restore?api('/api/admin/accounts',{action:'restore',id}):v.mon?api('/api/admin/accounts',{action:'mon',id,mon:v.mon}):('ph' in v)&&v.isDefault?api('/api/admin/accounts',{action:'reset',id}):Promise.resolve()):Promise.resolve(),
     set:v=>c==='players'?api('/api/me/save',{doc:v}):Promise.resolve(),
