@@ -2,6 +2,8 @@
 
 App **Học cùng Cherry** (CLB Toán - Anh NGỌC LINH) được nhiều trợ lý AI cùng xây dựng. Mọi trợ lý đọc file này trước khi sửa mã. `CLAUDE.md` và `GEMINI.md` chỉ trỏ về đây, để hai bên luôn dùng chung một bộ quy tắc.
 
+Khi Claude tiếp quản phần lý thuyết, đọc [Bàn giao lý thuyết tương tác](docs/ban-giao-ly-thuyet-tuong-tac.md) để nắm trạng thái đã triển khai, cú pháp soạn bài và cách kiểm tra.
+
 Chủ dự án: **thầy Phan Hải Linh** (GitHub `hailinh0409`). Thầy là người duy nhất gộp (merge) vào `main`.
 
 ## 1. Cách phối hợp
