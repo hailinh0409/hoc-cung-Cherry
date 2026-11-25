@@ -2842,13 +2842,18 @@ function shop(){show('shop');if(!tryEq)tryEq={...(P.eq||{})};const own=P.own||{}
   $('#shBack').onclick=()=>{sfx.tap();shopSel=null;tryEq=null;$('#shopBar').classList.remove('on');shopFrom==='profile'?profile(ACC.id):shopFrom==='subj'?subjects():area()}}
 
 /* ---------- giáo viên: chú ý, báo cáo phụ huynh, thời gian màn ---------- */
+/* Bài kiểm tra thăng hạng 14 ngày gần nhất + em đang chờ thi (đầy thanh) */
+function promoBox(st){const lim=Date.now()-14*864e5,dt=a=>new Date(a).toLocaleString('vi-VN',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+  const rows=[];for(const v of st)for(const h of (v.prh||[]))if(Date.parse(h.at)>lim)rows.push({v,h});rows.sort((a,b)=>b.h.at.localeCompare(a.h.at));
+  const wait=st.filter(v=>barFull(tierP(v),v.lp));
+  return `<h2 class="sect">Bài kiểm tra thăng hạng (14 ngày)</h2><div class="tbox">${wait.length?`<p class="tnote">Đầy thanh, đang chờ thi: ${wait.map(v=>`${esc(v.name)} (lên ${TIERS[tierP(v)+1].n})`).join(', ')}.</p>`:''}${rows.length?rows.slice(0,15).map(({v,h})=>`<div class="row2"><span>${esc(v.name)}<br><small>${dt(h.at)} · ${TIERS[h.from].n} → ${TIERS[h.to].n} · ${h.c}/${h.n} câu${h.n3?` · mức 3 đúng ${h.ok3}/${h.n3}`:''}</small></span><b class="${h.ok?'y':'n'}">${h.pc}% ${h.ok?'Đạt':'Trượt'}</b></div>`).join(''):'<p class="tnote">Chưa có em nào làm bài kiểm tra thăng hạng.</p>'}</div>`}
 function teacherExtra(kh,st,ix){const today=vnDay(),real=st.filter(v=>!v.mau);
   const idle=real.map(v=>{const d=v.st&&v.st.last_day;return {v,d:d?dayDiff(d,today):999}}).filter(x=>x.d>=3).sort((a,b)=>b.d-a.d);
   const stuck=[];for(const v of real)for(const [k,n] of Object.entries(v.fails||{})){if(n<3)continue;const b=v.best&&v.best[k];if(b&&b.st>0)continue;const [tid,lv]=k.split('|'),t=TOPICS.find(x=>x.id===tid);if(t)stuck.push({v,t,lv:+lv,n})}
   const tm={};for(const v of real)for(const [k,x] of Object.entries(v.lvt||{})){const g=tm[k]||(tm[k]={n:0,s:0});g.n+=x.n;g.s+=x.s}
   const tms=Object.entries(tm).map(([k,g])=>{const [tid,lv]=k.split('|'),t=TOPICS.find(x=>x.id===tid);return t&&t.khoi===kh?{t,lv:+lv,avg:g.s/g.n,n:g.n}:null}).filter(Boolean).sort((a,b)=>b.avg-a.avg);
   const mm=s=>`${Math.floor(s/60)}:${String(Math.round(s%60)).padStart(2,'0')}`;
-  return `<h2 class="sect">Cần chú ý</h2><div class="tbox">${idle.length||stuck.length?
+  return promoBox(st)+`<h2 class="sect">Cần chú ý</h2><div class="tbox">${idle.length||stuck.length?
      idle.map(x=>`<div class="row2"><span>${esc(x.v.name)}</span><b class="n">${x.d>=999?'Chưa học lần nào':`Nghỉ ${x.d} ngày`}</b></div>`).join('')+
      stuck.map(x=>`<div class="row2"><span>${esc(x.v.name)}<br><small>${esc(x.t.title)}</small></span><b class="n">Hết tim ${x.n} lần</b></div>`).join('')
     :'<p class="tnote">Chưa có em nào nghỉ từ 3 ngày hoặc kẹt màn.</p>'}</div>
