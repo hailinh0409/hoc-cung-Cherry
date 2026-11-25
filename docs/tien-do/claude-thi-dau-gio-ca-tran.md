@@ -1,6 +1,6 @@
 # Tiến độ: Thi đấu — trần mềm, giờ cả trận, bỏ qua câu, mở khóa ≤ 5 câu sai
 
-- Nhánh: `claude/thi-dau-gio-ca-tran` · PR: (xem PR mở từ nhánh này)
+- Nhánh: `claude/thi-dau-gio-ca-tran` · PR: #31
 - Người đang làm: Claude · Cập nhật lần cuối: 25/11/2026 15:40
 - Trạng thái: xong, chờ thầy duyệt
 
