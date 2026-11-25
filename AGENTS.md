@@ -68,13 +68,16 @@ Có sửa giao diện thì chạy thử bằng dữ liệu giả (`FAKE_DB=1 …
 
 Trợ lý nào cũng có thể dừng đột ngột (hết lượt dùng, hết bộ nhớ hội thoại, mất kết nối). Vì vậy **việc dở phải nằm trên GitHub, không nằm trong cuộc trò chuyện**:
 
+- **Mọi thay đổi đều có bản bàn giao, kể cả việc nhỏ một bước** (sửa một lỗi, đổi một dòng chữ). Mỗi PR phải kèm file `docs/tien-do/<tên-nhánh>.md` đã điền đủ, đặc biệt mục *Bắt đầu từ đâu* và *Việc tiếp theo*, để trợ lý khác (Claude, Gemini, Codex) đọc là làm tiếp được mà không cần cuộc trò chuyện cũ. PR không có bản bàn giao thì chưa coi là xong.
 - **Ngay khi bắt đầu một việc nhiều bước:** tạo nhánh, chép `docs/tien-do/MAU.md` thành `docs/tien-do/<tên-nhánh>.md` (thay `/` bằng `-`), điền mục tiêu và các bước dự kiến, commit, đẩy lên, mở **pull request nháp (Draft)**.
 - **Sau mỗi bước nhỏ:** commit, đẩy lên, cập nhật file tiến độ (đã xong, đang làm dở chỗ nào, còn lại gì). Không để thay đổi chưa commit quá lâu.
 - **Quyết định thầy đã chốt trong chat** (ví dụ "không mở lý thuyết lúc làm bài") phải ghi vào mục *Quyết định đã chốt* của file tiến độ, vì trợ lý tiếp quản không đọc được cuộc trò chuyện.
 - **Dữ liệu đã ghi lên Supabase** trong lúc làm (bảng, slug) phải ghi vào file tiến độ.
 - **File liên quan:** liệt kê các file người tiếp quản cần đọc hoặc sửa, vì Gemini trên web chỉ đọc được file thầy đính kèm.
 - **Tiếp quản:** khi thầy giao, trợ lý kia làm tiếp trên **cùng nhánh, cùng PR**, đọc file tiến độ trước, ghi "Người đang làm" là mình, và tiếp tục cập nhật file đó. Không làm lại phần đã xong nếu không thấy lỗi.
-- **Xong việc:** đánh dấu trạng thái "xong, chờ thầy duyệt", chuyển PR từ Draft sang Ready. File tiến độ giữ lại trong PR để thầy đọc; sau khi gộp có thể xóa.
+- **Xong việc:** đánh dấu trạng thái "xong, chờ thầy duyệt", chuyển PR từ Draft sang Ready. File bàn giao **giữ lại sau khi gộp, không xóa**: đó là nhật ký để trợ lý sau biết việc đã làm, lý do, và chỗ còn dở.
+- **Trước khi đẩy thêm commit vào một PR, kiểm tra PR đó còn mở.** Nếu thầy đã gộp, tạo nhánh mới từ `main` và mở PR mới cho phần thêm (bài học 25/11/2026: bản sửa lỗi Chuyên Toán bị đẩy vào PR #28 đã gộp nên không lên app).
+- **Bắt đầu một việc mới:** đọc các file mới nhất trong `docs/tien-do/` (sắp theo ngày cập nhật) để biết việc gần đây và chỗ còn dở.
 
 Hướng dẫn cho thầy: `docs/gemini-tiep-quan.md`. Hướng dẫn soạn câu hỏi, lý thuyết cho trợ lý không có quyền vào Supabase: `docs/soan-bai.md`.
 
