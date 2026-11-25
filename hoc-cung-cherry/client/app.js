@@ -548,7 +548,7 @@ let redoTab='sai';
 function qIndex(){const ix={};for(const t of TOPICS){if(!visible(t)||t.khoi!==(ACC?.khoi||curK))continue;t.levels.forEach((l,li)=>l.qs.forEach(q=>{ix[q.key]={q,t,li}}))}return ix}
 function redo(){show('redo');const ix=qIndex(),wr=Object.entries(P.rev||{}).filter(([k,r])=>ix[k]&&r.in_notebook),sv=Object.entries(P.saved||{}).sort((a,b)=>b[1].at.localeCompare(a[1].at));
   const byT={};wr.forEach(([k])=>{const t=ix[k].t.title;byT[t]=(byT[t]||0)+1});
-  $('#redoBody').innerHTML=`<div class="phead" style="--c:#ff7a59;--d:#e85a3a"><b>Làm lại câu sai</b><span>Đúng lại ở 2 ngày khác nhau thì câu được gạch khỏi danh sách.${ACC&&!ACC.teacher?` Còn <b>${nbOpen()}</b> câu chưa làm lại đúng lần nào${P.rlock?' (Thi đấu đang khóa đến khi về 0)':''}.`:''}</span></div>
+  $('#redoBody').innerHTML=`<div class="phead" style="--c:#ff7a59;--d:#e85a3a"><b>Làm lại câu sai</b><span>Đúng lại ở 2 ngày khác nhau thì câu được gạch khỏi danh sách.${ACC&&!ACC.teacher?` Còn <b>${nbOpen()}</b> câu chưa làm lại đúng lần nào${P.rlock?` (Thi đấu đang khóa đến khi còn không quá ${NB_UNLOCK} câu)`:''}.`:''}</span></div>
    <div class="seg"><button data-tab="sai" class="${redoTab==='sai'?'on':''}">Câu sai (${wr.length})</button><button data-tab="luu" class="${redoTab==='luu'?'on':''}">Đã lưu (${sv.length})</button></div>
    ${redoTab==='sai'?(wr.length?`<button class="btn big" id="rGo">Làm lại ${Math.min(10,wr.length)} câu</button><div class="tbox">${Object.entries(byT).map(([t,n])=>`<div class="row2"><span>${esc(t)}</span><b>${n} câu</b></div>`).join('')}</div>`
       :`<div class="empty"><div style="width:90px;margin:0 auto">${owlSVG}</div><p>Chưa có câu sai nào cần làm lại. Giỏi lắm!</p></div>`)
@@ -577,9 +577,9 @@ function viewSaved(id){const s=P.saved[id];if(!s)return;
 function ranked(){show('ranked');const t=tierOf(P.lp),T=TIERS[t],N=TIERS[t+1],lp=P.lp||0,lk=rankLock(),SO=seasonOf();
   $('#rankedBody').innerHTML=`<div class="rcard" style="--c:${T.c};--d:${T.d}">${emblem(t,110)}<h2>${T.n}</h2><div class="rlp">${lp} điểm</div>
      ${N?`<div class="rnext"><i style="width:${(lp-T.lp)/(N.lp-T.lp)*100}%"></i></div><small>Còn ${N.lp-lp} điểm để lên ${N.n}</small>`:'<small>Bậc cao nhất!</small>'}</div>
-   ${lk?`<div class="tbox rlock"><b>Thi đấu đang tạm khóa</b><div>Em còn <b>${lk} câu sai</b> chưa làm lại đúng. Dọn sạch kho câu sai rồi vào trận nhé: hiểu chắc bài cũ thì thi đấu mới lên hạng bền.</div></div><button class="btn big co" id="rFix">Làm lại câu sai (${lk})</button>`:`<button class="btn big" id="rPlay">Vào trận</button>`}
-   <p class="tnote2">Hôm nay đã cộng ${Math.min(RANK_DAY_CAP,lpdE().g)}/${RANK_DAY_CAP} điểm thi đấu · ${esc(SO.name)}, còn ${SO.left} ngày.</p>
-   <div class="tbox rules"><b>Luật thi đấu</b><div>• Mỗi mùa ${SEASON_DAYS} ngày. Sang mùa mới mọi người bắt đầu lại từ 0 điểm, thành tích mùa cũ lưu ở trang cá nhân.</div><div>• Có hơn ${NB_LOCK} câu sai chưa làm lại đúng thì tạm khóa Thi đấu, dọn sạch kho câu sai mới mở lại.</div><div>• Mỗi ngày cộng tối đa ${RANK_DAY_CAP} điểm thi đấu.</div><div>• Mỗi trận 10 câu của khối ${ACC.khoi}, không có gợi ý. Bậc ${T.n}: ${(RANK_BY_TIER[t]||RANK_PICK).map((n,i)=>n?n+' câu mức '+(i+1):'').filter(Boolean).join(', ')}. Bậc càng cao câu càng khó.</div>${mocOf(ACC.khoi)?`<div>• Đang thi kiến thức ${chRange(mocOf(ACC.khoi))} (đến chương ${esc(chapTitle(ACC.khoi,mocOf(ACC.khoi)))}). Khoảng một nửa số câu thuộc chương mới học nhất.</div>`:''}<div>• Câu đã gặp ở trận trước sẽ không ra lại; câu cùng dạng thì được đổi số.</div><div>• Thời gian mỗi câu: mức 1: 30 giây, mức 2: 45 giây, mức 3: 60 giây, mức 4: 90 giây. Hết giờ tính là sai.</div><div>• Đúng càng nhanh càng nhiều điểm trận. Bậc ${T.n} cần đạt ${Math.round(rankTarget(t)*100)}% điểm trận tối đa mới được cộng điểm; bậc càng cao mức chuẩn càng cao.</div><div>• Thưởng chính xác: đúng 10/10 câu +6, 9/10 +4, 8/10 +2.</div><div>• Câu sắp xếp lời giải, sơ đồ: đúng một phần được điểm theo số dòng/ô đúng.</div></div>
+   ${lk?`<div class="tbox rlock"><b>Thi đấu đang tạm khóa</b><div>Em còn <b>${lk} câu sai</b> chưa làm lại đúng. Làm lại đến khi còn không quá <b>${NB_UNLOCK} câu</b> là mở lại Thi đấu (còn ${lk-NB_UNLOCK} câu nữa): hiểu chắc bài cũ thì thi đấu mới lên hạng bền.</div></div><button class="btn big co" id="rFix">Làm lại câu sai (${lk})</button>`:`<button class="btn big" id="rPlay">Vào trận</button>`}
+   <p class="tnote2">${lpdE().g>=RANK_DAY_CAP?`Hôm nay đã cộng ${lpdE().g} điểm, quá ${RANK_DAY_CAP}: các trận tiếp chỉ nhận 1/${RANK_OVER_DIV} điểm cộng`:`Hôm nay đã cộng ${lpdE().g}/${RANK_DAY_CAP} điểm thi đấu`} · ${esc(SO.name)}, còn ${SO.left} ngày.</p>
+   <div class="tbox rules"><b>Luật thi đấu</b><div>• Mỗi mùa ${SEASON_DAYS} ngày. Sang mùa mới mọi người bắt đầu lại từ 0 điểm, thành tích mùa cũ lưu ở trang cá nhân.</div><div>• Có hơn ${NB_LOCK} câu sai chưa làm lại đúng thì tạm khóa Thi đấu; làm lại đến khi còn không quá ${NB_UNLOCK} câu là mở lại.</div><div>• Mỗi ngày cộng đủ ${RANK_DAY_CAP} điểm thi đấu; quá ${RANK_DAY_CAP} điểm thì mỗi trận chỉ nhận 1/${RANK_OVER_DIV} số điểm cộng (điểm trừ giữ nguyên).</div><div>• Mỗi trận 10 câu của khối ${ACC.khoi}, không có gợi ý. Bậc ${T.n}: ${(RANK_BY_TIER[t]||RANK_PICK).map((n,i)=>n?n+' câu mức '+(i+1):'').filter(Boolean).join(', ')}. Bậc càng cao câu càng khó.</div>${mocOf(ACC.khoi)?`<div>• Đang thi kiến thức ${chRange(mocOf(ACC.khoi))} (đến chương ${esc(chapTitle(ACC.khoi,mocOf(ACC.khoi)))}). Khoảng một nửa số câu thuộc chương mới học nhất.</div>`:''}<div>• Câu đã gặp ở trận trước sẽ không ra lại; câu cùng dạng thì được đổi số.</div><div>• Thời gian tính cho cả trận (khoảng 30 giây mỗi câu mức 1, 45 giây mức 2, 60 giây mức 3, 90 giây mức 4, cộng lại). Em tự chia thời gian: câu dễ làm nhanh, câu khó nghĩ lâu hơn. Đồng hồ dừng khi em đọc lời giải.</div><div>• Câu chưa chọn đáp án có thể bấm <b>Bỏ qua, làm sau</b>; câu đó được xếp xuống cuối trận. Hết giờ thì các câu chưa làm tính là sai.</div><div>• Điểm trận chủ yếu tính theo số câu đúng (câu càng khó càng nhiều điểm). Xong sớm được thưởng thêm tối đa ${Math.round(RANK_SPEED*100)}% điểm trận. Bậc ${T.n} cần đạt ${Math.round(rankTarget(t)*100)}% điểm trận tối đa mới được cộng điểm; bậc càng cao mức chuẩn càng cao.</div><div>• Thưởng chính xác: đúng 10/10 câu +6, 9/10 +4, 8/10 +2.</div><div>• Câu sắp xếp lời giải, sơ đồ: đúng một phần được điểm theo số dòng/ô đúng.</div></div>
    <button class="btn alt" id="rBoard">Bảng xếp hạng</button>
    ${(P.hist||[]).length?`<h2 class="sect">Trận gần đây</h2><div class="tbox">${P.hist.slice(-6).reverse().map(h=>`<div class="row2"><span>${new Date(h.at).toLocaleString('vi-VN',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})} · ${h.c}/${h.n} câu · ${h.s} điểm trận</span><b class="${h.d>=0?'y':'n'}">${h.d>=0?'+':''}${h.d}</b></div>`).join('')}</div>`:''}`;
   $('#rPlay')&&($('#rPlay').onclick=()=>{sfx.tap();startRank()});$('#rFix')&&($('#rFix').onclick=()=>{sfx.tap();redoTab='sai';redo()});$('#rBoard').onclick=()=>{sfx.tap();boardT=null;board()}}
@@ -621,8 +621,8 @@ function startRank(){if(ACC.teacher&&!TEACHER)return;if(rankLock())return ranked
   const total=R.all.reduce((s,p)=>s+p.length,0);if(total<4)return msgBox('Chưa đủ câu hỏi','Khối này cần thêm chủ đề đã giao để mở thi đấu.');
   const picks=rankMix(R,RANK_BY_TIER[tierOf(P.lp)]||RANK_PICK);
   let qs;try{qs=picks.map(x=>rankInst(x))}catch(e){return msgBox('Câu hỏi lỗi',esc(e.message))}
-  newG('rank',qs,{});hud();show('play');$('#stage').innerHTML='';$('#dock').innerHTML='';
-  overlay(`${emblem(tierOf(P.lp),80)}<h2>Sẵn sàng?</h2><p>${qs.length} câu · không gợi ý · có giới hạn thời gian. Thoát giữa trận vẫn bị tính kết quả.</p><button class="btn" id="go">Bắt đầu trận</button><button class="btn alt" id="gb">Để sau</button>`);
+  newG('rank',qs,{used:0});G.tot=qs.reduce((a,q)=>a+qLim(q),0);hud();show('play');$('#stage').innerHTML='';$('#dock').innerHTML='';
+  overlay(`${emblem(tierOf(P.lp),80)}<h2>Sẵn sàng?</h2><p>${qs.length} câu · không gợi ý · ${fmtT(G.tot)} cho cả trận, được bỏ qua câu để làm sau. Thoát giữa trận vẫn bị tính kết quả.</p><button class="btn" id="go">Bắt đầu trận</button><button class="btn alt" id="gb">Để sau</button>`);
   $('#go').onclick=()=>{sfx.tap();closeOvl();G.started=true;rankSeen(qs);save();renderQ()};$('#gb').onclick=()=>{closeOvl();ranked()}}
 let boardT=null,boardTab='rank',boardK='mine';
 function board(){show('board');const me=ACC.id,ses=seasonName();
@@ -706,9 +706,9 @@ const titleOf=p=>{const id=p&&p.eq&&p.eq.title;return id&&ITEM[id]?ITEM[id].name
 function checkSeason(){const s=seasonName();if(!P.season){P.season=s;return}if(P.season===s)return;
   P.seasons=[...(P.seasons||[]),{s:P.season,lp:P.lp||0}].slice(-12);const old=P.lp||0;P.lp=0;P.season=s;P.lpd=null;
   setTimeout(()=>msgBox(`${s} bắt đầu!`,`${old?`Mùa trước em đạt <b>${TIERS[tierOf(old)].n}</b> (${old} điểm), đã lưu vào trang cá nhân. `:''}Mỗi mùa kéo dài ${SEASON_DAYS} ngày, mọi người cùng bắt đầu lại từ <b>0 điểm</b>.`),800)}
-/* Thi đấu: câu sai chưa làm lại đúng lần nào. Quá NB_LOCK câu thì khóa; khóa rồi phải dọn về 0 mới mở lại. */
+/* Thi đấu: câu sai chưa làm lại đúng lần nào. Quá NB_LOCK câu thì khóa; khóa rồi làm lại đến khi còn ≤ NB_UNLOCK câu mới mở lại. */
 function nbOpen(){const ix=qIndex();return Object.entries(P.rev||{}).filter(([k,r])=>ix[k]&&r.in_notebook&&!(r.nb_hits>0)).length}
-function rankLock(){if(!ACC||ACC.teacher)return 0;const n=nbOpen();if(n>NB_LOCK)P.rlock=1;else if(!n&&P.rlock){P.rlock=0;save()}return P.rlock?n:0}
+function rankLock(){if(!ACC||ACC.teacher)return 0;const n=nbOpen();if(n>NB_LOCK)P.rlock=1;else if(n<=NB_UNLOCK&&P.rlock){P.rlock=0;save()}return P.rlock?n:0}
 function lpdE(){const d=vnDay();if(!P.lpd||P.lpd.d!==d)P.lpd={d,g:0};return P.lpd}
 
 /* ---------- âm thanh ---------- */
@@ -885,7 +885,7 @@ function startReview(){const ix=qIndex();const e=Object.entries(P.rev||{}).filte
   newG('so',items,{});hud();show('play');$('#stage').innerHTML='';$('#dock').innerHTML='';renderQ()}
 function hud(){$('#progB').style.width=(G.k/G.qs.length*100)+'%';
   $('#hearts').innerHTML=G.hearts>50?'':[0,1,2].map(i=>heart.replace('<svg',`<svg class="${i<G.hearts?'':'lost'}"`)).join('');
-  $('#qnum').textContent=`Câu ${Math.min(G.k+1,G.qs.length)}/${G.qs.length}`;$('#score').textContent=G.score+' điểm';
+  const nsk=G.mode==='rank'?G.qs.slice(G.k).filter(x=>x._sk).length:0;$('#qnum').textContent=`Câu ${Math.min(G.k+1,G.qs.length)}/${G.qs.length}`+(nsk?` · ${nsk} câu làm sau`:'');$('#score').textContent=G.score+' điểm';
   $('#combo').textContent=G.combo>=2?`Chuỗi đúng ×${G.combo}`:''}
 function isSaved(q){return Object.values(P.saved||{}).some(s=>s.k===q.key&&s.q.stem===q.stem)}
 function toggleSave(q,btn){const ex=Object.entries(P.saved||{}).find(([,s])=>s.k===q.key&&s.q.stem===q.stem);
@@ -898,7 +898,7 @@ function renderQ(){hud();const q=cur();const st=$('#stage');$('#dock').innerHTML
   reviewButton.onclick=reviewButton.hidden?null:()=>{sfx.tap();openTheoryReview(reviewTopic)};
   const nh=['man','so','one'].includes(G.mode)&&q.hints?q.hints.length:0;
   let h=`<div class="card${G.twin?' twin':''}" id="qc"><div class="ctop"><span class="tag">${G.twin?'Câu tương tự':TYPE[q.type]}</span>${G.mode!=='man'?`<span class="tag tt">${esc(q.title)}</span>`:''}
-    ${nh?`<button class="hintbtn" id="hintB">Gợi ý (${nh})${G.mode==='man'?' · −30 điểm':''}</button>`:''}${GV()&&q.tid?`<button class="savebtn" id="editB" aria-label="Sửa câu này">✎</button>`:''}<button class="savebtn" id="saveB" aria-label="Lưu câu hỏi">${bookmark(isSaved(q))}</button></div>
+    ${G.mode==='rank'&&q._sk?'<span class="tag tt">Câu làm sau</span>':''}${G.mode==='rank'&&G.k<G.qs.length-1?'<button class="hintbtn" id="skipB">Bỏ qua, làm sau</button>':''}${nh?`<button class="hintbtn" id="hintB">Gợi ý (${nh})${G.mode==='man'?' · −30 điểm':''}</button>`:''}${GV()&&q.tid?`<button class="savebtn" id="editB" aria-label="Sửa câu này">✎</button>`:''}<button class="savebtn" id="saveB" aria-label="Lưu câu hỏi">${bookmark(isSaved(q))}</button></div>
     <div class="stem">${tex(q.stem)}</div><div class="hints" id="hintsBox" style="display:none"></div>`;
   if(q.type==='ex'){G.opts=shuffle(q.opts);h+=`<div class="opts">${G.opts.map((o,i)=>`<button class="opt" data-i="${i}" style="animation-delay:${.08*i+.1}s"><span class="k">${'ABCDEF'[i]}</span><span class="ot">${tex(o.t)}</span></button>`).join('')}</div>`}
   if(q.type==='extf'){G.tf=q.items.map(()=>null);h+=`<div class="tf">${q.items.map((it,i)=>`<div class="tfrow" style="animation-delay:${.07*i}s"><div class="lbl"><b>${'abcdef'[i]})</b> ${tex(it.t)}</div><div class="tfb"><button class="t" data-i="${i}" data-v="1">Đ</button><button class="f" data-i="${i}" data-v="0">S</button></div></div>`).join('')}</div>`}
@@ -911,6 +911,7 @@ function renderQ(){hud();const q=cur();const st=$('#stage');$('#dock').innerHTML
   st.innerHTML=h+'</div>';typeset(st);if(isQ2(q)){q2Init(q);q2Draw()}
   $('#editB')&&($('#editB').onclick=()=>{const t=TOPICS.find(x=>x.id===q.tid);if(!t)return;const bs=qBlocks(t.raw),b=bs.findIndex(x=>!x.man&&parseOne(x.raw).q?.key===q.key);if(b<0)return toast('Không tìm thấy câu này trong chủ đề (có thể đã được sửa).');editQ(t,b)});
   $('#saveB').onclick=e=>{sfx.tap();toggleSave(q,e.currentTarget)};
+  $('#skipB')&&($('#skipB').onclick=()=>{if(G.done)return;sfx.tap();pauseTimer();const x=G.qs.splice(G.k,1)[0];x._sk=1;G.qs.push(x);renderQ()});
   if(nh)$('#hintB').onclick=()=>{if(G.done)return;sfx.tap();G.hu=Math.min(G.hu+1,nh);G.htot=(G.htot||0)+1;const box=$('#hintsBox');box.style.display='';
     box.innerHTML=q.hints.slice(0,G.hu).map((x,i)=>`<div><b>Gợi ý ${i+1}.</b> ${tex(x)}</div>`).join('');typeset(box);
     const left=nh-G.hu;if(left)$('#hintB').textContent=`Gợi ý (${left})${G.mode==='man'?' · −30 điểm':''}`;else $('#hintB').remove()};
@@ -923,9 +924,15 @@ function renderQ(){hud();const q=cur();const st=$('#stage');$('#dock').innerHTML
   if(q.type==='exmatch'){$$('#stage .mi').forEach(b=>b.onclick=()=>tapMatch(b));
     $('#dock').innerHTML=`<div class="chk"><button class="btn" id="mchk" disabled>Kiểm tra</button></div>`;$('#mchk').onclick=checkMatch}
   if(G.mode==='rank')startTimer(q)}
-function startTimer(q){clearInterval(TM);const lim=(RANK_TIME[Math.min(3,q.level||0)]+(q.type==='exmatch'||q.type==='extf'?15:0)+(q.type==='exsd'?SD_SLOT_S*q2Slots(q):q.type==='exsx'?SX_EXTRA_S:0))*1000;G.lim=lim;G.qt0=Date.now();
-  const tick=()=>{const left=Math.max(0,lim-(Date.now()-G.qt0));$('#timerB').style.width=(left/lim*100)+'%';$('#timer').classList.toggle('low',left<10000);$('#modeLbl').textContent=Math.ceil(left/1000)+' giây';
-    if(left<=0&&!G.done){clearInterval(TM);G.done=true;G.ansTxt='(hết giờ, chưa trả lời)';$('#qc').classList.add('lock');result(false,null,'<b>Hết giờ!</b><div class="vans">'+answerHTML(cur())+'</div>',true)}};tick();TM=setInterval(tick,200)}
+/* Thi đấu: một đồng hồ cho cả trận (tổng thời gian chuẩn của các câu); đồng hồ dừng khi đọc lời giải. */
+const qLim=q=>(RANK_TIME[Math.min(3,q.level||0)]+(q.type==='exmatch'||q.type==='extf'?15:0)+(q.type==='exsd'?SD_SLOT_S*q2Slots(q):q.type==='exsx'?SX_EXTRA_S:0))*1000;
+const fmtT=ms=>{const s=Math.ceil(ms/1000);return Math.floor(s/60)+':'+String(s%60).padStart(2,'0')};
+const timeLeft=()=>Math.max(0,G.tot-G.used-(G.qt0?Date.now()-G.qt0:0));
+function pauseTimer(){clearInterval(TM);if(G&&G.qt0){G.used+=Date.now()-G.qt0;G.qt0=0}}
+function startTimer(q){clearInterval(TM);G.qt0=Date.now();
+  const tick=()=>{const left=timeLeft();$('#timerB').style.width=(left/G.tot*100)+'%';$('#timer').classList.toggle('low',left<30000);$('#modeLbl').textContent=fmtT(left);
+    if(left<=0&&!G.done){clearInterval(TM);G.done=true;G.timeUp=true;G.ansTxt='(hết giờ, chưa trả lời)';$('#qc').classList.add('lock');
+      const rest=G.qs.length-G.k-1;result(false,null,(rest>0?`Còn ${rest} câu chưa làm, tính là sai.`:'')+'<div class="vans">'+answerHTML(cur())+'</div>',true)}};tick();TM=setInterval(tick,200)}
 const whyBox=xs=>xs.length?`<div class="loi"><b>Vì sao chưa đúng?</b>${xs.map(x=>`<div>${x}</div>`).join('')}</div>`:'';
 function answerMC(b){if(G.done)return;G.done=true;const o=G.opts[+b.dataset.i];G.ansTxt=o.t;$('#qc').classList.add('lock');
   const okI=G.opts.findIndex(x=>x.ok);$$('#qc .opt')[okI].classList.add('ok');
@@ -985,23 +992,23 @@ function reportQ(q,btn,extra){sfx.tap();let kind='';
     try{await DB.collection('reports').doc().set({tid:q.tid,qkey:q.key,kind,note:$('#rpN').value,snap});MYREP.add(q.key);closeOvl();sfx.ok();toast('Đã gửi cho thầy. Cảm ơn em!');
       if(btn){btn.classList.add('sent');btn.innerHTML=flagSVG+' Đã báo lỗi'}}
     catch(e){s.disabled=false;s.textContent='Gửi cho thầy';const er=$('#rpE');er.style.display='';er.textContent=e.message||'Chưa gửi được, em thử lại.'}}}
-function result(ok,el,why,timeout){clearInterval(TM);const q=cur();recordQ(q,ok);
+function result(ok,el,why,timeout){if(G.mode==='rank')pauseTimer();else clearInterval(TM);const q=cur();recordQ(q,ok);
   if(G.twin){const healed=ok&&G.mode==='man'&&G.hearts<3;if(healed)G.hearts++;hud();ok?(sfx.ok(),confetti(40,.45)):sfx.no();$('#dock').innerHTML='';
     const sh=sheetOpen(ok,ok?(healed?'Đúng rồi! Hồi 1 tim':'Đúng rồi!'):'Chưa đúng rồi',why,q,`<button class="btn ${ok?'':'co'}" id="nx">${G.over?'Xem kết quả':'Câu tiếp theo'}</button>`);
     $('#nx').onclick=()=>{sfx.tap();sh.classList.remove('on');G.twin=null;G.over?finish():renderQ()};return}
   let pts=0;
   if(ok){G.combo++;P.stats.maxCombo=Math.max(P.stats.maxCombo,G.combo);qev('chuoi5',G.combo,true);
-    if(G.mode==='rank'){const lv=Math.min(3,q.level||0),left=Math.max(0,G.lim-(Date.now()-G.qt0));pts=Math.round(RANK_PTS[lv]*(1+0.5*left/G.lim))}
+    if(G.mode==='rank')pts=RANK_PTS[Math.min(3,q.level||0)];
     else pts=G.mode==='man'?Math.max(40,100+20*Math.min(G.combo-1,5)-30*G.hu):100;
     G.score+=pts;sfx.ok();confetti(50,.45);if(el)floatText('+'+pts,el)}
   else{// Thi đấu, câu sắp xếp / sơ đồ đúng một phần: được điểm theo tỉ lệ dòng/ô đúng
-    if(G.mode==='rank'&&G.frac>0){const lv=Math.min(3,q.level||0),left=Math.max(0,G.lim-(Date.now()-G.qt0));pts=Math.round(RANK_PTS[lv]*(1+0.5*left/G.lim)*G.frac);G.score+=pts;if(pts&&el)floatText('+'+pts,el)}
+    if(G.mode==='rank'&&G.frac>0){pts=Math.round(RANK_PTS[Math.min(3,q.level||0)]*G.frac);G.score+=pts;if(pts&&el)floatText('+'+pts,el)}
     G.combo=0;G.miss++;if(G.mode==='man'&&G.hearts<50)G.hearts--;sfx.no();navigator.vibrate&&navigator.vibrate(120)}
-  $('#dock').innerHTML='';const wi=G.k;G.k++;hud();checkAch();
+  $('#dock').innerHTML='';const wi=G.k;G.k++;if(G.timeUp){G.miss+=G.qs.length-G.k;G.k=G.qs.length}hud();checkAch();
   const out=!ok&&G.hearts<=0;G.needRevive=out;G.over=G.k>=G.qs.length;if(out){const fk=key(G.t,G.i);P.fails[fk]=(P.fails[fk]||0)+1;save()}
   const canTwin=!ok&&!G.over&&G.mode==='man'&&q.raw&&!G.twinUsed[wi];
   const praise=['Chính xác!','Tuyệt vời!','Quá đỉnh!','Giỏi lắm!'];
-  const sh=sheetOpen(ok,ok?praise[Math.random()*4|0]+(G.mode==='rank'?` +${pts}`:''):timeout?'Hết giờ!':out?'Hết tim rồi!':pts>0?`Đúng một phần +${pts}`:'Chưa đúng rồi',timeout?why:why,q,
+  const sh=sheetOpen(ok,ok?praise[Math.random()*4|0]+(G.mode==='rank'?` +${pts}`:''):timeout?(G.timeUp?'Hết giờ cả trận!':'Hết giờ!'):out?'Hết tim rồi!':pts>0?`Đúng một phần +${pts}`:'Chưa đúng rồi',timeout?why:why,q,
     `${canTwin?`<button class="btn" id="tw">Thử câu tương tự${G.hearts<3?' (đúng được hồi 1 tim)':''}</button>`:''}<button class="btn ${ok?'':'co'}" id="nx">${out?'Tiếp tục':G.over?(G.mode==='man'?'Hoàn thành màn':'Xem kết quả'):'Câu tiếp theo'}</button>`);
   if(canTwin)$('#tw').onclick=()=>{sfx.tap();G.twinUsed[wi]=1;try{G.twin=inst(q.raw,{tid:q.tid,level:q.level,title:q.title})}catch(e){return}sh.classList.remove('on');renderQ()};
   $('#nx').onclick=()=>{sfx.tap();sh.classList.remove('on');G.needRevive?revive():G.over?finish():renderQ()}}
@@ -1010,15 +1017,16 @@ function revive(){overlay(`<div style="width:96px;margin:0 auto">${owlSVG}</div>
 
 function streakLine(s){return s?`<div class="streakup">${flame(false,22)} <b>Chuỗi ${s.streak} ngày!</b>${s.shieldUsed?' Lá chắn đã giữ chuỗi cho em.':' Mai nhớ quay lại nhé.'}</div>`:''}
 function finish(){clearInterval(TM);const sec=Math.round((Date.now()-G.t0)/1000),tm=`<div><b>${Math.floor(sec/60)}:${String(sec%60).padStart(2,'0')}</b>thời gian</div>`,nOk=G.qs.length-G.miss;
-  if(G.mode==='rank'){qev('rank');const t0=tierOf(P.lp),mx=G.qs.reduce((s,q)=>s+RANK_PTS[Math.min(3,q.level||0)]*1.5,0),RD=rankDelta({score:G.score,max:mx,correct:nOk,n:G.qs.length,tier:t0}),L=lpdE();
-    let d=RD.d,capped=false;if(d>0){const room=Math.max(0,RANK_DAY_CAP-L.g);if(d>room){d=room;capped=true}L.g+=d}
+  if(G.mode==='rank'){qev('rank');pauseTimer();const lf=G.timeUp?0:timeLeft()/G.tot,sb=speedBonus(G.score,lf);G.score+=sb;
+    const t0=tierOf(P.lp),mx=G.qs.reduce((s,q)=>s+RANK_PTS[Math.min(3,q.level||0)]*(1+RANK_SPEED),0),RD=rankDelta({score:G.score,max:mx,correct:nOk,n:G.qs.length,tier:t0}),L=lpdE();
+    let d=RD.d,capped=false;if(d>0){const d2=softGain(L.g,d);capped=d2<d;d=d2;L.g+=d}
     const before=P.lp||0;P.lp=Math.max(0,before+d);d=P.lp-before;P.matches=(P.matches||0)+1;P.hist=[...(P.hist||[]),{at:new Date().toISOString(),s:G.score,c:nOk,n:G.qs.length,d}].slice(-20);
     const s=bumpStreak();save();syncMine();checkAch();const t1=tierOf(P.lp);if(t1>t0){sfx.win();confetti(160,.3)}
     overlay(`${emblem(t1,90)}<h2>${t1>t0?'Lên '+TIERS[t1].n+'!':t1<t0?'Xuống '+TIERS[t1].n:d>=0?'Thắng điểm!':'Cố lên!'}</h2>
       <div class="lpd ${d>=0?'up':'down'}">${d>=0?'+':''}${d} điểm</div><p>${TIERS[t1].n} · ${P.lp} điểm</p>
       <div class="stat"><div><b>${G.score}</b>điểm trận</div><div><b>${nOk}/${G.qs.length}</b>câu đúng</div>${tm}</div>
-      <p style="font-size:14px">${RD.bonus?`Thưởng chính xác <b>+${RD.bonus}</b>. `:''}${capped?`Hôm nay em đã đạt trần <b>+${RANK_DAY_CAP}</b> điểm, mai thi tiếp nhé!`:''}</p>${streakLine(s)}
-      ${rankLock()?`<p class="tnote">Em đang có hơn ${NB_LOCK} câu sai chưa làm lại. Dọn kho câu sai để mở lại Thi đấu.</p><button class="btn" id="r4">Làm lại câu sai</button>`:'<button class="btn" id="r1">Trận nữa</button>'}<button class="btn alt" id="r2">Bảng xếp hạng</button><button class="btn alt" id="r3">Về thi đấu</button>`);
+      <p style="font-size:14px">${sb?`Xong sớm, thưởng thời gian <b>+${sb}</b> điểm trận. `:''}${RD.bonus?`Thưởng chính xác <b>+${RD.bonus}</b>. `:''}${capped?`Hôm nay em đã cộng quá <b>${RANK_DAY_CAP}</b> điểm nên trận này chỉ nhận 1/${RANK_OVER_DIV} điểm cộng. Mai thi tiếp sẽ được tính đủ!`:''}</p>${streakLine(s)}
+      ${rankLock()?`<p class="tnote">Em đang có hơn ${NB_LOCK} câu sai chưa làm lại. Làm lại đến khi còn không quá ${NB_UNLOCK} câu để mở lại Thi đấu.</p><button class="btn" id="r4">Làm lại câu sai</button>`:'<button class="btn" id="r1">Trận nữa</button>'}<button class="btn alt" id="r2">Bảng xếp hạng</button><button class="btn alt" id="r3">Về thi đấu</button>`);
     $('#r1')&&($('#r1').onclick=()=>{closeOvl();startRank()});$('#r4')&&($('#r4').onclick=()=>{closeOvl();redoTab='sai';redo()});$('#r2').onclick=()=>{closeOvl();boardT=null;board()};$('#r3').onclick=()=>{closeOvl();ranked()};return}
   if(G.mode==='de'){qev('de');const t=G.t,k=key(t,0),pc=Math.round(nOk/G.qs.length*100),st=pc>=90?3:pc>=70?2:pc>=50?1:0;
     if(st>(P.best[k]||0))P.best[k]=st;if(pc>(P.score[k]??-1))P.score[k]=pc;P.pt[k]=P.pt[k]||new Date().toISOString();
