@@ -17,7 +17,7 @@ export async function GET(request) {
   const withPlayers = params.get('players') !== '0';
   const none = Promise.resolve({ data: null });
   const [catalog, asg, pl, accs, rep, st] = await Promise.all([
-    loadTopics(T, params.get('topics'), specialAccess),
+    loadTopics(T, params.get('topics'), specialAccess, T ? '' : a.khoi),
     db.from('ltt_assignments').select('id,class,levels,due_at,note,created_at,topic:ltt_topics(slug)'),
     withPlayers ? db.from('ltt_players').select(T ? 'account_id,data,mau' : publicPlayerColumns) : none,
     withPlayers ? db.from('ltt_accounts').select(T ? 'id,name,khoi,mon,reset_req,is_default,active' : 'id,active').eq('role', 'student') : none,
@@ -26,7 +26,8 @@ export async function GET(request) {
   ]);
   // Tài khoản đã xoá: không hiện trên bảng xếp hạng, danh sách bạn bè
   const off = new Set((accs.data || []).filter(x => !x.active).map(x => x.id));
-  const assignments = (asg.data || []).filter(x => x.topic).map(x => ({ id: x.id, khoi: x.class, topicId: x.topic.slug, levels: x.levels, due: x.due_at, note: x.note || '', created: x.created_at }));
+  // Học sinh chỉ nhận bài giao của khối mình
+  const assignments = (asg.data || []).filter(x => x.topic && (T || !a.khoi || String(x.class) === String(a.khoi))).map(x => ({ id: x.id, khoi: x.class, topicId: x.topic.slug, levels: x.levels, due: x.due_at, note: x.note || '', created: x.created_at }));
   const players = !withPlayers ? undefined : (pl.data || []).filter(r => !off.has(r.account_id)).map(r => (T ? { ...r.data, id: r.account_id, mau: r.mau } : publicOf(r.account_id, r.data || r, r.mau)));
   const pub = x => ({ id: x.id, name: x.name, khoi: x.khoi, mon: x.mon, reset: x.reset_req, isDefault: x.is_default });
   const accounts = T && withPlayers ? (accs.data || []).filter(x => x.active).map(pub) : undefined;

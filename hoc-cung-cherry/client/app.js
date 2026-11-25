@@ -16,7 +16,9 @@ const CHUYEN_TOAN = 'chuyen-toan';
 const SPECIAL_GRADE = { k: CHUYEN_TOAN, c: '#4679c1', d: '#325d9b' };
 let specialAccess = false;
 const canOpenSpecial = () => GV() || specialAccess;
-const gradeTiles = () => canOpenSpecial() ? [...GRADES, SPECIAL_GRADE] : GRADES;
+// Học sinh chỉ thấy (và chỉ vào được) khối của mình, cộng Chuyên Toán nếu được mở; giáo viên thấy mọi khối.
+const ownGrades = () => GV() || !ACC || !ACC.khoi ? GRADES : GRADES.filter(g => g.k === ACC.khoi);
+const gradeTiles = () => canOpenSpecial() ? [...ownGrades(), SPECIAL_GRADE] : ownGrades();
 const PHAN={'dai-so':{name:'Đại số',c:'#3aa8e0',d:'#2584b8'},'hinh-hoc':{name:'Hình học',c:'#2fb787',d:'#1f8a63'},'thong-ke':{name:'Thống kê & Xác suất',c:'#ff9f1c',d:'#d97f00'},'on-tap':{name:'Ôn tập',c:'#8d7bff',d:'#6a57e0'},'thi-dau':{name:'Kho Thi đấu',c:'#ef3b55',d:'#c22a40'}};
 const TIERS=[{n:'Đồng',lp:0,c:'#c08457',d:'#8a5a33'},{n:'Bạc',lp:100,c:'#c3ced6',d:'#8a9aa6'},{n:'Vàng',lp:200,c:'#ffd23f',d:'#c99a08'},{n:'Bạch Kim',lp:350,c:'#4fd1c5',d:'#2a9d93'},
   {n:'Kim Cương',lp:500,c:'#6aa8ff',d:'#3f78d6'},{n:'Cao Thủ',lp:700,c:'#b36bff',d:'#8442d6'},{n:'Đại Cao Thủ',lp:900,c:'#ff5d6c',d:'#c8323f'},{n:'Thách Đấu',lp:1200,c:'#ffb800',d:'#b97f00'}];
@@ -309,7 +311,7 @@ const myPt=k=>(P.pt&&P.pt[k])||(P.best[k]>0?'1970':null);
 const asgFor=t=>ASG.filter(a=>a.topicId===t.id&&a.khoi===t.khoi).sort((a,b)=>(a.due||'9').localeCompare(b.due||'9'))[0];
 function counts(){const ix=qIndex();let nb=0;for(const [k,r] of Object.entries(P.rev||{}))if(ix[k]&&r.in_notebook)nb++;return {nb,saved:Object.keys(P.saved||{}).length}}
 // Khu vực khối = bản đồ kho báu (các mục khác thu gọn thành biểu tượng nhỏ ở góc bản đồ)
-function area(){if(curK===CHUYEN_TOAN)return onTap();journey()}
+function area(){if(curK!==CHUYEN_TOAN&&!gradeTiles().some(g=>g.k===curK))curK=ACC.khoi;if(curK===CHUYEN_TOAN)return onTap();journey()}
 let JOPEN='';
 const JICO={
   ontap:'<svg viewBox="0 0 24 24" width="28" height="28"><path d="M5 4h10l4 4v12H5z" fill="#fff"/><path d="M15 4v4h4" fill="#d9d2ff"/><path d="M8 11h8M8 14h8M8 17h5" stroke="#6a57e0" stroke-width="1.8" stroke-linecap="round"/></svg>',
