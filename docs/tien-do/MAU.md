@@ -4,6 +4,9 @@
 - Người đang làm: Claude | Gemini · Cập nhật lần cuối: <ngày giờ>
 - Trạng thái: đang làm | dừng giữa chừng, cần tiếp quản | xong, chờ thầy duyệt
 
+## Bắt đầu từ đâu
+<2–3 dòng cho trợ lý tiếp quản: tình trạng hiện tại một câu; file/hàm chính cần mở đầu tiên; lệnh để chạy thử.>
+
 ## Mục tiêu
 <Thầy yêu cầu gì, viết lại ngắn gọn. Dán nguyên văn yêu cầu của thầy nếu có.>
 
@@ -15,6 +18,9 @@
 
 ## Đang làm dở
 - <file, hàm hoặc đoạn đang sửa; đã sửa đến đâu; ý định tiếp theo>
+
+## Việc tiếp theo
+<Việc cụ thể nên làm ngay sau PR này (kể cả khi PR đã xong): lỗi chưa giải quyết, điều thầy cần kiểm tra trên điện thoại, ý tưởng đã bàn nhưng chưa làm. Ghi "không có" nếu không có.>
 
 ## Còn lại
 - [ ] <việc>
