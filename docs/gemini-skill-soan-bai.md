@@ -266,7 +266,13 @@ Tính $({{a}}{{+b}})^2$.
 
 - Viết thẳng `\begin{tikzpicture}...\end{tikzpicture}` ở bất kỳ chỗ nào (đề, phương án, vế nối ý, lời giải). Không bọc trong `$...$`, `center`, `figure`.
 - Dùng được tikz, tkz-euclide, pgfplots và thư viện `calc, angles, quotes, arrows.meta, patterns, intersections, through`. Chữ tiếng Việt trong hình hiện đúng. Không `\input`, không ảnh ngoài, không gói khác.
-- Vẽ cho điện thoại: rộng khoảng 6–8 cm, mỗi hình một khối riêng, nhãn điểm rõ.
+- Vẽ cho điện thoại: mỗi hình một khối riêng, nhãn điểm rõ.
+- **Hình cho màn học từng màn (điện thoại dọc, từ 26/11/2026):** mỗi màn lý thuyết chỉ một ý, app ghép hình với đoạn chữ **ngay trước nó** (cùng dòng `\\`) vào một màn rồi sang màn mới, và tự phóng hình khoảng 1,5 lần cho chữ trong hình bằng chữ bài học (học sinh chạm hình để xem to hơn). Vì vậy:
+  - Bề ngang hình **5–7 cm** (tối đa 8 cm). Hình rộng hơn bị thu lại cho vừa màn, chữ trong hình nhỏ đi. Hình cao hơn rộng thì tốt; nội dung dàn hàng ngang dài thì xếp thành hai hàng.
+  - **Nhãn không được đè nhau.** Ước lượng mỗi chữ rộng khoảng 0,2 cm; hai nhãn đặt cạnh nhau cách nhau ít nhất 0,3 cm. Nhãn dài xuống dòng: `node[below, align=center] {$3\in A$\\(nằm trong $A$)}`.
+  - Chữ trong hình **ngắn** (tên điểm, số, kí hiệu, 2–4 từ). Câu giải thích viết ở chữ ngoài hình, không nhét vào hình.
+  - Mỗi hình minh họa **một ý**, đặt ngay sau câu nó minh họa. Hình nhiều phần, nhiều nhãn: tách thành hình từng bước (`hinhbuoc`).
+  - Không dùng `scale` nhỏ hơn 0.8 để ép hình nhỏ lại (chữ không co theo nên dễ đè); thu tọa độ thay vì thu tỉ lệ.
 - Hình được máy chủ tự dịch sau khoảng 15 phút. Không vẽ hình lộ đáp án.
 
 ### 3.7b Hình từng bước `hinhbuoc`

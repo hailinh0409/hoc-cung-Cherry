@@ -164,3 +164,12 @@
 .ls-intro .ls-girl.big{width:150px;margin:0}
 .ls-intro .ls-bub{font-size:20px;flex:none;width:100%}
 .ls-intro .ls-bub::before{left:50%;top:-9px;bottom:auto;margin-left:-7px;transform:rotate(135deg)}
+/* hình trong bài học từng màn: phóng theo lsFitFigs, chạm để xem to */
+.lstep img.fig{max-width:100%;height:auto;border-radius:12px}
+.ls-text img.fig,.ls-sol img.fig,.ls-q img.fig{cursor:zoom-in;margin:12px auto 0}
+.ls-zhint{display:block;text-align:center;font-size:13px;color:#8a9a9d;margin:4px 0 8px}
+.lstep{position:relative}
+.ls-zoom{position:absolute;inset:0;z-index:5;background:#fffaf2;display:flex;flex-direction:column;animation:lsIn .2s both}
+.ls-zin{flex:1;overflow:auto;display:flex;align-items:center;padding:60px 12px 12px;touch-action:pinch-zoom pan-x pan-y}
+.ls-zin img{flex:none;margin:auto;max-width:none;height:auto;background:#fff;border-radius:12px}
+.ls-zx{position:absolute;top:max(10px,env(safe-area-inset-top));right:12px;width:44px;height:44px;border-radius:50%;background:#12313a;color:#fff;font-size:28px;line-height:1;z-index:1;cursor:pointer}

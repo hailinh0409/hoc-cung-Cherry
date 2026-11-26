@@ -161,6 +161,18 @@ function lsChunks(src){
 }
 const lsTex=lines=>tex(lines.join('\\\\'));
 
+// Hình TikZ được dịch với chữ cỡ 10pt, trên điện thoại trông nhỏ. Trong bài học từng màn, hình được phóng
+// khoảng 1,5 lần (không quá bề ngang màn) để chữ trong hình gần bằng chữ bài học. Hình tĩnh có dòng "Chạm hình để phóng to".
+const LS_FIG_SCALE=1.5;
+function lsFitFigs(stage){
+  const fit=img=>{const w=img.naturalWidth;if(!w)return;
+    const host=img.closest('.hb-pic,.ls-opt,.ls-text,.ls-sol,.ls-q,.ls-lab')||stage,room=host.clientWidth-(img.closest('.hb-pic')?16:0);
+    if(room>0)img.style.width=Math.min(room,Math.round(w*LS_FIG_SCALE))+'px'};
+  stage.querySelectorAll('img.fig').forEach(img=>{
+    if(!img.closest('.hb-pic,.ls-opt')&&!(img.nextElementSibling&&img.nextElementSibling.classList.contains('ls-zhint')))img.insertAdjacentHTML('afterend','<span class="ls-zhint">Chạm hình để phóng to</span>');
+    if(img.complete&&img.naturalWidth)fit(img);else{img.loading='eager';img.addEventListener('load',()=>fit(img),{once:true})}});
+}
+
 // Danh sách màn của một bài từ các mục đã đọc (lib/latex.js parseTheory)
 function lessonScreens(items){
   const S=[],groups=[];let g={items:[]};
@@ -230,11 +242,11 @@ function renderLessonMaterial(root,t,o={}){
     stage.innerHTML=sc.intro?`<div class="ls-screen ls-intro"><div class="ls-girl big" aria-hidden="true">${owlSVG}</div><div class="ls-bub">${sc.say}</div></div>`:`<div class="ls-screen">${say}${body}</div>`;
     state=sc.type==='quiz'?'answer':'read';go.textContent=sc.type==='quiz'?'Kiểm tra':'Tiếp tục';
     ready(sc.type==='read');
-    if(sc.type==='vidu')stage.querySelector('[data-sol]').onclick=e=>{sfx.tap();stage.querySelector('.ls-sol').hidden=false;e.target.remove();ready(true);typeset(stage)};
+    if(sc.type==='vidu')stage.querySelector('[data-sol]').onclick=e=>{sfx.tap();stage.querySelector('.ls-sol').hidden=false;e.target.remove();ready(true);typeset(stage);lsFitFigs(stage)};
     if(sc.type==='quiz')stage.querySelectorAll('.ls-opt').forEach(b=>b.onclick=()=>{if(state!=='answer')return;sfx.tap();
       stage.querySelectorAll('.ls-opt').forEach(x=>x.classList.toggle('sel',x===b));pick=Number(b.dataset.o);ready(true)});
     if(sc.type==='lab')bindLab(sc);
-    typeset(stage);
+    typeset(stage);lsFitFigs(stage);
   }
   // Màn khám phá: xong khi đã chạm (hình từng bước: khi tới bước cuối). Hình chưa dịch thì cho đi tiếp luôn.
   function bindLab(sc){
@@ -251,6 +263,14 @@ function renderLessonMaterial(root,t,o={}){
     if(!stage.querySelector('button,.hb-pic'))ready(true);
   }
   stage.addEventListener('click',e=>{if(labCheck&&e.target.closest('button,.hb-pic'))setTimeout(labCheck,0)});
+  // Chạm hình tĩnh: xem to toàn khung, kéo/phóng bằng hai ngón; chạm lần nữa hoặc × để đóng
+  stage.addEventListener('click',e=>{const img=e.target.closest('img.fig');if(!img||img.closest('.hb-pic,.ls-opt'))return;sfx.tap();
+    const z=document.createElement('div');z.className='ls-zoom';z.setAttribute('role','dialog');z.setAttribute('aria-label','Hình phóng to');
+    z.innerHTML=`<button type="button" class="ls-zx" aria-label="Đóng">×</button><div class="ls-zin"><img src="${img.getAttribute('src')}" alt="${esc(img.alt||'Hình vẽ')}"></div>`;
+    z.onclick=e=>{if(e.target.closest('.ls-zx')||!e.target.closest('img'))z.remove()};box.appendChild(z);
+    // Hình hiện to gấp đôi cỡ gốc (ít nhất bằng bề ngang khung); kéo ngang/dọc để xem các phần
+    const big=z.querySelector('.ls-zin img'),w=img.naturalWidth||0,inner=z.querySelector('.ls-zin');
+    if(w){big.style.width=Math.max(inner.clientWidth-24,Math.round(w*2))+'px';inner.scrollLeft=(inner.scrollWidth-inner.clientWidth)/2}});
   function check(){
     const sc=screens[i],o2=sc.opts[pick],ok=o2.ok;
     state='fb';foot.className='ls-foot '+(ok?'ok':'no');
