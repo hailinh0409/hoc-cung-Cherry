@@ -905,6 +905,20 @@ textarea.code.light{background:#fff;color:#12313a;font:14px/1.5 "Be Vietnam Pro"
 .thc.hbwrap{padding-top:8px}
 @media(prefers-reduced-motion:reduce){.hb-pic img.fig{transition:none}}
 
+/* Soạn bằng Gemini theo chương (giáo viên) */
+.plank .pgem{position:absolute;bottom:-14px;left:50%;transform:translateX(-50%);white-space:nowrap;z-index:2;font:800 11px/1 Nunito,sans-serif;padding:5px 9px;min-height:26px;border-radius:99px;border:2px solid #fff;background:#8d7bff;color:#fff;cursor:pointer}
+.gem-step{text-align:left;background:#f1f7f8;border-radius:14px;padding:12px 14px;margin:10px 0}
+.gem-step>b{display:block;font-size:16px;margin-bottom:4px;color:#153c41}
+.gem-step .btn{margin-top:8px}
+.pc-list{display:grid;gap:8px;margin:10px 0;text-align:left}
+.pc-row{background:#f1f7f8;border-radius:12px;padding:10px 12px;border-left:5px solid #2fb787}
+.pc-row.bad{border-left-color:#ef3b55}.pc-row.skip{border-left-color:#b9c9cc;opacity:.8}
+.pc-row>b{display:block;color:#153c41}
+.pc-row details{margin-top:6px}.pc-row summary{cursor:pointer;font-weight:800;color:#2584b8;min-height:32px}
+.pc-live{color:#c0392b}
+.pc-row .tnote2{color:#4d6a70}
+.plank.gv{padding-bottom:20px}
+
 .gvlink{margin-top:4px;font-size:13px;color:#7a9399;text-decoration:underline;align-self:center}
 .figmiss{display:inline-block;padding:6px 10px;border-radius:8px;background:#fff3c4;color:#7a5a00;font-size:13px}
 img.fig{display:block;max-width:100%;height:auto;margin:8px auto;background:#fff;border-radius:8px}
@@ -2239,7 +2253,7 @@ function journey(){show('journey');jdock();if(curK===ACC.khoi&&!ACC.teacher&&!P.
     if(x.hk){const fy=y-HKH/2;pts.push([W/2,fy]);html+=flag(fy,'Hết học kì I · Sang học kì II');y-=HKH;return}
     if(x.ch&&!x.L){const c=x.ch,by=y-BAN/2,odd=k++%2,ph=PHAN[c.phan]||PHAN['dai-so'],S=chStat(c);pts.push([W/2,by]);
       deco+=(odd?palm('calc(100% - 60px)',by-80,1):palm('8px',by-84))+wave(odd?'20px':'calc(100% - 70px)',by+34);
-      html+=`<div class="plank${S.has?'':' wait'}" style="top:${by}px;--c:${ph.c}"><span class="ptag">${ph.name}</span>${c.n?`<span class="cno">Chương ${c.n}</span>`:''}<b>${esc(c.title)}</b>
+      html+=`<div class="plank${S.has?'':' wait'}${GV()&&c.n?' gv':''}" style="top:${by}px;--c:${ph.c}"><span class="ptag">${ph.name}</span>${c.n?`<span class="cno">Chương ${c.n}</span>`:''}${GV()&&c.n?`<button type="button" class="pgem" data-chn="${c.n}">✦ Soạn bằng Gemini</button>`:''}<b>${esc(c.title)}</b>
         <span class="pinfo">${S.has?`${star(1)} ${S.st}/${S.has*3} · đã qua ${S.done}/${S.n} bài`:'Sắp mở · đang chờ câu hỏi'}</span></div>`;
       y-=BAN+30;return}
     const L=x.L,t=x.t,side=[.3,.7,.62,.38][ni++%4],x2=side*W,ny=y-STEP/2;pts.push([x2,ny]);
@@ -2269,6 +2283,7 @@ function journey(){show('journey');jdock();if(curK===ACC.khoi&&!ACC.teacher&&!P.
     if(!topicOpen(ts,j)){n.animate([{transform:'translate(-50%,-50%) translateX(-6px)'},{transform:'translate(-50%,-50%) translateX(6px)'},{transform:'translate(-50%,-50%)'}],{duration:300});
       return toast('Qua bài trước để mở bài này nhé.')}
     curT=t;startLevel()});
+  $$('#tmap .pgem').forEach(b=>b.onclick=e=>{e.stopPropagation();sfx.tap();chapterTools(+b.dataset.chn)});
   $$('#tmap .tnode.thy').forEach(b=>b.onclick=()=>{sfx.tap();const t=TOPICS.find(x=>x.id===b.dataset.th);if(!t)return;
     if(GV()){overlay(`<h2 style="font-size:24px">${esc(t.title)}</h2><p>Bài này mới có lý thuyết, chưa có câu hỏi.</p><button class="btn" id="g1">Xem lý thuyết</button><button class="btn alt" id="g2">Cài đặt & sửa</button><button class="btn alt" id="g3">Đóng</button>`);
       $('#g1').onclick=()=>{closeOvl();theory(t)};$('#g2').onclick=()=>{closeOvl();tOpts(t)};$('#g3').onclick=closeOvl;return}
@@ -2295,6 +2310,110 @@ function pasteNew(L){const k=curK,name=L.lt?lessonName(L):L.title;
     try{await DB.collection('topics').doc().set({title:P.title||name,khoi:k,phan:L.ch.phan,chuong:L.id,text,thutu:(idx+1)*10,nguon:'Dán bài mới (giáo viên)'});
       closeOvl();sfx.ok();toast(`Đã tạo bài nháp: ${nq} câu${P.theory?' + lý thuyết':''}${nf?` · ${nf} hình đang chờ dịch`:''}.`);journey()}
     catch(e){$('#pnS').disabled=false;er(esc(e&&e.message||'Lỗi kết nối'))}}}
+
+/* ---------- Soạn bằng Gemini theo chương (giáo viên) ----------
+   Sao chép phần lý thuyết của cả chương kèm lời nhờ → dán vào Gemini → dán kết quả lại một lần.
+   Khi dán, app CHỈ thay khối lythuyet của bài đã có (câu hỏi được khóa); bài chưa có thì tạo bài nháp mới.
+   Mỗi bài trong đoạn dán mở đầu bằng dòng  %%% bai: <slug>  (bài đã có) hoặc  %%% bai: <mã bài>  (bài chưa có). */
+const LT_RE=/\\begin\{lythuyet\}[\s\S]*?\\end\{lythuyet\}/;
+function withTheory(raw,blk){const m=raw.match(LT_RE);if(m)return raw.slice(0,m.index)+blk+raw.slice(m.index+m[0].length);
+  const title=raw.match(/\\chude\s*\{/),heading=title&&group(raw,title.index+6),at=heading?.[1]||0;return raw.slice(0,at)+'\n\n'+blk+'\n\n'+raw.slice(at)}
+function chapLessons(k,n){return currOf(k).filter(c=>c.id&&c.ch&&c.ch.n===n&&!c.lt).map(L=>({L,ts:gradeTopics(k).filter(t=>t.chuong===L.id&&!isDe(t)&&!isKho(t))}))}
+const GEM_ASK='Thêm hình minh họa cho phần lý thuyết của từng bài: dùng hình từng bước (\\begin{hinhbuoc}) cho các ý cần thấy quá trình (cách vẽ, chứng minh, phép tính trên trục số, chia hình…), hình TikZ tĩnh cho phần còn lại. Bài chưa có lý thuyết thì soạn lý thuyết tương tác đầy đủ. Giữ nguyên các mục đang tốt.';
+function chapterText(k,n,ask){const c=currOf(k).find(x=>x.ch&&!x.id&&x.ch.n===n);const out=[];
+  out.push(`Thầy Linh nhờ (app Học cùng Cherry, Toán ${k}, Chương ${n}. ${c?c.ch.title:''}):`,ask,'',
+   'Quy tắc trả lời:',
+   '- Làm theo skill soạn bài Học cùng Cherry (mục Lý thuyết tương tác và Hình từng bước).',
+   '- Trả lời bằng MỘT khối mã. Mỗi bài mở đầu bằng đúng dòng "%%% bai: …" như bên dưới, rồi \\chude{…} và khối \\begin{lythuyet} … \\end{lythuyet}.',
+   '- Chỉ gửi lại khối lythuyet. Không gửi câu hỏi: app bỏ qua mọi thứ ngoài khối lythuyet của bài đã có.',
+   '- Hình vẽ cho điện thoại, rộng 6–8 cm; tọa độ cụ thể; nhãn điểm không đè lên nét; chỉ dùng thư viện tikz trong skill.',
+   '- Hình từng bước: một tikzpicture, phần hiện từ bước k bọc \\hien{k}{…}, mỗi bước một dòng \\loibuoc{…} (2–8 bước).','');
+  for(const {L,ts} of chapLessons(k,n)){
+    if(!ts.length){out.push(`%%% bai: ${L.id}`,`\\chude{${L.title}}`,'% Bài này CHƯA CÓ trên app: soạn lý thuyết tương tác đầy đủ (có thể kèm câu hỏi \\man{1}…\\man{4}).','');continue}
+    for(const t of ts){const m=t.raw.match(LT_RE);out.push(`%%% bai: ${t.id}`,`\\chude{${t.title}}`,m?m[0]:'% Bài này chưa có lý thuyết: soạn mới khối lythuyet.','')}}
+  return out.join('\n')}
+async function copyText(text,okMsg){try{await navigator.clipboard.writeText(text);toast(okMsg);return true}catch(e){return false}}
+function copyBox(title,text,okMsg){overlay(`<h2 style="font-size:22px">${title}</h2><p class="tnote">Máy chưa cho sao chép tự động. Thầy nhấn giữ trong ô dưới → Chọn tất cả → Sao chép.</p><textarea class="code" id="cbT" readonly>${esc(text)}</textarea><button class="btn alt" id="cbX">Đóng</button>`);
+  $('#cbX').onclick=closeOvl;const a=$('#cbT');a.focus();a.select()}
+function chapterTools(n){const k=curK,c=currOf(k).find(x=>x.ch&&!x.id&&x.ch.n===n);if(!c)return;const ls=chapLessons(k,n),have=ls.filter(x=>x.ts.length).length;
+  overlay(`<h2 style="font-size:22px">Soạn bằng Gemini</h2><p class="tnote">Chương ${n}. ${esc(c.ch.title)} · Khối ${k}<br>${have}/${ls.length} bài đã có trên app.</p>
+    <div class="gem-step"><b>1. Sao chép chương cho Gemini</b><label class="tnote" for="gmAsk" style="text-align:left;display:block">Lời nhờ (sửa được):</label><textarea class="code" id="gmAsk" style="min-height:96px">${esc(GEM_ASK)}</textarea><button class="btn" id="gmCopy">Sao chép chương</button></div>
+    <div class="gem-step"><b>2. Dán kết quả của Gemini</b><p class="tnote">App chỉ thay khối lý thuyết, không đụng câu hỏi. Thầy xem trước từng bài rồi mới lưu.</p><button class="btn" id="gmPaste">Dán kết quả</button></div>
+    <div class="gem-step"><b>3. Kiểm tra hình</b><p class="tnote">Hình được dịch khoảng 15 phút sau khi lưu. Hình lỗi thì sao chép lỗi gửi lại Gemini.</p><button class="btn alt" id="gmFig">Kiểm tra hình của chương</button><div id="gmFigOut"></div></div>
+    <button class="btn alt" id="gmX">Đóng</button>`);
+  $('#gmX').onclick=closeOvl;
+  $('#gmCopy').onclick=async()=>{sfx.tap();const text=chapterText(k,n,$('#gmAsk').value.trim()||GEM_ASK);if(!(await copyText(text,'Đã sao chép chương. Thầy dán vào Gemini nhé.')))copyBox('Sao chép chương',text)};
+  $('#gmPaste').onclick=()=>{sfx.tap();pasteChapter(n)};
+  $('#gmFig').onclick=()=>{sfx.tap();figCheck(n)}}
+function parseChapterPaste(v){const text=String(v||'').replace(/\r/g,'').split('\n').filter(l=>!/^\s*```/.test(l)).join('\n');
+  const re=/^[ \t]*%%%[ \t]*bai:[ \t]*(\S+).*$/gm,heads=[...text.matchAll(re)];
+  return heads.map((h,i)=>({key:h[1],body:text.slice(h.index+h[0].length,i+1<heads.length?heads[i+1].index:text.length).split('\n').filter(l=>!/^\s*%%%/.test(l)).join('\n').trim()}))}
+function planChapter(k,n,v){const lessons=chapLessons(k,n),blocks=parseChapterPaste(v),last={};blocks.forEach((b,i)=>last[b.key]=i);
+  return blocks.map((b,i)=>{const t=TOPICS.find(x=>x.id===b.key),L=t?lessonOf(t):lessons.find(x=>x.L.id===b.key)?.L;
+    const r={key:b.key,name:L?lessonName(L):(t?t.title:b.key)};
+    if(last[b.key]!==i)return {...r,skip:true,note:'Bài này xuất hiện lần nữa ở dưới, app dùng bản ở dưới.'};
+    if(!t&&L&&!LT_RE.test(b.body)&&!/\\man\s*\{/.test(b.body))return {...r,skip:true,note:'Gemini chưa soạn bài này, bỏ qua.'};
+    if(t&&t.khoi!==k)return {...r,err:'Bài này thuộc khối khác.'};
+    if(!t&&!L)return {...r,err:'Không nhận ra bài (mã sau "%%% bai:" bị đổi?).'};
+    const blk=b.body.match(LT_RE);
+    if(t){if(!blk)return {...r,err:'Không thấy khối \\begin{lythuyet} … \\end{lythuyet}.'};
+      const text=withTheory(t.raw,blk[0]),P=parseTopic(text);
+      if(P.errors.length>t.errors.length)return {...r,err:P.errors.map(e=>esc(e)).join('<br>')};
+      if(text===t.raw)return {...r,skip:true,note:'Không có gì thay đổi.'};
+      return {...r,t,text,theory:P.theory,live:t.status==='giao'}}
+    if(TOPICS.some(x=>x.khoi===k&&x.chuong===L.id))return {...r,err:'Bài này vừa có trên app (có thể đã dán trước đó). Thầy sao chép lại chương rồi nhờ Gemini lần nữa.'};
+    let text=b.body;if(!/\\chude\s*\{/.test(text))text=`\\chude{${L.title.replace(/[{}\\]/g,'')}}\n\n`+text;
+    const P=parseTopic(text),nq=P.levels.reduce((s,l)=>s+l.qs.length,0);
+    if(P.errors.length)return {...r,err:P.errors.map(e=>esc(e)).join('<br>')};
+    if(!nq&&!P.theory)return {...r,err:'Chưa có lý thuyết hay câu hỏi.'};
+    return {...r,L,text,theory:P.theory,title:P.title||L.title,nq,isNew:true}})}
+const countHb=s=>(String(s).match(/\\begin\{hinhbuoc\}/g)||[]).length,countPic=s=>(String(s).match(/\\begin\{tikzpicture\}/g)||[]).length;
+function pasteChapter(n){const k=curK;
+  overlay(`<h2 style="font-size:22px">Dán kết quả · Chương ${n}</h2><p class="tnote">Dán nguyên câu trả lời của Gemini (có các dòng <code>%%% bai: …</code>).</p>
+    <textarea class="code" id="pcT" spellcheck="false" placeholder="%%% bai: …"></textarea><button class="btn" id="pcChk">Kiểm tra</button><div id="pcOut"></div><button class="btn alt" id="pcX">Hủy</button>`);
+  $('#pcX').onclick=closeOvl;
+  $('#pcChk').onclick=()=>{const plan=planChapter(k,n,$('#pcT').value),out=$('#pcOut');
+    if(!plan.length){out.innerHTML='<div class="err">Không thấy dòng nào bắt đầu bằng <b>%%% bai:</b>. Thầy dán cả câu trả lời của Gemini.</div>';return}
+    const good=plan.filter(p=>p.text);
+    out.innerHTML=`<div class="pc-list">${plan.map((p,i)=>`<div class="pc-row${p.err?' bad':p.skip?' skip':''}"><b>${esc(p.name)}</b>
+      ${p.err?`<div class="err">${p.err}</div>`:p.skip?`<span class="tnote2">${p.note}</span>`:`<span class="tnote2">${p.isNew?`Bài mới (nháp): ${p.nq} câu${p.theory?' + lý thuyết':''}`:'Thay lý thuyết'} · ${countPic(p.text.match(LT_RE)?.[0]||p.text)} hình${countHb(p.text)?`, ${countHb(p.text)} hình từng bước`:''}${p.live?' · <b class="pc-live">đang giao, học sinh thấy ngay</b>':''}</span>
+      <details data-pv="${i}"><summary>Xem trước</summary><div class="lesson-material"></div></details>`}</div>`).join('')}</div>
+      ${good.length?`<p class="tnote">Hình mới hiện “chưa dịch” trong xem trước; khoảng 15 phút sau khi lưu sẽ có hình.</p><button class="btn" id="pcSave">Lưu ${good.length} bài</button>`:''}`;
+    $$('#pcOut details[data-pv]').forEach(d=>d.ontoggle=()=>{if(!d.open||d._done)return;d._done=1;const p=plan[+d.dataset.pv];renderLessonMaterial(d.querySelector('.lesson-material'),{...(p.t||{khoi:k,chuong:p.L?.id,title:p.name}),theory:p.theory})});
+    $('#pcSave')&&($('#pcSave').onclick=async()=>{const btn=$('#pcSave');btn.disabled=true;let ok=0;const bad=[];
+      for(const p of good){btn.textContent=`Đang lưu ${ok+bad.length+1}/${good.length}…`;
+        try{if(p.isNew){const idx=currOf(k).filter(c=>c.id).findIndex(c=>c.id===p.L.id);
+            await DB.collection('topics').doc().set({title:p.title,khoi:k,phan:p.L.ch.phan,chuong:p.L.id,text:p.text,thutu:(idx+1)*10,nguon:'Gemini (dán theo chương)'})}
+          else await DB.doc('topics/'+p.t.id).update({text:p.text,banTruoc:p.t.raw,capnhat:new Date().toISOString(),base:p.t.upd});
+          ok++}catch(e){bad.push(`${esc(p.name)}: ${esc(e&&e.message||'lỗi')}`)}}
+      try{if(typeof loadAll==='function')await loadAll(true)}catch(e){}
+      if(bad.length)return msgBox(`Đã lưu ${ok}/${good.length} bài`,`Chưa lưu được:<br>${bad.join('<br>')}`);
+      closeOvl();sfx.ok();toast(`Đã lưu ${ok} bài. Hình hiện sau khoảng 15 phút.`);journey()})}}
+async function figCheck(n){const k=curK,out=$('#gmFigOut'),ts=chapLessons(k,n).flatMap(x=>x.ts);
+  if(!ts.length){out.innerHTML='<p class="tnote2">Chương này chưa có bài nào.</p>';return}
+  out.innerHTML='<p class="tnote2">Đang kiểm tra…</p>';
+  if(typeof api!=='function'){out.innerHTML='<p class="tnote2">Chỉ kiểm tra được trên app thật.</p>';return}
+  let r;try{r=await api('/api/admin/figs',{slugs:ts.map(t=>t.id)})}catch(e){out.innerHTML=`<div class="err">${esc(e.message)}</div>`;return}
+  const rows=r.topics||[],tot=rows.reduce((s,x)=>s+x.total,0),ok=rows.reduce((s,x)=>s+x.ok,0),wait=rows.reduce((s,x)=>s+x.wait,0),errs=rows.filter(x=>x.errors.length);
+  const nErr=errs.reduce((s,x)=>s+figGroups(x.errors).length,0);
+  out.innerHTML=`<p class="tnote2">${tot?`Đã dịch <b>${ok}/${tot}</b> khung hình${wait?` · <b>${wait}</b> đang chờ dịch`:''}${nErr?` · <b class="pc-live">${nErr} hình lỗi</b>`:''}.`:'Chương này chưa có hình nào.'}</p>
+    ${errs.map(x=>`<div class="pc-row bad"><b>${esc(x.title)}</b>${figGroups(x.errors).map(g=>`<div class="err">${esc(g.where)}: ${esc(g.error)}</div>`).join('')}</div>`).join('')}
+    ${nErr?'<button class="btn" id="gmErr">Sao chép lỗi hình cho Gemini</button>':''}`;
+  $('#gmErr')&&($('#gmErr').onclick=async()=>{const text=figErrText(k,n,errs);if(!(await copyText(text,'Đã sao chép lỗi hình. Thầy dán vào Gemini nhé.')))copyBox('Sao chép lỗi hình',text)})}
+// Gom lỗi: các khung của cùng một hình từng bước chỉ tính một lần
+function figGroups(errors){const seen=new Map();
+  for(const e of errors){const m=/^\\lttbuoc\{(\d+)\}\n/.exec(e.code),tikz=m?e.code.slice(m[0].length):e.code;
+    if(!seen.has(tikz))seen.set(tikz,{tikz,error:e.error,where:m?`Hình từng bước (lỗi ở bước ${m[1]})`:'Hình'})}
+  return [...seen.values()]}
+function figErrText(k,n,errs){const out=[`Thầy Linh nhờ sửa các hình TikZ bị lỗi khi dịch (app Học cùng Cherry, Toán ${k}, Chương ${n}).`,
+  'Trả lời bằng MỘT khối mã: mỗi bài mở đầu bằng đúng dòng "%%% bai: …", rồi \\chude{…} và khối \\begin{lythuyet} … \\end{lythuyet} đã sửa. Chỉ sửa hình lỗi, giữ nguyên phần còn lại.',
+  'Hình được dịch bằng xelatex với tikz, tkz-euclide, pgfplots và các thư viện calc, angles, quotes, arrows.meta, patterns, intersections, through.',''];
+  for(const x of errs){const t=TOPICS.find(y=>y.id===x.slug),lt=t&&t.raw.match(LT_RE);
+    out.push(`%%% bai: ${x.slug}`,`\\chude{${x.title}}`);
+    for(const g of figGroups(x.errors)){const inLt=lt&&lt[0].includes(g.tikz.slice(0,120).split('\n')[0]);
+      out.push(`% LỖI (${g.where}${inLt?'':', hình này nằm trong CÂU HỎI, thầy sửa ở Cài đặt & sửa câu hỏi'}): ${g.error.replace(/\n/g,' ')}`,`% Mở đầu hình: ${g.tikz.split('\n').slice(0,2).join(' ').slice(0,160)}`)}
+    out.push(lt?lt[0]:'% (bài này không có khối lythuyet)','')}
+  return out.join('\n')}
 
 /* ---------- tóm tắt lý thuyết của bài ---------- */
 const bookSVG='<svg viewBox="0 0 24 24" width="18" height="18"><path d="M3 5.5C5.5 4 8.5 4 12 6c3.5-2 6.5-2 9-.5V19c-2.5-1.3-5.5-1.3-9 .7-3.5-2-6.5-2-9-.7z" fill="#fff" stroke="#2584b8" stroke-width="1.6" stroke-linejoin="round"/><path d="M12 6v13.7" stroke="#2584b8" stroke-width="1.6"/></svg>';

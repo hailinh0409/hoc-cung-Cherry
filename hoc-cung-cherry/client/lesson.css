@@ -86,3 +86,17 @@
 .hb-lab{background:transparent;padding:0}
 .thc.hbwrap{padding-top:8px}
 @media(prefers-reduced-motion:reduce){.hb-pic img.fig{transition:none}}
+
+/* Soạn bằng Gemini theo chương (giáo viên) */
+.plank .pgem{position:absolute;bottom:-14px;left:50%;transform:translateX(-50%);white-space:nowrap;z-index:2;font:800 11px/1 Nunito,sans-serif;padding:5px 9px;min-height:26px;border-radius:99px;border:2px solid #fff;background:#8d7bff;color:#fff;cursor:pointer}
+.gem-step{text-align:left;background:#f1f7f8;border-radius:14px;padding:12px 14px;margin:10px 0}
+.gem-step>b{display:block;font-size:16px;margin-bottom:4px;color:#153c41}
+.gem-step .btn{margin-top:8px}
+.pc-list{display:grid;gap:8px;margin:10px 0;text-align:left}
+.pc-row{background:#f1f7f8;border-radius:12px;padding:10px 12px;border-left:5px solid #2fb787}
+.pc-row.bad{border-left-color:#ef3b55}.pc-row.skip{border-left-color:#b9c9cc;opacity:.8}
+.pc-row>b{display:block;color:#153c41}
+.pc-row details{margin-top:6px}.pc-row summary{cursor:pointer;font-weight:800;color:#2584b8;min-height:32px}
+.pc-live{color:#c0392b}
+.pc-row .tnote2{color:#4d6a70}
+.plank.gv{padding-bottom:20px}
