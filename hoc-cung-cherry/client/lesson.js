@@ -603,6 +603,33 @@ function bindLectureGeometry(sc,stage,pin,go,state,options,repaint,nextLabel){
   select(0);
 }
 
+function lectureImageReady(image){
+  return image.decode?image.decode():new Promise((resolve,reject)=>{
+    if(image.complete){image.naturalWidth?resolve():reject();return}
+    image.addEventListener('load',resolve,{once:true});
+    image.addEventListener('error',reject,{once:true});
+  });
+}
+
+function lectureScreenImages(content, markup){
+  const found=new Map();
+  for(const image of content.querySelectorAll('img.fig')){
+    const url=image.getAttribute('src');
+    if(!/^\/hinh\/[0-9a-f]{40}$/.test(url||''))continue;
+    image.loading='eager';
+    found.set(url,image);
+  }
+  for(const html of markup){
+    for(const match of (html||'').matchAll(/src="(\/hinh\/[0-9a-f]{40})"/g)){
+      if(found.has(match[1]))continue;
+      const image=new Image();
+      image.src=match[1];
+      found.set(match[1],image);
+    }
+  }
+  return [...found.values()];
+}
+
 function renderLecture(root,t,o,plan){
   const {modern,screens,sections,parts,outline}=plan;
   const title=o.title||t.title||'Bài học';
@@ -615,7 +642,7 @@ function renderLecture(root,t,o,plan){
   const savedScreen=progress.seen.at(-1);
   let i=Math.min(screens.length-1,Math.max(0,o.start??(review()&&outline>=0?outline:savedScreen??0)));
   if(!abilityToSkip&&!review()&&screens[i].section>=0&&!unlocked(screens[i].section))i=0;
-  let noticeTimer;
+  let noticeTimer, screenLoadTimer, loadingVersion=0;
 
   root.classList.add('lstep-host');
   root.innerHTML=`<div class="lstep ls-lecture">
@@ -626,7 +653,9 @@ function renderLecture(root,t,o,plan){
       ${o.teacherEdit?'<button type="button" class="ls-ed ls-edit">Sửa</button>':''}
     </div>
     <div class="ls-part"></div>
-    <div class="ls-content"><aside class="ls-pin" hidden></aside><div class="ls-stage"></div></div>
+    <div class="ls-content"><aside class="ls-pin" hidden></aside><div class="ls-stage"></div>
+      <div class="ls-loading" hidden><p role="status"></p><button type="button" class="ls-mini" hidden>Thử lại</button></div>
+    </div>
     <div class="ls-foot"><div class="ls-actions"><button type="button" class="ls-mini ls-recall" hidden>Nhắc lại</button>
       <button type="button" class="ls-go"></button></div></div>
     <div class="ls-notice" role="status" hidden></div>
@@ -635,6 +664,7 @@ function renderLecture(root,t,o,plan){
   const bar=children('.ls-prog'), stage=children('.ls-stage'), pin=children('.ls-pin'), go=children('.ls-go');
   const recall=children('.ls-recall'), toc=children('.ls-toc'), notice=children('.ls-notice'), content=children('.ls-content');
   const save=()=>{if(storageKey)store.set(storageKey,progress)};
+  const loading=children('.ls-loading'), actions=children('.ls-actions');
   function advanceLabel(){
     const section=sections[screens[i].section];
     return section?.number&&section.last===i?'Xong phần '+section.number:'Tiếp tục';
@@ -679,6 +709,7 @@ function renderLecture(root,t,o,plan){
     const index=screens[i].section, section=sections[index];
     if(section?.last===i){
       progress.done[index]=true;
+      save();
       if(section.number)announce('Xong phần '+section.number+' ✓');
     }
     if(i+1<screens.length){sfx.tap();goto(i+1)}
@@ -734,7 +765,7 @@ function renderLecture(root,t,o,plan){
       };
     });
   };
-  if(o.onClose)children('.ls-x').onclick=o.onClose;
+  if(o.onClose)children('.ls-x').onclick=()=>{root._lectureDispose?.();o.onClose()};
   if(o.teacherEdit)children('.ls-edit').onclick=o.teacherEdit;
   stage.addEventListener('click',event=>{
     const img=event.target.closest('img.fig');
@@ -748,7 +779,52 @@ function renderLecture(root,t,o,plan){
     sheet('Nhắc lại',`<h3>Nhắc lại · ${lectureTex(section.name)}</h3><div class="ls-text">${lectureTex(section.recap)}</div>`);
   };
 
+  function showWhenReady(images,version){
+    if(!images.length){remember();return}
+    const status=loading.querySelector('p'), retry=loading.querySelector('button');
+    const disabled=go.disabled;
+    let loaded=0;
+    const setMessage=()=>{status.textContent='Đang tải hình cho màn này… '+loaded+'/'+images.length};
+    function fail(){
+      if(version!==loadingVersion)return;
+      loadingVersion++;
+      clearTimeout(screenLoadTimer);
+      status.textContent='Chưa tải đủ hình cho màn này.';
+      retry.hidden=false;
+    }
+    content.dataset.loading='true';
+    stage.inert=true;
+    pin.inert=true;
+    actions.inert=true;
+    go.disabled=true;
+    retry.hidden=true;
+    retry.onclick=show;
+    loading.hidden=false;
+    setMessage();
+    screenLoadTimer=setTimeout(fail,15000);
+    Promise.all(images.map(image=>lectureImageReady(image).then(()=>{
+      if(version===loadingVersion){loaded++;setMessage()}
+    }))).then(()=>{
+      if(version!==loadingVersion)return;
+      clearTimeout(screenLoadTimer);
+      loading.hidden=true;
+      delete content.dataset.loading;
+      stage.inert=false;
+      pin.inert=false;
+      actions.inert=false;
+      go.disabled=disabled;
+      remember();
+    },fail);
+  }
+
   function show(){
+    const version=++loadingVersion;
+    clearTimeout(screenLoadTimer);
+    loading.hidden=true;
+    delete content.dataset.loading;
+    stage.inert=false;
+    pin.inert=false;
+    actions.inert=false;
     const sc=screens[i], section=sections[sc.section];
     box.dataset.i=i;
     children('.ls-part').textContent=section?.number?
@@ -759,7 +835,6 @@ function renderLecture(root,t,o,plan){
     go.disabled=false;
     go.textContent=advanceLabel();
     go.onclick=advance;
-    remember();
 
     const picture=sc.figure;
     const parsedFrames=picture?.kind==='hinhbuoc'?parseHinhBuoc(picture.src):null;
@@ -777,30 +852,66 @@ function renderLecture(root,t,o,plan){
     const activeFold=section?.number?sc.section:i+sections.length;
     const animateFrame=sc.type==='opening'||sc.type==='steps';
     const staticImage=picture?.kind==='tikz'?lectureTex(picture.src):'';
-    const stepImage=()=>gmImg(frames?.frames[frame-1]);
+    const stepImage=()=>gmImg(frames.frames[frame-1]);
+    const frameMarkup=()=>`<div class="ls-frames">${frames.frames.map((key,index)=>
+      `<div class="ls-frame-pic" aria-hidden="${index+1!==frame}">${gmImg(key)}</div>`).join('')}</div>`;
 
     function paintPin(){
       pin.hidden=!picture;
       content.classList.toggle('ls-has-pin',Boolean(picture));
       if(!picture){pin.replaceChildren();return}
       const isFolded=folded.has(activeFold);
-      const body=frames?stepImage():canDraw?catTuyen(picture.mau.params,currentState,modelOptions):staticImage;
-      const canZoom=!modelOptions.tap&&!modelOptions.region&&(body.startsWith('<img')||canDraw);
+      const body=frames?frameMarkup():canDraw?catTuyen(picture.mau.params,currentState,modelOptions):staticImage;
+      const canZoom=!modelOptions.tap&&!modelOptions.region&&(frames||body.startsWith('<img')||canDraw);
       pin.innerHTML=`<div class="ls-pin-bar"><span>${sc.shared?'Hình dùng chung cho phần '+section.number:'Hình'}</span>
         <button type="button" class="ls-pin-fold" aria-expanded="${!isFolded}">${isFolded?'▸ Hiện hình':'Thu gọn ▴'}</button></div>
         <div class="ls-picture" ${isFolded?'hidden':''}>${body}${canZoom?'<button type="button" class="ls-pin-zoom" aria-label="Phóng to hình">⤢</button>':''}</div>`;
-      function zoom(){
-        sheet('Hình phóng to',`<h3>Hình</h3><div class="ls-picture-full">${body}</div>`,'ls-sheet-zoom');
-      }
-      pin.querySelector('.ls-pin-zoom')?.addEventListener('click',zoom);
-      pin.querySelector('img')?.addEventListener('click',zoom);
-      pin.querySelector('.ls-pin-fold').onclick=()=>{
-        if(isFolded)folded.delete(activeFold);else folded.add(activeFold);
-        paintPin();
-        pin.querySelector('.ls-pin-fold').focus();
+      const pictureBox=pin.querySelector('.ls-picture'), fold=pin.querySelector('.ls-pin-fold');
+      const zoomButton=pin.querySelector('.ls-pin-zoom');
+      if(frames&&zoomButton)zoomButton.hidden=!FIGS[frames.frames[frame-1]];
+      if(zoomButton)zoomButton.onclick=()=>{
+        sheet('Hình phóng to',`<h3>Hình</h3><div class="ls-picture-full">${frames?stepImage():body}</div>`,'ls-sheet-zoom');
+      };
+      pictureBox.addEventListener('click',event=>{if(event.target.closest('img.fig'))zoomButton?.click()});
+      fold.onclick=()=>{
+        const show=pictureBox.hidden;
+        if(show)folded.delete(activeFold);else folded.add(activeFold);
+        pictureBox.hidden=!show;
+        fold.setAttribute('aria-expanded',String(show));
+        fold.textContent=show?'Thu gọn ▴':'▸ Hiện hình';
       };
     }
     paintPin();
+
+    const framePages=[...pin.querySelectorAll('.ls-frame-pic')];
+    const frameLoads=framePages.map(page=>{
+      const image=page.querySelector('img');
+      const load={ready:!image};
+      if(!image)return load;
+      if(page.getAttribute('aria-hidden')==='false')image.fetchPriority='high';
+      // Giải mã ngay khi màn xuất hiện. Nếu chạm sớm, giữ khung cũ đến khi khung mới sẵn sàng.
+      load.promise=lectureImageReady(image).catch(()=>{
+        page.innerHTML='<span class="figmiss">Không tải được hình</span>';
+      }).then(()=>{load.ready=true});
+      return load;
+    });
+    let frameRequest=0;
+    function setFrame(index,onShown){
+      const ticket=++frameRequest, page=framePages[index-1], load=frameLoads[index-1];
+      if(!page)return;
+      const show=()=>{
+        if(ticket!==frameRequest||!page.isConnected)return;
+        if(index!==frame){
+          framePages[frame-1].setAttribute('aria-hidden','true');
+          page.setAttribute('aria-hidden','false');
+          frame=index;
+        }
+        const zoom=pin.querySelector('.ls-pin-zoom');
+        if(zoom)zoom.hidden=!page.querySelector('img');
+        onShown?.();
+      };
+      if(load.ready)show();else load.promise.then(show);
+    }
 
     const label=sc.type==='vidu'?'Ví dụ':sc.type==='quiz'?(sc.doan?'Em đoán bước tiếp theo':'Thử ngay'):LS_KIND[sc.kind];
     const heading=label?`<span class="ls-kind" data-k="${sc.kind|| (sc.type==='quiz'?'thungay':'vidu')}">${label}</span>`:'';
@@ -878,8 +989,7 @@ function renderLecture(root,t,o,plan){
         const message=stage.querySelector('.ls-answer-note'), correct=answer.ok;
         if(correct)sfx.ok();else{sfx.no();missed.add(i)}
         if(frames){
-          frame=Math.min(frames.frames.length,Math.max(1,sc.after?.buoc??(sc.after?frame:frames.frames.length)));
-          paintPin();
+          setFrame(Math.min(frames.frames.length,Math.max(1,sc.after?.buoc??(sc.after?frame:frames.frames.length))));
         }else if(canDraw&&sc.after){
           Object.assign(currentState,lectureGeometryState(currentState,sc.after));
           paintPin();
@@ -925,8 +1035,8 @@ function renderLecture(root,t,o,plan){
         next.textContent=sc.nutbuoc?sc.nutbuoc+' ('+(frame-1)+'/'+Math.max(0,count-1)+')':'Bước sau ›';
         go.disabled=frame<count&&frames.frames.every(key=>FIGS[key]);
       };
-      back.onclick=()=>{frame--;paintPin();renderStep()};
-      next.onclick=()=>{frame++;paintPin();renderStep()};
+      back.onclick=()=>setFrame(frame-1,renderStep);
+      next.onclick=()=>setFrame(frame+1,renderStep);
       renderStep();
     }
     if(sc.type==='lab'){
@@ -953,13 +1063,24 @@ function renderLecture(root,t,o,plan){
     stage.querySelector('.gm-debtn')?.addEventListener('click',()=>sheet('Đề bài',`<h3>Đề bài</h3><div>${sc.gm.de}</div>${sc.gm.full}`));
     typeset(stage);
     lsFitFigs(stage);
+    // Chỉ lấy hình thuộc màn này và các phần có thể mở ngay trên màn.
+    const extras=[sc.gm?.de,sc.gm?.full,...(sc.opts||[]).map(option=>option.ex)];
+    if(animateFrame&&frames)extras.push(...frames.caps.map(lectureTex));
+    if(canDraw){
+      const feedback=[sc.tap?.ok,sc.tap?.hint,...Object.values(sc.tap?.nhac||{}),
+        sc.region?.ok,sc.slide?.after,sc.calc?.ketluan,...(sc.calc?.items||[]).flatMap(item=>[
+          item.q,item.correct,item.wrong,item.explainCorrect,item.explainWrong
+        ])];
+      extras.push(...feedback.filter(Boolean).map(lectureTex));
+    }
+    showWhenReady(o.onClose?lectureScreenImages(content,extras):[],version);
   }
 
   const resize=typeof ResizeObserver==='function'?new ResizeObserver(()=>{
     if(stage.clientWidth){stage.querySelectorAll('img.fig').forEach(img=>{if(img.complete)lsFitFig(img,stage)});mathFit(stage)}
   }):null;
   resize?.observe(stage);
-  root._lectureDispose=()=>{resize?.disconnect();clearTimeout(noticeTimer)};
+  root._lectureDispose=()=>{loadingVersion++;resize?.disconnect();clearTimeout(noticeTimer);clearTimeout(screenLoadTimer)};
   show();
 }
 
