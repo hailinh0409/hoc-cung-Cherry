@@ -7,7 +7,7 @@ const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random(
 const store={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}},del(k){try{localStorage.removeItem(k)}catch(e){}}};
 
 /*@@LIB@@*/
-function parseTopic(raw){const P=parseBank(raw);return {title:P.topic,levels:P.levels,errors:P.errors.map(errorText),theory:P.theory}}
+function parseTopic(raw){const P=parseBank(raw);return {title:P.topic,levels:P.levels,errors:P.errors.map(errorText),warnings:P.warnings.map(errorText),theory:P.theory,lesson:P.lesson}}
 
 /* ---------- hằng số ---------- */
 const GRADES=[{k:'6',c:'#ff7a59',d:'#e85a3a'},{k:'7',c:'#3aa8e0',d:'#2584b8'},{k:'8',c:'#ffd23f',d:'#d6a90b',dark:1},{k:'9',c:'#ff5d8f',d:'#d93e70'},{k:'10',c:'#5cc96b',d:'#3a9e4a'},{k:'11',c:'#9b6dff',d:'#7448d6'},{k:'12',c:'#ff9f1c',d:'#d67b00'}];

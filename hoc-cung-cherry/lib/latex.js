@@ -273,7 +273,7 @@ function takeWhy(t) {
 const opt = o => { const [t, why] = takeWhy(o); const r = { t: clean(t), ok: isTrue(t) }; if (why) r.why = why; return r; };
 
 export function parseBank(raw) {
-  const errors = [];
+  const errors = [], warnings = [];
   raw = String(raw || '').replace(/\r/g, '')
     .replace(/^[ \t]*%@(.*)$/gm, (_, x) => '\\lttp{' + x.replace(/[{}]/g, '').replace(/%/g, '\u0001') + '}')
     .replace(/(^|[^\\])%.*$/gm, '$1');
@@ -285,9 +285,12 @@ export function parseBank(raw) {
   for (const msg of giaiMauErrors(raw)) errors.push({ msg });
 
   // Tóm tắt lý thuyết: \begin{lythuyet} ... \end{lythuyet} (một khối, thường đặt trước \man{1})
-  let theory = null;
+  let theory = null, lesson = null;
   const lt = raw.match(/\\begin\{lythuyet\}([\s\S]*?)\\end\{lythuyet\}/);
-  if (lt) { theory = parseTheory(lt[1], errors); raw = raw.slice(0, lt.index) + raw.slice(lt.index + lt[0].length); }
+  if (lt) {
+    ({ theory, lesson } = parseLesson(lt[1], errors, warnings));
+    raw = raw.slice(0, lt.index) + raw.slice(lt.index + lt[0].length);
+  }
   else if (/\\begin\{lythuyet\}/.test(raw)) errors.push({ msg: 'Khối lý thuyết chưa đóng \\end{lythuyet}' });
   if (/\\(?:loidan|minhhoa|thungay)\b/.test(raw)) {
     errors.push({ msg: '\\loidan, \\minhhoa và \\thungay phải đặt trong khối lythuyet' });
@@ -402,7 +405,7 @@ export function parseBank(raw) {
   const all = levels.flatMap(l => l.qs);
   if (all.some(q => q.type === 'extl') && all.some(q => q.type !== 'extl'))
     errors.push({ msg: 'Đề tự luận (\\begin{extl}) không trộn chung với câu trắc nghiệm, đúng/sai, điền số, nối ý. Thầy tách thành hai đề.' });
-  return { topic, levels, errors, theory };
+  return { topic, levels, errors, warnings, theory, lesson };
 }
 // Đề tự luận: mọi câu là extl
 export const isTLBank = levels => levels.some(l => l.qs.some(q => q.type === 'extl'));
@@ -473,6 +476,323 @@ function parseTheory(body, errors) {
   }
   if (!items.length) errors.push({ msg: 'Khối lý thuyết chưa có mục nào (\\dinhnghia, \\quytac, \\congthuc, \\dinhly, \\tinhchat, \\luuy, \\vidu)' });
   return items;
+}
+
+const LESSON_ARGS = {
+  phan: 2, nhaclai: 1, hinhchung: 1, cherry: 1, loidan: 1, hinhrieng: 1,
+  trangthai: 1, saukhitra: 1, chuyen: 4, cauhoi: 1, nutbuoc: 1,
+  dinhnghia: 2, quytac: 2, congthuc: 2, dinhly: 2, tinhchat: 2, nhanxet: 2,
+  luuy: 1, vidu: 2, thungay: 5, chamhinh: 4, nhac: 2, chamvung: 3,
+  truot: 2, emtinh: 6, ketluan: 1, xemtungbuoc: 0, minhhoa: 2, hinhmau: 2,
+};
+const LESSON_ENVS = new Set(['modau', 'ketbai', 'tikzpicture', 'hinhbuoc', 'giaimau']);
+const LESSON_RECAP = new Set(['dinhnghia', 'quytac', 'congthuc', 'dinhly', 'tinhchat']);
+const LESSON_REGIONS = new Set(['giua', 'tren', 'duoi']);
+const LESSON_COLORS = new Set(['cam', 'lam', 'luc', 'tim', 'do']);
+const LESSON_ANGLE = /^\p{L}[\p{L}\p{N}_'′]*[1-4]$/u;
+
+// Chỉ đọc lệnh ở ngoài đối số và môi trường hình. Nội dung LaTeX bên trong được giữ nguyên.
+function lessonTokens(body) {
+  const tokens = [], re = /\\([a-zA-Z]+)\b|\\./g;
+  for (const match of body.matchAll(re)) {
+    const previous = tokens.at(-1);
+    if (previous && match.index < previous.end) continue;
+    const start = match.index, name = match[1];
+    if (!name) continue;
+    let end = start + match[0].length;
+    if (name === 'begin') {
+      const arg = group(body, end);
+      if (arg && LESSON_ENVS.has(arg[0])) {
+        const tag = '\\end{' + arg[0] + '}', close = body.indexOf(tag, arg[1]);
+        end = close < 0 ? body.length : close + tag.length;
+        tokens.push({ name: arg[0], start, end, args: [], env: true, closed: close >= 0,
+          content: body.slice(arg[1], close < 0 ? end : close), raw: body.slice(start, end) });
+        continue;
+      }
+    }
+    const args = [];
+    let arg;
+    while ((arg = group(body, end))) {
+      args.push(arg[0].trim());
+      end = arg[1];
+    }
+    tokens.push({ name, start, end, args, raw: body.slice(start, end) });
+  }
+  return tokens.filter(t => t.env || Object.hasOwn(LESSON_ARGS, t.name) || t.name === 'emdahoc');
+}
+
+function lessonArgs(token, error) {
+  const { name, args } = token;
+  if (token.env) {
+    if (!token.closed) error('Khối ' + name + ' chưa đóng \\end{' + name + '}');
+    return token.closed;
+  }
+  const filled = args.every((arg, index) => Boolean(arg) || (name === 'hinhmau' && index === 1));
+  const valid = filled && (name === 'emdahoc'
+    ? args.length >= 2 && args.length <= 5
+    : args.length === LESSON_ARGS[name]);
+  if (!valid) error('\\' + name + ' cần ' + (name === 'emdahoc' ? '2–5' : LESSON_ARGS[name]) + ' cặp {…} có nội dung');
+  return valid;
+}
+
+function lessonFigureToken(token, error) {
+  if (token.name === 'hinhmau' && lessonArgs(token, error)) {
+    const [name, source] = token.args;
+    if (name !== 'cat-tuyen') {
+      error('Chưa có hình mẫu ' + name);
+      return null;
+    }
+    const params = {};
+    for (const field of source.split(';').map(s => s.trim()).filter(Boolean)) {
+      const parts = field.match(/^(duong|diem|song-song|c)\s*=\s*(.+)$/);
+      if (!parts) {
+        error('Tham số hình mẫu không hợp lệ: ' + field);
+        continue;
+      }
+      const [, key, value] = parts;
+      const list = value.split(',').map(s => s.trim());
+      if ((key === 'duong' && (list.length !== 3 || list.some(s => !s))) ||
+          (key === 'diem' && (list.length !== 2 || list.some(s => !s))) ||
+          (key === 'song-song' && !/^[01]$/.test(value)) ||
+          (key === 'c' && !/^(trai|phai)$/.test(value))) {
+        error('Tham số hình mẫu không hợp lệ: ' + field);
+        continue;
+      }
+      params[key] = key === 'duong' || key === 'diem' ? list : value;
+    }
+    return { kind: 'mau', src: token.raw, mau: { name, params } };
+  }
+  if (token.name === 'hinhbuoc' || token.name === 'tikzpicture') {
+    if (!lessonArgs(token, error)) return null;
+    return { kind: token.name === 'hinhbuoc' ? 'hinhbuoc' : 'tikz', src: token.raw };
+  }
+  return null;
+}
+
+function lessonFigure(source, error) {
+  const tokens = lessonTokens(source);
+  if (tokens.length !== 1 || (tokens[0]?.raw !== source.trim()) ||
+      !['tikzpicture', 'hinhbuoc', 'hinhmau'].includes(tokens[0]?.name)) {
+    error('Cần một hình TikZ, hinhbuoc hoặc \\hinhmau');
+    return null;
+  }
+  return lessonFigureToken(tokens[0], error);
+}
+
+function lessonState(source, error) {
+  const state = {};
+  for (const field of source.split(';').map(s => s.trim()).filter(Boolean)) {
+    const match = field.match(/^([a-z]+)\s*=\s*(.+)$/);
+    const [, key, value] = match || [];
+    if (key === 'to' || key === 'do') {
+      const angles = state[key] ||= {};
+      for (const pair of value.split(',')) {
+        const entry = pair.trim().match(/^([^:\s]+)\s*:\s*(\S.*)$/);
+        const [, angle, label] = entry || [];
+        if (!LESSON_ANGLE.test(angle || '')) error('Khóa góc không hợp lệ: ' + (angle || pair.trim()));
+        else if (key === 'to' && !LESSON_COLORS.has(label)) error('Màu góc không hợp lệ: ' + label);
+        else angles[angle] = label;
+      }
+    } else if (key === 'so' && (value === 'an' || value === 'hien')) state.so = value;
+    else if (key === 'vung' && LESSON_REGIONS.has(value)) state.vung = value;
+    else if (key === 'buoc' && /^\d+$/.test(value) && Number(value) >= 1 && Number(value) <= HB_MAX) state.buoc = Number(value);
+    else error('Trạng thái hình không hợp lệ: ' + field);
+  }
+  return state;
+}
+
+function lessonQuiz(args, error) {
+  const [q, correct, wrong, explainCorrect, explainWrong] = args;
+  if (correct === wrong) error('Hai phương án phải khác nhau');
+  return { q, correct, wrong, explainCorrect, explainWrong };
+}
+
+function lessonBoundary(token, error, warn) {
+  const opening = token.name === 'modau';
+  const boundary = opening
+    ? { cherry: '', cauhoi: '', nutbuoc: '', fig: null }
+    : { cherry: '', fig: null, quiz: null, emdahoc: [] };
+  if (!lessonArgs(token, error)) return boundary;
+  for (const cmd of lessonTokens(token.content)) {
+    const [a] = cmd.args;
+    const { name } = cmd;
+    if (['tikzpicture', 'hinhbuoc', 'hinhmau'].includes(name)) {
+      boundary.fig = lessonFigureToken(cmd, error);
+      continue;
+    }
+    if (!lessonArgs(cmd, error)) continue;
+    if (name === 'cherry' || name === 'loidan') {
+      boundary.cherry = a;
+      if ([...a].length > 120) warn('\\cherry dài hơn 120 kí tự');
+    } else if (opening && (name === 'cauhoi' || name === 'nutbuoc')) boundary[name] = a;
+    else if (!opening && name === 'thungay') boundary.quiz = lessonQuiz(cmd.args, error);
+    else if (!opening && name === 'emdahoc') boundary.emdahoc = cmd.args;
+    else if (name === 'hinhrieng') boundary.fig = lessonFigure(a, error);
+  }
+  if (opening && !boundary.fig) error('Khối modau cần có hình');
+  if (opening && !boundary.cauhoi) error('Khối modau cần có \\cauhoi');
+  if (!opening && !boundary.quiz) error('Khối ketbai cần có \\thungay');
+  return boundary;
+}
+
+function lessonPart(title = '', goal = '') {
+  return { title, goal, recap: '', fig: null, screens: [] };
+}
+
+function legacyLesson(items, lesson) {
+  let part = lessonPart(), started = false;
+  for (const { k, title, body, sol, correct, wrong, explainCorrect, explainWrong, template, value } of items) {
+    if (k === 'loidan') {
+      if (started) lesson.parts.push(part);
+      part = lessonPart();
+      started = true;
+      continue;
+    }
+    started = true;
+    if (!part.title && title) part.title = title;
+    if (!part.fig && (LESSON_RECAP.has(k) || k === 'luuy')) {
+      const staticFigure = lessonTokens(body).find(token => token.name === 'tikzpicture' && token.closed);
+      if (staticFigure) part.fig = { kind: 'tikz', src: staticFigure.raw };
+    }
+    if (k === 'thungay') part.screens.push({ type: 'quiz', quiz: { q: body, correct, wrong, explainCorrect, explainWrong } });
+    else if (k === 'vidu') part.screens.push({ type: 'vidu', body, sol });
+    else if (k === 'hinhbuoc' || k === 'giaimau') part.screens.push({ type: k === 'hinhbuoc' ? 'steps' : k, body });
+    else if (k === 'minhhoa') part.screens.push({ type: 'lab', kind: k, template, value });
+    else part.screens.push({ type: 'read', kind: k, title, body });
+  }
+  if (started) lesson.parts.push(part);
+  for (const item of lesson.parts) item.recap = lessonRecap(item);
+}
+
+function lessonRecap(part) {
+  return part.screens.filter(sc => LESSON_RECAP.has(sc.kind)).map(sc => sc.body).join(' \\\\ ');
+}
+
+function parseLesson(body, errors, warnings) {
+  const tokens = lessonTokens(body);
+  const legacy = !tokens.some(t => t.name === 'phan');
+  const lesson = { modau: null, parts: [], ketbai: null, legacy };
+  const error = msg => errors.push({ msg: 'Bài giảng: ' + msg });
+  const warn = msg => warnings.push({ msg: 'Bài giảng: ' + msg });
+  if (legacy) {
+    const theory = parseTheory(body, errors);
+    for (const cmd of tokens.filter(t => t.name === 'modau' || t.name === 'ketbai')) {
+      lesson[cmd.name] = lessonBoundary(cmd, error, warn);
+    }
+    legacyLesson(theory, lesson);
+    return { theory, lesson };
+  }
+
+  // Dùng bộ đọc cũ cho các lệnh cũ ở cấp màn. Các khối và đối số mới thuộc riêng lesson.
+  const oldNames = new Set([...Object.keys(THEORY_KINDS), 'loidan', 'thungay', 'minhhoa', 'hinhbuoc', 'giaimau']);
+  const oldCommands = tokens.filter(t => oldNames.has(t.name));
+  const theory = oldCommands.length ? parseTheory(oldCommands.map(t => t.raw).join('\n'), errors) : [];
+  let part, pending = {}, previous, lastName;
+  for (const [index, cmd] of tokens.entries()) {
+    const { name, args: [a, b, c, d, e, f] } = cmd;
+    const preceding = lastName;
+    lastName = name;
+    if (name === 'modau' || name === 'ketbai') {
+      if (lesson[name]) error('Chỉ được có một khối ' + name);
+      lesson[name] = lessonBoundary(cmd, error, warn);
+      part = undefined;
+      continue;
+    }
+    if (name === 'phan') {
+      if (!lessonArgs(cmd, error)) continue;
+      part = lessonPart(a, b);
+      lesson.parts.push(part);
+      pending = {};
+      previous = undefined;
+      continue;
+    }
+    if (!part) {
+      error('\\' + name + ' cần nằm trong một phần');
+      continue;
+    }
+    if (!lessonArgs(cmd, error)) continue;
+    if (name === 'cherry' || name === 'loidan') {
+      pending.cherry = a;
+      if ([...a].length > 120) warn('\\cherry dài hơn 120 kí tự');
+      continue;
+    }
+    if (name === 'nhaclai') { part.recap = a; continue; }
+    if (name === 'hinhchung') { part.fig = lessonFigure(a, error); continue; }
+    if (name === 'hinhrieng') { pending.fig = lessonFigure(a, error); continue; }
+    if (name === 'trangthai') { pending.state = lessonState(a, error); continue; }
+    if (name === 'saukhitra') {
+      const after = lessonState(a, error);
+      // Bài mẫu đặt sau câu hỏi; cú pháp soạn cũng cho phép đặt trước.
+      if (previous?.type === 'quiz' && preceding === 'thungay' && tokens[index + 1]?.name !== 'thungay') previous.after = after;
+      else pending.after = after;
+      continue;
+    }
+    if (name === 'chuyen') {
+      pending.toggle = [{ label: a, state: lessonState(b, error) }, { label: c, state: lessonState(d, error) }];
+      continue;
+    }
+    if (name === 'nhac') {
+      if (previous?.type !== 'tap' || !['chamhinh', 'nhac'].includes(preceding)) error('\\nhac cần theo sau \\chamhinh');
+      else if (!LESSON_ANGLE.test(a)) error('Khóa góc không hợp lệ: ' + a);
+      else previous.tap.nhac[a] = b;
+      continue;
+    }
+    if (name === 'ketluan') {
+      if (previous?.type !== 'calc' || preceding !== 'emtinh') error('\\ketluan cần theo sau \\emtinh');
+      else previous.calc.ketluan = a;
+      continue;
+    }
+
+    let screen;
+    if (LESSON_RECAP.has(name) || name === 'nhanxet') screen = { type: 'read', kind: name, title: a, body: b };
+    else if (name === 'luuy') screen = { type: 'read', kind: name, title: 'Cần nhớ', body: a };
+    else if (name === 'vidu') screen = { type: 'vidu', body: a, sol: b };
+    else if (name === 'thungay') screen = { type: 'quiz', quiz: lessonQuiz(cmd.args, error) };
+    else if (name === 'chamhinh') {
+      if (!LESSON_ANGLE.test(b)) error('Khóa góc không hợp lệ: ' + b);
+      screen = { type: 'tap', tap: { prompt: a, ans: b, ok: c, hint: d, nhac: {} } };
+    } else if (name === 'chamvung') {
+      if (!LESSON_REGIONS.has(b)) error('Khóa vùng không hợp lệ: ' + b);
+      screen = { type: 'region', region: { prompt: a, key: b, ok: c } };
+    } else if (name === 'truot') screen = { type: 'slide', slide: { label: a, after: b } };
+    else if (name === 'emtinh') {
+      const item = { ...lessonQuiz([a, b, c, d, e], error), state: lessonState(f, error) };
+      if (preceding === 'emtinh' && previous?.type === 'calc') {
+        previous.calc.items.push(item);
+        continue;
+      }
+      screen = { type: 'calc', calc: { items: [item], ketluan: '' } };
+    } else if (name === 'xemtungbuoc') screen = { type: 'steps' };
+    else if (name === 'hinhbuoc') screen = { type: 'steps', body: cmd.raw, fig: lessonFigureToken(cmd, error) };
+    else if (name === 'minhhoa') screen = { type: 'lab', kind: name, template: a, value: b };
+    else if (name === 'giaimau') screen = { type: 'giaimau', body: cmd.raw };
+    else {
+      error('\\' + name + ' không phải lệnh màn hoặc lệnh gắn');
+      continue;
+    }
+    previous = { ...pending, ...screen };
+    part.screens.push(previous);
+    pending = {};
+  }
+  if (!lesson.modau) warn('Thiếu khối modau');
+  if (!lesson.ketbai) warn('Thiếu khối ketbai');
+  for (const item of lesson.parts) {
+    const { title, screens, fig } = item;
+    if (!screens.length) error('Phần "' + title + '" chưa có màn');
+    if (screens.length > 10) warn('Phần "' + title + '" có hơn 10 màn');
+    if (!item.recap) item.recap = lessonRecap(item);
+    for (const [index, screen] of screens.entries()) {
+      const figure = screen.fig || fig;
+      if (['tap', 'region', 'slide'].includes(screen.type) && figure?.kind !== 'mau') {
+        error('Phần "' + title + '", màn ' + (index + 1) + ' cần hình mẫu');
+      }
+      if (screen.type === 'read' && !figure && !lessonTokens(screen.body).some(token =>
+        token.closed && (token.name === 'tikzpicture' || token.name === 'hinhbuoc'))) {
+        warn('Phần "' + title + '", màn ' + (index + 1) + ' chỉ có chữ');
+      }
+    }
+  }
+  return { theory, lesson };
 }
 
 export function errorText(e) {
