@@ -50,7 +50,7 @@ Thi đấu rút câu Mức 1–4 của mọi bài **đã duyệt** của khối,
 
 ## Định dạng và kiểm tra
 
-**Bài thường soạn lý thuyết tương tác theo mặc định, trong cùng một khối mã với bài tập (dán một lần bằng + Dán bài):** dùng [mẫu lệnh chung cho Gemini/Claude](soan-man-tuong-tac.txt), skill `nap-bai-leo-thap` (Claude) và [skill soạn bài của Gemini](gemini-skill-soan-bai.md). Mỗi bài 2–4 mục học, mỗi mục gồm `\loidan` → giải thích → minh họa (`\minhhoa` nếu có mẫu đúng, nếu không thì TikZ hoặc ví dụ) → `\vidu` → `\thungay`; các lệnh này đặt bên trong khối `lythuyet`. Mỗi `\loidan` mở một mục học mới. App dùng tiêu đề đầu tiên trong mục làm tên nút chọn. Giữ nguyên phần `\man` khi bổ sung tương tác cho bài đã có.
+**Bài thường soạn lý thuyết tương tác theo mặc định, trong cùng một khối mã với bài tập (dán một lần bằng + Dán bài):** dùng [mẫu lệnh chung cho Gemini/Claude](soan-man-tuong-tac.txt), skill `nap-bai-leo-thap` (Claude) và [skill soạn bài của Gemini](gemini-skill-soan-bai.md). Mỗi bài 2–4 mục học, mỗi mục gồm `\loidan` → giải thích → minh họa (`\minhhoa` nếu có mẫu đúng, nếu không thì TikZ hoặc ví dụ) → `\vidu` → `\thungay`; các lệnh này đặt bên trong khối `lythuyet`. Mỗi `\loidan` mở một mục học mới. App tự chia lý thuyết thành từng màn ngắn (xem *Viết cho màn học từng màn* bên dưới). Giữ nguyên phần `\man` khi bổ sung tương tác cho bài đã có.
 
 ### Quy trình một lần (Claude và Gemini dùng chung skill `nap-bai-leo-thap`)
 
@@ -60,6 +60,14 @@ Thi đấu rút câu Mức 1–4 của mọi bài **đã duyệt** của khối,
 - **Chia mục học:** mỗi bài 2–4 mục (mỗi `\loidan` mở một mục), mỗi mục một ý chính, theo khuôn `\loidan` → giải thích (`\dinhnghia`/`\quytac`/`\congthuc`/`\dinhly`/`\tinhchat`, thêm `\luuy`) → minh họa → `\vidu` → `\thungay` (kiểm tra bằng một ví dụ mới).
 - **Chọn minh họa theo thứ tự:** `\minhhoa` khi đúng mẫu đã hỗ trợ (hiện chỉ `gia-tri-theo-hang` và `ghep-so-la-ma`, về số tự nhiên; không dùng cho bài khác) → hình TikZ ngay trong nội dung mục → ví dụ cụ thể có số liệu. Cần thao tác mà chưa có mẫu thì **không tự chế lệnh**; ghi mẫu còn thiếu vào phần báo lại.
 - TikZ trong lý thuyết dùng chung đường dịch hình với câu hỏi (Actions dịch mỗi 15 phút).
+- **Viết cho màn học từng màn (từ 26/11/2026):** app tự chia khối `lythuyet` thành từng màn ngắn kiểu Duolingo (thanh tiến độ, nút Tiếp tục), mỗi màn khoảng 160 kí tự chữ, theo dấu xuống dòng `\\`. Cú pháp không đổi, nhưng viết sao cho mỗi màn tròn một ý:
+  - **Mỗi dòng `\\` 1–2 câu**, tối đa khoảng 150 kí tự. Không viết một đoạn dài liền; ý mới thì xuống dòng.
+  - **`\loidan` 1–2 câu (dưới khoảng 100 kí tự)** để hiện thành bong bóng Cherry ngay trên màn kiến thức. Lời dẫn dài hơn bị tách thành một màn riêng.
+  - **`\luuy` mỗi ý một câu** (mỗi câu thành một dòng "!" trong màn *Cần nhớ*, 3 dòng một màn).
+  - **Lời giải `\vidu` mỗi bước một dòng `\\`.** Học sinh bấm *Xem lời giải* mới đi tiếp.
+  - **Tiêu đề mục** (`\dinhnghia{Tên}{…}`…) hiện ở dòng trên cùng của màn ("Tên bài · Tên mục"): đặt ngắn, rõ.
+  - **Mỗi mục học có một `\thungay`**: đây là màn duy nhất học sinh phải trả lời; bài không có `\thungay` chỉ còn màn đọc.
+  - Hình đặt ngay sau câu nó minh họa (cùng dòng `\\`), xem quy tắc hình ở mục hình vẽ.
 
 **Bài mẫu lớp 6:** mở bài **Cách ghi số tự nhiên** bằng tài khoản giáo viên, chọn **Học lý thuyết → Sửa lý thuyết** rồi dán [khối LaTeX của bài mẫu](vi-du/k6-b2-ly-thuyet.tex). Thử chạm chữ số 4, ghép XXIV và chọn cả hai đáp án trong phần xem trước. Sau khi lưu, kiểm tra lại với vai trò học sinh. Lưu qua cửa sổ này để giữ nguyên phần câu hỏi của bài.
 
@@ -104,7 +112,7 @@ Nối mỗi ... với ...
 \pair{..}{..}
 \end{exmatch}
 ```
-- **Tóm tắt lý thuyết** `\begin{lythuyet}…\end{lythuyet}`: một khối, đặt ngay sau `\chude`, trước `\man{1}`. Mục: `\dinhnghia`, `\quytac`, `\congthuc`, `\dinhly`, `\tinhchat` dạng `{tiêu đề}{nội dung}`; `\luuy{nội dung}`; `\vidu{đề}{lời giải}`. Gồm định nghĩa, quy tắc, công thức, định lý/tính chất của bài, 1 mục lưu ý lỗi hay gặp và 1–2 ví dụ ngắn; gọn trong 1–2 màn hình điện thoại (khoảng 4–6 mục). Bám đúng nội dung, kí hiệu và cách gọi của SGK Kết nối tri thức nhưng **diễn đạt bằng lời của mình**, không chép nguyên văn SGK; không lấn sang bài sau. Xuống dòng bằng `\\`. Ngoài `$...$` chỉ viết chữ thường (không dùng `\quad`, `\dots`, `\ `…, vì app không dịch lệnh ngoài công thức); không dùng `%` (viết `\%`).
+- **Tóm tắt lý thuyết** `\begin{lythuyet}…\end{lythuyet}`: một khối, đặt ngay sau `\chude`, trước `\man{1}`. Mục: `\dinhnghia`, `\quytac`, `\congthuc`, `\dinhly`, `\tinhchat` dạng `{tiêu đề}{nội dung}`; `\luuy{nội dung}`; `\vidu{đề}{lời giải}`. Gồm định nghĩa, quy tắc, công thức, định lý/tính chất của bài, 1 mục lưu ý lỗi hay gặp và 1–2 ví dụ ngắn; app tự chia thành từng màn ngắn nên mỗi dòng `\\` chỉ 1–2 câu (xem *Viết cho màn học từng màn*). Bám đúng nội dung, kí hiệu và cách gọi của SGK Kết nối tri thức nhưng **diễn đạt bằng lời của mình**, không chép nguyên văn SGK; không lấn sang bài sau. Xuống dòng bằng `\\`. Ngoài `$...$` chỉ viết chữ thường (không dùng `\quad`, `\dots`, `\ `…, vì app không dịch lệnh ngoài công thức); không dùng `%` (viết `\%`).
 - `ex` trắc nghiệm: 4 phương án, đúng **một** phương án có `\True`.
 - `extf` đúng/sai: 4 ý, `\True` ở các ý đúng; học sinh phải đúng cả 4 ý mới được tính đúng.
 - `exfb` điền đáp số: học sinh gõ bằng bàn phím số `0–9`, `−`, dấu phẩy, `/` — đáp số chỉ là số nguyên, thập phân (dấu phẩy) hoặc phân số `a/b`, **không** dùng căn hay biểu thức chữ. Nhiều cách viết cùng giá trị cách nhau bằng `;` (app tự coi `0,5` và `1/2` là bằng nhau). Đáp số là phân số thì đề ghi rõ "(viết dạng phân số a/b)".
