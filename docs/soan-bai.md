@@ -37,6 +37,13 @@ Mỗi bài cần: Mức 1 ít nhất 5 câu, Mức 2 ít nhất 5, Mức 3 ít n
 
 `\begin{hinhbuoc}` + một `tikzpicture` (phần hiện từ bước k bọc `\hien{k}{…}`) + mỗi bước một `\loibuoc{…}` + `\end{hinhbuoc}`. Cú pháp và quy tắc: `docs/gemini-skill-soan-bai.md` mục 3.7b. GitHub Actions dịch mỗi bước thành một khung riêng (mã khung `\lttbuoc{k}` + hình, xem `lib/latex.js` `hbFrame`).
 
+## Bài giải mẫu từng bước, Bài mẫu theo chương, hướng dẫn tự luận
+
+Cú pháp `\begin{giaimau}` (ví dụ dài trong lý thuyết, Bài mẫu theo chương) và `\begin{huongdan}` (gợi ý từng bước trong `extl` của đề Ôn tập tự luận), cách dùng `\doan`, `\buocgiai`, sơ đồ `sodo`, hình theo bước `\hien`/`\phu`/`\sang`: xem `docs/gemini-skill-soan-bai.md` mục 3.9. Mẫu: `docs/mau/giaimau-tiep-tuyen.tex`, `docs/mau/bai-mau-chuong.tex`, `docs/mau/huongdan-tu-luan.tex`. Mẫu lệnh nhờ soạn: `docs/soan-bai-mau.txt`.
+
+- **Bài mẫu** = chủ đề `phan = 'bai-mau'`, `chuong = 'k<khối>-c<chương>'`, nội dung `\chude` + `\saubai{mã bài}` + một khối `giaimau`, không có `lythuyet`, không có `\man`. Thầy dán bằng nút **Bài mẫu → + Dán bài mẫu** trên biển tên chương (Claude có Supabase: chèn chủ đề `status = 'draft'`, slug dạng `lop9-c5-mau-…`).
+- **Bắt buộc với mọi bài tự luận, bài giải mẫu, hướng dẫn: suy luận chậm và kỹ, tự kiểm tra trước khi trả** (giải trọn ra nháp và giải lại bằng cách thứ hai hoặc thử lại; chỉ dùng kiến thức SGK Kết nối tri thức đã học đến bài ở `\saubai`; mỗi bước suy ra được từ bước trước và "Vì sao?" nêu đúng định lý; đáp án sai của `\doan` phải thật sự không đi được; ô con của sơ đồ đủ để suy ra ô cha; tọa độ hình được **tính** cho đúng giả thiết; đọc lại như học sinh trung bình khá; ghi "Đã tự kiểm tra" và chỗ chưa chắc trong phần báo lại). Chi tiết: mục 3.9 *Quy trình suy luận và kiểm tra*.
+
 ## Kho Thi đấu theo chương (câu chỉ dùng cho Thi đấu)
 
 Thi đấu rút câu Mức 1–4 của mọi bài **đã duyệt** của khối, cộng thêm **Kho Thi đấu theo chương**. Giáo viên đặt **mốc** "đã học hết Chương N" cho từng khối (Ngân hàng câu hỏi → tab Thi đấu): Thi đấu chỉ dùng câu của Chương 1..N, khoảng một nửa số câu mỗi trận thuộc Chương N. Chưa đặt mốc = mở mọi chương. Bài chưa gắn chương luôn được dùng.

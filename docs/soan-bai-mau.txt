@@ -1,0 +1,30 @@
+MẪU LỆNH CHO GEMINI HOẶC CLAUDE — BÀI GIẢI MẪU TỪNG BƯỚC (HỌC CÙNG CHERRY)
+(Trong app: Giáo viên → bản đồ → Bài mẫu trên biển tên chương → "Sao chép yêu cầu cho Gemini" tự điền phần chương.)
+
+Việc cần làm: Soạn MỘT bài mẫu (lời giải từng bước) cho Chương [số]. [tên chương], Toán [khối], SGK Kết nối tri thức.
+Các bài trong chương (mã bài: tên bài): [danh sách]
+Đề bài thầy chọn (nếu có, dán ở đây; nếu không có thì tự chọn một bài tự luận nhiều bước, mức thi vào 10 / học sinh giỏi, chỉ dùng kiến thức đã học):
+[đề bài]
+
+Kết quả: trả đúng MỘT khối mã, không giải thích thêm ngoài phiếu bàn giao:
+\chude{Tên bài mẫu ngắn}
+\saubai{mã bài cuối cùng mà lời giải dùng tới, ví dụ k9-b16}
+\begin{giaimau}
+\de{đề bài}
+(một hình TikZ nếu là bài hình, có \hien{k}{…}, \phu{a}{b}{…}, \sang{k}{…})
+\cau{Câu 1}{yêu cầu} \doan{…}{…}{…}{…}{…} \buocgiai{mục tiêu}{lời giải}{vì sao} …
+(sơ đồ \begin{sodo} \nut{cấp}{nội dung}{ghi chú} … \end{sodo} cho câu khó nhất)
+\nhanxet{ý phân loại, lỗi hay gặp}
+\end{giaimau}
+Cú pháp đầy đủ: docs/gemini-skill-soan-bai.md mục 3.9. Mẫu: docs/mau/bai-mau-chuong.tex.
+
+QUY TRÌNH SUY LUẬN VÀ KIỂM TRA (BẮT BUỘC, suy nghĩ chậm và kỹ):
+1. Giải trọn bài ra nháp trước; giải lại bằng cách thứ hai hoặc thử lại (thay số, tính bằng Python nếu có). Hai cách phải khớp.
+2. Sát chương trình: chỉ dùng kiến thức SGK Kết nối tri thức đã học đến bài ở \saubai; không dùng kiến thức lớp trên hay chương sau. Kí hiệu, cách gọi theo SGK.
+3. Logic từng bước: mỗi \buocgiai suy ra được từ giả thiết và bước trước; không nhảy bước, không dùng điều cần chứng minh, không dựa vào "nhìn hình". "Vì sao?" nêu đúng tên định lý/tính chất. Điều kiện nêu và kiểm tra đúng chỗ.
+4. \doan: 1–2 câu mỗi ý, đặt trước bước then chốt. Đáp án đúng thật sự dẫn tới lời giải; đáp án sai thật sự không đi được ở bước đó (không lấy một hướng khác cũng đúng); phản hồi nói đúng lỗi.
+5. Sơ đồ: mỗi ô con (cùng căn cứ) đủ để suy ra ô cha; khớp với các bước giải.
+6. Hình: TÍNH tọa độ cho đúng mọi giả thiết (tiếp điểm, vuông góc, trung điểm, giao điểm), không ước lượng; hình không gợi ý sai; mỗi \sang{k} tô đúng phần bước k dùng; số bước trong \hien, \phu, \sang khớp số \buocgiai. Hình rộng 5–7 cm, nhãn ngắn không đè nhau.
+7. Số liệu gọn, thỏa điều kiện, đã thử lại vào đề.
+8. Đọc lại như một học sinh trung bình khá; sửa chỗ khó hiểu, thiếu bước.
+9. Phiếu bàn giao sau khối mã: mục "Đã tự kiểm tra" (cách thứ hai/phép thử, phép tính kiểm tra hình, kiến thức dùng thuộc bài nào) và ghi rõ chỗ chưa chắc.
