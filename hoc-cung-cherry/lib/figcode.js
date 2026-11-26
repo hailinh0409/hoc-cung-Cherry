@@ -16,6 +16,20 @@ export function figBlocks(src) {
   return [...new Set(out)];
 }
 
+// Hỏi bảng ltt_figures theo từng nhóm mã hình. Không gửi cả danh sách một lần: từ khoảng 700 mã trở lên
+// đường dẫn quá dài, Supabase trả lỗi 400 và trước đây app lặng lẽ coi như chưa có hình nào
+// (lỗi 26/11/2026: tài khoản giáo viên tải mọi khối, khoảng 730 hình, nên mất hết hình). Lỗi thì ném ra, không nuốt.
+export const FIG_BATCH = 200;
+export async function figRows(db, hashes, cols = 'hash,error') {
+  const list = [...new Set(hashes)], out = [];
+  for (let i = 0; i < list.length; i += FIG_BATCH) {
+    const { data, error } = await db.from('ltt_figures').select(cols).in('hash', list.slice(i, i + FIG_BATCH));
+    if (error) throw new Error(`Đọc bảng ltt_figures lỗi: ${error.message}`);
+    out.push(...(data || []));
+  }
+  return out;
+}
+
 // Thay mỗi khối TikZ bằng \lttfig{hash} (hoặc \lttfig{none} nếu chưa có hình)
 export const swapFigs = (s, map) => (typeof s === 'string' ? s.replace(TIKZ, c => `\\lttfig{${map[c] || 'none'}}`) : s);
 export function swapQ(q, map) {

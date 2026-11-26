@@ -10,7 +10,7 @@ import { join, dirname, basename, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import crypto from 'node:crypto';
 import { parseBank, errorText } from '../lib/latex.js';
-import { figBlocks } from '../lib/figcode.js';
+import { figBlocks, figRows } from '../lib/figcode.js';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const DIR = join(ROOT, 'ngan-hang');
@@ -116,8 +116,8 @@ if (cmd === 'kiemtra' || cmd === 'day') {
     ok++;
     const blocks = figBlocks(source);
     if (blocks.length) {
-      const { data: have } = await db.from('ltt_figures').select('hash,error').in('hash', blocks.map(sha1));
-      const done = new Set((have || []).filter(r => !r.error).map(r => r.hash));
+      const have = await figRows(db, blocks.map(sha1));
+      const done = new Set(have.filter(r => !r.error).map(r => r.hash));
       const miss = blocks.filter(b => !done.has(sha1(b))).length;
       if (miss) console.log(`    ⚠ ${miss} hình TikZ chưa dịch: chạy  node --env-file=.env.local scripts/dung-hinh.mjs ${meta.slug}`);
     }
