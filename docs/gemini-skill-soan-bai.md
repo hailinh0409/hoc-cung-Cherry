@@ -97,7 +97,7 @@ Thầy nhờ **sửa một bài đã có**: thầy dán mã hiện tại; trả 
 
 - Một khối duy nhất, ngay sau `\chude`, trước `\man{1}`.
 - `\dinhnghia`, `\quytac`, `\congthuc`, `\dinhly`, `\tinhchat` luôn có **hai cặp** `{tiêu đề}{nội dung}`; `\luuy{…}` một cặp; `\vidu{đề}{lời giải}` hai cặp.
-- Nội dung: định nghĩa, quy tắc, công thức, định lý/tính chất **của đúng bài đó**, 1 mục `\luuy` về lỗi hay gặp, 1–2 `\vidu` ngắn. Mỗi mục học gọn trong 1–2 màn hình điện thoại (cách chia mục học: xem "Lý thuyết tương tác" bên dưới).
+- Nội dung: định nghĩa, quy tắc, công thức, định lý/tính chất **của đúng bài đó**, 1 mục `\luuy` về lỗi hay gặp, 1–2 `\vidu` ngắn. App tự chia lý thuyết thành từng màn ngắn (cách viết: xem "Lý thuyết tương tác" bên dưới).
 - Bám đúng nội dung, kí hiệu, cách gọi của SGK Kết nối tri thức nhưng **diễn đạt bằng lời của mình**, không chép nguyên văn sách. Không lấn sang bài sau.
 - Xuống dòng bằng `\\`. **Ngoài `$...$` chỉ viết chữ thường**: không `\quad`, `\dots`, `\ `, `\textbf`… Dấu phần trăm viết `\%`.
 - Bài Luyện tập chung, Bài tập cuối chương, đề ôn tập, Kho Thi đấu: **không có** lý thuyết.
@@ -105,10 +105,18 @@ Thầy nhờ **sửa một bài đã có**: thầy dán mã hiện tại; trả 
 #### Lý thuyết tương tác
 
 - **Đây là cách soạn lý thuyết mặc định cho mọi bài thường** (app đã hỗ trợ). Chỉ dùng các lệnh dưới đây. Các quy tắc về lệnh LaTeX ở mục 0 vẫn áp dụng.
-- **Chia mục học:** mỗi bài có **2–4 mục học** (mỗi `\loidan` mở một mục), mỗi mục xoay quanh **một ý chính** (một khái niệm, một quy tắc hoặc một dạng sai hay gặp). Bài ngắn thì 2 mục, bài nhiều khái niệm thì 3–4. Tên nút chọn là tiêu đề đầu tiên trong mục (`\dinhnghia{Tên}{…}` …), nên đặt tên ngắn, rõ.
+- **Chia mục học:** mỗi bài có **2–4 mục học** (mỗi `\loidan` mở một mục), mỗi mục xoay quanh **một ý chính** (một khái niệm, một quy tắc hoặc một dạng sai hay gặp). Bài ngắn thì 2 mục, bài nhiều khái niệm thì 3–4. Tiêu đề mục hiện ở dòng trên cùng của màn học, nên đặt tên ngắn, rõ.
 - **Khuôn một mục** (đủ 5 phần, theo thứ tự): `\loidan` (tình huống gần gũi hoặc thao tác cụ thể) → giải thích bằng `\dinhnghia`/`\quytac`/`\congthuc`/`\dinhly`/`\tinhchat` (thêm `\luuy` về lỗi hay gặp nếu có) → **minh họa** → `\vidu` có lời giải → `\thungay` (kiểm tra bằng **một ví dụ mới**, không lặp ví dụ vừa làm).
+- **Viết cho màn học từng màn (từ 26/11/2026):** app tự chia khối `lythuyet` thành từng màn ngắn kiểu Duolingo (thanh tiến độ, nút Tiếp tục), mỗi màn khoảng 160 kí tự chữ, theo dấu xuống dòng `\\`. Cú pháp không đổi, nhưng viết sao cho mỗi màn tròn một ý:
+  - **Mỗi dòng `\\` 1–2 câu**, tối đa khoảng 150 kí tự. Không viết một đoạn dài liền; ý mới thì xuống dòng.
+  - **`\loidan` 1–2 câu (dưới khoảng 100 kí tự)** để hiện thành bong bóng Cherry ngay trên màn kiến thức. Lời dẫn dài hơn bị tách thành một màn riêng.
+  - **`\luuy` mỗi ý một câu** (mỗi câu thành một dòng "!" trong màn *Cần nhớ*, 3 dòng một màn).
+  - **Lời giải `\vidu` mỗi bước một dòng `\\`.** Học sinh bấm *Xem lời giải* mới đi tiếp.
+  - **Tiêu đề mục** (`\dinhnghia{Tên}{…}`…) hiện ở dòng trên cùng của màn ("Tên bài · Tên mục"): đặt ngắn, rõ.
+  - **Mỗi mục học có một `\thungay`**: đây là màn duy nhất học sinh phải trả lời; bài không có `\thungay` chỉ còn màn đọc.
+  - Hình đặt ngay sau câu nó minh họa (cùng dòng `\\`), xem quy tắc hình ở mục hình vẽ.
 - **Minh họa hiện nay chủ yếu là hình TikZ tĩnh** (thầy đang dùng cách này tạm thời cho mọi bài). Mỗi mục học có ít nhất một hình TikZ khi nội dung quan sát được (trục số, hình học, sơ đồ Venn, biểu đồ, bảng giá trị…). Viết `\begin{tikzpicture}…\end{tikzpicture}` thẳng trong nội dung `\quytac`, `\vidu`… (mục 3.7), không bọc `$…$`. Hình tự dịch sau khoảng 15 phút, nên **không vẽ hình lộ đáp án của câu Thử ngay**.
-- **Hình từng bước** (`\begin{hinhbuoc}`, mục 3.7b): dùng khi học sinh cần thấy **quá trình** (cách vẽ, các bước chứng minh, phép tính trên trục số, chia hình để ra công thức…). Học sinh chạm vào hình để hiện từng nét, mỗi bước kèm một lời giải thích. Đặt khối `hinhbuoc` đứng riêng trong `lythuyet` (sau mục giải thích, trước `\vidu`), app hiện nó ở cột minh họa. Mỗi mục học tối đa một hình từng bước; ý chỉ cần nhìn một lần thì dùng hình tĩnh.
+- **Hình từng bước** (`\begin{hinhbuoc}`, mục 3.7b): dùng khi học sinh cần thấy **quá trình** (cách vẽ, các bước chứng minh, phép tính trên trục số, chia hình để ra công thức…). Học sinh chạm vào hình để hiện từng nét, mỗi bước kèm một lời giải thích. Đặt khối `hinhbuoc` đứng riêng trong `lythuyet` (sau mục giải thích, trước `\vidu`), app hiện nó thành một màn riêng, học sinh chạm hết các bước mới đi tiếp. Mỗi mục học tối đa một hình từng bước; ý chỉ cần nhìn một lần thì dùng hình tĩnh.
 - **Chỉ dùng `\minhhoa` khi nội dung đúng một mẫu đã hỗ trợ** (bảng dưới; hiện chỉ cho số tự nhiên, Toán 6 Bài 1–2). Không dùng cho bài khác, kể cả khi gần giống. Không có hình để quan sát thì dùng một ví dụ cụ thể có số liệu.
 - Nếu bài rất cần thao tác mà chưa có mẫu (kéo thả, thanh trượt, ghép thanh phân số, di chuyển điểm trên trục số…): **không tự chế lệnh**; dùng hình TikZ tĩnh và ghi mẫu còn thiếu cùng thao tác học sinh cần làm vào *Đề nghị cho Claude* trong phiếu bàn giao.
 - `\minhhoa{tên-mẫu}{số}`: dùng một trong hai mẫu dưới đây. Cherry tự dựng hình, nút bấm và phản hồi. Khi cần hình để quan sát, đặt TikZ trong nội dung mục giải thích hoặc ví dụ. Khi chưa có mẫu tương tác phù hợp, dùng hình tĩnh hoặc một ví dụ ngắn.
