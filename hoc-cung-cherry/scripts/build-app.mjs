@@ -28,7 +28,7 @@ js = must(js, "function login(view='in',msg=''){", "function login_artifact(view
 js = must(js, 'function start(){', 'function start_artifact(){');
 js = must(js, 'async function changePin(o,n){', 'async function changePin_artifact(o,n){');
 js = must(js, "const doc=PLAYERS.find(x=>x.id===ACC.id);if(doc)mergeP(doc);", "const doc=SERVERP||PLAYERS.find(x=>x.id===ACC.id);SERVERP=null;if(doc)mergeP(doc);");
-js = must(js, 'function logout(view){ACC=null;', "function logout(view){api('/api/auth/logout',{}).catch(()=>{});TEACHER=false;ACC=null;");
+js = must(js, 'function logout(view){ACC=null;', "function logout(view){pushForget().finally(()=>api('/api/auth/logout',{}).catch(()=>{}));TEACHER=false;ACC=null;");
 js = must(js, 'const tex=s=>brOut(esc(s))', 'const tex=s=>brOut(figImg(esc(figSwap(s))))');
 js = must(js, "await DB.doc('players/'+ACC.id).set(doc)}", "const r=await DB.doc('players/'+ACC.id).set(doc);reconcile(doc,r)}");
 // Bản thật: không còn bước "Chạm để bắt đầu"; mở link là vào thẳng (màn chờ chỉ hiện logo, tên app, tên CLB)

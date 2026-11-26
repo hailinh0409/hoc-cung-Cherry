@@ -699,6 +699,10 @@ textarea.code.light{background:#fff;color:#12313a;font:14px/1.5 "Be Vietnam Pro"
 
 /* Khối không phải của học sinh: xám, có khoá, không vào được */
 .gtile.off{background:#5d6f74;box-shadow:inset 0 -8px 0 #45555a;color:#c9d3d5;filter:grayscale(1);cursor:not-allowed}.gtile.off:active{transform:none}.gtile.off .gm{font-size:12px;opacity:.85}
+/* thẻ bật thông báo bài tập (màn chọn môn) */
+.pushcard{display:flex;align-items:center;gap:12px;width:100%;margin-top:14px;padding:12px 14px;border-radius:20px;background:#fff8d6;color:var(--cink);text-align:left;box-shadow:0 6px 0 #0003;animation:rise .45s both}
+.pushcard>span:nth-child(2){flex:1}.pushcard b{display:block;font:800 18px "Baloo 2"}.pushcard small{display:block;color:#6b7f84;font-size:13px;line-height:1.4}.pushcard small b{display:inline;font:inherit;font-weight:800}
+.pushcard .pushico{font-size:30px}.pushcard .btn{width:auto;margin:0;padding:8px 18px;flex:none}.pushcard.off{background:var(--card)}
 
 /* Chiều rộng nội dung theo từng màn, nền app luôn phủ hết khung nhìn. */
 @media (min-width: 600px) {
@@ -2130,11 +2134,11 @@ function login_artifact(view='in',msg=''){show('login');const w=$('#lwrap');
 
 function enter(a,isDefault){ACC={id:a.id,name:a.name,khoi:a.khoi,teacher:!!a.teacher,mon:a.teacher?['toan','anh']:monOf(a)};store.set('ltt:acc',ACC);
   P=Object.assign(newP(),store.get('ltt:p:'+ACC.id,{}));const doc=SERVERP||PLAYERS.find(x=>x.id===ACC.id);SERVERP=null;if(doc)mergeP(doc);if(!Number.isInteger(P.tier))P.tier=tierOf(P.lp);
-  if(!P.nick)P.nick='';curK=ACC.khoi;if(!ACC.teacher)checkSeason();save();sfx.win();
+  if(!P.nick)P.nick='';curK=ACC.khoi;if(!ACC.teacher)checkSeason();save();sfx.win();if(typeof pushRefresh==='function')pushRefresh();
   if(!ACC.teacher&&isDefault){subjects();overlay(`<h2>Đổi mật khẩu nhé!</h2><p>Mật khẩu của em đang là <b>0000</b>. Em nên đổi sang 4 chữ số khác để bạn khác không vào nhầm.</p><button class="btn" id="dc">Đổi ngay</button><button class="btn alt" id="dl">Để sau</button>`);
     $('#dc').onclick=()=>{closeOvl();logout('chg')};$('#dl').onclick=closeOvl}
   else subjects()}
-function logout(view){api('/api/auth/logout',{}).catch(()=>{});TEACHER=false;ACC=null;P=null;store.del('ltt:acc');login(view||'in')}
+function logout(view){pushForget().finally(()=>api('/api/auth/logout',{}).catch(()=>{}));TEACHER=false;ACC=null;P=null;store.del('ltt:acc');login(view||'in')}
 
 /* ---------- chọn khối ---------- */
 /* ---------- chọn môn ---------- */
@@ -2147,11 +2151,13 @@ function subjects(){show('subj');
    <div class="mons">${Object.entries(MON).map(([k,m],i)=>{const on=hasMon(k);return `<button class="mon${on?'':' off'}" data-m="${k}" style="--c:${m.c};--d:${m.d};animation-delay:${i*.1}s" ${on?'':'aria-disabled="true"'}>
      ${m.ico}<b>${m.n}</b><span>${on?(k==='anh'?'Sắp ra mắt':'Vào học ›'):'Chưa đăng kí'}</span>${on?'':'<i class="mlock">'+lockSVG+'</i>'}</button>`}).join('')}
     ${GV()?'':`<button class="mon shopm" id="sShop" style="animation-delay:${Object.keys(MON).length*.1}s"><span class="shav">${avatarOf(P,64)}</span><b>Cửa hàng<small>Ví ${bal()} XP · đã sưu tầm ${Object.keys(P.own||{}).length}/${ITEMS.length}</small></b><span>Mua sắm ›</span></button>`}</div>
+   ${GV()||typeof pushCard!=='function'?'':pushCard()}
    ${GV()?'':`<button class="frtile" id="sFr"><span class="frava">${followingOf(P).slice(0,4).map(id=>avatarOf(PLAYERS.find(x=>x.id===id),34)).join('')||avatarOf(P,34)}</span><span><b>Bạn bè</b><small>${followingOf(P).length} đang theo dõi · ${followersOf(ACC.id).length} người theo dõi</small></span>${newFollowers()?`<i class="dot">${newFollowers()} mới</i>`:'<i class="go">›</i>'}</button>`}
    ${GV()?`<div class="foot"><button class="btn alt" id="sBank">Ngân hàng câu hỏi</button><button class="btn alt" id="sRep">Câu báo lỗi${REPS.some(r=>!r.done)?` (${repGroups(false).length}) ●`:''}</button><button class="btn alt" id="sAcc">Tài khoản học sinh${ACCS.some(a=>a.reset)?' ●':''}</button><button class="btn alt" id="sOut">Thoát</button></div>`:`<div class="foot"><button class="btn alt" id="sOut">Đăng xuất</button></div>`}`;
   $$('#subjBody .mon').forEach(b=>b.onclick=()=>{const m=b.dataset.m;
     if(!hasMon(m)){sfx.no();b.animate([{transform:'translateX(-6px)'},{transform:'translateX(6px)'},{transform:'none'}],{duration:300});return toast(`Em chưa đăng kí môn ${MON[m]?MON[m].n:m}. Em hỏi thầy để đăng kí nhé.`)}
     sfx.tap();m==='toan'?grades():anh()});
+  if(typeof bindPushCard==='function')bindPushCard();
   $('#sShop')&&($('#sShop').onclick=()=>{sfx.tap();shopFrom='subj';shop()});
   $('#sFr')&&($('#sFr').onclick=()=>{sfx.tap();frTab=newFollowers()?'followers':'feed';friends()});
   $('#sAcc')&&($('#sAcc').onclick=()=>{sfx.tap();accounts()});$('#sRep')&&($('#sRep').onclick=()=>{sfx.tap();reportsPage()});$('#sBank')&&($('#sBank').onclick=()=>{sfx.tap();bank()});$('#sOut').onclick=()=>{sfx.tap();logout()}}
@@ -3916,6 +3922,36 @@ if('serviceWorker' in navigator)navigator.serviceWorker.register('/sw.js').catch
 
 /* đổi mật khẩu trong app: máy chủ kiểm tra mật khẩu cũ */
 async function changePin(o,n){await api('/api/me/pin',{old:o,pin:n})}
+
+/* ---------- thông báo bài tập (Web Push) ----------
+   Học sinh bấm "Bật thông báo" ở màn chọn môn → máy gửi địa chỉ nhận thông báo lên /api/push.
+   Máy chủ báo ngay khi thầy giao bài (app/api/admin/assign) và nhắc mỗi tối nếu chưa làm (scripts/nhac-bai.mjs). */
+const pushOK=()=>'serviceWorker' in navigator&&'PushManager' in window&&'Notification' in window;
+const isIOS=()=>/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+const standalone=()=>matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
+// an: không hiện gì · ios: iPhone chưa thêm app vào Màn hình chính · hoi: chưa bật · chan: em đã chặn · bat: đã bật
+function pushState(){if(!ACC||ACC.teacher)return 'an';if(!pushOK())return isIOS()&&!standalone()?'ios':'an';const p=Notification.permission;return p==='granted'?'bat':p==='denied'?'chan':'hoi'}
+const b64u=s=>{const r=atob((s+'='.repeat((4-s.length%4)%4)).replace(/-/g,'+').replace(/_/g,'/'));return Uint8Array.from(r,c=>c.charCodeAt(0))};
+const sameKey=(a,b)=>{if(!a)return false;a=new Uint8Array(a);return a.length===b.length&&a.every((x,i)=>x===b[i])};
+async function pushSubscribe(){const reg=await navigator.serviceWorker.ready,{publicKey}=await api('/api/push'),key=b64u(publicKey);
+  let sub=await reg.pushManager.getSubscription();
+  if(sub&&!sameKey(sub.options&&sub.options.applicationServerKey,key)){await sub.unsubscribe().catch(()=>{});sub=null}
+  if(!sub)sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:key});
+  await api('/api/push',{sub:sub.toJSON()});return sub}
+async function pushOn(){if(Notification.permission!=='granted'&&await Notification.requestPermission()!=='granted')return false;await pushSubscribe();return true}
+// Đăng nhập lại trên máy đã bật: cập nhật để thông báo về đúng tài khoản đang dùng máy này.
+function pushRefresh(){if(pushState()==='bat')pushSubscribe().catch(()=>{})}
+// Đăng xuất: máy này thôi nhận thông báo của tài khoản vừa thoát.
+async function pushForget(){try{if(!pushOK())return;const reg=await navigator.serviceWorker.getRegistration(),sub=reg&&await reg.pushManager.getSubscription();if(sub)await api('/api/push',{endpoint:sub.endpoint},'DELETE')}catch(e){}}
+function pushCard(){const s=pushState();
+  if(s==='hoi')return `<div class="pushcard"><span class="pushico" aria-hidden="true">🔔</span><span><b>Bật thông báo bài tập</b><small>Cherry báo ngay khi thầy giao bài và nhắc em nếu chưa làm.</small></span><button class="btn" id="pushOn">Bật</button></div>`;
+  if(s==='ios')return `<div class="pushcard"><span class="pushico" aria-hidden="true">🔔</span><span><b>Nhận thông báo bài tập trên iPhone</b><small>Mở app bằng Safari, bấm nút Chia sẻ <b>⬆︎</b> → <b>Thêm vào MH chính</b>. Sau đó mở app từ biểu tượng Cherry và bấm Bật thông báo.</small></span></div>`;
+  if(s==='chan')return `<div class="pushcard off"><span class="pushico" aria-hidden="true">🔕</span><span><b>Thông báo đang bị chặn</b><small>Em vào Cài đặt của máy (hoặc biểu tượng ổ khóa cạnh địa chỉ web) để cho phép thông báo từ Học cùng Cherry.</small></span></div>`;
+  return ''}
+function bindPushCard(){const b=$('#pushOn');if(!b)return;b.onclick=async()=>{sfx.tap();b.disabled=true;
+  try{if(await pushOn()){sfx.ok();toast('Đã bật thông báo. Thầy giao bài là máy em sẽ báo!')}else toast('Em chưa cho phép thông báo.')}
+  catch(e){b.disabled=false;return msgBox('Chưa bật được thông báo','Máy em chưa kết nối được dịch vụ thông báo. Em kiểm tra mạng rồi bấm Bật lại nhé.')}
+  const c=b.closest('.pushcard');if(c)c.outerHTML=pushCard()}}
 
 function refresh(){const on=$$('.scr.on')[0]?.id;
   if(curK===CHUYEN_TOAN&&((on==='ontap'&&!canOpenSpecial())||(on==='tlde'&&(!canOpenSpecial()||!TOPICS.some(t=>t.id===tlT?.id)))))return grades();

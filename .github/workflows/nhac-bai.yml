@@ -1,0 +1,30 @@
+name: Nhắc bài tập chưa làm
+# Mỗi tối khoảng 19 giờ (giờ Việt Nam) gửi thông báo cho học sinh còn bài thầy giao chưa làm xong.
+# Dùng chung 2 khóa với "Tự dịch hình TikZ": NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY.
+# GitHub có thể chạy trễ vài chục phút so với giờ đặt.
+on:
+  schedule:
+    - cron: '0 12 * * *'   # 12:00 UTC = 19:00 giờ Việt Nam
+  workflow_dispatch:
+concurrency:
+  group: nhac-bai
+  cancel-in-progress: false
+jobs:
+  nhac:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: hoc-cung-cherry
+    env:
+      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: hoc-cung-cherry/package-lock.json
+      - run: npm ci --ignore-scripts
+      - run: node scripts/nhac-bai.mjs

@@ -22,7 +22,7 @@ export async function GET(request) {
     withPlayers ? db.from('ltt_players').select(T ? 'account_id,data,mau' : publicPlayerColumns) : none,
     withPlayers ? db.from('ltt_accounts').select(T ? 'id,name,khoi,mon,reset_req,is_default,active' : 'id,active').eq('role', 'student') : none,
     T && withPlayers ? db.from('ltt_reports').select('id,account_id,topic_slug,qkey,kind,note,snap,status,created_at,resolved_at') : Promise.resolve({ data: null }),
-    db.from('ltt_settings').select('key,value')
+    db.from('ltt_settings').select('key,value').eq('key', 'moc_thi_dau')
   ]);
   // Tài khoản đã xoá: không hiện trên bảng xếp hạng, danh sách bạn bè
   const off = new Set((accs.data || []).filter(x => !x.active).map(x => x.id));

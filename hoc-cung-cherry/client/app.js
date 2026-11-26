@@ -245,7 +245,7 @@ function login(view='in',msg=''){show('login');const w=$('#lwrap');
 
 function enter(a,isDefault){ACC={id:a.id,name:a.name,khoi:a.khoi,teacher:!!a.teacher,mon:a.teacher?['toan','anh']:monOf(a)};store.set('ltt:acc',ACC);
   P=Object.assign(newP(),store.get('ltt:p:'+ACC.id,{}));const doc=PLAYERS.find(x=>x.id===ACC.id);if(doc)mergeP(doc);if(!Number.isInteger(P.tier))P.tier=tierOf(P.lp);
-  if(!P.nick)P.nick='';curK=ACC.khoi;if(!ACC.teacher)checkSeason();save();sfx.win();
+  if(!P.nick)P.nick='';curK=ACC.khoi;if(!ACC.teacher)checkSeason();save();sfx.win();if(typeof pushRefresh==='function')pushRefresh();
   if(!ACC.teacher&&isDefault){subjects();overlay(`<h2>Đổi mật khẩu nhé!</h2><p>Mật khẩu của em đang là <b>0000</b>. Em nên đổi sang 4 chữ số khác để bạn khác không vào nhầm.</p><button class="btn" id="dc">Đổi ngay</button><button class="btn alt" id="dl">Để sau</button>`);
     $('#dc').onclick=()=>{closeOvl();logout('chg')};$('#dl').onclick=closeOvl}
   else subjects()}
@@ -262,11 +262,13 @@ function subjects(){show('subj');
    <div class="mons">${Object.entries(MON).map(([k,m],i)=>{const on=hasMon(k);return `<button class="mon${on?'':' off'}" data-m="${k}" style="--c:${m.c};--d:${m.d};animation-delay:${i*.1}s" ${on?'':'aria-disabled="true"'}>
      ${m.ico}<b>${m.n}</b><span>${on?(k==='anh'?'Sắp ra mắt':'Vào học ›'):'Chưa đăng kí'}</span>${on?'':'<i class="mlock">'+lockSVG+'</i>'}</button>`}).join('')}
     ${GV()?'':`<button class="mon shopm" id="sShop" style="animation-delay:${Object.keys(MON).length*.1}s"><span class="shav">${avatarOf(P,64)}</span><b>Cửa hàng<small>Ví ${bal()} XP · đã sưu tầm ${Object.keys(P.own||{}).length}/${ITEMS.length}</small></b><span>Mua sắm ›</span></button>`}</div>
+   ${GV()||typeof pushCard!=='function'?'':pushCard()}
    ${GV()?'':`<button class="frtile" id="sFr"><span class="frava">${followingOf(P).slice(0,4).map(id=>avatarOf(PLAYERS.find(x=>x.id===id),34)).join('')||avatarOf(P,34)}</span><span><b>Bạn bè</b><small>${followingOf(P).length} đang theo dõi · ${followersOf(ACC.id).length} người theo dõi</small></span>${newFollowers()?`<i class="dot">${newFollowers()} mới</i>`:'<i class="go">›</i>'}</button>`}
    ${GV()?`<div class="foot"><button class="btn alt" id="sBank">Ngân hàng câu hỏi</button><button class="btn alt" id="sRep">Câu báo lỗi${REPS.some(r=>!r.done)?` (${repGroups(false).length}) ●`:''}</button><button class="btn alt" id="sAcc">Tài khoản học sinh${ACCS.some(a=>a.reset)?' ●':''}</button><button class="btn alt" id="sOut">Thoát</button></div>`:`<div class="foot"><button class="btn alt" id="sOut">Đăng xuất</button></div>`}`;
   $$('#subjBody .mon').forEach(b=>b.onclick=()=>{const m=b.dataset.m;
     if(!hasMon(m)){sfx.no();b.animate([{transform:'translateX(-6px)'},{transform:'translateX(6px)'},{transform:'none'}],{duration:300});return toast(`Em chưa đăng kí môn ${MON[m]?MON[m].n:m}. Em hỏi thầy để đăng kí nhé.`)}
     sfx.tap();m==='toan'?grades():anh()});
+  if(typeof bindPushCard==='function')bindPushCard();
   $('#sShop')&&($('#sShop').onclick=()=>{sfx.tap();shopFrom='subj';shop()});
   $('#sFr')&&($('#sFr').onclick=()=>{sfx.tap();frTab=newFollowers()?'followers':'feed';friends()});
   $('#sAcc')&&($('#sAcc').onclick=()=>{sfx.tap();accounts()});$('#sRep')&&($('#sRep').onclick=()=>{sfx.tap();reportsPage()});$('#sBank')&&($('#sBank').onclick=()=>{sfx.tap();bank()});$('#sOut').onclick=()=>{sfx.tap();logout()}}

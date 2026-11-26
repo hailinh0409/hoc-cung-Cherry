@@ -118,3 +118,33 @@ if('serviceWorker' in navigator)navigator.serviceWorker.register('/sw.js').catch
 
 /* đổi mật khẩu trong app: máy chủ kiểm tra mật khẩu cũ */
 async function changePin(o,n){await api('/api/me/pin',{old:o,pin:n})}
+
+/* ---------- thông báo bài tập (Web Push) ----------
+   Học sinh bấm "Bật thông báo" ở màn chọn môn → máy gửi địa chỉ nhận thông báo lên /api/push.
+   Máy chủ báo ngay khi thầy giao bài (app/api/admin/assign) và nhắc mỗi tối nếu chưa làm (scripts/nhac-bai.mjs). */
+const pushOK=()=>'serviceWorker' in navigator&&'PushManager' in window&&'Notification' in window;
+const isIOS=()=>/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+const standalone=()=>matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
+// an: không hiện gì · ios: iPhone chưa thêm app vào Màn hình chính · hoi: chưa bật · chan: em đã chặn · bat: đã bật
+function pushState(){if(!ACC||ACC.teacher)return 'an';if(!pushOK())return isIOS()&&!standalone()?'ios':'an';const p=Notification.permission;return p==='granted'?'bat':p==='denied'?'chan':'hoi'}
+const b64u=s=>{const r=atob((s+'='.repeat((4-s.length%4)%4)).replace(/-/g,'+').replace(/_/g,'/'));return Uint8Array.from(r,c=>c.charCodeAt(0))};
+const sameKey=(a,b)=>{if(!a)return false;a=new Uint8Array(a);return a.length===b.length&&a.every((x,i)=>x===b[i])};
+async function pushSubscribe(){const reg=await navigator.serviceWorker.ready,{publicKey}=await api('/api/push'),key=b64u(publicKey);
+  let sub=await reg.pushManager.getSubscription();
+  if(sub&&!sameKey(sub.options&&sub.options.applicationServerKey,key)){await sub.unsubscribe().catch(()=>{});sub=null}
+  if(!sub)sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:key});
+  await api('/api/push',{sub:sub.toJSON()});return sub}
+async function pushOn(){if(Notification.permission!=='granted'&&await Notification.requestPermission()!=='granted')return false;await pushSubscribe();return true}
+// Đăng nhập lại trên máy đã bật: cập nhật để thông báo về đúng tài khoản đang dùng máy này.
+function pushRefresh(){if(pushState()==='bat')pushSubscribe().catch(()=>{})}
+// Đăng xuất: máy này thôi nhận thông báo của tài khoản vừa thoát.
+async function pushForget(){try{if(!pushOK())return;const reg=await navigator.serviceWorker.getRegistration(),sub=reg&&await reg.pushManager.getSubscription();if(sub)await api('/api/push',{endpoint:sub.endpoint},'DELETE')}catch(e){}}
+function pushCard(){const s=pushState();
+  if(s==='hoi')return `<div class="pushcard"><span class="pushico" aria-hidden="true">🔔</span><span><b>Bật thông báo bài tập</b><small>Cherry báo ngay khi thầy giao bài và nhắc em nếu chưa làm.</small></span><button class="btn" id="pushOn">Bật</button></div>`;
+  if(s==='ios')return `<div class="pushcard"><span class="pushico" aria-hidden="true">🔔</span><span><b>Nhận thông báo bài tập trên iPhone</b><small>Mở app bằng Safari, bấm nút Chia sẻ <b>⬆︎</b> → <b>Thêm vào MH chính</b>. Sau đó mở app từ biểu tượng Cherry và bấm Bật thông báo.</small></span></div>`;
+  if(s==='chan')return `<div class="pushcard off"><span class="pushico" aria-hidden="true">🔕</span><span><b>Thông báo đang bị chặn</b><small>Em vào Cài đặt của máy (hoặc biểu tượng ổ khóa cạnh địa chỉ web) để cho phép thông báo từ Học cùng Cherry.</small></span></div>`;
+  return ''}
+function bindPushCard(){const b=$('#pushOn');if(!b)return;b.onclick=async()=>{sfx.tap();b.disabled=true;
+  try{if(await pushOn()){sfx.ok();toast('Đã bật thông báo. Thầy giao bài là máy em sẽ báo!')}else toast('Em chưa cho phép thông báo.')}
+  catch(e){b.disabled=false;return msgBox('Chưa bật được thông báo','Máy em chưa kết nối được dịch vụ thông báo. Em kiểm tra mạng rồi bấm Bật lại nhé.')}
+  const c=b.closest('.pushcard');if(c)c.outerHTML=pushCard()}}
