@@ -100,3 +100,67 @@
 .pc-live{color:#c0392b}
 .pc-row .tnote2{color:#4d6a70}
 .plank.gv{padding-bottom:20px}
+
+/* ---------- Lý thuyết từng màn (kiểu Duolingo) ---------- */
+#theory>.ubar{display:none}
+#thBody.lstep-host{padding:0;display:flex;flex-direction:column;overflow:hidden}
+.lesson-material.lstep-host{display:flex;flex-direction:column;height:min(640px,78vh);border-radius:18px;overflow:hidden;margin-top:8px}
+.lstep{flex:1;min-height:0;display:flex;flex-direction:column;background:#fffaf2;color:#12313a;font-size:19px;line-height:1.5}
+.ls-top{display:flex;align-items:center;gap:12px;padding:max(12px,env(safe-area-inset-top)) 16px 6px}
+.ls-x{flex:none;width:40px;height:40px;border-radius:12px;font-size:32px;line-height:1;color:#94a6a9;cursor:pointer}
+.ls-ed{flex:none;padding:6px 12px;border-radius:10px;background:#efe7d6;color:#12313a;font-weight:700;font-size:14px;cursor:pointer}
+.ls-prog{flex:1;height:16px;border-radius:99px;background:#ece4d3;overflow:hidden}
+.ls-prog b{display:block;height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,#139a8f,#2bc48a);box-shadow:inset 0 -4px 0 #0002;transition:width .45s cubic-bezier(.3,1.4,.6,1)}
+.ls-part{padding:2px 20px 0;font:800 14px "Baloo 2",sans-serif;color:#139a8f;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-height:22px}
+.ls-stage{flex:1;min-height:0;overflow-y:auto;padding:8px 20px 22px;-webkit-overflow-scrolling:touch}
+.ls-screen{animation:lsIn .3s both}
+@keyframes lsIn{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.ls-screen{animation:none}.ls-prog b{transition:none}}
+.ls-screen h2{font:800 27px/1.15 "Baloo 2",sans-serif;margin:4px 0 10px}
+.ls-kind{display:inline-block;padding:2px 10px;border-radius:99px;font-size:13px;font-weight:800;color:#fff;background:#3aa8e0;margin-top:4px}
+.ls-kind[data-k=quytac]{background:#2fb787}.ls-kind[data-k=congthuc]{background:#e0a800}.ls-kind[data-k=dinhly],.ls-kind[data-k=tinhchat]{background:#8d7bff}
+.ls-kind[data-k=luuy]{background:#ef3b55}.ls-kind[data-k=vidu]{background:#7a9399}.ls-kind[data-k=thungay]{background:#139a8f}
+.ls-text{margin-top:8px}.ls-text img.fig{margin:12px auto}
+.ls-say{display:flex;align-items:flex-end;gap:10px;margin:4px 0 14px}
+.ls-girl{flex:none;width:70px}.ls-girl.big{width:130px;margin:10px auto 0}
+.ls-bub{position:relative;flex:1;padding:11px 15px;border:2px solid #e6ddcc;border-radius:18px;background:#fff}
+.ls-bub::before{content:"";position:absolute;left:-9px;bottom:18px;width:14px;height:14px;background:#fff;border-left:2px solid #e6ddcc;border-bottom:2px solid #e6ddcc;transform:rotate(45deg)}
+.ls-note{display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-bottom:2px solid #f0e8d8}.ls-note:last-child{border:0}
+.ls-note>span{flex:none;width:36px;height:36px;border-radius:12px;display:grid;place-items:center;background:#ffe3e5;color:#d93a4b;font-weight:800}
+.ls-eg{margin-top:14px;padding:12px 14px;border-radius:16px;background:#fff;border:2px solid #e6ddcc}.ls-eg p{margin:2px 0 0}
+.ls-sol{margin-top:14px;padding:12px 14px;border-radius:16px;background:#f4fbfa;border:2px solid #cdece8;animation:lsIn .3s both}.ls-sol b{color:#0d7169}
+.ls-center{text-align:center;margin:16px 0 0}
+.ls-mini{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:8px 18px;border-radius:14px;border:2px solid #139a8f;background:#fff;color:#0d7169;font-weight:700;font-size:17px;box-shadow:0 3px 0 #9ad8d0;cursor:pointer}
+.ls-hint{color:#5d777d;font-size:15px;text-align:center;margin:10px 0 0}
+.ls-lab{margin-top:6px}
+.ls-lab .theory-lab{margin:0;padding:14px;border-radius:18px;background:#fff;border:2px solid #e6ddcc;color:#12313a}
+.ls-lab .hb-lab{padding:8px}
+.ls-builtin{padding:14px;border-radius:18px;background:#fff;border:2px solid #e6ddcc;text-align:center}.ls-builtin .lesson-choices{justify-content:center}
+.ls-q{font-size:20px;font-weight:600;margin:8px 0 4px}
+.ls-opts{display:grid;gap:12px;margin-top:14px}
+.ls-opt{min-height:56px;padding:14px;border:2px solid #e6ddcc;border-radius:18px;background:#fff;box-shadow:0 4px 0 #e6ddcc;font:inherit;font-weight:600;color:#12313a;text-align:center;cursor:pointer;transition:transform .08s}
+.ls-opt:active{transform:translateY(3px);box-shadow:0 1px 0 #e6ddcc}
+.ls-opt.sel{border-color:#3d6bff;background:#eef2ff;box-shadow:0 4px 0 #b8c8ff}
+.ls-opt.right{border-color:#2bc48a;background:#dcf7ea;box-shadow:0 4px 0 #9fe3c4}
+.ls-opt.wrong{border-color:#ff5a6a;background:#ffe3e5;box-shadow:0 4px 0 #ffb3ba}
+.ls-foot{padding:12px 16px max(14px,env(safe-area-inset-bottom));border-top:2px solid #efe7d6;background:#fffaf2;transition:background .2s}
+.ls-foot.ok{background:#dcf7ea;border-color:transparent}.ls-foot.no{background:#ffe3e5;border-color:transparent}
+.ls-fb{display:none;margin:0 0 10px;max-height:34vh;overflow-y:auto}.ls-foot.ok .ls-fb,.ls-foot.no .ls-fb{display:block}
+.ls-fb b{display:block;font:800 23px "Baloo 2",sans-serif}.ls-fb div{font-size:17px;margin-top:2px}
+.ls-foot.ok .ls-fb b{color:#1fa86b}.ls-foot.no .ls-fb b{color:#d93a4b}
+.ls-go{width:100%;min-height:54px;padding:12px;border-radius:16px;background:#139a8f;color:#fff;font:800 20px "Baloo 2",sans-serif;letter-spacing:.05em;text-transform:uppercase;box-shadow:0 5px 0 #0d7169;cursor:pointer}
+.ls-go:active{transform:translateY(3px);box-shadow:0 2px 0 #0d7169}
+.ls-go[disabled]{background:#e6ddcc;color:#a9a18d;box-shadow:none;cursor:default;transform:none}
+.ls-foot.ok .ls-go{background:#2bc48a;box-shadow:0 5px 0 #1fa86b}.ls-foot.no .ls-go{background:#ff5a6a;box-shadow:0 5px 0 #d93a4b}
+.ls-done{text-align:center}.ls-done h2{margin-top:8px}
+.ls-stat{display:inline-flex;flex-direction:column;padding:10px 22px;border-radius:18px;border:2px solid #e6ddcc;background:#fff}.ls-stat b{font:800 30px "Baloo 2",sans-serif;color:#139a8f}.ls-stat span{font-size:15px;color:#5d777d}
+.ls-end-name{font-weight:700;color:#5d777d;margin:12px 0}
+.ls-end-note{font-size:15px;color:#5d777d}
+.ls-end-btns{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:14px 0 4px}
+.ls-sum{text-align:left;margin:8px 0;border-radius:16px;background:#fff;border:2px solid #e6ddcc;padding:10px 14px}
+.ls-sum summary{cursor:pointer;font-weight:800;color:#0d7169}
+.ls-sum .thc{box-shadow:none;border:1px solid #eee3cf;animation:none}
+.ls-intro{display:flex;flex-direction:column;align-items:center;gap:6px;padding-top:12px}
+.ls-intro .ls-girl.big{width:150px;margin:0}
+.ls-intro .ls-bub{font-size:20px;flex:none;width:100%}
+.ls-intro .ls-bub::before{left:50%;top:-9px;bottom:auto;margin-left:-7px;transform:rotate(135deg)}
