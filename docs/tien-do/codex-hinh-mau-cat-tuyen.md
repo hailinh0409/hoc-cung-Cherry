@@ -1,47 +1,56 @@
 # Tiến độ: Hình mẫu cát tuyến và thao tác trên hình
 
-- Nhánh: `codex/hinh-mau-cat-tuyen` · Issue #51
+- Nhánh: `codex/hinh-mau-cat-tuyen` · PR #58 · Issue #51
 - Người đang làm: Codex · Cập nhật: 26/11/2026
-- Trạng thái: đang làm
+- Trạng thái: xong, chờ thầy duyệt
 
 ## Bắt đầu từ đâu
 
-Xem hướng dẫn hình mẫu trong `docs/bai-giang/cu-phap.md`, bản thử Bài 9 và khung ở PR #57.
+Xem `docs/bai-giang/cu-phap.md` mục 4, hàm `catTuyen` trong `client/hinhmau.js` và `bindLectureGeometry` trong `client/lesson.js`.
 
 ## Mục tiêu
 
-Vẽ hình SVG thống nhất và hỗ trợ chạm góc, chạm vùng, trượt, Em tính, đổi trạng thái.
+Vẽ hình cát tuyến bằng SVG và cho học sinh chạm góc, chạm vùng, trượt, tính từng bước và đổi trạng thái hình.
 
 ## Quyết định đã chốt
 
-Đánh số như Hình 3.16. Trạng thái đặt lại theo màn. Trượt 1,4 giây và bỏ chuyển động khi thiết bị yêu cầu.
+- Đánh số theo SGK Hình 3.16: trên trái 2, trên phải 3, dưới trái 1, dưới phải 4.
+- Vùng chạm là hình quạt bán kính 1 đơn vị. Ẩn nút phóng to khi đang chờ chạm.
+- Trượt trong 1,4 giây. Khi thiết bị giảm chuyển động, hiện ngay vị trí sau.
+- Mỗi màn bắt đầu từ trạng thái riêng. Kiểm tra câu hỏi và đáp đúng câu Em tính bổ sung trạng thái theo cú pháp.
 
-## Đã xong
+## Đã xong (đã commit)
 
-- [x] Bộ đọc đã gộp vào main; khung PR #57 sẵn sàng để duyệt.
+- [x] Vẽ SVG với nhãn đường, giao điểm, hướng đường cắt, số góc, tô màu, số đo và vùng. Thao tác dùng được bằng chạm và bàn phím.
+- [x] Tích hợp năm dạng thao tác và cập nhật hình sau Thử ngay.
+- [x] Có ba kiểm thử tự động bổ sung và ảnh đối chiếu ở 390×844.
 
 ## Đang làm dở
 
-Kiểm tra hình mẫu và các màn tương tác trên trình duyệt.
+Không có trong phạm vi #51.
 
 ## Việc tiếp theo
 
-Đưa phần tương tác lên PR riêng sau khi kiểm tra. Gộp PR #57 trước.
+Gộp #57 trước, sau đó chuyển đích #58 về `main` để duyệt phần C. Sau khi giao diện sẵn sàng, làm công cụ giáo viên #52. Việc nạp bài thật #53 cần thầy duyệt trước.
 
 ## Còn lại
 
-- [ ] Chạy kiểm tra theo AGENTS.md.
+- [x] Chạy kiểm tra theo AGENTS.md.
+- [ ] Thầy duyệt và gộp PR #58.
 
 ## File liên quan
 
 - `hoc-cung-cherry/client/hinhmau.js`
 - `hoc-cung-cherry/client/lesson.js`
-- `docs/bai-giang/ban-thu-bai9.html`
+- `hoc-cung-cherry/tests/hinh-mau.test.mjs`
+- `docs/bai-giang/anh-kiem-tra/hinh-cat-tuyen-390x844.jpg`
 
 ## Cách kiểm tra
 
-`npm test`, build Next.js dữ liệu giả, thử các màn hình học ở 390×844.
+- GitHub Actions đạt 47/47 kiểm thử, ghép giao diện, kiểm tra cú pháp và build Next.js với `FAKE_DB=1`.
+- Chrome 390×844 kiểm tra đủ 24 màn ở vai trò học sinh mô phỏng. Các màn đếm 8 góc, chạm vùng giữa, chạm sai B3 rồi đúng B2 bằng bàn phím, trượt và giảm chuyển động, chạm góc đồng vị, Em tính 60°/120°, đổi hình dấu hiệu và ví dụ 70° đều đạt.
+- Ảnh chụp vùng SVG dùng Bài 9 mẫu trong app đã ghép. Các khung TikZ và phiên đăng nhập trong phép thử trình duyệt dùng dữ liệu mô phỏng.
 
 ## Lưu ý cho người tiếp quản
 
-PR bước C dựa trên khung bước B để xem riêng thay đổi. Chưa ghi dữ liệu Supabase.
+Chưa ghi dữ liệu Supabase.
