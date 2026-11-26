@@ -2,7 +2,7 @@
 // và lưu ở bảng ltt_figures, nhận diện bằng sha1 của nguyên văn khối (sau khi bỏ chú thích %).
 export const TIKZ = /\\begin\{tikzpicture\}[\s\S]*?\\end\{tikzpicture\}/g;
 
-import { HINHBUOC, parseHinhBuoc, GIAIMAU, parseGiaiMau } from './latex.js';
+import { HINHBUOC, parseHinhBuoc, GIAIMAU, HUONGDAN, parseGiaiMau } from './latex.js';
 
 export const normalizeSource = s => String(s || '').replace(/\r/g, '').replace(/(^|[^\\])%.*$/gm, '$1');
 // Hình thường: mỗi tikzpicture là một khối. Hình từng bước (\begin{hinhbuoc}): mỗi bước là một khối riêng
@@ -12,7 +12,8 @@ export function figBlocks(src) {
   for (const m of s.matchAll(HINHBUOC)) { const h = parseHinhBuoc(m[1]); if (h.tikz) out.push(...h.frames); }
   // Bài giải mẫu: mỗi màn một khung (gmFrame), hình gốc bên trong không dịch riêng
   for (const m of s.matchAll(GIAIMAU)) out.push(...parseGiaiMau(m[1]).frames);
-  out.push(...(s.replace(HINHBUOC, '').replace(GIAIMAU, '').match(TIKZ) || []));
+  for (const m of s.matchAll(HUONGDAN)) out.push(...parseGiaiMau(m[1], true).frames);
+  out.push(...(s.replace(HINHBUOC, '').replace(GIAIMAU, '').replace(HUONGDAN, '').match(TIKZ) || []));
   return [...new Set(out)];
 }
 

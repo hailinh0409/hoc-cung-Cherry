@@ -1024,6 +1024,22 @@ textarea.code.light{background:#fff;color:#12313a;font:14px/1.5 "Be Vietnam Pro"
 .gm-sheet{display:block;overflow:auto}
 .gm-sheetin{padding:64px 20px 24px}.gm-sheetin h2{font:800 24px "Baloo 2",sans-serif;margin:0 0 8px}.gm-sheetin img.fig{display:block;margin:14px auto 0}
 .lstep .ls-text p{margin:.35em 0}
+/* Bài mẫu theo chương: nút ở góc phải biển tên chương, danh sách trong hộp */
+.plank .pbm{position:relative;z-index:2;margin-left:4px;display:inline-flex;align-items:center;gap:4px;font:800 12px/1 Nunito,sans-serif;padding:5px 10px 5px 6px;min-height:26px;border-radius:99px;border:2px solid #fff;background:#ff7a59;color:#fff;box-shadow:0 2px 0 #0003;cursor:pointer}
+.plank .pbm svg{width:15px;height:15px}
+.bmlist{display:grid;gap:10px;margin:6px 0 12px;text-align:left}
+.bmrow{display:flex;align-items:center;gap:12px;width:100%;padding:10px 12px;border-radius:16px;border:2px solid #e6ddcc;background:#fff;color:#12313a;box-shadow:0 3px 0 #e6ddcc;cursor:pointer;font:inherit;text-align:left}
+.bmrow .bmno{flex:none;width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:#ff7a59;color:#fff;font:800 17px "Baloo 2",sans-serif}
+.bmrow .bmno svg{width:20px;height:20px}
+.bmrow .bmtx{flex:1;min-width:0}.bmrow b{display:block;font-weight:800;font-size:16px;line-height:1.3}.bmrow small{display:block;color:#5d777d;font-size:13px}
+.bmrow.lock{opacity:.7}.bmrow.lock .bmno{background:#efe7d6}
+.bmrow .bmst{flex:none;font-style:normal;font-size:12px;font-weight:800;padding:2px 8px;border-radius:99px;background:#efe7d6}
+/* gợi ý từng bước của đề tự luận */
+.tl-guide small{display:block;font-size:13px;opacity:.75;margin:2px 0}
+.tl-guide p{margin:.35em 0}
+.tl-guide img.fig{display:block;margin:8px auto;max-width:100%;height:auto}
+.tl-guide details{margin-top:6px}.tl-guide summary{cursor:pointer;font-weight:700}
+.tl-guide .gm-tree{margin-top:4px}
 
 .gvlink{margin-top:4px;font-size:13px;color:#7a9399;text-decoration:underline;align-self:center}
 .figmiss{display:inline-block;padding:6px 10px;border-radius:8px;background:#fff3c4;color:#7a5a00;font-size:13px}
@@ -1451,7 +1467,10 @@ function gmArgs(body, at, n) {
   while ((n == null || args.length < n) && (g = group(body, at))) { args.push(g[0].trim()); at = g[1]; }
   return [args, at];
 }
-function parseGiaiMau(raw) {
+// Hướng dẫn tự luận (\begin{huongdan} trong \begin{extl}): cùng cú pháp nhưng chỉ có \buocgiai và sơ đồ, không cần \de;
+// mỗi \buocgiai hoặc sơ đồ là một gợi ý học sinh mở bằng XP. Không có lời giải chi tiết.
+const HUONGDAN = /\\begin\{huongdan\}([\s\S]*?)\\end\{huongdan\}/g;
+function parseGiaiMau(raw, guide = false) {
   const body = noComment(raw), errors = [];
   const pics = body.match(TIKZ_ONE) || [], tikz = pics[0] || '';
   if (pics.length > 1) errors.push(`Bài giải mẫu chỉ có một hình tikzpicture (đang có ${pics.length}); phần thay đổi theo bước dùng \\hien{k}{…} và \\sang{k}{…}`);
@@ -1485,8 +1504,13 @@ function parseGiaiMau(raw) {
     if (k === 'buocgiai') { n++; items.push({ k, n, goal: a[0] || '', body: a[1] || '', why: a[2] || '' }); }
     if (k === 'nhanxet') items.push({ k, body: a[0] || '', done: n });
   }
-  if (!de) errors.push('Bài giải mẫu thiếu \\de{đề bài}');
-  if (!n) errors.push('Bài giải mẫu cần ít nhất một \\buocgiai{mục tiêu}{lời giải}{vì sao}');
+  if (guide) {
+    if (items.some(x => !['buocgiai', 'sodo'].includes(x.k))) errors.push('Hướng dẫn tự luận chỉ dùng \\buocgiai{mục tiêu}{gợi ý}{vì sao} và sơ đồ \\begin{sodo}');
+    if (!items.length) errors.push('Hướng dẫn tự luận cần ít nhất một \\buocgiai hoặc một sơ đồ');
+  } else {
+    if (!de) errors.push('Bài giải mẫu thiếu \\de{đề bài}');
+    if (!n) errors.push('Bài giải mẫu cần ít nhất một \\buocgiai{mục tiêu}{lời giải}{vì sao}');
+  }
   if (tikz) {
     const bad = [...tikz.matchAll(/\\(hien|sang)\s*\{\s*(\d+)\s*\}/g)].filter(x => +x[2] < 1 || +x[2] > n);
     if (bad.length) errors.push(`Hình bài giải mẫu: \\${bad[0][1]}{${bad[0][2]}} không khớp số bước (có ${n} \\buocgiai)`);
@@ -1497,7 +1521,7 @@ function parseGiaiMau(raw) {
   const fr = (k, s) => tikz ? gmFrame(tikz, k, s) : '';
   const full = fr(99, 0);
   for (const it of items) it.frame = it.k === 'buocgiai' ? fr(it.n, it.n) : fr(it.done, 0);
-  const frames = tikz ? [...new Set([full, ...items.map(it => it.frame)])] : [];
+  const frames = tikz ? [...new Set([...(guide ? [] : [full]), ...items.map(it => it.frame)])] : [];
   return { de, tikz, full, items, steps: n, frames, errors };
 }
 function giaiMauErrors(raw) {
@@ -1505,6 +1529,9 @@ function giaiMauErrors(raw) {
   const opened = (src.match(/\\begin\{giaimau\}/g) || []).length, all = [...src.matchAll(GIAIMAU)];
   if (opened !== all.length) errors.push('Bài giải mẫu chưa đóng \\end{giaimau}');
   all.forEach((m, i) => { for (const e of parseGiaiMau(m[1]).errors) errors.push(all.length > 1 ? `Bài giải mẫu thứ ${i + 1}: ${e}` : e); });
+  const hd = [...src.matchAll(HUONGDAN)];
+  if ((src.match(/\\begin\{huongdan\}/g) || []).length !== hd.length) errors.push('Hướng dẫn tự luận chưa đóng \\end{huongdan}');
+  hd.forEach((m, i) => { for (const e of parseGiaiMau(m[1], true).errors) errors.push(`Hướng dẫn tự luận${hd.length > 1 ? ` thứ ${i + 1}` : ''}: ${e}`); });
   return errors;
 }
 
@@ -1629,7 +1656,8 @@ function parseBank(raw) {
 
   const marks = []; const re = /\\man\s*\{/g; let m;
   while ((m = re.exec(raw))) marks.push(m.index);
-  if (!marks.length && !theory) errors.push({ msg: 'Chưa có màn nào. Mỗi màn bắt đầu bằng \\man{số}{tên mức}' });
+  // Bài mẫu (phan bai-mau) chỉ có khối giaimau, không có màn câu hỏi
+  if (!marks.length && !theory && !/\\begin\{giaimau\}/.test(raw)) errors.push({ msg: 'Chưa có màn nào. Mỗi màn bắt đầu bằng \\man{số}{tên mức}' });
 
   const levels = [];
   marks.forEach((at, x) => {
@@ -1642,12 +1670,14 @@ function parseBank(raw) {
     let e; ENV.lastIndex = 0;
     while ((e = ENV.exec(body))) {
       let [b, sol] = takeCmd(e[2], 'loigiai');
-      let params, hints;
+      let params, hints, guide = null;
+      if (e[1] === 'extl') { const g = /\\begin\{huongdan\}([\s\S]*?)\\end\{huongdan\}/.exec(b); if (g) { guide = g[1]; b = b.replace(g[0], ''); } }
       [b, params] = takeAll(b, 'lttp');
       [b, hints] = takeAll(b, 'goiy');
       const q = { type: e[1], sol: sol || null };
       if (params.length) q.params = params.map(x => x.replace(/\u0001/g, '%'));
       if (hints.length) q.hints = hints;
+      if (guide != null) q.guide = guide;
       if (q.type === 'ex') {
         const k = b.indexOf('\\choice');
         if (k < 0) { err('Câu trắc nghiệm thiếu \\choice'); continue; }
@@ -1943,7 +1973,7 @@ const canOpenSpecial = () => GV() || specialAccess;
 const gradeTiles = () => canOpenSpecial() ? [...GRADES, SPECIAL_GRADE] : GRADES;
 // Học sinh chỉ vào được khối của mình (và Chuyên Toán nếu được mở); các khối khác hiện màu xám, có khoá. Giáo viên vào mọi khối.
 const gradeLocked = k => !GV() && !!ACC && !!ACC.khoi && k !== CHUYEN_TOAN && k !== ACC.khoi;
-const PHAN={'dai-so':{name:'Đại số',c:'#3aa8e0',d:'#2584b8'},'hinh-hoc':{name:'Hình học',c:'#2fb787',d:'#1f8a63'},'thong-ke':{name:'Thống kê & Xác suất',c:'#ff9f1c',d:'#d97f00'},'on-tap':{name:'Ôn tập',c:'#8d7bff',d:'#6a57e0'},'thi-dau':{name:'Kho Thi đấu',c:'#ef3b55',d:'#c22a40'}};
+const PHAN={'dai-so':{name:'Đại số',c:'#3aa8e0',d:'#2584b8'},'hinh-hoc':{name:'Hình học',c:'#2fb787',d:'#1f8a63'},'thong-ke':{name:'Thống kê & Xác suất',c:'#ff9f1c',d:'#d97f00'},'on-tap':{name:'Ôn tập',c:'#8d7bff',d:'#6a57e0'},'thi-dau':{name:'Kho Thi đấu',c:'#ef3b55',d:'#c22a40'},'bai-mau':{name:'Bài mẫu',c:'#ff7a59',d:'#d9573a'}};
 const TIERS=[{n:'Đồng',lp:0,c:'#c08457',d:'#8a5a33'},{n:'Bạc',lp:100,c:'#c3ced6',d:'#8a9aa6'},{n:'Vàng',lp:200,c:'#ffd23f',d:'#c99a08'},{n:'Bạch Kim',lp:350,c:'#4fd1c5',d:'#2a9d93'},
   {n:'Kim Cương',lp:500,c:'#6aa8ff',d:'#3f78d6'},{n:'Cao Thủ',lp:700,c:'#b36bff',d:'#8442d6'},{n:'Đại Cao Thủ',lp:900,c:'#ff5d6c',d:'#c8323f'},{n:'Thách Đấu',lp:1200,c:'#ffb800',d:'#b97f00'}];
 const tierOf=lp=>{let t=0;TIERS.forEach((x,i)=>{if((lp||0)>=x.lp)t=i});return t}; // chỉ dùng cho dữ liệu cũ (chưa có bậc riêng)
@@ -2210,7 +2240,7 @@ const currOf=k=>{const out=[];let num=0,cn=0;for(const c of CURR[k]||[]){if(c===
   cn++;const ch={n:cn,title:c[0],phan:c[1]};out.push({ch});let lt=0;
   for(const b of c[2]){if(b==='LT'){lt++;out.push({id:`k${k}-c${cn}-lt${lt}`,num:0,title:'Luyện tập chung',lt:true,coin:'LT',ch})}else if(b==='CC'){out.push({id:`k${k}-c${cn}-cc`,num:0,title:'Bài tập cuối chương',lt:true,coin:'ÔT',ch})}else{num++;out.push({id:`k${k}-b${num}`,num,title:b,ch})}}}return out};
 const lessonName=L=>L.lt?`${L.title} · Chương ${L.ch.n}`:`Bài ${L.num}. ${L.title}`;
-function mapItems(k){const all=gradeTopics(k).filter(t=>!isDe(t)&&!isTL(t)&&!isKho(t)),used=new Set(),items=[];
+function mapItems(k){const all=gradeTopics(k).filter(t=>!isDe(t)&&!isTL(t)&&!isKho(t)&&!isBM(t)),used=new Set(),items=[];
   for(const c of currOf(k)){if(!c.id){items.push(c);continue}
     const ts=all.filter(t=>!used.has(t)&&((t.chuong||ALIAS[t.id])===c.id));ts.forEach(t=>used.add(t));
     if(ts.length)ts.forEach((t,i)=>items.push({L:c,t,sub:ts.length>1?i+1:0}));else items.push({L:c,t:null})}
@@ -2223,11 +2253,12 @@ const GV=()=>TEACHER&&!!ACC&&!!ACC.teacher;
 const bestOf=(t,i)=>(P&&P.best[key(t,i)])||0;
 const isDe=t=>t.phan==='on-tap';
 const isKho=t=>t.phan==='thi-dau'; // Kho Thi đấu theo chương: không hiện trên bản đồ, chỉ dùng cho Thi đấu
+const isBM=t=>t.phan==='bai-mau'; // Bài mẫu theo chương (lời giải từng bước): mở từ biển tên chương, không hiện như chặng
 /* chương của một chủ đề (số chương SGK) và mốc Thi đấu "đã học hết chương N" của khối; null = chưa gắn chương */
 const CURC={},currC=k=>CURC[k]||(CURC[k]=currOf(k));
 const chapsOf=k=>currC(k).filter(c=>c.hk||c.ch&&!c.id);
 const chapTitle=(k,n)=>{const c=chapsOf(k).find(x=>x.ch&&x.ch.n===n);return c?c.ch.title:''};
-function chapOf(t){if(isKho(t)){const m=/^k\d+-c(\d+)$/.exec(t.chuong||'');return m?+m[1]:null}
+function chapOf(t){if(isKho(t)||isBM(t)){const m=/^k\d+-c(\d+)$/.exec(t.chuong||'');return m?+m[1]:null}
   const id=t.chuong||ALIAS[t.id];if(!id)return null;const c=currC(t.khoi).find(x=>x.id===id);return c&&c.ch?c.ch.n:null}
 const mocOf=k=>Number(MOC&&MOC[k])||0;
 const chRange=m=>m===1?'Chương 1':`Chương 1–${m}`;
@@ -2449,7 +2480,7 @@ function journey(){show('journey');jdock();if(curK===ACC.khoi&&!ACC.teacher&&!P.
     if(x.ch&&!x.L){const c=x.ch,by=y-BAN/2,odd=k++%2,ph=PHAN[c.phan]||PHAN['dai-so'],S=chStat(c);pts.push([W/2,by]);
       deco+=(odd?palm('calc(100% - 60px)',by-80,1):palm('8px',by-84))+wave(odd?'20px':'calc(100% - 70px)',by+34);
       html+=`<div class="plank${S.has?'':' wait'}${GV()&&c.n?' gv':''}" style="top:${by}px;--c:${ph.c}"><span class="ptag">${ph.name}</span>${c.n?`<span class="cno">Chương ${c.n}</span>`:''}${GV()&&c.n?`<button type="button" class="pgem" data-chn="${c.n}">✦ Soạn bằng Gemini</button>`:''}<b>${esc(c.title)}</b>
-        <span class="pinfo">${S.has?`${star(1)} ${S.st}/${S.has*3} · đã qua ${S.done}/${S.n} bài`:'Sắp mở · đang chờ câu hỏi'}</span></div>`;
+        <span class="pinfo">${S.has?`${star(1)} ${S.st}/${S.has*3} · đã qua ${S.done}/${S.n} bài`:'Sắp mở · đang chờ câu hỏi'}${c.n&&(GV()||bmOf(curK,c.n).length)?`<button type="button" class="pbm" data-bm="${c.n}">${bookSVG} Bài mẫu${bmOf(curK,c.n).length?' · '+bmOf(curK,c.n).length:''}</button>`:''}</span></div>`;
       y-=BAN+30;return}
     const L=x.L,t=x.t,side=[.3,.7,.62,.38][ni++%4],x2=side*W,ny=y-STEP/2;pts.push([x2,ny]);
     const lab=`<span class="tlab"><b>${L.lt?L.title:L.num?'Bài '+L.num:'Bổ sung'}</b>${L.lt?'':`<i>${esc(t&&!L.num?t.title:L.title)}</i>`}</span>`;
@@ -2479,6 +2510,7 @@ function journey(){show('journey');jdock();if(curK===ACC.khoi&&!ACC.teacher&&!P.
       return toast('Qua bài trước để mở bài này nhé.')}
     curT=t;startLevel()});
   $$('#tmap .pgem').forEach(b=>b.onclick=e=>{e.stopPropagation();sfx.tap();chapterTools(+b.dataset.chn)});
+  $$('#tmap .pbm').forEach(b=>b.onclick=e=>{e.stopPropagation();sfx.tap();bmList(+b.dataset.bm)});
   $$('#tmap .tnode.thy').forEach(b=>b.onclick=()=>{sfx.tap();const t=TOPICS.find(x=>x.id===b.dataset.th);if(!t)return;
     if(GV()){overlay(`<h2 style="font-size:24px">${esc(t.title)}</h2><p>Bài này mới có lý thuyết, chưa có câu hỏi.</p><button class="btn" id="g1">Xem lý thuyết</button><button class="btn alt" id="g2">Cài đặt & sửa</button><button class="btn alt" id="g3">Đóng</button>`);
       $('#g1').onclick=()=>{closeOvl();theory(t)};$('#g2').onclick=()=>{closeOvl();tOpts(t)};$('#g3').onclick=closeOvl;return}
@@ -2505,6 +2537,55 @@ function pasteNew(L){const k=curK,name=L.lt?lessonName(L):L.title;
     try{await DB.collection('topics').doc().set({title:P.title||name,khoi:k,phan:L.ch.phan,chuong:L.id,text,thutu:(idx+1)*10,nguon:'Dán bài mới (giáo viên)'});
       closeOvl();sfx.ok();toast(`Đã tạo bài nháp: ${nq} câu${P.theory?' + lý thuyết':''}${nf?` · ${nf} hình đang chờ dịch`:''}.`);journey()}
     catch(e){$('#pnS').disabled=false;er(esc(e&&e.message||'Lỗi kết nối'))}}}
+
+/* ---------- Bài mẫu theo chương (lời giải từng bước) ----------
+   Mỗi bài mẫu là một chủ đề phan 'bai-mau', chuong 'k<khối>-c<chương>'. Nội dung: \chude{tên}, \saubai{mã bài} (tùy chọn)
+   và khối \begin{giaimau}…\end{giaimau} (cú pháp ở lib/latex.js). Học sinh thấy bài mẫu khi đã qua bài ghi ở \saubai;
+   không ghi thì khi đã qua mọi bài có câu hỏi của chương. Giáo viên luôn thấy. Đã xem: P.bm[mã] = {d, f: đoán đúng ngay, n: số câu đoán}. */
+const bmOf=(k,n)=>gradeTopics(k).filter(t=>isBM(t)&&t.chuong===`k${k}-c${n}`).sort((a,b)=>a.order-b.order||a.title.localeCompare(b.title));
+const bmAfter=raw=>((raw||'').match(/\\saubai\s*\{\s*([^}]*?)\s*\}/)||[])[1]||'';
+const bmItems=raw=>[...String(raw||'').matchAll(GIAIMAU)].map(m=>({k:'giaimau',body:m[0]}));
+function bmNeed(t){const k=t.khoi,n=chapOf(t),id=bmAfter(t.raw);
+  const ls=id?currOf(k).filter(c=>c.id===id):currOf(k).filter(c=>c.id&&c.ch&&c.ch.n===n);
+  const ts=ls.flatMap(L=>gradeTopics(k).filter(x=>(x.chuong||ALIAS[x.id])===L.id&&!isDe(x)&&!isTL(x)&&!isKho(x)&&!isBM(x)&&hasQ(x)));
+  return {L:id?ls[0]:null,ts}}
+const bmOpen=t=>GV()||bmNeed(t).ts.every(x=>topicPassed(x)>0);
+const bmLockText=t=>{const {L}=bmNeed(t);return L?`Mở khi em qua ${lessonName(L)}`:'Mở khi em qua hết các bài của chương'};
+function bmList(n){const k=curK,ch=(chapsOf(k).find(c=>c.ch&&c.ch.n===n)||{}).ch,list=bmOf(k,n);P.bm=P.bm||{};
+  overlay(`<h2 style="font-size:22px">Bài mẫu · Chương ${n}</h2><p class="tnote">${esc(ch?ch.title:'')}<br>Lời giải từng bước: em đoán hướng giải, xem từng bước và vì sao.</p>
+    <div class="bmlist">${list.map((t,i)=>{const open=bmOpen(t),seen=P.bm[t.id];
+      return `<button type="button" class="bmrow${open?'':' lock'}" data-i="${i}"><span class="bmno">${open?(seen?'✓':i+1):lockSVG}</span><span class="bmtx"><b>${esc(t.title)}</b><small>${open?(seen?`Đã xem${seen.n?` · đoán đúng ngay ${seen.f}/${seen.n}`:''}`:'Chưa xem'):esc(bmLockText(t))}</small></span>${GV()&&t.status!=='giao'?`<em class="bmst">${({nhap:'Nháp',an:'Đã ẩn'})[t.status]||t.status}</em>`:''}</button>`}).join('')||'<p class="tnote">Chương này chưa có bài mẫu.</p>'}</div>
+    ${GV()?'<button class="btn" id="bmAdd">+ Dán bài mẫu</button>':''}<button class="btn alt" id="bmX">Đóng</button>`);
+  $('#bmX').onclick=closeOvl;
+  $('#bmAdd')&&($('#bmAdd').onclick=()=>{sfx.tap();bmPaste(n)});
+  $$('#panel .bmrow').forEach(b=>b.onclick=()=>{const t=list[+b.dataset.i];sfx.tap();
+    if(!bmOpen(t))return toast(esc(bmLockText(t)));
+    if(GV()){overlay(`<h2 style="font-size:22px">${esc(t.title)}</h2>${t.errors.length?`<div class="err">${t.errors.map(esc).join('<br>')}</div>`:''}<button class="btn" id="bm1">Xem thử</button><button class="btn alt" id="bm2">Sửa nội dung</button><button class="btn alt" id="bm3">Duyệt, ẩn, đổi chương</button><button class="btn alt" id="bm4">Quay lại</button>`);
+      $('#bm1').onclick=()=>{closeOvl();bmShow(t,n)};$('#bm2').onclick=()=>bmPaste(n,t);$('#bm3').onclick=()=>tOpts(t);$('#bm4').onclick=()=>bmList(n);return}
+    closeOvl();bmShow(t,n)})}
+function bmShow(t,n){thT=null;curT=t;show('theory');
+  const back=()=>{sfx.tap();journey();setTimeout(()=>bmList(n),50)};
+  renderLessonMaterial($('#thBody'),{...t,theory:bmItems(t.raw)},{title:t.title,doneTitle:'Xong bài mẫu!',onClose:back,teacherEdit:GV()?()=>bmPaste(n,t):null,
+    finish:(el,st,api)=>{if(!GV()){P.bm=P.bm||{};P.bm[t.id]={d:new Date().toISOString(),f:st.first,n:st.quiz};save();syncMine()}
+      el.innerHTML=`<p class="ls-end-name">${esc(t.title)}</p><div class="ls-end-btns"><button type="button" class="ls-mini" id="bmAgain">Xem lại từ đầu</button></div>`;
+      $('#bmAgain').onclick=api.again;api.go.textContent='Về danh sách bài mẫu';api.go.onclick=back}})}
+// Giáo viên dán bài mẫu mới (hoặc sửa bài đã có): kiểm tra, xem trước từng bước, lưu ở trạng thái Nháp
+function bmPaste(n,t0){const k=curK;
+  overlay(`<h2 style="font-size:22px">${t0?'Sửa bài mẫu':'Dán bài mẫu'} · Chương ${n}</h2><p class="tnote">Gồm <code>\\chude{Tên bài mẫu}</code>, <code>\\saubai{k${k}-b7}</code> (mở cho học sinh khi qua bài đó; bỏ dòng này thì mở khi qua hết chương) và khối <code>\\begin{giaimau}…\\end{giaimau}</code>. Hình TikZ tự hiện sau khoảng 15 phút.</p>
+    <textarea class="code" id="bmT" spellcheck="false" placeholder="\\chude{…}">${t0?esc(t0.raw):''}</textarea><button class="btn" id="bmChk">Kiểm tra và xem trước</button><div id="bmOut"></div><button class="btn alt" id="bmX">Hủy</button>`);
+  $('#bmX').onclick=()=>t0?bmShow(t0,n):bmList(n);
+  $('#bmChk').onclick=()=>{const text=cleanPaste($('#bmT').value),out=$('#bmOut'),P2=parseTopic(text),errs=[...P2.errors];
+    if(!/\\chude\s*\{/.test(text))errs.unshift('Thiếu \\chude{Tên bài mẫu}.');
+    if(!bmItems(text).length)errs.unshift('Chưa có khối \\begin{giaimau}…\\end{giaimau}.');
+    const after=bmAfter(text);if(after&&!currOf(k).some(c=>c.id===after))errs.push(`\\saubai{${after}}: khối ${k} không có bài mã này (mã dạng k${k}-b7).`);
+    if(errs.length){out.innerHTML=`<div class="err">${errs.map(esc).join('<br>')}</div>`;return}
+    out.innerHTML=`<p class="tnote">Không có lỗi. Xem thử bên dưới (hình chưa dịch thì hiện "Hình chưa dịch").</p><div class="lesson-material"></div><button class="btn" id="bmSave">${t0?'Lưu thay đổi':'Lưu bài mẫu (Nháp)'}</button>`;
+    renderLessonMaterial(out.querySelector('.lesson-material'),{khoi:k,chuong:'',title:P2.title,theory:bmItems(text)},{title:P2.title});
+    $('#bmSave').onclick=async()=>{$('#bmSave').disabled=true;
+      try{if(t0)await DB.doc('topics/'+t0.id).update({text,capnhat:new Date().toISOString()});
+        else await DB.collection('topics').doc().set({title:P2.title,khoi:k,phan:'bai-mau',chuong:`k${k}-c${n}`,text,thutu:(bmOf(k,n).length+1)*10,nguon:'Dán bài mẫu (giáo viên)'});
+        closeOvl();sfx.ok();toast(t0?'Đã lưu bài mẫu.':'Đã lưu bài mẫu ở trạng thái Nháp. Thầy mở lại để Duyệt cho học sinh.');journey()}
+      catch(e){$('#bmSave').disabled=false;out.insertAdjacentHTML('beforeend',`<div class="err">${esc(e&&e.message||'Lỗi kết nối')}</div>`)}}}}
 
 /* ---------- Soạn bằng Gemini theo chương (giáo viên) ----------
    Sao chép phần lý thuyết của cả chương kèm lời nhờ → dán vào Gemini → dán kết quả lại một lần.
@@ -2949,7 +3030,7 @@ function renderLessonMaterial(root,t,o={}){
     box.querySelector('.ls-part').textContent='Hoàn thành';bar.style.width='100%';go.disabled=false;
     const stats={quiz:quizN,first:quizN-missed.size};
     const api={again:()=>{sfx.tap();i=0;missed.clear();go.onclick=next;show()},go};
-    stage.innerHTML=`<div class="ls-screen ls-done"><div class="ls-girl big" aria-hidden="true">${owlSVG}</div><h2>Xong lý thuyết!</h2>${quizN?`<div class="ls-stat"><b>${stats.first}/${quizN}</b><span>câu trả lời đúng ngay lần đầu</span></div>`:''}<div class="ls-end"></div></div>`;
+    stage.innerHTML=`<div class="ls-screen ls-done"><div class="ls-girl big" aria-hidden="true">${owlSVG}</div><h2>${o.doneTitle||'Xong lý thuyết!'}</h2>${quizN?`<div class="ls-stat"><b>${stats.first}/${quizN}</b><span>câu trả lời đúng ngay lần đầu</span></div>`:''}<div class="ls-end"></div></div>`;
     go.textContent='Xem lại từ đầu';go.onclick=api.again;
     if(o.finish)o.finish(stage.querySelector('.ls-end'),stats,api);
     typeset(stage);sfx.win();
@@ -3071,7 +3152,12 @@ function tlDe(t,lab){
   tlT=t;if(lab)tlLab=lab;show('tlde');
   const qs=tlQs(t),gv=GV(),k=key(t,0),done=P.pt&&P.pt[k],a=asgFor(t),as=a&&asgStatus(a,myPt);
   P.tlh=P.tlh||{};
-  const hasHints=qs.some(q=>q.hints?.length);
+  // Gợi ý của mỗi câu: hướng dẫn từng bước (\begin{huongdan}: mỗi \buocgiai hoặc sơ đồ là một gợi ý) nếu có, không thì các \goiy cũ
+  const steps=q=>{if(q._st)return q._st;if(q.guide!=null){const g=parseGiaiMau(q.guide,true);q._st=g.items.filter(x=>x.k==='buocgiai'||x.k==='sodo')}else q._st=(q.hints||[]).map(h=>({k:'goiy',body:h}));return q._st};
+  const stepHTML=(x,n,N)=>x.k==='goiy'?`<div class="tl-annotation"><b>Gợi ý ${n+1}</b><div>${tex(x.body)}</div></div>`
+    :x.k==='sodo'?`<div class="tl-annotation tl-guide"><b>Gợi ý ${n+1}/${N} · Phân tích đi lên</b><small>Chạm ô viền cam để mở nhánh.</small>${gmTreeHTML(x.nodes)}</div>`
+    :`<div class="tl-annotation tl-guide"><b>Gợi ý ${n+1}/${N} · ${tex(x.goal)}</b>${gmImg(x.frame)}${lsLines(x.body).map(l=>`<p>${tex(l)}</p>`).join('')}${x.why?`<details><summary>Vì sao?</summary><div>${tex(x.why)}</div></details>`:''}</div>`;
+  const hasHints=qs.some(q=>steps(q).length);
   body.innerHTML=`<header class="tl-exam-head">
     <div class="tl-exam-meta"><span>${esc(tlLab||'Đề tự luận')}</span><span>${qs.length} câu tự luận</span>${done&&!gv?'<span class="tl-completed">✓ Đã hoàn thành</span>':''}</div>
     <h1>${esc(t.title)}</h1>
@@ -3079,12 +3165,12 @@ function tlDe(t,lab){
    </header>
    ${a?`<aside class="tl-assignment"><b>Thầy giao · ${dueLabel(a,as)}</b>${a.note?`<span>${esc(a.note)}</span>`:''}</aside>`:''}
    <div class="tl-exam-paper">${qs.map((q,i)=>{
-     const hints=q.hints||[],opened=gv?hints.length:Math.min(hints.length,P.tlh[q.key]||0),locked=!gv&&bal()<HINT_XP;
+     const hints=steps(q),opened=gv?hints.length:Math.min(hints.length,P.tlh[q.key]||0),locked=!gv&&bal()<HINT_XP;
      const report=canReport({...q,tid:t.id});
      return `<section class="tl-question" aria-labelledby="tl-question-${i}">
        <h2 id="tl-question-${i}">Câu ${i+1}</h2>
        <div class="stem tl-question-text">${tex(q.stem)}</div>
-       ${hints.slice(0,opened).map((hint,n)=>`<div class="tl-annotation"><b>Gợi ý ${n+1}</b><div>${tex(hint)}</div></div>`).join('')}
+       ${hints.slice(0,opened).map((x,n)=>stepHTML(x,n,hints.length)).join('')}
        ${gv&&q.sol?`<div class="tl-annotation tl-solution"><b>Lời giải giáo viên</b><div>${tex(q.sol)}</div></div>`:''}
        ${opened<hints.length||report?`<div class="tl-question-actions">
          ${opened<hints.length?`<button class="btn sm tlh" data-h="${i}" ${locked?'disabled':''}>Mở gợi ý ${opened+1}/${hints.length} · ${HINT_XP} XP</button>${locked?'<small>Ví chưa đủ XP.</small>':''}`:''}
@@ -3095,6 +3181,7 @@ function tlDe(t,lab){
    <footer class="tl-exam-footer">${gv?`<button class="btn alt" id="tlEd">Sửa đề này</button>`:done?`<p class="tl-completed">✓ Đã làm xong ngày ${new Date(done).toLocaleDateString('vi-VN')}.</p>`:qs.length?`<span>Trình bày lời giải vào vở.</span><button class="btn" id="tlOk">Em đã làm xong</button>`:''}</footer>`;
   body.scrollTop=scrollTop;
   typeset($('#tlBody'));
+  $$('#tlBody .gm-node.can').forEach(nd=>nd.onclick=()=>{sfx.tap();nd.parentElement.querySelectorAll(':scope>ul>li').forEach(li=>li.classList.remove('hide'));nd.classList.remove('can')});
   $$('#tlBody [data-h]').forEach(b=>b.onclick=()=>{sfx.tap();const q=qs[+b.dataset.h],u=P.tlh[q.key]||0;if(bal()<HINT_XP)return;
     overlay(`<h2>Mở gợi ý ${u+1}?</h2><p>Gợi ý này trừ <b>${HINT_XP} XP</b> trong Ví XP (còn ${fmtXP(bal())} XP). Em đã thử tự làm chưa?</p><button class="btn" id="hY">Mở gợi ý</button><button class="btn alt" id="hN">Để em thử thêm</button>`);
     $('#hN').onclick=closeOvl;$('#hY').onclick=()=>{closeOvl();if(bal()<HINT_XP)return;P.tlh[q.key]=u+1;P.spent=(P.spent||0)+HINT_XP;save();syncMine();toast(`Đã mở gợi ý · <b>−${HINT_XP} XP</b>`);tlDe(t)}});
@@ -3110,7 +3197,7 @@ function tOpts(t){overlay(`<h2 style="font-size:26px">${esc(t.title)}</h2><div c
    <div><span class="chip ${t.status}">${({nhap:'Nháp',giao:'Đã duyệt',an:'Đã ẩn'})[t.status]}</span> <small>${t.levels.reduce((a,l)=>a+l.qs.length,0)} câu · ${t.levels.length} mức${t.nguon?' · '+esc(t.nguon):''}</small></div>
    ${t.errors.length?`<div class="err">${t.errors.map(esc).join('<br>')}</div>`:''}
    ${t.khoi===CHUYEN_TOAN?'':`<label>Thuộc phần<select class="name" id="oPh">${Object.entries(PHAN).map(([k,v])=>`<option value="${k}" ${k===t.phan?'selected':''}>${v.name}${k==='on-tap'?' (đề)':''}</option>`).join('')}</select></label>
-   ${isKho(t)?`<label>Chương<select class="name" id="oCh">${chapsOf(t.khoi).filter(c=>c.ch).map(c=>`<option value="k${t.khoi}-c${c.ch.n}" ${t.chuong===`k${t.khoi}-c${c.ch.n}`?'selected':''}>Chương ${c.ch.n}. ${esc(c.ch.title)}</option>`).join('')}</select></label>`:`<label>Bài trên bản đồ<select class="name" id="oCh"><option value="">Chủ đề bổ sung (cuối bản đồ)</option>${currOf(t.khoi).filter(c=>c.ch&&!c.id).map(c=>`<optgroup label="Chương ${c.ch.n}. ${esc(c.ch.title)}">${currOf(t.khoi).filter(x=>x.id&&x.ch===c.ch).map(x=>`<option value="${x.id}" ${(t.chuong||ALIAS[t.id])===x.id?'selected':''}>${esc(x.lt?'Luyện tập chung':'Bài '+x.num+'. '+x.title)}</option>`).join('')}</optgroup>`).join('')}</select></label>`}
+   ${isKho(t)||isBM(t)?`<label>Chương<select class="name" id="oCh">${chapsOf(t.khoi).filter(c=>c.ch).map(c=>`<option value="k${t.khoi}-c${c.ch.n}" ${t.chuong===`k${t.khoi}-c${c.ch.n}`?'selected':''}>Chương ${c.ch.n}. ${esc(c.ch.title)}</option>`).join('')}</select></label>`:`<label>Bài trên bản đồ<select class="name" id="oCh"><option value="">Chủ đề bổ sung (cuối bản đồ)</option>${currOf(t.khoi).filter(c=>c.ch&&!c.id).map(c=>`<optgroup label="Chương ${c.ch.n}. ${esc(c.ch.title)}">${currOf(t.khoi).filter(x=>x.id&&x.ch===c.ch).map(x=>`<option value="${x.id}" ${(t.chuong||ALIAS[t.id])===x.id?'selected':''}>${esc(x.lt?'Luyện tập chung':'Bài '+x.num+'. '+x.title)}</option>`).join('')}</optgroup>`).join('')}</select></label>`}
    `}
    <label>Thứ tự nếu nhiều chủ đề cùng một bài<input class="name" id="oOrd" type="number" value="${t.order}"></label>
    <button class="btn" id="oSave">Lưu</button>${t.status!=='giao'?`<button class="btn" id="oGiao" ${t.errors.length?'disabled':''}>Duyệt cho học sinh</button>`:''}${t.status!=='an'?`<button class="btn alt" id="oAn">Ẩn khỏi học sinh</button>`:''}
@@ -3898,7 +3985,7 @@ function reportsPage(){show('track');$('#trTitle').textContent='Câu báo lỗi'
   $$('#trk [data-rq]').forEach(b=>b.onclick=()=>{sfx.tap();const r0=open[+b.dataset.rq][0],t=TOPICS.find(x=>x.id===r0.tid);if(!t)return toast('Không tìm thấy bài này (có thể đã bị xoá).');
     const bs=qBlocks(t.raw),i=bs.findIndex(x=>!x.man&&parseOne(x.raw).q?.key===r0.qkey);
     if(i<0){toast('Câu này đã được sửa hoặc đổi nội dung. Mở danh sách câu của bài để tìm.');return qedit(t)}editQ(t,i)})}
-function asgForm(){const ts=gradeTopics(curK).filter(t=>t.status==='giao'&&!t.errors.length&&!isKho(t));const mine=ASG.filter(a=>a.khoi===curK).sort((a,b)=>(b.created||'').localeCompare(a.created||'')).slice(0,10);
+function asgForm(){const ts=gradeTopics(curK).filter(t=>t.status==='giao'&&!t.errors.length&&!isKho(t)&&!isBM(t));const mine=ASG.filter(a=>a.khoi===curK).sort((a,b)=>(b.created||'').localeCompare(a.created||'')).slice(0,10);
   const d=new Date(Date.now()+3*864e5),p=x=>String(x).padStart(2,'0'),dv=`${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}T21:00`;
   overlay(`<h2>Giao bài khối ${curK}</h2>${ts.length?`<div class="form">
     <label>Chủ đề<select class="name" id="fT">${ts.map(t=>`<option value="${t.id}">${esc(PHAN[t.phan].name)} · ${esc(t.title)}</option>`).join('')}</select></label>
@@ -3976,7 +4063,7 @@ async function saveText(t,text,msg){try{const r=await DB.doc('topics/'+t.id).upd
 function editQ(t,bi,lvNew){const bs=qBlocks(t.raw),b=bi!=null?bs[bi]:null;const initialType=t.khoi===CHUYEN_TOAN?'extl':'ex';let raw=b?b.raw:QT[initialType];
   overlay(`<h2 style="font-size:26px">${b?'Sửa câu hỏi':'Thêm câu mới'}</h2>${b?'':`<div class="seg qtype">${Object.entries(TYPE).filter(([k])=>t.khoi!==CHUYEN_TOAN||k==='extl').map(([k,v])=>`<button data-qt="${k}" class="${k===initialType?'on':''}">${v}</button>`).join('')}</div>`}
     <textarea class="code" id="qx" spellcheck="false">${esc(raw)}</textarea>
-    <p class="tnote" style="text-align:left">Đáp án đúng đánh dấu <b>\\True</b>. Báo lỗi khi chọn sai: <b>\\sai{…}</b> trong phương án/ý, câu điền số dùng <b>\\saithuong{đáp số sai}{vì sao}</b>. Gợi ý: <b>\\goiy{…}</b>, lời giải: <b>\\loigiai{…}</b>. Tham số: dòng <b>%@ a = ngaunhien(2,9)</b> rồi dùng <b>{{a}}</b>.</p>
+    <p class="tnote" style="text-align:left">Đáp án đúng đánh dấu <b>\\True</b>. Báo lỗi khi chọn sai: <b>\\sai{…}</b> trong phương án/ý, câu điền số dùng <b>\\saithuong{đáp số sai}{vì sao}</b>. Gợi ý: <b>\\goiy{…}</b>, lời giải: <b>\\loigiai{…}</b>. Đề tự luận: gợi ý từng bước <b>\\begin{huongdan} \\buocgiai{mục tiêu}{gợi ý}{vì sao} … \\begin{sodo} \\nut{1}{…}{} \\end{sodo} \\end{huongdan}</b> (mỗi bước hoặc sơ đồ là một gợi ý mở bằng XP; có thể kèm một hình TikZ với \\sang{k}{…}). Tham số: dòng <b>%@ a = ngaunhien(2,9)</b> rồi dùng <b>{{a}}</b>.</p>
     <div class="qpv" id="qpv"></div><button class="btn" id="qS">Lưu câu</button><button class="btn alt" id="qC">Hủy</button>`);
   const pv=()=>{const {q,errors}=parseOne($('#qx').value);let h='';
     if(errors.length)h=`<div class="err">${errors.map(esc).join('<br>')}</div>`;

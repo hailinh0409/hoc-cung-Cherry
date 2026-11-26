@@ -202,3 +202,19 @@
 .gm-sheet{display:block;overflow:auto}
 .gm-sheetin{padding:64px 20px 24px}.gm-sheetin h2{font:800 24px "Baloo 2",sans-serif;margin:0 0 8px}.gm-sheetin img.fig{display:block;margin:14px auto 0}
 .lstep .ls-text p{margin:.35em 0}
+/* Bài mẫu theo chương: nút ở góc phải biển tên chương, danh sách trong hộp */
+.plank .pbm{position:relative;z-index:2;margin-left:4px;display:inline-flex;align-items:center;gap:4px;font:800 12px/1 Nunito,sans-serif;padding:5px 10px 5px 6px;min-height:26px;border-radius:99px;border:2px solid #fff;background:#ff7a59;color:#fff;box-shadow:0 2px 0 #0003;cursor:pointer}
+.plank .pbm svg{width:15px;height:15px}
+.bmlist{display:grid;gap:10px;margin:6px 0 12px;text-align:left}
+.bmrow{display:flex;align-items:center;gap:12px;width:100%;padding:10px 12px;border-radius:16px;border:2px solid #e6ddcc;background:#fff;color:#12313a;box-shadow:0 3px 0 #e6ddcc;cursor:pointer;font:inherit;text-align:left}
+.bmrow .bmno{flex:none;width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:#ff7a59;color:#fff;font:800 17px "Baloo 2",sans-serif}
+.bmrow .bmno svg{width:20px;height:20px}
+.bmrow .bmtx{flex:1;min-width:0}.bmrow b{display:block;font-weight:800;font-size:16px;line-height:1.3}.bmrow small{display:block;color:#5d777d;font-size:13px}
+.bmrow.lock{opacity:.7}.bmrow.lock .bmno{background:#efe7d6}
+.bmrow .bmst{flex:none;font-style:normal;font-size:12px;font-weight:800;padding:2px 8px;border-radius:99px;background:#efe7d6}
+/* gợi ý từng bước của đề tự luận */
+.tl-guide small{display:block;font-size:13px;opacity:.75;margin:2px 0}
+.tl-guide p{margin:.35em 0}
+.tl-guide img.fig{display:block;margin:8px auto;max-width:100%;height:auto}
+.tl-guide details{margin-top:6px}.tl-guide summary{cursor:pointer;font-weight:700}
+.tl-guide .gm-tree{margin-top:4px}
