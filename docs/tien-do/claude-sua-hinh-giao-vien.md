@@ -45,7 +45,7 @@ Không có.
 - `hoc-cung-cherry/tests/hinh-theo-nhom.test.mjs`
 
 ## Cách kiểm tra
-- `npm test`: 42/42 đạt (có 3 kiểm tra mới).
+- `npm test`: 39/39 đạt (có 3 kiểm tra mới).
 - `FAKE_DB=1 SESSION_SECRET=… npx next build`: đạt.
 - `FAKE_DB=1 … npx next start`, đăng nhập `thaylinh`/`matkhau123`, gọi `/api/sync`: trả 200, đủ bài.
 
