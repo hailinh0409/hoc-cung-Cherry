@@ -37,6 +37,46 @@ export function group(s, i) {
   return [s.slice(i + 1, j), j + 1];
 }
 
+// Hình từng bước (dùng ở mọi chỗ có nội dung, thường trong lythuyet):
+//   \begin{hinhbuoc}
+//   \begin{tikzpicture} … \hien{2}{phần hiện từ bước 2} … \end{tikzpicture}
+//   \loibuoc{lời bước 1} \loibuoc{lời bước 2} …
+//   \end{hinhbuoc}
+// Mỗi bước là một khung hình dịch riêng: mã khung = hbFrame(tikz, k). Phần chưa đến lượt vẫn vẽ nhưng trong suốt
+// (xem PREAMBLE trong figcode.js) nên mọi khung cùng kích thước. Máy chủ và giao diện phải tính mã khung giống hệt nhau.
+export const HINHBUOC = /\\begin\{hinhbuoc\}([\s\S]*?)\\end\{hinhbuoc\}/g;
+export const HB_MAX = 8;
+const TIKZ_ONE = /\\begin\{tikzpicture\}[\s\S]*?\\end\{tikzpicture\}/g;
+const noComment = s => String(s || '').replace(/\r/g, '').replace(/(^|[^\\])%.*$/gm, '$1');
+export const hbFrame = (tikz, k) => '\\lttbuoc{' + k + '}\n' + tikz;
+export function parseHinhBuoc(body) {
+  body = noComment(body);
+  const pics = body.match(TIKZ_ONE) || [];
+  const tikz = pics[0] || '';
+  const rest = pics.reduce((s, p) => s.replace(p, ''), body);
+  const caps = [], re = /\\loibuoc\b/g; let m;
+  while ((m = re.exec(rest))) { const g = group(rest, re.lastIndex); if (!g) { caps.push(''); continue; } caps.push(g[0].trim()); re.lastIndex = g[1]; }
+  const steps = [...tikz.matchAll(/\\hien\s*\{\s*(\d+)\s*\}/g)].map(x => Number(x[1]));
+  return { tikz, pics: pics.length, caps, steps, frames: caps.map((_, i) => hbFrame(tikz, i + 1)) };
+}
+// Lỗi soạn của các khối hinhbuoc trong một đoạn mã
+export function hinhBuocErrors(raw) {
+  const errors = [], src = noComment(raw);
+  const opened = (src.match(/\\begin\{hinhbuoc\}/g) || []).length, all = [...src.matchAll(HINHBUOC)];
+  if (opened !== all.length) errors.push('Hình từng bước chưa đóng \\end{hinhbuoc}');
+  all.forEach((m, i) => {
+    const h = parseHinhBuoc(m[1]), at = all.length > 1 ? ` thứ ${i + 1}` : '';
+    if (h.pics !== 1) errors.push(`Hình từng bước${at} cần đúng một hình tikzpicture (đang có ${h.pics})`);
+    if (h.caps.length < 2) errors.push(`Hình từng bước${at} cần ít nhất 2 dòng \\loibuoc{…}, mỗi bước một dòng`);
+    if (h.caps.length > HB_MAX) errors.push(`Hình từng bước${at} tối đa ${HB_MAX} bước`);
+    if (h.caps.some(c => !c)) errors.push(`Hình từng bước${at}: có \\loibuoc thiếu nội dung {…}`);
+    if (h.pics === 1 && !h.steps.length) errors.push(`Hình từng bước${at} chưa có \\hien{số bước}{…} nào, các bước sẽ giống nhau`);
+    const bad = h.steps.filter(k => k < 1 || k > h.caps.length);
+    if (h.caps.length >= 2 && bad.length) errors.push(`Hình từng bước${at}: \\hien{${bad[0]}} vượt quá số bước (${h.caps.length} dòng \\loibuoc)`);
+  });
+  return errors;
+}
+
 function takeCmd(body, cmd) {
   const k = body.indexOf('\\' + cmd);
   if (k < 0) return [body, null];
@@ -144,6 +184,7 @@ export function parseBank(raw) {
   const tg = t ? group(raw, t.index + 6) : null;
   const topic = tg ? tg[0].trim() : '';
   if (!topic) errors.push({ msg: 'Thiếu \\chude{Tên chủ đề}' });
+  for (const msg of hinhBuocErrors(raw)) errors.push({ msg });
 
   // Tóm tắt lý thuyết: \begin{lythuyet} ... \end{lythuyet} (một khối, thường đặt trước \man{1})
   let theory = null;
@@ -268,9 +309,17 @@ export const isTLBank = levels => levels.some(l => l.qs.some(q => q.type === 'ex
 // Các mục của khối lý thuyết. Hai đối số {tiêu đề}{nội dung}, riêng \luuy{nội dung}; \vidu{đề}{lời giải}.
 export const THEORY_KINDS = { dinhnghia: 'Định nghĩa', quytac: 'Quy tắc', congthuc: 'Công thức', dinhly: 'Định lý', tinhchat: 'Tính chất', luuy: 'Lưu ý', vidu: 'Ví dụ' };
 function parseTheory(body, errors) {
-  const items = [], re = /\\(dinhnghia|quytac|congthuc|dinhly|tinhchat|luuy|vidu|loidan|minhhoa|thungay)\b/g; let m;
+  const items = [], re = /\\(dinhnghia|quytac|congthuc|dinhly|tinhchat|luuy|vidu|loidan|minhhoa|thungay)\b|\\begin\{hinhbuoc\}/g; let m;
   while ((m = re.exec(body))) {
     const k = m[1];
+    if (!k) {
+      // Hình từng bước đứng riêng trong lythuyet: hiện ở cột minh họa như \minhhoa (lỗi soạn đã báo ở hinhBuocErrors)
+      const end = body.indexOf('\\end{hinhbuoc}', m.index);
+      if (end < 0) break;
+      re.lastIndex = end + 14;
+      items.push({ k: 'hinhbuoc', body: body.slice(m.index, re.lastIndex) });
+      continue;
+    }
     if (k === 'loidan' || k === 'minhhoa' || k === 'thungay') {
       const args = [];
       let at = re.lastIndex, arg;

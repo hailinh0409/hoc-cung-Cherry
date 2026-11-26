@@ -42,8 +42,25 @@ function reconcile(sent,r){if(!r||!P)return;if(r.xp<sent.xp)P.xp-=sent.xp-r.xp;i
   P.spent=r.spent+Math.max(0,(P.spent||0)-(sent.spent||0));save()}
 /* hình TikZ đã dịch */
 const TIKZ_RE=/\\begin\{tikzpicture\}[\s\S]*?\\end\{tikzpicture\}/g;
-const figSwap=s=>String(s??'').replace(TIKZ_RE,c=>{const k=c.replace(/(^|[^\\])%.*$/gm,'$1'),h=FIGS[k];return h?`@@FIG:${h}@@`:'@@FIG:none@@'});
-const figImg=s=>s.replace(/@@FIG:([0-9a-f]{40}|none)@@/g,(_,h)=>h==='none'?'<span class="figmiss">Hình chưa dịch</span>':`<img class="fig" src="/hinh/${h}" alt="Hình vẽ" loading="lazy">`);
+// Hình từng bước (\begin{hinhbuoc}): mỗi bước là một khung đã dịch, khóa trong FIGS là hbFrame(tikz,k) (lib/latex.js).
+// HBS chỉ sống trong một lần gọi tex(): figSwap ghi, figImg đọc ngay sau đó.
+let HBS=[];
+const figSwap=s=>{HBS=[];return String(s??'').replace(HINHBUOC,(_,b)=>{const h=parseHinhBuoc(b);HBS.push({hs:h.frames.map(f=>FIGS[f]),caps:h.caps});return `@@HB:${HBS.length-1}@@`})
+  .replace(TIKZ_RE,c=>{const k=c.replace(/(^|[^\\])%.*$/gm,'$1'),h=FIGS[k];return h?`@@FIG:${h}@@`:'@@FIG:none@@'})};
+const hbHTML=x=>{if(!x||!x.caps.length)return '';const n=x.caps.length;
+  if(x.hs.some(h=>!h))return '<span class="figmiss">Hình từng bước chưa dịch xong</span>';
+  return `<div class="hb"><div class="hb-pic" role="button" tabindex="0" aria-label="Chạm để xem bước tiếp theo">${x.hs.map((h,i)=>`<img class="fig${i?'':' on'}" src="/hinh/${h}" alt="Hình bước ${i+1}">`).join('')}<span class="hb-hint">chạm để tiếp ›</span></div>`+
+    `<div class="hb-dots" aria-hidden="true">${x.caps.map((_,i)=>`<i${i?'':' class="on"'}></i>`).join('')}</div>`+
+    `<div class="hb-cap" aria-live="polite"><b>Bước 1/${n}</b><span>${brOut(esc(x.caps[0]))}</span></div>${x.caps.map(c=>`<template>${brOut(esc(c))}</template>`).join('')}`+
+    `<div class="hb-btns"><button type="button" class="hb-prev" disabled>‹ Lùi</button><button type="button" class="hb-next">Tiếp ›</button></div></div>`};
+const figImg=s=>s.replace(/@@HB:(\d+)@@/g,(_,i)=>hbHTML(HBS[+i])).replace(/@@FIG:([0-9a-f]{40}|none)@@/g,(_,h)=>h==='none'?'<span class="figmiss">Hình chưa dịch</span>':`<img class="fig" src="/hinh/${h}" alt="Hình vẽ" loading="lazy">`);
+function hbGo(w,k){const imgs=[...w.querySelectorAll('.hb-pic img')],n=imgs.length;k=(k+n)%n;w.dataset.k=k;
+  imgs.forEach((im,i)=>im.classList.toggle('on',i===k));[...w.querySelectorAll('.hb-dots i')].forEach((d,i)=>d.classList.toggle('on',i<=k));
+  const cap=w.querySelector('.hb-cap');cap.querySelector('b').textContent=`Bước ${k+1}/${n}`;cap.querySelector('span').innerHTML=w.querySelectorAll('template')[k].innerHTML;typeset(cap);
+  w.querySelector('.hb-prev').disabled=k===0;w.querySelector('.hb-next').textContent=k===n-1?'Xem lại từ đầu ↺':'Tiếp ›';w.querySelector('.hb-hint').hidden=k===n-1}
+document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('.hb-pic,.hb-next,.hb-prev');if(!b)return;const w=b.closest('.hb'),k=Number(w.dataset.k||0),n=w.querySelectorAll('.hb-pic img').length;
+  if(b.classList.contains('hb-prev'))return k>0&&hbGo(w,k-1);if(b.classList.contains('hb-pic')&&k===n-1)return;sfx.tap();hbGo(w,k+1)});
+document.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.classList&&e.target.classList.contains('hb-pic')){e.preventDefault();e.target.click()}});
 
 /* đăng nhập qua máy chủ */
 function login(view='in',msg='',pre={}){show('login');const w=$('#lwrap');

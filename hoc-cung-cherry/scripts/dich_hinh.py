@@ -1,5 +1,6 @@
 # Dịch các khối TikZ trong một file LaTeX chủ đề thành SVG (nén gzip, base64) và in ra câu SQL cho bảng ltt_figures.
 # Dùng: python3 dich_hinh.py chu_de.tex > hinh.sql
+# Lưu ý: script cũ này KHÔNG tách hình từng bước (hinhbuoc) thành các khung; dùng scripts/dung-hinh.mjs (GitHub Actions).
 import re, sys, os, subprocess, tempfile, gzip, base64, hashlib, shutil
 PRE = r"""\documentclass[tikz,border=3pt]{standalone}
 \usepackage{fontspec}
@@ -8,6 +9,9 @@ PRE = r"""\documentclass[tikz,border=3pt]{standalone}
 \usepackage{pgfplots}\pgfplotsset{compat=1.18}
 \usetikzlibrary{calc,angles,quotes,arrows.meta,patterns,intersections,through}
 \tikzset{every picture/.append style={line width=0.6pt}}
+\newcount\lttstep \lttstep=99
+\newcommand\lttbuoc[1]{\global\lttstep=#1\relax}
+\newcommand\hien[2]{\ifnum\lttstep<#1\relax\begin{scope}[opacity=0]#2\end{scope}\else#2\fi}
 \begin{document}
 """
 src = open(sys.argv[1], encoding='utf-8').read().replace('\r', '')
