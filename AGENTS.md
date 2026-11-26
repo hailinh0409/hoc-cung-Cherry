@@ -4,6 +4,8 @@ App **Học cùng Cherry** (CLB Toán - Anh NGỌC LINH) được nhiều trợ 
 
 Khi Claude tiếp quản phần lý thuyết, đọc [Bàn giao lý thuyết tương tác](docs/ban-giao-ly-thuyet-tuong-tac.md) để nắm trạng thái đã triển khai, cú pháp soạn bài và cách kiểm tra.
 
+**Bài giảng kiểu mới (thầy duyệt 26/11/2026):** lý thuyết có Mở đầu → Mục lục → các Phần → Kết bài, hình chung theo phần, chạm thử trên hình. Kế hoạch và các việc cho người viết mã: [docs/bai-giang/ke-hoach.md](docs/bai-giang/ke-hoach.md); cú pháp soạn: [docs/bai-giang/cu-phap.md](docs/bai-giang/cu-phap.md); bài mẫu Toán 7 Bài 9: [docs/bai-giang/k7-b9-bai-giang.tex](docs/bai-giang/k7-b9-bai-giang.tex).
+
 Chủ dự án: **thầy Phan Hải Linh** (GitHub `hailinh0409`). Thầy là người duy nhất gộp (merge) vào `main`.
 
 ## 1. Cách phối hợp
