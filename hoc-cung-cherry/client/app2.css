@@ -428,3 +428,7 @@ textarea.code.light{background:#fff;color:#12313a;font:14px/1.5 "Be Vietnam Pro"
 .pushcard{display:flex;align-items:center;gap:12px;width:100%;margin-top:14px;padding:12px 14px;border-radius:20px;background:#fff8d6;color:var(--cink);text-align:left;box-shadow:0 6px 0 #0003;animation:rise .45s both}
 .pushcard>span:nth-child(2){flex:1}.pushcard b{display:block;font:800 18px "Baloo 2"}.pushcard small{display:block;color:#6b7f84;font-size:13px;line-height:1.4}.pushcard small b{display:inline;font:inherit;font-weight:800}
 .pushcard .pushico{font-size:30px}.pushcard .btn{width:auto;margin:0;padding:8px 18px;flex:none}.pushcard.off{background:var(--card)}
+
+/* Công thức dài (26/11/2026): mảnh công thức nối bằng <wbr> để xuống dòng ở dấu "="; dàn bước bằng <br class="mbr"> (mathFit) */
+.mchain>mjx-container{margin:0!important}
+.mhint{display:block;font-size:12px;color:#7a9399;margin-top:2px}

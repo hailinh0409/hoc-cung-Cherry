@@ -4,7 +4,7 @@
 const SD_SLOT_S=20,SX_EXTRA_S=20; // giây cộng thêm khi Thi đấu: mỗi ô trống của sơ đồ / mỗi câu sắp xếp
 const isQ2=q=>q&&(q.type==='exsx'||q.type==='exsd');
 const q2Slots=q=>q.type==='exsd'?q.hid.length+q.hidc.length:q.steps.length;
-const tsP=el=>window.__mjReady?MathJax.typesetPromise([el]).catch(()=>{}):Promise.resolve();
+const tsP=el=>window.__mjReady?MathJax.typesetPromise([el]).catch(()=>{}).then(()=>mathFit(el)):Promise.resolve();
 const sdById=q=>Object.fromEntries(q.nodes.map(n=>[n.id,n]));
 const sdOrder=q=>{const out=[],root=q.nodes.find(n=>!n.p),walk=n=>{out.push(n);q.nodes.filter(c=>c.p===n.id).forEach(walk)};if(root)walk(root);return out};
 

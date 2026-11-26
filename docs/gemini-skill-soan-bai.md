@@ -107,10 +107,12 @@ Thầy nhờ **sửa một bài đã có**: thầy dán mã hiện tại; trả 
 - **Đây là cách soạn lý thuyết mặc định cho mọi bài thường** (app đã hỗ trợ). Chỉ dùng các lệnh dưới đây. Các quy tắc về lệnh LaTeX ở mục 0 vẫn áp dụng.
 - **Chia mục học:** mỗi bài có **2–4 mục học** (mỗi `\loidan` mở một mục), mỗi mục xoay quanh **một ý chính** (một khái niệm, một quy tắc hoặc một dạng sai hay gặp). Bài ngắn thì 2 mục, bài nhiều khái niệm thì 3–4. Tiêu đề mục hiện ở dòng trên cùng của màn học, nên đặt tên ngắn, rõ.
 - **Khuôn một mục** (đủ 5 phần, theo thứ tự): `\loidan` (tình huống gần gũi hoặc thao tác cụ thể) → giải thích bằng `\dinhnghia`/`\quytac`/`\congthuc`/`\dinhly`/`\tinhchat` (thêm `\luuy` về lỗi hay gặp nếu có) → **minh họa** → `\vidu` có lời giải → `\thungay` (kiểm tra bằng **một ví dụ mới**, không lặp ví dụ vừa làm).
-- **Viết cho màn học từng màn (từ 26/11/2026):** app tự chia khối `lythuyet` thành từng màn ngắn kiểu Duolingo (thanh tiến độ, nút Tiếp tục), mỗi màn khoảng 160 kí tự chữ, theo dấu xuống dòng `\\`. Cú pháp không đổi, nhưng viết sao cho mỗi màn tròn một ý:
+- **Viết cho màn học từng màn (từ 26/11/2026):** app chia khối `lythuyet` thành từng màn kiểu Duolingo (thanh tiến độ, nút Tiếp tục) **theo ý**: mỗi mục (`\dinhnghia`, `\quytac`, `\tinhchat`, `\luuy`…) giữ trọn một màn; chỉ mục dài quá khoảng 320 kí tự chữ mới chia, và chỉ chia ở dấu xuống dòng `\\` (màn sau ghi "(tiếp)"). Không bao giờ cắt sau dấu hai chấm. Vì vậy mỗi mục chỉ nên chứa **một ý**; hai ý thì viết hai mục:
   - **Mỗi dòng `\\` 1–2 câu**, tối đa khoảng 150 kí tự. Không viết một đoạn dài liền; ý mới thì xuống dòng.
   - **`\loidan` 1–2 câu (dưới khoảng 100 kí tự)** để hiện thành bong bóng Cherry ngay trên màn kiến thức. Lời dẫn dài hơn bị tách thành một màn riêng.
-  - **`\luuy` mỗi ý một câu** (mỗi câu thành một dòng "!" trong màn *Cần nhớ*, 3 dòng một màn).
+  - **`\luuy`: mỗi dòng `\\` là một dòng "!"** trong màn *Cần nhớ*. Câu dẫn và ví dụ của nó (sau dấu hai chấm) để cùng một dòng.
+  - **`\loidan` mời xem hình** ("Xem…", "Quan sát…", "Chạm…"): viết thành câu cuối; app tự chuyển câu đó sang màn hình từng bước/minh họa của mục, để Cherry nói đúng lúc hình hiện ra.
+  - **Công thức dài**: viết liền một chuỗi `$a=b=c$` như bình thường; app tự xuống dòng ở dấu "=" và dàn từng bước thẳng cột trên điện thoại. Không tự chèn `\\` giữa chuỗi bằng nhau.
   - **Lời giải `\vidu` mỗi bước một dòng `\\`.** Học sinh bấm *Xem lời giải* mới đi tiếp.
   - **Tiêu đề mục** (`\dinhnghia{Tên}{…}`…) hiện ở dòng trên cùng của màn ("Tên bài · Tên mục"): đặt ngắn, rõ.
   - **Mỗi mục học có một `\thungay`**: đây là màn duy nhất học sinh phải trả lời; bài không có `\thungay` chỉ còn màn đọc.

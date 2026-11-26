@@ -12,13 +12,19 @@ Kết quả: Trả đúng một khối mã LaTeX hoàn chỉnh, bắt đầu b�
 ngay sau tên bài và trước \man{1}. Mỗi khối mã tương ứng một màn
 trên bản đồ. Có thể có nhiều ý nhỏ nối tiếp trong cùng khối lý thuyết.
 Mỗi lệnh \loidan mở một mục mới. App tự chia lý thuyết thành từng
-màn ngắn kiểu Duolingo (mỗi màn khoảng 160 kí tự, chia theo \\), và
+màn kiểu Duolingo theo ý (mỗi mục một màn; mục dài quá khoảng 320
+kí tự mới chia ở dấu \\, không cắt sau dấu hai chấm), và
 hiện tiêu đề mục ở dòng trên cùng, nên viết tiêu đề ngắn, rõ.
 
 Viết cho màn học từng màn:
 - Mỗi dòng \\ chỉ 1–2 câu; ý mới thì xuống dòng.
 - \loidan 1–2 câu (dưới khoảng 100 kí tự).
-- \luuy mỗi ý một câu. Lời giải \vidu mỗi bước một dòng.
+- Mỗi mục \quytac, \tinhchat… chỉ một ý; hai ý thì hai mục.
+- \luuy: mỗi dòng \\ là một dòng "!"; câu dẫn và ví dụ sau dấu hai
+  chấm để cùng một dòng. Lời giải \vidu mỗi bước một dòng.
+- \loidan mời xem hình ("Xem…", "Chạm…") thì để thành câu cuối: app
+  tự đưa câu đó sang màn hình.
+- Chuỗi bằng nhau dài viết liền $a=b=c$; app tự xuống dòng ở dấu =.
 - Mỗi mục có một \thungay (màn duy nhất học sinh phải trả lời).
 
 Với mỗi ý chính, sắp nội dung theo trình tự sau:
