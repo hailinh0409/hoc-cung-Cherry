@@ -430,6 +430,7 @@ const bookSVG='<svg viewBox="0 0 24 24" width="18" height="18"><path d="M3 5.5C5
 /*@@LESSON@@*/
 const THK={dinhnghia:['Định nghĩa','#3aa8e0'],quytac:['Quy tắc','#2fb787'],congthuc:['Công thức','#ffb703'],dinhly:['Định lý','#8d7bff'],tinhchat:['Tính chất','#8d7bff'],luuy:['Lưu ý','#ef3b55'],vidu:['Ví dụ','#7a9399']};
 function theoryHTML(items){let nv=0;return (items||[]).map(it=>{const [n,c]=THK[it.k]||['',  '#7a9399'];
+  if(it.k==='hinhbuoc')return `<div class="thc hbwrap">${tex(it.body)}</div>`;
   if(it.k==='vidu'){nv++;return `<div class="thc vd" style="--c:${c}"><span class="thk">Ví dụ ${nv}</span><div class="thb2">${tex(it.body)}</div><details><summary>Xem lời giải</summary><div class="thb2">${tex(it.sol)}</div></details></div>`}
   return `<div class="thc" style="--c:${c}"><span class="thk">${n}</span>${it.title?`<h3>${tex(it.title)}</h3>`:''}<div class="thb2">${tex(it.body)}</div></div>`}).join('')}
 let thT=null;

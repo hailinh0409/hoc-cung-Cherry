@@ -885,6 +885,26 @@ textarea.code.light{background:#fff;color:#12313a;font:14px/1.5 "Be Vietnam Pro"
 @media(min-width:600px){.lesson-explore--split{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-height:760px) and (max-width:599px){.jbtns .jbtn{min-height:0}.jbtns .jbtn+.jbtn{margin-top:5px}}
 
+/* Hình từng bước (\begin{hinhbuoc}) */
+.hb{margin:10px auto;max-width:440px;text-align:left}
+.hb-pic{position:relative;display:grid;background:#fff;border-radius:14px;padding:8px 8px 18px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.hb-pic img.fig{grid-area:1/1;margin:0 auto;opacity:0;transition:opacity .4s ease}
+.hb-pic img.fig.on{opacity:1}
+.hb-hint{position:absolute;right:10px;bottom:3px;font-size:12px;font-weight:700;color:#a3878c}
+.hb-dots{display:flex;gap:6px;justify-content:center;margin:10px 0 6px}
+.hb-dots i{width:9px;height:9px;border-radius:50%;background:#cfe3e6;transition:background .3s}
+.hb-dots i.on{background:#ef3b55}
+.hb-cap{background:#fdeef0;color:#2b1a1d;border-radius:4px 14px 14px 14px;padding:9px 12px;font-weight:600;min-height:64px}
+.hb-cap b{display:block;font-size:12px;color:#8a6a70;margin-bottom:2px}
+.hb-btns{display:flex;gap:8px;margin-top:10px}
+.hb-btns button{font:inherit;font-weight:800;min-height:44px;border:0;border-radius:12px;cursor:pointer}
+.hb-prev{flex:1;background:#e6eef0;color:#153c41}
+.hb-next{flex:2;background:#2fb787;color:#fff}
+.hb-btns button:disabled{opacity:.45;cursor:default}
+.hb-lab{background:transparent;padding:0}
+.thc.hbwrap{padding-top:8px}
+@media(prefers-reduced-motion:reduce){.hb-pic img.fig{transition:none}}
+
 .gvlink{margin-top:4px;font-size:13px;color:#7a9399;text-decoration:underline;align-self:center}
 .figmiss{display:inline-block;padding:6px 10px;border-radius:8px;background:#fff3c4;color:#7a5a00;font-size:13px}
 img.fig{display:block;max-width:100%;height:auto;margin:8px auto;background:#fff;border-radius:8px}
@@ -1242,6 +1262,46 @@ function group(s, i) {
   return [s.slice(i + 1, j), j + 1];
 }
 
+// Hình từng bước (dùng ở mọi chỗ có nội dung, thường trong lythuyet):
+//   \begin{hinhbuoc}
+//   \begin{tikzpicture} … \hien{2}{phần hiện từ bước 2} … \end{tikzpicture}
+//   \loibuoc{lời bước 1} \loibuoc{lời bước 2} …
+//   \end{hinhbuoc}
+// Mỗi bước là một khung hình dịch riêng: mã khung = hbFrame(tikz, k). Phần chưa đến lượt vẫn vẽ nhưng trong suốt
+// (xem PREAMBLE trong figcode.js) nên mọi khung cùng kích thước. Máy chủ và giao diện phải tính mã khung giống hệt nhau.
+const HINHBUOC = /\\begin\{hinhbuoc\}([\s\S]*?)\\end\{hinhbuoc\}/g;
+const HB_MAX = 8;
+const TIKZ_ONE = /\\begin\{tikzpicture\}[\s\S]*?\\end\{tikzpicture\}/g;
+const noComment = s => String(s || '').replace(/\r/g, '').replace(/(^|[^\\])%.*$/gm, '$1');
+const hbFrame = (tikz, k) => '\\lttbuoc{' + k + '}\n' + tikz;
+function parseHinhBuoc(body) {
+  body = noComment(body);
+  const pics = body.match(TIKZ_ONE) || [];
+  const tikz = pics[0] || '';
+  const rest = pics.reduce((s, p) => s.replace(p, ''), body);
+  const caps = [], re = /\\loibuoc\b/g; let m;
+  while ((m = re.exec(rest))) { const g = group(rest, re.lastIndex); if (!g) { caps.push(''); continue; } caps.push(g[0].trim()); re.lastIndex = g[1]; }
+  const steps = [...tikz.matchAll(/\\hien\s*\{\s*(\d+)\s*\}/g)].map(x => Number(x[1]));
+  return { tikz, pics: pics.length, caps, steps, frames: caps.map((_, i) => hbFrame(tikz, i + 1)) };
+}
+// Lỗi soạn của các khối hinhbuoc trong một đoạn mã
+function hinhBuocErrors(raw) {
+  const errors = [], src = noComment(raw);
+  const opened = (src.match(/\\begin\{hinhbuoc\}/g) || []).length, all = [...src.matchAll(HINHBUOC)];
+  if (opened !== all.length) errors.push('Hình từng bước chưa đóng \\end{hinhbuoc}');
+  all.forEach((m, i) => {
+    const h = parseHinhBuoc(m[1]), at = all.length > 1 ? ` thứ ${i + 1}` : '';
+    if (h.pics !== 1) errors.push(`Hình từng bước${at} cần đúng một hình tikzpicture (đang có ${h.pics})`);
+    if (h.caps.length < 2) errors.push(`Hình từng bước${at} cần ít nhất 2 dòng \\loibuoc{…}, mỗi bước một dòng`);
+    if (h.caps.length > HB_MAX) errors.push(`Hình từng bước${at} tối đa ${HB_MAX} bước`);
+    if (h.caps.some(c => !c)) errors.push(`Hình từng bước${at}: có \\loibuoc thiếu nội dung {…}`);
+    if (h.pics === 1 && !h.steps.length) errors.push(`Hình từng bước${at} chưa có \\hien{số bước}{…} nào, các bước sẽ giống nhau`);
+    const bad = h.steps.filter(k => k < 1 || k > h.caps.length);
+    if (h.caps.length >= 2 && bad.length) errors.push(`Hình từng bước${at}: \\hien{${bad[0]}} vượt quá số bước (${h.caps.length} dòng \\loibuoc)`);
+  });
+  return errors;
+}
+
 function takeCmd(body, cmd) {
   const k = body.indexOf('\\' + cmd);
   if (k < 0) return [body, null];
@@ -1349,6 +1409,7 @@ function parseBank(raw) {
   const tg = t ? group(raw, t.index + 6) : null;
   const topic = tg ? tg[0].trim() : '';
   if (!topic) errors.push({ msg: 'Thiếu \\chude{Tên chủ đề}' });
+  for (const msg of hinhBuocErrors(raw)) errors.push({ msg });
 
   // Tóm tắt lý thuyết: \begin{lythuyet} ... \end{lythuyet} (một khối, thường đặt trước \man{1})
   let theory = null;
@@ -1473,9 +1534,17 @@ const isTLBank = levels => levels.some(l => l.qs.some(q => q.type === 'extl'));
 // Các mục của khối lý thuyết. Hai đối số {tiêu đề}{nội dung}, riêng \luuy{nội dung}; \vidu{đề}{lời giải}.
 const THEORY_KINDS = { dinhnghia: 'Định nghĩa', quytac: 'Quy tắc', congthuc: 'Công thức', dinhly: 'Định lý', tinhchat: 'Tính chất', luuy: 'Lưu ý', vidu: 'Ví dụ' };
 function parseTheory(body, errors) {
-  const items = [], re = /\\(dinhnghia|quytac|congthuc|dinhly|tinhchat|luuy|vidu|loidan|minhhoa|thungay)\b/g; let m;
+  const items = [], re = /\\(dinhnghia|quytac|congthuc|dinhly|tinhchat|luuy|vidu|loidan|minhhoa|thungay)\b|\\begin\{hinhbuoc\}/g; let m;
   while ((m = re.exec(body))) {
     const k = m[1];
+    if (!k) {
+      // Hình từng bước đứng riêng trong lythuyet: hiện ở cột minh họa như \minhhoa (lỗi soạn đã báo ở hinhBuocErrors)
+      const end = body.indexOf('\\end{hinhbuoc}', m.index);
+      if (end < 0) break;
+      re.lastIndex = end + 14;
+      items.push({ k: 'hinhbuoc', body: body.slice(m.index, re.lastIndex) });
+      continue;
+    }
     if (k === 'loidan' || k === 'minhhoa' || k === 'thungay') {
       const args = [];
       let at = re.lastIndex, arg;
@@ -2287,6 +2356,7 @@ const romanGroups=[['X',10],['IX',9],['V',5],['IV',4],['I',1]];
 const groupedNumber=n=>String(n).replace(/\B(?=(\d{3})+(?!\d))/g,'\u202f');
 
 function authoredTheoryHTML(item){
+  if(item.k==='hinhbuoc')return `<section class="theory-lab hb-lab">${tex(item.body)}</section>`;
   if(item.k==='thungay'){
     const answer=[item.correct,item.wrong],feedback=[item.explainCorrect,item.explainWrong];
     return `<div class="lesson-check authored-check"><h3>Thử ngay</h3><p>${tex(item.body)}</p><div class="lesson-choices" role="group" aria-label="Chọn đáp án">${shuffle([0,1]).map(i=>`<button type="button" data-response="${i}" aria-pressed="false">${tex(answer[i])}</button>`).join('')}</div><div class="lesson-feedback" aria-live="polite"></div>${feedback.map((text,i)=>`<template data-explanation="${i}">${tex(text)}</template>`).join('')}</div>`;
@@ -2355,9 +2425,9 @@ function authoredLessonPages(items){
   }
   groups.push(group);
   return groups.map(({guide,items},i)=>{
-    const visuals=items.filter(it=>it.k==='minhhoa');
+    const visuals=items.filter(it=>it.k==='minhhoa'||it.k==='hinhbuoc');
     const checks=items.filter(it=>it.k==='thungay');
-    const notes=items.filter(it=>it.k!=='minhhoa'&&it.k!=='thungay');
+    const notes=items.filter(it=>it.k!=='minhhoa'&&it.k!=='hinhbuoc'&&it.k!=='thungay');
     const label=notes.find(it=>it.title)?.title||`Ý ${i+1}`;
     return {label,title:label,guide:guide?tex(guide):'',visual:visuals.map(authoredTheoryHTML).join(''),
       notes:theoryHTML(notes),checks:checks.map(authoredTheoryHTML).join('')};
@@ -2435,6 +2505,7 @@ $('#playTheory').innerHTML=bookSVG;
 
 const THK={dinhnghia:['Định nghĩa','#3aa8e0'],quytac:['Quy tắc','#2fb787'],congthuc:['Công thức','#ffb703'],dinhly:['Định lý','#8d7bff'],tinhchat:['Tính chất','#8d7bff'],luuy:['Lưu ý','#ef3b55'],vidu:['Ví dụ','#7a9399']};
 function theoryHTML(items){let nv=0;return (items||[]).map(it=>{const [n,c]=THK[it.k]||['',  '#7a9399'];
+  if(it.k==='hinhbuoc')return `<div class="thc hbwrap">${tex(it.body)}</div>`;
   if(it.k==='vidu'){nv++;return `<div class="thc vd" style="--c:${c}"><span class="thk">Ví dụ ${nv}</span><div class="thb2">${tex(it.body)}</div><details><summary>Xem lời giải</summary><div class="thb2">${tex(it.sol)}</div></details></div>`}
   return `<div class="thc" style="--c:${c}"><span class="thk">${n}</span>${it.title?`<h3>${tex(it.title)}</h3>`:''}<div class="thb2">${tex(it.body)}</div></div>`}).join('')}
 let thT=null;
@@ -3646,8 +3717,25 @@ function reconcile(sent,r){if(!r||!P)return;if(r.xp<sent.xp)P.xp-=sent.xp-r.xp;i
   P.spent=r.spent+Math.max(0,(P.spent||0)-(sent.spent||0));save()}
 /* hình TikZ đã dịch */
 const TIKZ_RE=/\\begin\{tikzpicture\}[\s\S]*?\\end\{tikzpicture\}/g;
-const figSwap=s=>String(s??'').replace(TIKZ_RE,c=>{const k=c.replace(/(^|[^\\])%.*$/gm,'$1'),h=FIGS[k];return h?`@@FIG:${h}@@`:'@@FIG:none@@'});
-const figImg=s=>s.replace(/@@FIG:([0-9a-f]{40}|none)@@/g,(_,h)=>h==='none'?'<span class="figmiss">Hình chưa dịch</span>':`<img class="fig" src="/hinh/${h}" alt="Hình vẽ" loading="lazy">`);
+// Hình từng bước (\begin{hinhbuoc}): mỗi bước là một khung đã dịch, khóa trong FIGS là hbFrame(tikz,k) (lib/latex.js).
+// HBS chỉ sống trong một lần gọi tex(): figSwap ghi, figImg đọc ngay sau đó.
+let HBS=[];
+const figSwap=s=>{HBS=[];return String(s??'').replace(HINHBUOC,(_,b)=>{const h=parseHinhBuoc(b);HBS.push({hs:h.frames.map(f=>FIGS[f]),caps:h.caps});return `@@HB:${HBS.length-1}@@`})
+  .replace(TIKZ_RE,c=>{const k=c.replace(/(^|[^\\])%.*$/gm,'$1'),h=FIGS[k];return h?`@@FIG:${h}@@`:'@@FIG:none@@'})};
+const hbHTML=x=>{if(!x||!x.caps.length)return '';const n=x.caps.length;
+  if(x.hs.some(h=>!h))return '<span class="figmiss">Hình từng bước chưa dịch xong</span>';
+  return `<div class="hb"><div class="hb-pic" role="button" tabindex="0" aria-label="Chạm để xem bước tiếp theo">${x.hs.map((h,i)=>`<img class="fig${i?'':' on'}" src="/hinh/${h}" alt="Hình bước ${i+1}">`).join('')}<span class="hb-hint">chạm để tiếp ›</span></div>`+
+    `<div class="hb-dots" aria-hidden="true">${x.caps.map((_,i)=>`<i${i?'':' class="on"'}></i>`).join('')}</div>`+
+    `<div class="hb-cap" aria-live="polite"><b>Bước 1/${n}</b><span>${brOut(esc(x.caps[0]))}</span></div>${x.caps.map(c=>`<template>${brOut(esc(c))}</template>`).join('')}`+
+    `<div class="hb-btns"><button type="button" class="hb-prev" disabled>‹ Lùi</button><button type="button" class="hb-next">Tiếp ›</button></div></div>`};
+const figImg=s=>s.replace(/@@HB:(\d+)@@/g,(_,i)=>hbHTML(HBS[+i])).replace(/@@FIG:([0-9a-f]{40}|none)@@/g,(_,h)=>h==='none'?'<span class="figmiss">Hình chưa dịch</span>':`<img class="fig" src="/hinh/${h}" alt="Hình vẽ" loading="lazy">`);
+function hbGo(w,k){const imgs=[...w.querySelectorAll('.hb-pic img')],n=imgs.length;k=(k+n)%n;w.dataset.k=k;
+  imgs.forEach((im,i)=>im.classList.toggle('on',i===k));[...w.querySelectorAll('.hb-dots i')].forEach((d,i)=>d.classList.toggle('on',i<=k));
+  const cap=w.querySelector('.hb-cap');cap.querySelector('b').textContent=`Bước ${k+1}/${n}`;cap.querySelector('span').innerHTML=w.querySelectorAll('template')[k].innerHTML;typeset(cap);
+  w.querySelector('.hb-prev').disabled=k===0;w.querySelector('.hb-next').textContent=k===n-1?'Xem lại từ đầu ↺':'Tiếp ›';w.querySelector('.hb-hint').hidden=k===n-1}
+document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('.hb-pic,.hb-next,.hb-prev');if(!b)return;const w=b.closest('.hb'),k=Number(w.dataset.k||0),n=w.querySelectorAll('.hb-pic img').length;
+  if(b.classList.contains('hb-prev'))return k>0&&hbGo(w,k-1);if(b.classList.contains('hb-pic')&&k===n-1)return;sfx.tap();hbGo(w,k+1)});
+document.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.classList&&e.target.classList.contains('hb-pic')){e.preventDefault();e.target.click()}});
 
 /* đăng nhập qua máy chủ */
 function login(view='in',msg='',pre={}){show('login');const w=$('#lwrap');

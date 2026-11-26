@@ -56,6 +56,7 @@ const romanGroups=[['X',10],['IX',9],['V',5],['IV',4],['I',1]];
 const groupedNumber=n=>String(n).replace(/\B(?=(\d{3})+(?!\d))/g,'\u202f');
 
 function authoredTheoryHTML(item){
+  if(item.k==='hinhbuoc')return `<section class="theory-lab hb-lab">${tex(item.body)}</section>`;
   if(item.k==='thungay'){
     const answer=[item.correct,item.wrong],feedback=[item.explainCorrect,item.explainWrong];
     return `<div class="lesson-check authored-check"><h3>Thử ngay</h3><p>${tex(item.body)}</p><div class="lesson-choices" role="group" aria-label="Chọn đáp án">${shuffle([0,1]).map(i=>`<button type="button" data-response="${i}" aria-pressed="false">${tex(answer[i])}</button>`).join('')}</div><div class="lesson-feedback" aria-live="polite"></div>${feedback.map((text,i)=>`<template data-explanation="${i}">${tex(text)}</template>`).join('')}</div>`;
@@ -124,9 +125,9 @@ function authoredLessonPages(items){
   }
   groups.push(group);
   return groups.map(({guide,items},i)=>{
-    const visuals=items.filter(it=>it.k==='minhhoa');
+    const visuals=items.filter(it=>it.k==='minhhoa'||it.k==='hinhbuoc');
     const checks=items.filter(it=>it.k==='thungay');
-    const notes=items.filter(it=>it.k!=='minhhoa'&&it.k!=='thungay');
+    const notes=items.filter(it=>it.k!=='minhhoa'&&it.k!=='hinhbuoc'&&it.k!=='thungay');
     const label=notes.find(it=>it.title)?.title||`Ý ${i+1}`;
     return {label,title:label,guide:guide?tex(guide):'',visual:visuals.map(authoredTheoryHTML).join(''),
       notes:theoryHTML(notes),checks:checks.map(authoredTheoryHTML).join('')};
