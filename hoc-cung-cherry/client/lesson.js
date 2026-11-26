@@ -113,79 +113,176 @@ function bindAuthoredTheory(root){
   }
 }
 
-function authoredLessonPages(items){
-  if(!items?.some(it=>['loidan','minhhoa','thungay'].includes(it.k)))return [];
-  const groups=[];
-  let group={guide:null,items:[]};
-  for(const item of items){
-    if(item.k==='loidan'){
-      if(group.guide||group.items.length)groups.push(group);
-      group={guide:item.body,items:[]};
-    }else group.items.push(item);
+/* ---------- Lý thuyết từng màn (kiểu Duolingo, thầy duyệt 26/11/2026) ----------
+   App tự chia khối lythuyet đã soạn thành từng màn nhỏ: mỗi màn một ý (khoảng 3 dòng),
+   thanh tiến độ ở trên, nút Tiếp tục ở dưới, câu Thử ngay có dải đúng/sai. Không cần soạn lại bài. */
+const LS_NOTE=['dinhnghia','quytac','congthuc','dinhly','tinhchat'];
+const LS_MAX=160; // số kí tự chữ tối đa trên một màn (không tính công thức, hình)
+
+// Tách nội dung theo \\ ở ngoài công thức $…$ và ngoài môi trường (hình TikZ, hình từng bước).
+function lsLines(src){
+  const s=String(src||''),out=[];let cur='',math=false,env=0,i=0;
+  while(i<s.length){
+    if(s.startsWith('\\begin{',i)){env++;cur+='\\begin{';i+=7;continue}
+    if(s.startsWith('\\end{',i)){env=Math.max(0,env-1);cur+='\\end{';i+=5;continue}
+    if(s[i]==='\\'&&s[i+1]==='\\'&&!math&&!env){out.push(cur.trim());cur='';i+=2;continue}
+    if(s[i]==='\\'){cur+=s.slice(i,i+2);i+=2;continue}
+    if(s[i]==='$')math=!math;
+    cur+=s[i++];
   }
-  groups.push(group);
-  return groups.map(({guide,items},i)=>{
-    const visuals=items.filter(it=>it.k==='minhhoa'||it.k==='hinhbuoc');
-    const checks=items.filter(it=>it.k==='thungay');
-    const notes=items.filter(it=>it.k!=='minhhoa'&&it.k!=='hinhbuoc'&&it.k!=='thungay');
-    const label=notes.find(it=>it.title)?.title||`Ý ${i+1}`;
-    return {label,title:label,guide:guide?tex(guide):'',visual:visuals.map(authoredTheoryHTML).join(''),
-      notes:theoryHTML(notes),checks:checks.map(authoredTheoryHTML).join('')};
-  });
+  out.push(cur.trim());
+  return out.filter(Boolean).flatMap(l=>lsIsFig(l)||lsLen(l)<=LS_MAX?[l]:lsSentences(l));
+}
+// Đoạn quá dài (không có hình): tách theo câu, ở ngoài công thức.
+function lsSentences(line){
+  const out=[];let cur='',math=false;
+  for(let i=0;i<line.length;i++){const c=line[i];
+    if(c==='\\'){cur+=line.slice(i,i+2);i++;continue}
+    if(c==='$')math=!math;
+    cur+=c;
+    if(!math&&/[.;:!?]/.test(c)&&line[i+1]===' '&&/[A-ZĐÀ-Ỹ$(0-9]/.test(line[i+2]||'')&&lsLen(cur)>25){out.push(cur.trim());cur=''}
+  }
+  if(cur.trim())out.push(cur.trim());
+  return out;
+}
+const lsIsFig=line=>/\\begin\{(tikzpicture|hinhbuoc)\}/.test(line);
+const lsLen=line=>line.replace(/\\begin\{(tikzpicture|hinhbuoc)\}[\s\S]*?\\end\{\1\}/g,'').replace(/\$([^$]*)\$/g,(_,m)=>'x'.repeat(Math.ceil(m.replace(/\\[a-zA-Z]+|[{}\s]/g,'').length*0.8)+1)).length;
+// Gom các dòng thành từng màn: mỗi màn tối đa LS_MAX kí tự chữ; hình đi cùng đoạn chữ ngay trước nó rồi sang màn mới.
+function lsChunks(src){
+  const pages=[];let cur=[],len=0;
+  for(const line of lsLines(src)){
+    const fig=lsIsFig(line),l=lsLen(line);
+    if(cur.length&&!fig&&len+l>LS_MAX){pages.push(cur);cur=[];len=0}
+    cur.push(line);len+=l;
+    if(fig){pages.push(cur);cur=[];len=0}
+  }
+  if(cur.length)pages.push(cur);
+  return pages;
+}
+const lsTex=lines=>tex(lines.join('\\\\'));
+
+// Danh sách màn của một bài từ các mục đã đọc (lib/latex.js parseTheory)
+function lessonScreens(items){
+  const S=[],groups=[];let g={items:[]};
+  for(const it of items||[]){if(it.k==='loidan'&&g.items.length){groups.push(g);g={items:[]}}g.items.push(it)}
+  if(g.items.length)groups.push(g);
+  for(const grp of groups){
+    let part=grp.items.find(it=>it.title)?.title||'',say='';
+    const push=sc=>{S.push({part,say,...sc});say=''};
+    for(const it of grp.items){
+      if(it.title)part=it.title;
+      // Lời Cherry dài thì đứng riêng một màn, để màn kiến thức sau đó gọn
+      if(it.k==='loidan'){if(lsLen(it.body)>100)push({type:'read',html:'',intro:true});say=tex(it.body);if(S.at(-1)?.intro){S.at(-1).say=say;say=''}continue}
+      if(LS_NOTE.includes(it.k)){
+        lsChunks(it.body).forEach((lines,n)=>push({type:'read',kind:it.k,title:n?'':it.title,html:lsTex(lines)}));
+        continue;
+      }
+      if(it.k==='luuy'){
+        const lines=lsLines(it.body).flatMap(l=>lsIsFig(l)?[l]:lsSentences(l));
+        for(let n=0;n<lines.length;n+=3)push({type:'read',kind:'luuy',title:n?'':'Cần nhớ',html:lines.slice(n,n+3).map(l=>`<div class="ls-note"><span aria-hidden="true">!</span><div>${tex(l)}</div></div>`).join('')});
+        continue;
+      }
+      if(it.k==='vidu'){push({type:'vidu',html:tex(it.body),sol:tex(it.sol)});continue}
+      if(it.k==='minhhoa'){push({type:'lab',html:authoredTheoryHTML(it)});continue}
+      if(it.k==='hinhbuoc'){push({type:'lab',html:tex(it.body)});continue}
+      if(it.k==='thungay'){push({type:'quiz',q:tex(it.body),opts:[{html:tex(it.correct),ok:true,ex:tex(it.explainCorrect)},{html:tex(it.wrong),ok:false,ex:tex(it.explainWrong)}]});continue}
+    }
+  }
+  return S;
+}
+// Bài Tập hợp dựng sẵn (setLesson): mỗi trang thành 3 màn (chạm thử → khái niệm → thử ngay)
+function builtInScreens(pages){
+  return pages.flatMap(p=>[
+    {type:'lab',part:p.concept,say:esc(p.guide),builtIn:p,html:`<div class="ls-builtin">${p.visual}<p class="lesson-caption" aria-live="polite">${esc(p.captions[0])}</p></div>`},
+    {type:'read',part:p.concept,title:p.concept,html:`<p>${p.explanation}</p><div class="ls-eg"><b>Ví dụ</b><p>${p.example}</p></div>`},
+    {type:'quiz',part:'Thử ngay',q:p.prompt,opts:p.choices.map((c,n)=>({html:c,ok:n===p.correct,ex:esc(p.feedback[n])}))}
+  ]);
+}
+const LS_KIND={dinhnghia:'Định nghĩa',quytac:'Quy tắc',congthuc:'Công thức',dinhly:'Định lý',tinhchat:'Tính chất',luuy:'Lưu ý'};
+
+// Vẽ bài học từng màn vào root. o: {start, title, onClose, finish(el,stats,api), teacherEdit}
+function renderLessonMaterial(root,t,o={}){
+  const builtIn=builtInLesson(t),screens=builtIn?builtInScreens(builtIn):lessonScreens(t.theory);
+  root.classList.remove('lstep-host');
+  if(!screens.length){root.innerHTML='<div class="tbox"><p>Bài này chưa có tóm tắt lý thuyết.</p></div>';typeset(root);return}
+  root.classList.add('lstep-host');
+  root.innerHTML=`<div class="lstep"><div class="ls-top">${o.onClose?'<button type="button" class="ls-x" aria-label="Thoát lý thuyết">×</button>':''}<div class="ls-prog" role="progressbar" aria-label="Tiến độ bài học"><b></b></div>${o.teacherEdit?'<button type="button" class="ls-ed">Sửa</button>':''}</div>
+    <div class="ls-part"></div><div class="ls-stage" aria-live="polite"></div>
+    <div class="ls-foot"><div class="ls-fb"><b></b><div></div></div><button type="button" class="ls-go">Tiếp tục</button></div></div>`;
+  const box=root.firstElementChild,stage=box.querySelector('.ls-stage'),foot=box.querySelector('.ls-foot'),go=box.querySelector('.ls-go'),bar=box.querySelector('.ls-prog b');
+  const quizN=screens.filter(x=>x.type==='quiz').length;
+  let i=Math.min(Math.max(0,o.start||0),screens.length),state='read',pick=null,missed=new Set(),labCheck=null;
+  if(o.onClose)box.querySelector('.ls-x').onclick=()=>{sfx.tap();o.onClose()};
+  if(o.teacherEdit)box.querySelector('.ls-ed').onclick=()=>{sfx.tap();o.teacherEdit()};
+  const ready=on=>{go.disabled=!on};
+  function show(){
+    box.dataset.i=i;foot.className='ls-foot';stage.scrollTop=0;pick=null;labCheck=null;
+    bar.style.width=(i/screens.length*100)+'%';
+    if(i>=screens.length)return finish();
+    const sc=screens[i];
+    box.querySelector('.ls-part').textContent=[o.title,sc.part].filter(Boolean).join(' · ');
+    const say=sc.say?`<div class="ls-say"><div class="ls-girl" aria-hidden="true">${owlSVG}</div><div class="ls-bub">${sc.say}</div></div>`:'';
+    let body='';
+    if(sc.type==='read')body=`${sc.kind&&sc.title?`<span class="ls-kind" data-k="${sc.kind}">${LS_KIND[sc.kind]||''}</span>`:''}${sc.title?`<h2>${tex(sc.title)}</h2>`:''}<div class="ls-text">${sc.html}</div>`;
+    if(sc.type==='vidu')body=`<span class="ls-kind" data-k="vidu">Ví dụ</span><div class="ls-text">${sc.html}</div><div class="ls-sol" hidden><b>Lời giải</b><div>${sc.sol}</div></div><p class="ls-center"><button type="button" class="ls-mini" data-sol>Xem lời giải</button></p>`;
+    if(sc.type==='lab')body=`<div class="ls-lab">${sc.html}</div><p class="ls-hint">Chạm vào hình để khám phá</p>`;
+    if(sc.type==='quiz')body=`<span class="ls-kind" data-k="thungay">Thử ngay</span><div class="ls-q">${sc.q}</div><div class="ls-opts">${shuffle(sc.opts.map((_,n)=>n)).map(n=>`<button type="button" class="ls-opt" data-o="${n}">${sc.opts[n].html}</button>`).join('')}</div>`;
+    stage.innerHTML=sc.intro?`<div class="ls-screen ls-intro"><div class="ls-girl big" aria-hidden="true">${owlSVG}</div><div class="ls-bub">${sc.say}</div></div>`:`<div class="ls-screen">${say}${body}</div>`;
+    state=sc.type==='quiz'?'answer':'read';go.textContent=sc.type==='quiz'?'Kiểm tra':'Tiếp tục';
+    ready(sc.type==='read');
+    if(sc.type==='vidu')stage.querySelector('[data-sol]').onclick=e=>{sfx.tap();stage.querySelector('.ls-sol').hidden=false;e.target.remove();ready(true);typeset(stage)};
+    if(sc.type==='quiz')stage.querySelectorAll('.ls-opt').forEach(b=>b.onclick=()=>{if(state!=='answer')return;sfx.tap();
+      stage.querySelectorAll('.ls-opt').forEach(x=>x.classList.toggle('sel',x===b));pick=Number(b.dataset.o);ready(true)});
+    if(sc.type==='lab')bindLab(sc);
+    typeset(stage);
+  }
+  // Màn khám phá: xong khi đã chạm (hình từng bước: khi tới bước cuối). Hình chưa dịch thì cho đi tiếp luôn.
+  function bindLab(sc){
+    if(sc.builtIn){
+      const p=sc.builtIn,buttons=stage.querySelectorAll('[data-visual]');
+      buttons.forEach((b,n)=>b.onclick=()=>{buttons.forEach(x=>x.setAttribute('aria-pressed',String(x===b)));
+        stage.querySelector('.lesson-caption').textContent=p.captions[n];if(p.illustrations)stage.querySelector('[data-illustration]').textContent=p.illustrations[n];ready(true)});
+      if(!buttons.length)ready(true);return;
+    }
+    bindAuthoredTheory(stage);
+    const hbs=[...stage.querySelectorAll('.hb')];
+    labCheck=()=>{if(hbs.length?hbs.every(w=>Number(w.dataset.k||0)>=w.querySelectorAll('.hb-pic img').length-1):true)ready(true)};
+    if(hbs.length)stage.querySelector('.ls-hint').textContent='Chạm vào hình để xem từng bước';
+    if(!stage.querySelector('button,.hb-pic'))ready(true);
+  }
+  stage.addEventListener('click',e=>{if(labCheck&&e.target.closest('button,.hb-pic'))setTimeout(labCheck,0)});
+  function check(){
+    const sc=screens[i],o2=sc.opts[pick],ok=o2.ok;
+    state='fb';foot.className='ls-foot '+(ok?'ok':'no');
+    foot.querySelector('.ls-fb b').textContent=ok?'✔ Chính xác!':'✘ Chưa đúng';
+    const fb=foot.querySelector('.ls-fb div');fb.innerHTML=o2.ex||'';typeset(fb);
+    stage.querySelector('.ls-opt.sel')?.classList.add(ok?'right':'wrong');
+    go.textContent=ok?'Tiếp tục':'Thử lại';ready(true);
+    if(ok)sfx.ok();else{sfx.no();missed.add(i)}
+    try{navigator.vibrate&&navigator.vibrate(ok?20:[30,40,30])}catch(e){}
+  }
+  function finish(){
+    box.querySelector('.ls-part').textContent='Hoàn thành';bar.style.width='100%';go.disabled=false;
+    const stats={quiz:quizN,first:quizN-missed.size};
+    const api={again:()=>{sfx.tap();i=0;missed.clear();go.onclick=next;show()},go};
+    stage.innerHTML=`<div class="ls-screen ls-done"><div class="ls-girl big" aria-hidden="true">${owlSVG}</div><h2>Xong lý thuyết!</h2>${quizN?`<div class="ls-stat"><b>${stats.first}/${quizN}</b><span>câu Thử ngay đúng ngay lần đầu</span></div>`:''}<div class="ls-end"></div></div>`;
+    go.textContent='Xem lại từ đầu';go.onclick=api.again;
+    if(o.finish)o.finish(stage.querySelector('.ls-end'),stats,api);
+    typeset(stage);sfx.win();
+  }
+  const next=()=>{if(go.disabled)return;
+    if(state==='answer'&&pick!=null)return check();
+    if(state==='fb'&&foot.classList.contains('no'))return show();
+    sfx.tap();i++;show()};
+  go.onclick=next;
+  show();
 }
 
-function builtInPageHTML(p){
-  return {label:p.concept,title:p.title,guide:esc(p.guide),
-    visual:`${p.visual}<p class="lesson-caption" aria-live="polite">${esc(p.captions[0])}</p>`,
-    notes:`<h3>${esc(p.concept)}</h3><p>${p.explanation}</p><h3>Ví dụ</h3><p>${p.example}</p>`,
-    checks:`<div class="lesson-check"><h3>Thử ngay</h3><p>${p.prompt}</p><div class="lesson-choices" role="group" aria-label="Chọn đáp án">${p.choices.map((choice,n)=>`<button type="button" data-lesson-answer="${n}" aria-pressed="false">${choice}</button>`).join('')}</div><p class="lesson-feedback" aria-live="polite"></p></div>`};
-}
-
-function renderLessonMaterial(root,t){
-  const builtIn=builtInLesson(t),pages=builtIn?builtIn.map(builtInPageHTML):authoredLessonPages(t.theory);
-  const summary=(!pages.length||builtIn)?theoryHTML(t.theory):'';
-  if(!pages.length){
-    root.innerHTML=summary||'<div class="tbox"><p>Bài này chưa có tóm tắt lý thuyết.</p></div>';
-    typeset(root);
-    return;
-  }
-  const navigation=pages.length>1?`<nav class="lesson-nav" aria-label="Nội dung bài học">${pages.map((p,i)=>`<button type="button" data-lesson-page="${i}" ${i===0?'aria-current="step"':''}>${esc(p.label)}</button>`).join('')}</nav>`:'';
-  root.innerHTML=navigation+pages.map((p,i)=>`<section class="lesson-page" aria-label="${esc(p.label)}" ${i===0?'':'hidden'}>
-    ${p.guide?`<div class="lesson-guide"><div aria-hidden="true">${owlSVG}</div><div><b>Cherry</b><h2>${esc(p.title)}</h2><div>${p.guide}</div></div></div>`:''}
-    ${p.visual||p.notes?`<div class="lesson-explore${p.visual&&p.notes?' lesson-explore--split':''}">
-      ${p.visual?`<div class="lesson-visual${builtIn?'':' lesson-visual--authored'}">${p.visual}</div>`:''}
-      ${p.notes?`<div class="lesson-notes">${p.notes}</div>`:''}
-    </div>`:''}
-    ${p.checks}
-  </section>`).join('')+ (summary?`<details class="lesson-summary"><summary>Xem tóm tắt đầy đủ</summary>${summary}</details>`:'');
-
-  const tabs=[...root.querySelectorAll('[data-lesson-page]')];
-  const sections=[...root.querySelectorAll('.lesson-page')];
-  tabs.forEach((tab,i)=>tab.onclick=()=>{
-    tabs.forEach((item,n)=>{if(n===i)item.setAttribute('aria-current','step');else item.removeAttribute('aria-current')});
-    sections.forEach((section,n)=>{section.hidden=n!==i});
-    typeset(sections[i]);
-  });
-  if(builtIn)sections.forEach((section,i)=>{
-    const page=builtIn[i];
-    const bindChoices=(selector,handle)=>{
-      const buttons=section.querySelectorAll(selector);
-      buttons.forEach((button,n)=>button.onclick=()=>{
-        buttons.forEach(item=>item.setAttribute('aria-pressed',String(button===item)));
-        handle(n);
-      });
-    };
-    bindChoices('[data-visual]',n=>{
-      section.querySelector('.lesson-caption').textContent=page.captions[n];
-      if(page.illustrations)section.querySelector('[data-illustration]').textContent=page.illustrations[n];
-    });
-    bindChoices('[data-lesson-answer]',n=>{
-      const correct=n===page.correct,feedback=section.querySelector('.lesson-feedback');
-      feedback.dataset.correct=String(correct);
-      feedback.textContent=page.feedback[n];
-    });
-  });
-  bindAuthoredTheory(root);
+// Xem lại lý thuyết khi đang làm bài: bản tóm tắt gọn trên một trang (không đi từng màn).
+function renderLessonSummary(root,t){
+  const builtIn=builtInLesson(t);
+  const items=(t.theory||[]).filter(it=>!['loidan','minhhoa','thungay'].includes(it.k));
+  root.innerHTML=items.length?theoryHTML(items):builtIn?builtIn.map(p=>`<div class="thc"><h3>${esc(p.concept)}</h3><div class="thb2">${p.explanation}<br>${p.example}</div></div>`).join(''):'<div class="tbox"><p>Bài này chưa có tóm tắt lý thuyết.</p></div>';
   typeset(root);
 }
 
@@ -197,7 +294,7 @@ function openTheoryReview(t,returnLabel='Tiếp tục làm bài'){
   close.textContent=returnLabel;
   close.onclick=()=>dialog.close();
   dialog.showModal();
-  renderLessonMaterial(content,t);
+  renderLessonSummary(content,t);
   dialog.scrollTop=0;
 }
 

@@ -543,16 +543,22 @@ function theoryHTML(items){let nv=0;return (items||[]).map(it=>{const [n,c]=THK[
 let thT=null;
 function theory(t,keep=false){
   const body=$('#thBody'),same=keep&&thT&&thT.id===t.id;
-  const keepPage=same?Math.max(0,[...body.querySelectorAll('[data-lesson-page]')].findIndex(b=>b.hasAttribute('aria-current'))):0,keepScroll=same?body.scrollTop:0;
+  // Vẽ lại cùng một bài (giáo viên vừa lưu, dữ liệu đổi): giữ nguyên màn đang xem
+  const keepStep=same?Number(body.querySelector('.lstep')?.dataset.i||0):0;
   thT=t;curT=t;show('theory');const L=lessonOf(t),q=hasQ(t),route=routeTopics(t.khoi),index=route.findIndex(item=>item.id===t.id);
-  const canPractice=q&&(index<0||topicOpen(route,index));
-  body.innerHTML=`<div class="thhead"><span>${bookSVG} Học lý thuyết</span><h1>${esc(L?lessonName(L):t.title)}</h1>${L&&L.ch?`<small>Chương ${L.ch.n} · ${esc(L.ch.title)}</small>`:''}</div>
-   <div class="lesson-material"></div>
-   <div class="thend">${canPractice?'<button class="btn" id="thGo">Luyện tập cả bài</button>':`<p class="tnote2">${q?'Qua bài trước để mở lượt luyện tập.':'Bài này chưa có câu hỏi luyện tập.'}</p>`}${GV()?'<button class="btn alt" id="thEd">Sửa lý thuyết</button>':''}<button class="btn alt" id="thBack">Về bản đồ</button></div>`;
-  renderLessonMaterial(body.querySelector('.lesson-material'),t);
-  if(keepPage)body.querySelectorAll('[data-lesson-page]')[keepPage]?.click();
-  body.scrollTop=keepScroll;
-  $('#thGo')&&($('#thGo').onclick=()=>{sfx.tap();curT=t;startLevel()});$('#thEd')&&($('#thEd').onclick=()=>{sfx.tap();editTheory(t)});$('#thBack').onclick=()=>{sfx.tap();thT=null;journey()}}
+  const canPractice=q&&(index<0||topicOpen(route,index)),name=L?lessonName(L):t.title;
+  const back=()=>{sfx.tap();thT=null;journey()};
+  renderLessonMaterial(body,t,{start:keepStep,title:name,onClose:back,teacherEdit:GV()?()=>editTheory(t):null,
+    finish:(el,st,api)=>{
+      el.innerHTML=`<p class="ls-end-name">${esc(name)}</p>
+        <details class="ls-sum"><summary>Xem tóm tắt cả bài</summary><div class="ls-sumbody"></div></details>
+        ${canPractice?'':`<p class="ls-end-note">${q?'Qua bài trước để mở lượt luyện tập.':'Bài này chưa có câu hỏi luyện tập.'}</p>`}
+        <div class="ls-end-btns"><button type="button" class="ls-mini" id="thAgain">Xem lại từ đầu</button><button type="button" class="ls-mini" id="thBack">Về bản đồ</button></div>`;
+      renderLessonSummary(el.querySelector('.ls-sumbody'),t);
+      $('#thAgain').onclick=api.again;$('#thBack').onclick=back;
+      api.go.textContent=canPractice?'Luyện tập cả bài':'Về bản đồ';
+      api.go.onclick=canPractice?()=>{sfx.tap();curT=t;startLevel()}:back}});
+  if(!body.querySelector('.lstep'))body.insertAdjacentHTML('beforeend','<button class="btn alt" id="thBack2">Về bản đồ</button>'),$('#thBack2').onclick=back}
 const TH_TPL='\\begin{lythuyet}\n\\dinhnghia{Tên khái niệm}{Nội dung, công thức viết trong $...$}\n\\quytac{Tên quy tắc}{Nội dung}\n\\luuy{Lỗi hay gặp}\n\\vidu{Đề ví dụ}{Lời giải}\n\\end{lythuyet}';
 function editTheory(t){t=TOPICS.find(x=>x.id===t.id)||t;const m=t.raw.match(/\\begin\{lythuyet\}[\s\S]*?\\end\{lythuyet\}/);
   overlay(`<h2 style="font-size:24px">Lý thuyết · ${esc(t.title)}</h2><textarea class="code" id="tx" spellcheck="false">${esc(m?m[0]:TH_TPL)}</textarea>
