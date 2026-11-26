@@ -1,6 +1,6 @@
 # Tiến độ: Kế hoạch "bài giảng" (mục lục, phần, hình chung, chạm thử) — bàn giao cho Codex
 
-- Nhánh: `claude/ke-hoach-bai-giang` · PR: (PR mở từ nhánh này)
+- Nhánh: `claude/ke-hoach-bai-giang` · PR: #55
 - Người đang làm: Claude (lập kế hoạch) → Codex (viết mã) · Cập nhật lần cuối: 26/11/2026 16:10
 - Trạng thái: xong phần kế hoạch, chờ thầy duyệt PR; việc viết mã chia thành các issue A–F cho Codex
 
