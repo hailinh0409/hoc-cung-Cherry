@@ -19,7 +19,7 @@ Xem `docs/bai-giang/ke-hoach.md` mục 2. Tóm tắt: Mở đầu (bài toán SG
 - [x] `docs/bai-giang/k7-b9-bai-giang.tex`: Bài 9 bằng cú pháp mới (18 khung TikZ dịch thử thành công bằng xelatex với PREAMBLE của app)
 - [x] `docs/bai-giang/ban-thu-bai9.html`: bản thử thầy đã duyệt (24 màn)
 - [x] `AGENTS.md`: thêm dòng trỏ tới kế hoạch
-- [x] Các issue A–F trên GitHub cho Codex; issue #48 được thay bằng issue B
+- [x] Các issue cho Codex: A #49, B #50, C #51, D #52, E #53, F #54; issue #48 được thay bằng #50
 
 ## Đang làm dở
 Không có (phần của Claude).
@@ -30,7 +30,7 @@ Không có (phần của Claude).
 - Claude xem lại PR của Codex khi thầy nhờ.
 
 ## Còn lại
-- [ ] Issue A–F (Codex)
+- [ ] #49 → #50 (+ #51 song song) → #52 → #53 → #54
 
 ## File liên quan
 - `AGENTS.md`

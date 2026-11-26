@@ -116,12 +116,12 @@ Mỗi việc là một issue trên GitHub, một nhánh, một PR. Các mũi tê
 
 | # | Việc | Phụ thuộc | Ước lượng |
 |---|---|---|---|
-| A | Bộ đọc cú pháp mới + dữ liệu `lesson` + kiểm tra tự động | – | 1 PR |
-| B | Khung bài giảng mới trong giao diện (mục lục, phần, hình chung, Nhắc lại, mở đầu, kết bài, lưu tiến độ, màn rộng, bài cũ vẫn chạy). Thay cho issue #48 | A | 1–2 PR |
-| C | Hình mẫu `cat-tuyen` + màn chạm góc, chạm vùng, trượt, em tính, chuyển trạng thái | A (làm song song với B được), ghép vào B | 1 PR |
-| D | Công cụ giáo viên: xem trước cú pháp mới trong Dán bài và Sửa lý thuyết, cảnh báo màu vàng, mẫu khởi đầu mới, tóm tắt bài theo phần | B | 1 PR |
-| E | Nạp Bài 9 thật lên app và kiểm tra trên điện thoại (**chờ thầy duyệt** mới ghi Supabase) | B, C | 1 PR + một lần ghi dữ liệu |
-| F | Hướng dẫn soạn cho Gemini/Claude theo cú pháp mới | A | 1 PR (Claude có thể làm) |
+| A (#49) | Bộ đọc cú pháp mới + dữ liệu `lesson` + kiểm tra tự động | – | 1 PR |
+| B (#50) | Khung bài giảng mới trong giao diện (mục lục, phần, hình chung, Nhắc lại, mở đầu, kết bài, lưu tiến độ, màn rộng, bài cũ vẫn chạy). Thay cho issue #48 | A | 1–2 PR |
+| C (#51) | Hình mẫu `cat-tuyen` + màn chạm góc, chạm vùng, trượt, em tính, chuyển trạng thái | A (làm song song với B được), ghép vào B | 1 PR |
+| D (#52) | Công cụ giáo viên: xem trước cú pháp mới trong Dán bài và Sửa lý thuyết, cảnh báo màu vàng, mẫu khởi đầu mới, tóm tắt bài theo phần | B | 1 PR |
+| E (#53) | Nạp Bài 9 thật lên app và kiểm tra trên điện thoại (**chờ thầy duyệt** mới ghi Supabase) | B, C | 1 PR + một lần ghi dữ liệu |
+| F (#54) | Hướng dẫn soạn cho Gemini/Claude theo cú pháp mới | A | 1 PR (Claude có thể làm) |
 
 ### A. Bộ đọc
 
