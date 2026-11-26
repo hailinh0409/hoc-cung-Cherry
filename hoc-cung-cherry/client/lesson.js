@@ -777,30 +777,71 @@ function renderLecture(root,t,o,plan){
     const activeFold=section?.number?sc.section:i+sections.length;
     const animateFrame=sc.type==='opening'||sc.type==='steps';
     const staticImage=picture?.kind==='tikz'?lectureTex(picture.src):'';
-    const stepImage=()=>gmImg(frames?.frames[frame-1]);
+    const stepImage=()=>gmImg(frames.frames[frame-1]);
+    const frameMarkup=()=>`<div class="ls-frames">${frames.frames.map((key,index)=>
+      `<div class="ls-frame-pic" aria-hidden="${index+1!==frame}">${gmImg(key)}</div>`).join('')}</div>`;
 
     function paintPin(){
       pin.hidden=!picture;
       content.classList.toggle('ls-has-pin',Boolean(picture));
       if(!picture){pin.replaceChildren();return}
       const isFolded=folded.has(activeFold);
-      const body=frames?stepImage():canDraw?catTuyen(picture.mau.params,currentState,modelOptions):staticImage;
-      const canZoom=!modelOptions.tap&&!modelOptions.region&&(body.startsWith('<img')||canDraw);
+      const body=frames?frameMarkup():canDraw?catTuyen(picture.mau.params,currentState,modelOptions):staticImage;
+      const canZoom=!modelOptions.tap&&!modelOptions.region&&(frames||body.startsWith('<img')||canDraw);
       pin.innerHTML=`<div class="ls-pin-bar"><span>${sc.shared?'Hình dùng chung cho phần '+section.number:'Hình'}</span>
         <button type="button" class="ls-pin-fold" aria-expanded="${!isFolded}">${isFolded?'▸ Hiện hình':'Thu gọn ▴'}</button></div>
         <div class="ls-picture" ${isFolded?'hidden':''}>${body}${canZoom?'<button type="button" class="ls-pin-zoom" aria-label="Phóng to hình">⤢</button>':''}</div>`;
-      function zoom(){
-        sheet('Hình phóng to',`<h3>Hình</h3><div class="ls-picture-full">${body}</div>`,'ls-sheet-zoom');
-      }
-      pin.querySelector('.ls-pin-zoom')?.addEventListener('click',zoom);
-      pin.querySelector('img')?.addEventListener('click',zoom);
-      pin.querySelector('.ls-pin-fold').onclick=()=>{
-        if(isFolded)folded.delete(activeFold);else folded.add(activeFold);
-        paintPin();
-        pin.querySelector('.ls-pin-fold').focus();
+      const pictureBox=pin.querySelector('.ls-picture'), fold=pin.querySelector('.ls-pin-fold');
+      const zoomButton=pin.querySelector('.ls-pin-zoom');
+      if(frames&&zoomButton)zoomButton.hidden=!FIGS[frames.frames[frame-1]];
+      if(zoomButton)zoomButton.onclick=()=>{
+        sheet('Hình phóng to',`<h3>Hình</h3><div class="ls-picture-full">${frames?stepImage():body}</div>`,'ls-sheet-zoom');
+      };
+      pictureBox.addEventListener('click',event=>{if(event.target.closest('img.fig'))zoomButton?.click()});
+      fold.onclick=()=>{
+        const show=pictureBox.hidden;
+        if(show)folded.delete(activeFold);else folded.add(activeFold);
+        pictureBox.hidden=!show;
+        fold.setAttribute('aria-expanded',String(show));
+        fold.textContent=show?'Thu gọn ▴':'▸ Hiện hình';
       };
     }
     paintPin();
+
+    const framePages=[...pin.querySelectorAll('.ls-frame-pic')];
+    const frameLoads=framePages.map(page=>{
+      const image=page.querySelector('img');
+      const load={ready:!image};
+      if(!image)return load;
+      if(page.getAttribute('aria-hidden')==='false')image.fetchPriority='high';
+      // Giải mã ngay khi màn xuất hiện. Nếu chạm sớm, giữ khung cũ đến khi khung mới sẵn sàng.
+      const ready=image.decode?image.decode():new Promise((resolve,reject)=>{
+        if(image.complete){image.naturalWidth?resolve():reject();return}
+        image.addEventListener('load',resolve,{once:true});
+        image.addEventListener('error',reject,{once:true});
+      });
+      load.promise=ready.catch(()=>{
+        page.innerHTML='<span class="figmiss">Không tải được hình</span>';
+      }).then(()=>{load.ready=true});
+      return load;
+    });
+    let frameRequest=0;
+    function setFrame(index,onShown){
+      const ticket=++frameRequest, page=framePages[index-1], load=frameLoads[index-1];
+      if(!page)return;
+      const show=()=>{
+        if(ticket!==frameRequest||!page.isConnected)return;
+        if(index!==frame){
+          framePages[frame-1].setAttribute('aria-hidden','true');
+          page.setAttribute('aria-hidden','false');
+          frame=index;
+        }
+        const zoom=pin.querySelector('.ls-pin-zoom');
+        if(zoom)zoom.hidden=!page.querySelector('img');
+        onShown?.();
+      };
+      if(load.ready)show();else load.promise.then(show);
+    }
 
     const label=sc.type==='vidu'?'Ví dụ':sc.type==='quiz'?(sc.doan?'Em đoán bước tiếp theo':'Thử ngay'):LS_KIND[sc.kind];
     const heading=label?`<span class="ls-kind" data-k="${sc.kind|| (sc.type==='quiz'?'thungay':'vidu')}">${label}</span>`:'';
@@ -878,8 +919,7 @@ function renderLecture(root,t,o,plan){
         const message=stage.querySelector('.ls-answer-note'), correct=answer.ok;
         if(correct)sfx.ok();else{sfx.no();missed.add(i)}
         if(frames){
-          frame=Math.min(frames.frames.length,Math.max(1,sc.after?.buoc??(sc.after?frame:frames.frames.length)));
-          paintPin();
+          setFrame(Math.min(frames.frames.length,Math.max(1,sc.after?.buoc??(sc.after?frame:frames.frames.length))));
         }else if(canDraw&&sc.after){
           Object.assign(currentState,lectureGeometryState(currentState,sc.after));
           paintPin();
@@ -925,8 +965,8 @@ function renderLecture(root,t,o,plan){
         next.textContent=sc.nutbuoc?sc.nutbuoc+' ('+(frame-1)+'/'+Math.max(0,count-1)+')':'Bước sau ›';
         go.disabled=frame<count&&frames.frames.every(key=>FIGS[key]);
       };
-      back.onclick=()=>{frame--;paintPin();renderStep()};
-      next.onclick=()=>{frame++;paintPin();renderStep()};
+      back.onclick=()=>setFrame(frame-1,renderStep);
+      next.onclick=()=>setFrame(frame+1,renderStep);
       renderStep();
     }
     if(sc.type==='lab'){
