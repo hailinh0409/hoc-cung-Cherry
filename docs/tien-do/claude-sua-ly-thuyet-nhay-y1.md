@@ -1,6 +1,6 @@
 # Bàn giao: sửa lỗi lý thuyết tự nhảy về Ý 1
 
-Nhánh: `claude/sua-ly-thuyet-nhay-y1` · Trạng thái: **xong, chờ đẩy lên**
+Nhánh: `claude/sua-ly-thuyet-nhay-y1` · Trạng thái: **xong, chờ thầy duyệt** (PR #36)
 
 ## Lỗi
 Đang đọc lý thuyết ở Ý 2/Ý 3, không bấm gì mà app tự quay về Ý 1 (và cuộn lên đầu trang).
