@@ -2,7 +2,7 @@
 // và lưu ở bảng ltt_figures, nhận diện bằng sha1 của nguyên văn khối (sau khi bỏ chú thích %).
 export const TIKZ = /\\begin\{tikzpicture\}[\s\S]*?\\end\{tikzpicture\}/g;
 
-import { HINHBUOC, parseHinhBuoc } from './latex.js';
+import { HINHBUOC, parseHinhBuoc, GIAIMAU, parseGiaiMau } from './latex.js';
 
 export const normalizeSource = s => String(s || '').replace(/\r/g, '').replace(/(^|[^\\])%.*$/gm, '$1');
 // Hình thường: mỗi tikzpicture là một khối. Hình từng bước (\begin{hinhbuoc}): mỗi bước là một khối riêng
@@ -10,7 +10,9 @@ export const normalizeSource = s => String(s || '').replace(/\r/g, '').replace(/
 export function figBlocks(src) {
   const s = normalizeSource(src), out = [];
   for (const m of s.matchAll(HINHBUOC)) { const h = parseHinhBuoc(m[1]); if (h.tikz) out.push(...h.frames); }
-  out.push(...(s.replace(HINHBUOC, '').match(TIKZ) || []));
+  // Bài giải mẫu: mỗi màn một khung (gmFrame), hình gốc bên trong không dịch riêng
+  for (const m of s.matchAll(GIAIMAU)) out.push(...parseGiaiMau(m[1]).frames);
+  out.push(...(s.replace(HINHBUOC, '').replace(GIAIMAU, '').match(TIKZ) || []));
   return [...new Set(out)];
 }
 
@@ -37,6 +39,13 @@ export const PREAMBLE = String.raw`\documentclass[tikz,border=3pt]{standalone}
 \newcount\lttstep \lttstep=99
 \newcommand\lttbuoc[1]{\global\lttstep=#1\relax}
 \newcommand\hien[2]{\ifnum\lttstep<#1\relax\begin{scope}[opacity=0]#2\end{scope}\else#2\fi}
+\newcommand\phu[3]{\ifnum\lttstep<#1\relax\begin{scope}[opacity=0]#3\end{scope}\else\ifnum\lttstep>#2\relax\begin{scope}[opacity=0]#3\end{scope}\else#3\fi\fi}
+\definecolor{lttcam}{HTML}{FF5A36}
+\newcount\lttsangk \lttsangk=0
+\newtoks\lttsangtoks
+\newcommand\lttsang[1]{\global\lttsangk=#1\relax\global\lttsangtoks{}}
+\newcommand\sang[2]{\begin{scope}[opacity=0]#2\end{scope}\ifnum\lttsangk=#1\relax\global\lttsangtoks\expandafter{\the\lttsangtoks#2}\fi}
+\newcommand\lttsangve{\begin{scope}[color=lttcam,line width=1.8pt,every node/.append style={text=lttcam}]\the\lttsangtoks\end{scope}}
 \begin{document}
 `;
 export const wrapFigure = block => PREAMBLE + block + '\n\\end{document}\n';

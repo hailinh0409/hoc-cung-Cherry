@@ -168,19 +168,20 @@ const LS_FIG_MAX=2.5;
 function lsFitFig(img,stage){
   const w=img.naturalWidth,h=img.naturalHeight;if(!w||!h||!stage.clientHeight)return;
   const hb=img.closest('.hb-pic'),opt=img.closest('.ls-opt');
-  const host=hb||opt||img.closest('.ls-text,.ls-sol,.ls-q,.ls-lab')||stage;
+  const host=hb||opt||img.closest('.gm-fig,.ls-text,.ls-sol,.ls-q,.ls-lab')||stage;
   const room=host.clientWidth-(hb?16:0);
   // hình từng bước là nội dung chính của màn nên được cao hơn; hình trong phương án nhỏ lại
   // máy xoay ngang: vùng nội dung thấp, cho hình cao gần hết khung (học sinh cuộn xuống đọc tiếp)
   const wideScreen=stage.clientWidth>stage.clientHeight;
-  const maxH=stage.clientHeight*(wideScreen?(opt?0.5:0.9):hb?0.6:opt?0.25:0.5);
+  const pin=img.closest('.gm-fig');
+  const maxH=stage.clientHeight*(wideScreen?(opt?0.5:pin?0.6:0.9):pin?0.34:hb?0.6:opt?0.25:0.5);
   let W=Math.min(room,w*LS_FIG_MAX);
   if(W*h/w>maxH)W=maxH*w/h;
   if(W>0)img.style.width=Math.round(W)+'px';
 }
 function lsFitFigs(stage){
   stage.querySelectorAll('img.fig').forEach(img=>{
-    if(!img.closest('.hb-pic,.ls-opt')&&!(img.nextElementSibling&&img.nextElementSibling.classList.contains('ls-zhint')))img.insertAdjacentHTML('afterend','<span class="ls-zhint">Chạm hình để phóng to</span>');
+    if(!img.closest('.hb-pic,.ls-opt,.gm-fig')&&!(img.nextElementSibling&&img.nextElementSibling.classList.contains('ls-zhint')))img.insertAdjacentHTML('afterend','<span class="ls-zhint">Chạm hình để phóng to</span>');
     if(img.complete&&img.naturalWidth)lsFitFig(img,stage);else{img.loading='eager';img.addEventListener('load',()=>lsFitFig(img,stage),{once:true})}});
 }
 
@@ -208,11 +209,40 @@ function lessonScreens(items){
       if(it.k==='vidu'){push({type:'vidu',html:tex(it.body),sol:tex(it.sol)});continue}
       if(it.k==='minhhoa'){push({type:'lab',html:authoredTheoryHTML(it)});continue}
       if(it.k==='hinhbuoc'){push({type:'lab',html:tex(it.body)});continue}
+      if(it.k==='giaimau'){gmScreens(it.body).forEach((sc,n)=>push(n?sc:{...sc,say:say||undefined}));continue}
       if(it.k==='thungay'){push({type:'quiz',q:tex(it.body),opts:[{html:tex(it.correct),ok:true,ex:tex(it.explainCorrect)},{html:tex(it.wrong),ok:false,ex:tex(it.explainWrong)}]});continue}
     }
   }
   return S;
 }
+// Bài giải mẫu từng bước (\begin{giaimau}, cú pháp ở lib/latex.js): mỗi mục một màn, hình ghim ở trên
+// đổi khung theo màn (khung đã dịch, khóa trong FIGS là gmFrame). Đề bài xem lại được ở mọi màn.
+function gmImg(code){if(!code)return '';const h=FIGS[code];return h?`<img class="fig" src="/hinh/${h}" alt="Hình vẽ">`:'<span class="figmiss">Hình chưa dịch</span>'}
+function gmScreens(raw){
+  const g=parseGiaiMau(raw),ctx={de:tex(g.de),full:gmImg(g.full)},S=[],tot={};
+  let cur='Bài giải mẫu';
+  for(const it of g.items){if(it.k==='cau')cur=it.title;if(it.k==='buocgiai')tot[cur]=(tot[cur]||0)+1}
+  S.push({type:'read',kind:'giaimau',gm:ctx,part:'Bài giải mẫu',title:'Đề bài',fig:ctx.full,
+    html:ctx.de+'<p class="ls-hint">Mỗi câu được giải từng bước. Có lúc Cherry hỏi em nên làm gì tiếp, em thử đoán trước khi xem nhé.</p>'});
+  cur='Bài giải mẫu';const cnt={};
+  for(const it of g.items){
+    const fig=gmImg(it.frame),base={gm:ctx,fig};
+    if(it.k==='cau'){cur=it.title;S.push({...base,type:'read',kind:'gmcau',part:cur,title:it.title,html:tex(it.body)})}
+    if(it.k==='doan')S.push({...base,type:'quiz',doan:true,part:cur,q:tex(it.q),opts:it.opts.map(o=>({html:tex(o.t),ok:o.ok,ex:tex(o.ex)}))});
+    if(it.k==='buocgiai'){cnt[cur]=(cnt[cur]||0)+1;S.push({...base,type:'gmstep',part:cur,no:`Bước ${cnt[cur]}/${tot[cur]}`,goal:tex(it.goal),html:lsLines(it.body).map(l=>`<p>${tex(l)}</p>`).join(''),why:tex(it.why)})}
+    if(it.k==='sodo')S.push({...base,type:'tree',part:cur,nodes:it.nodes});
+    if(it.k==='nhanxet')S.push({...base,type:'read',kind:'nhanxet',part:cur,title:'Nhận xét',html:lsLines(it.body).map(l=>`<p>${tex(l)}</p>`).join('')});
+  }
+  return S;
+}
+// Sơ đồ phân tích đi lên: các \nut theo thứ tự trước-sau, cấp 1 là gốc; vẽ nhánh ngang, chạm ô để mở nhánh con
+function gmTreeHTML(nodes){
+  const root={c:[]},st=[root];
+  for(const n of nodes){const x={...n,c:[]};while(st.length>n.lv)st.pop();st[st.length-1].c.push(x);st.push(x)}
+  const li=(n,top)=>`<li${top?'':' class="hide"'}><span class="gm-node${top?' root':''}${n.c.length?' can':''}">${tex(n.t)}${n.note?`<small>${tex(n.note)}</small>`:''}</span>${n.c.length?`<ul>${n.c.map(c=>li(c)).join('')}</ul>`:''}</li>`;
+  return `<div class="gm-tree"><ul>${root.c.map(n=>li(n,true)).join('')}</ul></div>`;
+}
+
 // Bài Tập hợp dựng sẵn (setLesson): mỗi trang thành 3 màn (chạm thử → khái niệm → thử ngay)
 function builtInScreens(pages){
   return pages.flatMap(p=>[
@@ -221,7 +251,7 @@ function builtInScreens(pages){
     {type:'quiz',part:'Thử ngay',q:p.prompt,opts:p.choices.map((c,n)=>({html:c,ok:n===p.correct,ex:esc(p.feedback[n])}))}
   ]);
 }
-const LS_KIND={dinhnghia:'Định nghĩa',quytac:'Quy tắc',congthuc:'Công thức',dinhly:'Định lý',tinhchat:'Tính chất',luuy:'Lưu ý'};
+const LS_KIND={dinhnghia:'Định nghĩa',quytac:'Quy tắc',congthuc:'Công thức',dinhly:'Định lý',tinhchat:'Tính chất',luuy:'Lưu ý',giaimau:'Bài giải mẫu',gmcau:'Yêu cầu',nhanxet:'Nhận xét'};
 
 // Vẽ bài học từng màn vào root. o: {start, title, onClose, finish(el,stats,api), teacherEdit}
 function renderLessonMaterial(root,t,o={}){
@@ -250,10 +280,18 @@ function renderLessonMaterial(root,t,o={}){
     if(sc.type==='read')body=`${sc.kind&&sc.title?`<span class="ls-kind" data-k="${sc.kind}">${LS_KIND[sc.kind]||''}</span>`:''}${sc.title?`<h2>${tex(sc.title)}</h2>`:''}<div class="ls-text">${sc.html}</div>`;
     if(sc.type==='vidu')body=`<span class="ls-kind" data-k="vidu">Ví dụ</span><div class="ls-text">${sc.html}</div><div class="ls-sol" hidden><b>Lời giải</b><div>${sc.sol}</div></div><p class="ls-center"><button type="button" class="ls-mini" data-sol>Xem lời giải</button></p>`;
     if(sc.type==='lab')body=`<div class="ls-lab">${sc.html}</div><p class="ls-hint">Chạm vào hình để khám phá</p>`;
-    if(sc.type==='quiz')body=`<span class="ls-kind" data-k="thungay">Thử ngay</span><div class="ls-q">${sc.q}</div><div class="ls-opts">${shuffle(sc.opts.map((_,n)=>n)).map(n=>`<button type="button" class="ls-opt" data-o="${n}">${sc.opts[n].html}</button>`).join('')}</div>`;
+    if(sc.type==='gmstep')body=`<span class="ls-kind" data-k="buoc">${sc.no}</span><div class="gm-goal">${sc.goal}</div><div class="ls-text">${sc.html}</div>${sc.why?`<div class="gm-why"><button type="button">Vì sao? ▾</button><div hidden>${sc.why}</div></div>`:''}`;
+    if(sc.type==='tree')body=`<span class="ls-kind" data-k="sodo">Phân tích đi lên</span><p class="gm-tip">Muốn có điều ở trên, cần những gì ở dưới? Chạm ô viền cam để mở nhánh.</p>${gmTreeHTML(sc.nodes)}`;
+    if(sc.type==='quiz')body=`<span class="ls-kind" data-k="${sc.doan?'doan':'thungay'}">${sc.doan?'Em đoán bước tiếp theo':'Thử ngay'}</span><div class="ls-q">${sc.q}</div><div class="ls-opts">${shuffle(sc.opts.map((_,n)=>n)).map(n=>`<button type="button" class="ls-opt" data-o="${n}">${sc.opts[n].html}</button>`).join('')}</div>`;
+    if(sc.gm)body=`<div class="gm-fig">${sc.fig||''}<button type="button" class="gm-debtn">Đề bài</button></div>`+body;
     stage.innerHTML=sc.intro?`<div class="ls-screen ls-intro"><div class="ls-girl big" aria-hidden="true">${owlSVG}</div><div class="ls-bub">${sc.say}</div></div>`:`<div class="ls-screen">${say}${body}</div>`;
     state=sc.type==='quiz'?'answer':'read';go.textContent=sc.type==='quiz'?'Kiểm tra':'Tiếp tục';
-    ready(sc.type==='read');
+    ready(sc.type==='read'||sc.type==='gmstep');
+    if(sc.type==='gmstep'){const b=stage.querySelector('.gm-why button');if(b)b.onclick=()=>{sfx.tap();const d=b.nextElementSibling;d.hidden=!d.hidden;b.textContent=d.hidden?'Vì sao? ▾':'Vì sao? ▴';if(!d.hidden)typeset(d)}}
+    if(sc.type==='tree')stage.querySelectorAll('.gm-node.can').forEach(n=>n.onclick=()=>{sfx.tap();n.parentElement.querySelectorAll(':scope>ul>li').forEach(li=>li.classList.remove('hide'));n.classList.remove('can');if(!stage.querySelector('.gm-tree li.hide'))ready(true)});
+    if(sc.gm)stage.querySelector('.gm-debtn').onclick=()=>{sfx.tap();const z=document.createElement('div');z.className='ls-zoom gm-sheet';z.setAttribute('role','dialog');z.setAttribute('aria-label','Đề bài');
+      z.innerHTML=`<button type="button" class="ls-zx" aria-label="Đóng">×</button><div class="gm-sheetin"><h2>Đề bài</h2><div class="ls-text">${sc.gm.de}</div>${sc.gm.full}</div>`;
+      z.querySelector('.ls-zx').onclick=()=>z.remove();box.appendChild(z);typeset(z);lsFitFigs(z.querySelector('.gm-sheetin'))};
     if(sc.type==='vidu')stage.querySelector('[data-sol]').onclick=e=>{sfx.tap();stage.querySelector('.ls-sol').hidden=false;e.target.remove();ready(true);typeset(stage);lsFitFigs(stage)};
     if(sc.type==='quiz')stage.querySelectorAll('.ls-opt').forEach(b=>b.onclick=()=>{if(state!=='answer')return;sfx.tap();
       stage.querySelectorAll('.ls-opt').forEach(x=>x.classList.toggle('sel',x===b));pick=Number(b.dataset.o);ready(true)});
@@ -286,10 +324,10 @@ function renderLessonMaterial(root,t,o={}){
   function check(){
     const sc=screens[i],o2=sc.opts[pick],ok=o2.ok;
     state='fb';foot.className='ls-foot '+(ok?'ok':'no');
-    foot.querySelector('.ls-fb b').textContent=ok?'✔ Chính xác!':'✘ Chưa đúng';
+    foot.querySelector('.ls-fb b').textContent=ok?'✔ Chính xác!':sc.doan?'✘ Chưa phải hướng này':'✘ Chưa đúng';
     const fb=foot.querySelector('.ls-fb div');fb.innerHTML=o2.ex||'';typeset(fb);
     stage.querySelector('.ls-opt.sel')?.classList.add(ok?'right':'wrong');
-    go.textContent=ok?'Tiếp tục':'Thử lại';ready(true);
+    go.textContent=ok?(sc.doan?'Xem bước giải':'Tiếp tục'):(sc.doan?'Chọn lại':'Thử lại');ready(true);
     if(ok)sfx.ok();else{sfx.no();missed.add(i)}
     try{navigator.vibrate&&navigator.vibrate(ok?20:[30,40,30])}catch(e){}
   }
@@ -297,7 +335,7 @@ function renderLessonMaterial(root,t,o={}){
     box.querySelector('.ls-part').textContent='Hoàn thành';bar.style.width='100%';go.disabled=false;
     const stats={quiz:quizN,first:quizN-missed.size};
     const api={again:()=>{sfx.tap();i=0;missed.clear();go.onclick=next;show()},go};
-    stage.innerHTML=`<div class="ls-screen ls-done"><div class="ls-girl big" aria-hidden="true">${owlSVG}</div><h2>Xong lý thuyết!</h2>${quizN?`<div class="ls-stat"><b>${stats.first}/${quizN}</b><span>câu Thử ngay đúng ngay lần đầu</span></div>`:''}<div class="ls-end"></div></div>`;
+    stage.innerHTML=`<div class="ls-screen ls-done"><div class="ls-girl big" aria-hidden="true">${owlSVG}</div><h2>Xong lý thuyết!</h2>${quizN?`<div class="ls-stat"><b>${stats.first}/${quizN}</b><span>câu trả lời đúng ngay lần đầu</span></div>`:''}<div class="ls-end"></div></div>`;
     go.textContent='Xem lại từ đầu';go.onclick=api.again;
     if(o.finish)o.finish(stage.querySelector('.ls-end'),stats,api);
     typeset(stage);sfx.win();
@@ -313,7 +351,7 @@ function renderLessonMaterial(root,t,o={}){
 // Xem lại lý thuyết khi đang làm bài: bản tóm tắt gọn trên một trang (không đi từng màn).
 function renderLessonSummary(root,t){
   const builtIn=builtInLesson(t);
-  const items=(t.theory||[]).filter(it=>!['loidan','minhhoa','thungay'].includes(it.k));
+  const items=(t.theory||[]).filter(it=>!['loidan','minhhoa','thungay','giaimau'].includes(it.k));
   root.innerHTML=items.length?theoryHTML(items):builtIn?builtIn.map(p=>`<div class="thc"><h3>${esc(p.concept)}</h3><div class="thb2">${p.explanation}<br>${p.example}</div></div>`).join(''):'<div class="tbox"><p>Bài này chưa có tóm tắt lý thuyết.</p></div>';
   typeset(root);
 }
