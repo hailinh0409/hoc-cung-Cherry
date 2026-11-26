@@ -106,7 +106,10 @@ function gmArgs(body, at, n) {
   while ((n == null || args.length < n) && (g = group(body, at))) { args.push(g[0].trim()); at = g[1]; }
   return [args, at];
 }
-export function parseGiaiMau(raw) {
+// Hướng dẫn tự luận (\begin{huongdan} trong \begin{extl}): cùng cú pháp nhưng chỉ có \buocgiai và sơ đồ, không cần \de;
+// mỗi \buocgiai hoặc sơ đồ là một gợi ý học sinh mở bằng XP. Không có lời giải chi tiết.
+export const HUONGDAN = /\\begin\{huongdan\}([\s\S]*?)\\end\{huongdan\}/g;
+export function parseGiaiMau(raw, guide = false) {
   const body = noComment(raw), errors = [];
   const pics = body.match(TIKZ_ONE) || [], tikz = pics[0] || '';
   if (pics.length > 1) errors.push(`Bài giải mẫu chỉ có một hình tikzpicture (đang có ${pics.length}); phần thay đổi theo bước dùng \\hien{k}{…} và \\sang{k}{…}`);
@@ -140,8 +143,13 @@ export function parseGiaiMau(raw) {
     if (k === 'buocgiai') { n++; items.push({ k, n, goal: a[0] || '', body: a[1] || '', why: a[2] || '' }); }
     if (k === 'nhanxet') items.push({ k, body: a[0] || '', done: n });
   }
-  if (!de) errors.push('Bài giải mẫu thiếu \\de{đề bài}');
-  if (!n) errors.push('Bài giải mẫu cần ít nhất một \\buocgiai{mục tiêu}{lời giải}{vì sao}');
+  if (guide) {
+    if (items.some(x => !['buocgiai', 'sodo'].includes(x.k))) errors.push('Hướng dẫn tự luận chỉ dùng \\buocgiai{mục tiêu}{gợi ý}{vì sao} và sơ đồ \\begin{sodo}');
+    if (!items.length) errors.push('Hướng dẫn tự luận cần ít nhất một \\buocgiai hoặc một sơ đồ');
+  } else {
+    if (!de) errors.push('Bài giải mẫu thiếu \\de{đề bài}');
+    if (!n) errors.push('Bài giải mẫu cần ít nhất một \\buocgiai{mục tiêu}{lời giải}{vì sao}');
+  }
   if (tikz) {
     const bad = [...tikz.matchAll(/\\(hien|sang)\s*\{\s*(\d+)\s*\}/g)].filter(x => +x[2] < 1 || +x[2] > n);
     if (bad.length) errors.push(`Hình bài giải mẫu: \\${bad[0][1]}{${bad[0][2]}} không khớp số bước (có ${n} \\buocgiai)`);
@@ -152,7 +160,7 @@ export function parseGiaiMau(raw) {
   const fr = (k, s) => tikz ? gmFrame(tikz, k, s) : '';
   const full = fr(99, 0);
   for (const it of items) it.frame = it.k === 'buocgiai' ? fr(it.n, it.n) : fr(it.done, 0);
-  const frames = tikz ? [...new Set([full, ...items.map(it => it.frame)])] : [];
+  const frames = tikz ? [...new Set([...(guide ? [] : [full]), ...items.map(it => it.frame)])] : [];
   return { de, tikz, full, items, steps: n, frames, errors };
 }
 export function giaiMauErrors(raw) {
@@ -160,6 +168,9 @@ export function giaiMauErrors(raw) {
   const opened = (src.match(/\\begin\{giaimau\}/g) || []).length, all = [...src.matchAll(GIAIMAU)];
   if (opened !== all.length) errors.push('Bài giải mẫu chưa đóng \\end{giaimau}');
   all.forEach((m, i) => { for (const e of parseGiaiMau(m[1]).errors) errors.push(all.length > 1 ? `Bài giải mẫu thứ ${i + 1}: ${e}` : e); });
+  const hd = [...src.matchAll(HUONGDAN)];
+  if ((src.match(/\\begin\{huongdan\}/g) || []).length !== hd.length) errors.push('Hướng dẫn tự luận chưa đóng \\end{huongdan}');
+  hd.forEach((m, i) => { for (const e of parseGiaiMau(m[1], true).errors) errors.push(`Hướng dẫn tự luận${hd.length > 1 ? ` thứ ${i + 1}` : ''}: ${e}`); });
   return errors;
 }
 
@@ -284,7 +295,8 @@ export function parseBank(raw) {
 
   const marks = []; const re = /\\man\s*\{/g; let m;
   while ((m = re.exec(raw))) marks.push(m.index);
-  if (!marks.length && !theory) errors.push({ msg: 'Chưa có màn nào. Mỗi màn bắt đầu bằng \\man{số}{tên mức}' });
+  // Bài mẫu (phan bai-mau) chỉ có khối giaimau, không có màn câu hỏi
+  if (!marks.length && !theory && !/\\begin\{giaimau\}/.test(raw)) errors.push({ msg: 'Chưa có màn nào. Mỗi màn bắt đầu bằng \\man{số}{tên mức}' });
 
   const levels = [];
   marks.forEach((at, x) => {
@@ -297,12 +309,14 @@ export function parseBank(raw) {
     let e; ENV.lastIndex = 0;
     while ((e = ENV.exec(body))) {
       let [b, sol] = takeCmd(e[2], 'loigiai');
-      let params, hints;
+      let params, hints, guide = null;
+      if (e[1] === 'extl') { const g = /\\begin\{huongdan\}([\s\S]*?)\\end\{huongdan\}/.exec(b); if (g) { guide = g[1]; b = b.replace(g[0], ''); } }
       [b, params] = takeAll(b, 'lttp');
       [b, hints] = takeAll(b, 'goiy');
       const q = { type: e[1], sol: sol || null };
       if (params.length) q.params = params.map(x => x.replace(/\u0001/g, '%'));
       if (hints.length) q.hints = hints;
+      if (guide != null) q.guide = guide;
       if (q.type === 'ex') {
         const k = b.indexOf('\\choice');
         if (k < 0) { err('Câu trắc nghiệm thiếu \\choice'); continue; }

@@ -1,0 +1,78 @@
+% Mẫu bài mẫu theo chương: tên bài mẫu, dòng saubai ghi mã bài (mở cho học sinh khi qua bài đó; bỏ dòng này thì mở khi qua hết chương), rồi khối giaimau.
+% Đã tự kiểm tra: tọa độ hình tính bằng Python (tiếp điểm, vuông góc, trung điểm, giao điểm đều đúng, sai số do làm tròn căn 3); OH.OA = R^2 chứng minh bằng tam giác đồng dạng (lớp 8), không dùng hệ thức lượng.
+\chude{Hai tiếp tuyến cắt nhau}
+\saubai{k9-b16}
+\begin{giaimau}
+\de{Cho đường tròn $(O;R)$ và điểm $A$ nằm ngoài đường tròn. Kẻ hai tiếp tuyến $AB$, $AC$ với đường tròn ($B$, $C$ là các tiếp điểm). Gọi $H$ là giao điểm của $OA$ và $BC$. Kẻ đường kính $BD$ của đường tròn $(O)$.\\
+1) Chứng minh bốn điểm $A$, $B$, $O$, $C$ cùng thuộc một đường tròn và $OH\cdot OA=R^2$.\\
+2) Chứng minh $CD\parallel OA$.\\
+3) Kẻ $CK\perp BD$ ($K$ thuộc $BD$). Đoạn thẳng $AD$ cắt $CK$ tại $I$. Chứng minh $I$ là trung điểm của $CK$.}
+\begin{tikzpicture}[scale=1, line join=round]
+\tkzSetUpLabel[font=\footnotesize]
+\tkzSetUpLine[line width=.8pt, color=black]
+\tkzDefPoint(0,0){O}
+\tkzDefPoint(4,0){A}
+\tkzDefPoint(1,1.7321){B}
+\tkzDefPoint(1,-1.7321){C}
+\tkzDefPoint(-1,-1.7321){D}
+\tkzDefPoint(1,0){H}
+\tkzDefPoint(-0.5,-0.8660){K}
+\tkzDefPoint(0.25,-1.2990){I}
+\tkzDefPoint(7,-1.7321){M}
+\tkzDefPoint(2,0){J}
+\tkzDrawCircle[line width=.8pt, color=black](O,B)
+\tkzDrawSegments(A,B A,C B,C O,A O,B O,C)
+\tkzMarkRightAngles[size=.18](O,B,A O,C,A)
+\phu{2}{3}{\draw[dashed] (J) circle (2); \draw[dashed] (J)--(B) (J)--(C); \draw[fill=black] (J) circle (.04) +(90:.3) node[font=\footnotesize]{$J$};}
+\hien{4}{\tkzMarkRightAngles[size=.18](B,H,O)}
+\hien{6}{\tkzDrawSegments(B,D C,D) \draw[fill=black] (D) circle (.04) +(225:.3) node[font=\footnotesize]{$D$};}
+\hien{8}{\tkzDrawSegments(C,K A,D) \tkzMarkRightAngles[size=.18](C,K,D) \foreach \x/\g in {K/170, I/-110} \draw[fill=black] (\x) circle (.04) +(\g:.3) node[font=\footnotesize]{$\x$};}
+\hien{8}{\tkzDrawSegments[dashed](A,M C,M) \draw[fill=black] (M) circle (.04) +(-20:.3) node[font=\footnotesize]{$M$};}
+\hien{13}{\tkzMarkSegments[mark=|](C,I I,K)}
+\sang{1}{\draw (A)--(B)--(O)--(C)--cycle;}
+\sang{2}{\draw (J)--(B) (J)--(C) (O)--(A);}
+\sang{3}{\draw (J) circle (2);}
+\sang{4}{\draw (A)--(B) (A)--(C) (O)--(B) (O)--(C) (B)--(C);}
+\sang{5}{\draw (O)--(B)--(A)--cycle (B)--(H);}
+\sang{6}{\draw (B)--(C)--(D)--cycle (O)--(C);}
+\sang{7}{\draw (C)--(D) (O)--(A) (B)--(C);}
+\sang{8}{\draw[dashed] (A)--(M)--(C);}
+\sang{9}{\draw (B)--(M)--(D)--cycle (O)--(A);}
+\sang{10}{\draw (C)--(K) (B)--(M) (B)--(D);}
+\sang{11}{\draw (D)--(B)--(A)--cycle (I)--(K);}
+\sang{12}{\draw (D)--(M)--(A)--cycle (I)--(C);}
+\sang{13}{\draw (C)--(K);}
+\foreach \x/\g in {O/150, A/60, B/90, C/-80, H/60}
+  \draw[color=black, fill=black] (\x) circle (.04) +(\g:.3) node[font=\footnotesize]{$\x$};
+\end{tikzpicture}
+\cau{Câu 1}{Chứng minh bốn điểm $A$, $B$, $O$, $C$ cùng thuộc một đường tròn và $OH\cdot OA=R^2$.}
+\doan{Muốn chứng minh bốn điểm cùng thuộc một đường tròn, em nên tìm gì?}{Một điểm cách đều cả bốn điểm $A$, $B$, $O$, $C$}{Chứng minh $ABOC$ là hình vuông}{Điểm cách đều bốn điểm chính là tâm của đường tròn đi qua chúng.}{$ABOC$ nói chung không là hình vuông ($OB=R$ còn $AB$ thường khác $R$). Hãy tìm một điểm cách đều bốn điểm.}{Chứng minh $OA=BC$}{Đẳng thức này nói chung không đúng, và cũng không chỉ ra được đường tròn nào.}
+\buocgiai{Tìm hai góc vuông có sẵn}{$AB$, $AC$ là tiếp tuyến tại $B$, $C$ nên $AB\perp OB$, $AC\perp OC$.}{Tiếp tuyến vuông góc với bán kính tại tiếp điểm.}
+\buocgiai{Lấy trung điểm của cạnh huyền chung}{Gọi $J$ là trung điểm của $OA$.\\ $\triangle OBA$ vuông tại $B$ nên $JB=\dfrac{OA}{2}$.\\ $\triangle OCA$ vuông tại $C$ nên $JC=\dfrac{OA}{2}$.}{Trong tam giác vuông, đường trung tuyến ứng với cạnh huyền bằng nửa cạnh huyền.}
+\buocgiai{Kết luận bốn điểm}{$JA=JO=JB=JC=\dfrac{OA}{2}$.\\ Vậy $A$, $B$, $O$, $C$ cùng thuộc đường tròn tâm $J$, đường kính $OA$.}{Bốn điểm cách đều điểm $J$ thì cùng nằm trên đường tròn tâm $J$.}
+\doan{Để có $OH\cdot OA=R^2$, em cần biết thêm điều gì về $BH$?}{$BH\perp OA$, tức $BH$ là đường cao của $\triangle OBA$}{$BH=HC$}{Có $BH\perp OA$ thì $\triangle OHB$ và $\triangle OBA$ cùng vuông, có chung góc $O$, nên đồng dạng.}{$BH=HC$ đúng, nhưng tự nó chưa cho tích $OH\cdot OA$. Cần một quan hệ vuông góc để có hai tam giác vuông đồng dạng.}{$H$ là trung điểm của $OA$}{Nói chung $H$ không là trung điểm của $OA$ (trên hình $H$ gần $O$ hơn).}
+\buocgiai{Chứng minh $OA\perp BC$}{$AB=AC$ (tính chất hai tiếp tuyến cắt nhau), $OB=OC=R$.\\ Nên $OA$ là đường trung trực của $BC$, suy ra $OA\perp BC$ tại $H$.}{$A$ và $O$ cùng cách đều $B$, $C$ nên cùng nằm trên đường trung trực của $BC$.}
+\buocgiai{Dùng tam giác đồng dạng}{$\triangle OHB$ và $\triangle OBA$ có $\widehat{OHB}=\widehat{OBA}=90^\circ$, chung góc $O$.\\ Nên $\triangle OHB\backsim\triangle OBA$ (g.g), suy ra $\dfrac{OH}{OB}=\dfrac{OB}{OA}$.\\ Do đó $OH\cdot OA=OB^2=R^2$.}{Hai tam giác vuông có một góc nhọn bằng nhau thì đồng dạng; tỉ số các cạnh tương ứng bằng nhau.}
+\cau{Câu 2}{Chứng minh $CD\parallel OA$.}
+\doan{Hai đường thẳng $CD$ và $OA$ cùng có quan hệ gì với một đường thẳng khác?}{Cùng vuông góc với $BC$}{Cùng đi qua $O$}{$OA\perp BC$ đã có ở câu 1, chỉ còn chứng minh $CD\perp BC$.}{$CD$ không đi qua $O$.}{Cùng song song với $AB$}{$OA$ cắt $AB$ tại $A$ nên không song song với $AB$.}
+\buocgiai{Chứng minh $CD\perp BC$}{$O$ là trung điểm của $BD$ nên $CO$ là trung tuyến của $\triangle BCD$.\\ $CO=R=\dfrac{BD}{2}$ nên $\triangle BCD$ vuông tại $C$, tức $CD\perp BC$.}{Tam giác có đường trung tuyến bằng nửa cạnh tương ứng thì vuông tại đỉnh đó.}
+\buocgiai{Kết luận}{$CD\perp BC$ và $OA\perp BC$ (câu 1).\\ Suy ra $CD\parallel OA$.}{Hai đường thẳng cùng vuông góc với một đường thẳng thì song song với nhau.}
+\cau{Câu 3}{Kẻ $CK\perp BD$ ($K$ thuộc $BD$). Đoạn thẳng $AD$ cắt $CK$ tại $I$. Chứng minh $I$ là trung điểm của $CK$.}
+\doan{Câu 2 cho $CD\parallel OA$, nhưng trên hình chưa dùng được ngay. Em nên vẽ thêm gì?}{Kéo dài $DC$ cắt đường thẳng $AB$ tại $M$}{Kẻ qua $I$ đường thẳng song song với $BD$}{Khi đó $OA\parallel DM$ nằm trong $\triangle BDM$, dùng được định lí Thales.}{Đường này không dùng tới $CD\parallel OA$, khó dẫn tới $IK=IC$.}{Nối $O$ với $I$}{$OI$ không tạo ra tam giác nào chứa cặp song song $CD\parallel OA$.}
+\buocgiai{Tạo điểm $M$}{Gọi $M$ là giao điểm của đường thẳng $DC$ và đường thẳng $AB$.}{Vẽ thêm điểm để biến giả thiết $CD\parallel OA$ thành cặp song song nằm trong một tam giác.}
+\begin{sodo}
+\nut{1}{$IK=IC$}{}
+\nut{2}{$\frac{IK}{AB}=\frac{IC}{AM}$}{}
+\nut{3}{$\frac{IK}{AB}=\frac{DI}{DA}$}{Thales trong $\triangle DBA$}
+\nut{3}{$\frac{IC}{AM}=\frac{DI}{DA}$}{Thales trong $\triangle DMA$}
+\nut{2}{$AB=AM$}{}
+\nut{3}{$OA\parallel DM$}{Thales trong $\triangle BDM$}
+\end{sodo}
+\buocgiai{Chứng minh $AB=AM$}{Trong $\triangle BDM$: $O$ là trung điểm của $BD$, $OA\parallel DM$ (câu 2), $A\in BM$.\\ Theo định lí Thales: $\dfrac{BA}{AM}=\dfrac{BO}{OD}=1$, nên $AB=AM$.}{Đường thẳng đi qua trung điểm một cạnh và song song với cạnh thứ hai thì đi qua trung điểm cạnh thứ ba.}
+\buocgiai{Chứng minh $CK\parallel BM$}{$CK\perp BD$ (giả thiết) và $BM\perp BD$ (vì $AB$ là tiếp tuyến tại $B$).\\ Nên $CK\parallel BM$, tức là $IK\parallel AB$ và $IC\parallel AM$.}{Hai đường thẳng cùng vuông góc với $BD$ thì song song.}
+\doan{Có $IK\parallel AB$ và $IC\parallel AM$. Hai tam giác nào cho cùng tỉ số $\dfrac{DI}{DA}$?}{$\triangle DBA$ và $\triangle DMA$}{$\triangle DKI$ và $\triangle DCI$}{Hai tam giác chung đỉnh $D$ và chung cạnh $DA$ chứa điểm $I$.}{Hai tam giác này không chứa $AB$, $AM$ nên không nối được với $AB=AM$.}{$\triangle OAB$ và $\triangle OAC$}{Hai tam giác này không chứa điểm $I$.}
+\buocgiai{Thales trong $\triangle DBA$}{$IK\parallel AB$ với $I\in DA$, $K\in DB$:\\ $\dfrac{IK}{AB}=\dfrac{DI}{DA}$. (1)}{Đường thẳng song song với một cạnh tạo ra tam giác mới có ba cạnh tương ứng tỉ lệ.}
+\buocgiai{Thales trong $\triangle DMA$}{$IC\parallel AM$ với $I\in DA$, $C\in DM$:\\ $\dfrac{IC}{AM}=\dfrac{DI}{DA}$. (2)}{Cùng hệ quả Thales, lần này trong tam giác $DMA$.}
+\buocgiai{Kết luận}{Từ (1) và (2): $\dfrac{IK}{AB}=\dfrac{IC}{AM}$.\\ Mà $AB=AM$ nên $IK=IC$.\\ Vậy $I$ là trung điểm của $CK$.}{Hai phân số bằng nhau có mẫu bằng nhau thì tử bằng nhau.}
+\nhanxet{Ý phân loại: phải tạo thêm điểm $M$ để dùng được giả thiết $CD\parallel OA$ của câu 2.\\ Và phải nhìn ra hai tam giác $DBA$, $DMA$ có chung tỉ số $\dfrac{DI}{DA}$.}
+\end{giaimau}

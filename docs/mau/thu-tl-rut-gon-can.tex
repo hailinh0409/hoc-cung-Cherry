@@ -1,0 +1,25 @@
+% Câu tự luận thử có gợi ý từng bước (lớp 9, Chương 3, sau Bài 9). Đặt vào một đề Ôn tập tự luận (tổng điểm cả đề phải là 10).
+% Đã tự kiểm tra (sympy, t = căn x > 0): ngoặc thứ nhất = (t+1)/t, ngoặc thứ hai = 1/(t-1), P = (x-1)/căn x;
+% thay x = 1/4 và x = 4 vào biểu thức gốc ra -3/2 và 3/2, khớp công thức; P < 0 ⇔ 0 < t < 1 ⇔ 0 < x < 1.
+% Sát chương trình: chỉ dùng biến đổi căn thức bậc hai (Bài 7–9) và bất phương trình bậc nhất; không cần phương trình bậc hai.
+\chude{Thử: rút gọn biểu thức chứa căn}
+
+\man{1}{Đề}
+\begin{extl}
+(2,0 điểm). Cho biểu thức $P=\left(\dfrac{\sqrt{x}}{\sqrt{x}-1}-\dfrac{1}{x-\sqrt{x}}\right):\left(\dfrac{1}{\sqrt{x}+1}+\dfrac{2}{x-1}\right)$ với $x>0$, $x\ne 1$.\\
+a) Rút gọn $P$.\\
+b) Tìm $x$ để $P<0$.
+\begin{huongdan}
+\buocgiai{Ý a: phân tích các mẫu}{Viết $x-\sqrt{x}=\sqrt{x}(\sqrt{x}-1)$ và $x-1=(\sqrt{x}-1)(\sqrt{x}+1)$.}{Đặt nhân tử chung; với $x>0$ thì $x=(\sqrt{x})^2$ nên dùng được hằng đẳng thức hiệu hai bình phương.}
+\buocgiai{Ý a: rút gọn ngoặc thứ nhất}{Quy đồng với mẫu chung $\sqrt{x}(\sqrt{x}-1)$; tử thu được là $x-1$.\\ Tự kiểm tra: ngoặc thứ nhất rút gọn được thành $\dfrac{\sqrt{x}+1}{\sqrt{x}}$.}{$x-1=(\sqrt{x}-1)(\sqrt{x}+1)$ nên chia được cả tử và mẫu cho $\sqrt{x}-1\ne 0$.}
+\buocgiai{Ý a: rút gọn ngoặc thứ hai}{Quy đồng với mẫu chung $(\sqrt{x}-1)(\sqrt{x}+1)$; tử thu được là $\sqrt{x}+1$.\\ Tự kiểm tra: ngoặc thứ hai rút gọn được thành $\dfrac{1}{\sqrt{x}-1}$.}{$\sqrt{x}-1+2=\sqrt{x}+1$, rồi chia cả tử và mẫu cho $\sqrt{x}+1>0$.}
+\buocgiai{Ý a: thực hiện phép chia}{Chia cho một phân thức là nhân với phân thức nghịch đảo.\\ Nhân hai kết quả trên rồi dùng lại hằng đẳng thức ở bước đầu.}{$A:\dfrac{1}{B}=A\cdot B$ với $B\ne 0$.}
+\begin{sodo}
+\nut{1}{$P<0$}{}
+\nut{2}{$x-1<0$}{tử âm}
+\nut{2}{$\sqrt{x}>0$}{mẫu dương, vì $x>0$}
+\end{sodo}
+\buocgiai{Ý b: kết hợp điều kiện}{Giải $x-1<0$, rồi kết hợp với điều kiện $x>0$, $x\ne 1$.}{Giá trị tìm được phải thuộc điều kiện xác định của $P$.}
+\end{huongdan}
+\loigiai{a) Với $x>0$, $x\ne 1$:\\ $\dfrac{\sqrt{x}}{\sqrt{x}-1}-\dfrac{1}{\sqrt{x}(\sqrt{x}-1)}=\dfrac{x-1}{\sqrt{x}(\sqrt{x}-1)}=\dfrac{\sqrt{x}+1}{\sqrt{x}}$ (0,5 điểm).\\ $\dfrac{1}{\sqrt{x}+1}+\dfrac{2}{(\sqrt{x}-1)(\sqrt{x}+1)}=\dfrac{\sqrt{x}+1}{(\sqrt{x}-1)(\sqrt{x}+1)}=\dfrac{1}{\sqrt{x}-1}$ (0,5 điểm).\\ $P=\dfrac{\sqrt{x}+1}{\sqrt{x}}\cdot(\sqrt{x}-1)=\dfrac{x-1}{\sqrt{x}}$ (0,5 điểm).\\ b) Vì $\sqrt{x}>0$ nên $P<0\Leftrightarrow x-1<0\Leftrightarrow x<1$. Kết hợp điều kiện: $0<x<1$ (0,5 điểm).}
+\end{extl}

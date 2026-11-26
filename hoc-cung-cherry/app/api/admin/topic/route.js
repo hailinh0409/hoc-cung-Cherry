@@ -4,7 +4,7 @@ import { toStatus, SPECIAL_TOPIC } from '@/lib/topics';
 import { parseBank } from '@/lib/latex';
 import { plainName } from '@/lib/names';
 
-const PHAN = ['dai-so', 'hinh-hoc', 'thong-ke', 'on-tap', 'thi-dau']; // thi-dau: Kho Thi đấu theo chương, chuong = k<khối>-c<số chương>
+const PHAN = ['dai-so', 'hinh-hoc', 'thong-ke', 'on-tap', 'thi-dau', 'bai-mau']; // thi-dau: Kho Thi đấu theo chương, bai-mau: Bài mẫu theo chương; cả hai có chuong = k<khối>-c<số chương>
 const slugify = s => plainName(s).replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 60) || 'chu-de';
 function specialExamError(text, publishing = false) {
   const { levels, errors } = parseBank(text);
@@ -32,7 +32,8 @@ export async function POST(req) {
     if (!title || (!special && !/^(6|7|8|9|1[0-2])$/.test(grade))) return fail('Thiếu tên hoặc khối');
     const chuong = special ? SPECIAL_TOPIC : phan === 'on-tap' ? null : (String(b.chuong || '').trim() || null);
     if (phan === 'thi-dau' && !new RegExp(`^k${grade}-c\\d+$`).test(chuong || '')) return fail('Kho Thi đấu cần chọn chương');
-    const code = chuong && /^k\d+-[a-z0-9-]+$/.test(chuong) ? chuong.replace(/^k\d+-/, '') + '-' : '';
+    if (phan === 'bai-mau' && !new RegExp(`^k${grade}-c\\d+$`).test(chuong || '')) return fail('Bài mẫu cần chọn chương');
+    const code = chuong && /^k\d+-[a-z0-9-]+$/.test(chuong) ? chuong.replace(/^k\d+-/, '') + '-' + (phan === 'bai-mau' ? 'mau-' : '') : '';
     const sl = slugify(title), base = `lop${grade}-${code}${phan === 'on-tap' && !/^de-/.test(sl) ? 'de-' : ''}${sl}`.slice(0, 80);
     const { data: used } = await db.from('ltt_topics').select('slug').like('slug', base + '%');
     const taken = new Set((used || []).map(r => r.slug));

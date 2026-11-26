@@ -335,7 +335,7 @@ function renderLessonMaterial(root,t,o={}){
     box.querySelector('.ls-part').textContent='Hoàn thành';bar.style.width='100%';go.disabled=false;
     const stats={quiz:quizN,first:quizN-missed.size};
     const api={again:()=>{sfx.tap();i=0;missed.clear();go.onclick=next;show()},go};
-    stage.innerHTML=`<div class="ls-screen ls-done"><div class="ls-girl big" aria-hidden="true">${owlSVG}</div><h2>Xong lý thuyết!</h2>${quizN?`<div class="ls-stat"><b>${stats.first}/${quizN}</b><span>câu trả lời đúng ngay lần đầu</span></div>`:''}<div class="ls-end"></div></div>`;
+    stage.innerHTML=`<div class="ls-screen ls-done"><div class="ls-girl big" aria-hidden="true">${owlSVG}</div><h2>${o.doneTitle||'Xong lý thuyết!'}</h2>${quizN?`<div class="ls-stat"><b>${stats.first}/${quizN}</b><span>câu trả lời đúng ngay lần đầu</span></div>`:''}<div class="ls-end"></div></div>`;
     go.textContent='Xem lại từ đầu';go.onclick=api.again;
     if(o.finish)o.finish(stage.querySelector('.ls-end'),stats,api);
     typeset(stage);sfx.win();
