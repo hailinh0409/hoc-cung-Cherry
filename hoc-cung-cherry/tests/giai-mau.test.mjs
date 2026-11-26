@@ -38,3 +38,25 @@ test('báo lỗi soạn', () => {
   const P = parseBank('\\chude{T}\n\\begin{lythuyet}\n\\begin{giaimau}\\de{x}\n\\end{lythuyet}');
   assert.ok(P.errors.some(x => /giải mẫu/.test(x.msg)));
 });
+
+test('hướng dẫn tự luận trong extl: tách khỏi đề, đọc bước và sơ đồ, dịch khung hình', () => {
+  const tl = `\\chude{Đề TL}\n\\man{1}{Đề}\n\\begin{extl}Giải phương trình $x^2-5x+6=0$.
+\\begin{huongdan}
+\\begin{tikzpicture}\\draw (0,0)--(1,0);\\sang{1}{\\draw (0,0)--(1,0);}\\end{tikzpicture}
+\\buocgiai{Nhận dạng}{Đây là phương trình bậc hai.}{Có $x^2$.}
+\\begin{sodo}\\nut{1}{$x=2$ hoặc $x=3$}{}\\nut{2}{$(x-2)(x-3)=0$}{}\\end{sodo}
+\\buocgiai{Phân tích}{Tìm hai số có tổng 5, tích 6.}{}
+\\end{huongdan}
+\\loigiai{$x=2$ hoặc $x=3$.}\\end{extl}`;
+  const P = parseBank(tl);
+  assert.deepEqual(P.errors, []);
+  const q = P.levels[0].qs[0];
+  assert.ok(!/huongdan|buocgiai/.test(q.stem));
+  const g = parseGiaiMau(q.guide, true);
+  assert.deepEqual(g.errors, []);
+  assert.deepEqual(g.items.map(x => x.k), ['buocgiai', 'sodo', 'buocgiai']);
+  assert.equal(g.frames.length, 3); // bước 1 tô sáng, sơ đồ (đã qua 1 bước), bước 2
+  assert.equal(figBlocks(tl).length, 3);
+  const bad = parseBank(tl.replace('\\buocgiai{Nhận dạng}', '\\doan{a}{b}{c}{d}{e}\\buocgiai{Nhận dạng}'));
+  assert.ok(bad.errors.some(e => /Hướng dẫn tự luận chỉ dùng/.test(e.msg)));
+});
