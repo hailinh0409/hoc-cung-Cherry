@@ -161,6 +161,29 @@ function lsChunks(src){
 }
 const lsTex=lines=>tex(lines.join('\\\\'));
 
+// Hình co giãn theo màn hình điện thoại (thầy chốt 26/11/2026): lấp đầy bề ngang khung nhưng không cao quá
+// một phần chiều cao vùng nội dung (để còn chỗ cho chữ), và không phóng quá 2,5 lần cỡ gốc (hình rất nhỏ khỏi to
+// bất thường). Tự tính lại khi xoay máy hoặc đổi cỡ cửa sổ. Hình tĩnh có dòng "Chạm hình để phóng to".
+const LS_FIG_MAX=2.5;
+function lsFitFig(img,stage){
+  const w=img.naturalWidth,h=img.naturalHeight;if(!w||!h||!stage.clientHeight)return;
+  const hb=img.closest('.hb-pic'),opt=img.closest('.ls-opt');
+  const host=hb||opt||img.closest('.ls-text,.ls-sol,.ls-q,.ls-lab')||stage;
+  const room=host.clientWidth-(hb?16:0);
+  // hình từng bước là nội dung chính của màn nên được cao hơn; hình trong phương án nhỏ lại
+  // máy xoay ngang: vùng nội dung thấp, cho hình cao gần hết khung (học sinh cuộn xuống đọc tiếp)
+  const wideScreen=stage.clientWidth>stage.clientHeight;
+  const maxH=stage.clientHeight*(wideScreen?(opt?0.5:0.9):hb?0.6:opt?0.25:0.5);
+  let W=Math.min(room,w*LS_FIG_MAX);
+  if(W*h/w>maxH)W=maxH*w/h;
+  if(W>0)img.style.width=Math.round(W)+'px';
+}
+function lsFitFigs(stage){
+  stage.querySelectorAll('img.fig').forEach(img=>{
+    if(!img.closest('.hb-pic,.ls-opt')&&!(img.nextElementSibling&&img.nextElementSibling.classList.contains('ls-zhint')))img.insertAdjacentHTML('afterend','<span class="ls-zhint">Chạm hình để phóng to</span>');
+    if(img.complete&&img.naturalWidth)lsFitFig(img,stage);else{img.loading='eager';img.addEventListener('load',()=>lsFitFig(img,stage),{once:true})}});
+}
+
 // Danh sách màn của một bài từ các mục đã đọc (lib/latex.js parseTheory)
 function lessonScreens(items){
   const S=[],groups=[];let g={items:[]};
@@ -211,6 +234,7 @@ function renderLessonMaterial(root,t,o={}){
     <div class="ls-foot"><div class="ls-fb"><b></b><div></div></div><button type="button" class="ls-go">Tiếp tục</button></div></div>`;
   const box=root.firstElementChild,stage=box.querySelector('.ls-stage'),foot=box.querySelector('.ls-foot'),go=box.querySelector('.ls-go'),bar=box.querySelector('.ls-prog b');
   const quizN=screens.filter(x=>x.type==='quiz').length;
+  if(window.ResizeObserver){let t=0;new ResizeObserver(()=>{clearTimeout(t);t=setTimeout(()=>stage.querySelectorAll('img.fig').forEach(img=>img.complete&&lsFitFig(img,stage)),80)}).observe(stage)}
   let i=Math.min(Math.max(0,o.start||0),screens.length),state='read',pick=null,missed=new Set(),labCheck=null;
   if(o.onClose)box.querySelector('.ls-x').onclick=()=>{sfx.tap();o.onClose()};
   if(o.teacherEdit)box.querySelector('.ls-ed').onclick=()=>{sfx.tap();o.teacherEdit()};
@@ -230,11 +254,11 @@ function renderLessonMaterial(root,t,o={}){
     stage.innerHTML=sc.intro?`<div class="ls-screen ls-intro"><div class="ls-girl big" aria-hidden="true">${owlSVG}</div><div class="ls-bub">${sc.say}</div></div>`:`<div class="ls-screen">${say}${body}</div>`;
     state=sc.type==='quiz'?'answer':'read';go.textContent=sc.type==='quiz'?'Kiểm tra':'Tiếp tục';
     ready(sc.type==='read');
-    if(sc.type==='vidu')stage.querySelector('[data-sol]').onclick=e=>{sfx.tap();stage.querySelector('.ls-sol').hidden=false;e.target.remove();ready(true);typeset(stage)};
+    if(sc.type==='vidu')stage.querySelector('[data-sol]').onclick=e=>{sfx.tap();stage.querySelector('.ls-sol').hidden=false;e.target.remove();ready(true);typeset(stage);lsFitFigs(stage)};
     if(sc.type==='quiz')stage.querySelectorAll('.ls-opt').forEach(b=>b.onclick=()=>{if(state!=='answer')return;sfx.tap();
       stage.querySelectorAll('.ls-opt').forEach(x=>x.classList.toggle('sel',x===b));pick=Number(b.dataset.o);ready(true)});
     if(sc.type==='lab')bindLab(sc);
-    typeset(stage);
+    typeset(stage);lsFitFigs(stage);
   }
   // Màn khám phá: xong khi đã chạm (hình từng bước: khi tới bước cuối). Hình chưa dịch thì cho đi tiếp luôn.
   function bindLab(sc){
@@ -251,6 +275,14 @@ function renderLessonMaterial(root,t,o={}){
     if(!stage.querySelector('button,.hb-pic'))ready(true);
   }
   stage.addEventListener('click',e=>{if(labCheck&&e.target.closest('button,.hb-pic'))setTimeout(labCheck,0)});
+  // Chạm hình tĩnh: xem to toàn khung, kéo/phóng bằng hai ngón; chạm lần nữa hoặc × để đóng
+  stage.addEventListener('click',e=>{const img=e.target.closest('img.fig');if(!img||img.closest('.hb-pic,.ls-opt'))return;sfx.tap();
+    const z=document.createElement('div');z.className='ls-zoom';z.setAttribute('role','dialog');z.setAttribute('aria-label','Hình phóng to');
+    z.innerHTML=`<button type="button" class="ls-zx" aria-label="Đóng">×</button><div class="ls-zin"><img src="${img.getAttribute('src')}" alt="${esc(img.alt||'Hình vẽ')}"></div>`;
+    z.onclick=e=>{if(e.target.closest('.ls-zx')||!e.target.closest('img'))z.remove()};box.appendChild(z);
+    // Hình hiện to gấp khoảng 1,8 lần cỡ đang thấy (ít nhất bằng bề ngang khung); kéo ngang/dọc để xem các phần
+    const big=z.querySelector('.ls-zin img'),w=img.naturalWidth||0,inner=z.querySelector('.ls-zin');
+    if(w){big.style.width=Math.max(inner.clientWidth-24,Math.round(img.getBoundingClientRect().width*1.8))+'px';inner.scrollLeft=(inner.scrollWidth-inner.clientWidth)/2}});
   function check(){
     const sc=screens[i],o2=sc.opts[pick],ok=o2.ok;
     state='fb';foot.className='ls-foot '+(ok?'ok':'no');

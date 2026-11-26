@@ -21,6 +21,9 @@ Với mỗi ý chính, sắp nội dung theo trình tự sau:
 3. Thêm minh họa khi nó giúp học sinh thấy được điều cần hiểu.
    Chỉ dùng các mẫu đang có trong danh sách bên dưới. Nếu chỉ cần
    quan sát hình, có thể chèn TikZ theo quy trình soạn bài hiện hành.
+   Hình cho điện thoại dọc: rộng 5–7 cm, nhãn ngắn và không đè nhau
+   (nhãn dài thì xuống dòng bằng align=center và \\), chữ giải thích
+   để ngoài hình, đặt hình ngay sau câu nó minh họa.
 4. \vidu{Đề ví dụ}{Lời giải}. Thêm \luuy{Lỗi hay gặp} nếu hữu ích.
 5. \thungay{Câu hỏi}{Đáp án đúng}{Đáp án sai}
    {Giải thích vì sao đúng}{Phản hồi để sửa lỗi sai}
