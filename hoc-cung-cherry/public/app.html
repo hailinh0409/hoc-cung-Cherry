@@ -1108,6 +1108,13 @@ textarea.code.light{background:#fff;color:#12313a;font:14px/1.5 "Be Vietnam Pro"
   .ls-picture img.fig,.ls-picture svg{max-height:62vh;max-height:62dvh}
 }
 
+.ls-picture svg{width:100%}
+.cat-hit{cursor:pointer}
+.cat-hit:focus-visible{outline:none;stroke:#2267ba;stroke-width:3}
+.cat-slide{transition:transform 1.4s ease-in-out}
+.ls-toggles{grid-template-columns:repeat(auto-fit,minmax(min(100%,140px),1fr))}
+@media (prefers-reduced-motion:reduce){.cat-slide{transition:none}}
+
 .gvlink{margin-top:4px;font-size:13px;color:#7a9399;text-decoration:underline;align-self:center}
 .figmiss{display:inline-block;padding:6px 10px;border-radius:8px;background:#fff3c4;color:#7a5a00;font-size:13px}
 img.fig{display:block;max-width:100%;height:auto;margin:8px auto;background:#fff;border-radius:8px}
@@ -3154,6 +3161,116 @@ function figErrText(k,n,errs){const out=[`Thầy Linh nhờ sửa các hình Tik
 
 /* ---------- tóm tắt lý thuyết của bài ---------- */
 const bookSVG='<svg viewBox="0 0 24 24" width="18" height="18"><path d="M3 5.5C5.5 4 8.5 4 12 6c3.5-2 6.5-2 9-.5V19c-2.5-1.3-5.5-1.3-9 .7-3.5-2-6.5-2-9-.7z" fill="#fff" stroke="#2584b8" stroke-width="1.6" stroke-linejoin="round"/><path d="M12 6v13.7" stroke="#2584b8" stroke-width="1.6"/></svg>';
+const CAT_COLORS={cam:'#f28c28',lam:'#3b7be0',luc:'#2fa36b',tim:'#8b5cf6',do:'#e0475a'};
+const CAT_NUMBERS=[3,2,1,4];
+const CAT_SCALE=56;
+const catEsc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+function catIntersection([a,b],[c,d]){
+  const x=b[0]-a[0],y=b[1]-a[1],u=d[0]-c[0],v=d[1]-c[1];
+  const fraction=((c[0]-a[0])*v-(c[1]-a[1])*u)/(x*v-y*u);
+  return [a[0]+x*fraction,a[1]+y*fraction];
+}
+
+function catAngles(point,rays){
+  const boundaries=rays.map(([x,y])=>Math.atan2(y-point[1],x-point[0]));
+  for(let i=1;i<boundaries.length;i++){
+    while(boundaries[i]<boundaries[i-1])boundaries[i]+=2*Math.PI;
+  }
+  return boundaries.map((from,i)=>({from,to:boundaries[i+1]??boundaries[0]+2*Math.PI,number:CAT_NUMBERS[i]}));
+}
+
+function catText(x,y,value,kind){
+  return `<text class="cat-${kind}" x="${x}" y="${y}" dy=".35em" text-anchor="middle">${catEsc(value)}</text>`;
+}
+
+function catTuyen(params={},state={}, {tap=false,region=false,slide=false}={}){
+  const [a,b,c]=params.duong||['a','b','c'];
+  const [A,B]=params.diem||['A','B'];
+  const isParallel=String(params['song-song'])==='1', direction=params.c==='phai'?-1:1;
+  const lines=isParallel?[[[-2.8,2],[3.3,2]],[[-2.8,0],[3.3,0]]]:
+    [[[-2.8,2.3],[3.3,2.75]],[[-2.8,.3],[3.3,-.12]]];
+  const cut=[[-.85*direction,3.75],[1.75*direction,-1.5]];
+  const vertices=lines.map((line,i)=>{
+    const point=catIntersection(line,cut);
+    return {point,name:[A,B][i],angles:catAngles(point,[line[1],cut[0],line[0],cut[1]])};
+  });
+  const pointX=x=>Number(((x+3.1)*CAT_SCALE).toFixed(1));
+  const pointY=y=>Number(((4.05-y)*CAT_SCALE).toFixed(1));
+  const XY=([x,y])=>[pointX(x),pointY(y)];
+  const vector=(origin,radius,theta)=>XY([origin[0]+radius*Math.cos(theta),origin[1]+radius*Math.sin(theta)]);
+  const pointList=points=>points.map(p=>XY(p).join(',')).join(' ');
+
+  function sector(point,{from,to},radius){
+    const [cx,cy]=XY(point), [sx,sy]=vector(point,radius,from), [ex,ey]=vector(point,radius,to);
+    const r=radius*CAT_SCALE;
+    return `M${cx} ${cy}L${sx} ${sy}A${r} ${r} 0 ${to-from>Math.PI?1:0} 0 ${ex} ${ey}Z`;
+  }
+
+  function drawAngle(vertex,angle,{number,color,value}){
+    const {point}=vertex,{from,to}=angle, middle=(from+to)/2;
+    let out=color?`<path d="${sector(point,angle,.55)}" fill="${color}" fill-opacity=".33" stroke="${color}" stroke-width="2"/>`:'';
+    if(number){
+      const [x,y]=vector(point,.38,middle);
+      out+=`<g fill="${color||'#111'}">${catText(x,y,angle.number,'number')}</g>`;
+    }
+    if(value){
+      const [x,y]=vector(point,.86,middle);
+      out+=`<g fill="${color||CAT_COLORS.do}">${catText(x,y,value,'value')}</g>`;
+    }
+    return out;
+  }
+
+  const [top,bottom]=lines;
+  const regions={
+    tren:[[-2.8,4.05],[3.3,4.05],top[1],top[0]],
+    giua:[top[0],top[1],bottom[1],bottom[0]],
+    duoi:[bottom[0],bottom[1],[3.3,-1.75],[-2.8,-1.75]],
+  };
+  let out=state.vung&&regions[state.vung]?`<polygon points="${pointList(regions[state.vung])}" fill="#ffe08a" fill-opacity=".5"/>`:'';
+  for(const [start,end] of [...lines,cut]){
+    const [x1,y1]=XY(start),[x2,y2]=XY(end);
+    out+=`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#111" stroke-width="2.2" stroke-linecap="round"/>`;
+  }
+  for(const vertex of vertices){
+    for(const angle of vertex.angles){
+      const key=vertex.name+angle.number;
+      out+=drawAngle(vertex,angle,{number:state.so!=='an'&&(!slide||vertex!==vertices[0]),
+        color:CAT_COLORS[state.to?.[key]],value:state.do?.[key]});
+    }
+    const [x,y]=XY(vertex.point), [nx,ny]=vector(vertex.point,1,98*Math.PI/180);
+    out+=`<circle cx="${x}" cy="${y}" r="4.5"/>${catText(nx+10,ny,vertex.name,'label')}`;
+  }
+  for(const [index, [start,end]] of [...lines,cut].entries()){
+    const [first,last]=[a,b,c][index].split('-'),[x1,y1]=XY(start),[x2,y2]=XY(end);
+    const cutLine=index===2;
+    out+=catText(x1+(cutLine?12:-6),y1+(cutLine?4:-14),first,'label');
+    if(last)out+=catText(x2+(cutLine?-12:6),y2+(cutLine?-4:14),last,'label');
+  }
+
+  if(slide){
+    const [from,to]=vertices,[x1,y1]=XY(from.point),[x2,y2]=XY(to.point);
+    const moving=from.angles.map(angle=>drawAngle(from,angle,{number:true,color:Object.values(CAT_COLORS)[angle.number-1]})).join('');
+    out+=`<g class="cat-slide" data-dx="${x2-x1}" data-dy="${y2-y1}"${slide==='to'?` style="transform:translate(${x2-x1}px,${y2-y1}px)"`: ''}>${moving}</g>`;
+  }
+  if(tap){
+    for(const vertex of vertices){
+      for(const angle of vertex.angles){
+        const key=catEsc(vertex.name+angle.number);
+        out+=`<path class="cat-hit" data-angle="${key}" d="${sector(vertex.point,angle,1)}" fill="transparent" tabindex="0" role="button" aria-label="Góc ${key}"/>`;
+      }
+    }
+  }
+  if(region){
+    const regionLabels={tren:'Phía trên đường thứ nhất',giua:'Giữa hai đường thẳng',duoi:'Phía dưới đường thứ hai'};
+    for(const [key,points] of Object.entries(regions)){
+      out+=`<polygon class="cat-hit" data-region="${key}" points="${pointList(points)}" fill="transparent" tabindex="0" role="button" aria-label="${regionLabels[key]}"/>`;
+    }
+  }
+  return `<svg viewBox="0 0 395 325" role="${tap||region?'group':'img'}" aria-label="${catEsc('Đường thẳng '+c+' cắt '+a+' và '+b+' tại '+A+' và '+B)}">
+    <style>.cat-label{font:italic 19px "Times New Roman",serif}.cat-number{font:16px "Times New Roman",serif}.cat-value{font:700 13.5px Nunito,sans-serif}</style>${out}</svg>`;
+}
+
 const setLesson = [
   {
     title: 'Quả nào vào giỏ?',
@@ -3623,6 +3740,142 @@ function renderLessonMaterial(root,t,o={}){
   renderLecture(root,t,o,plan);
 }
 
+function lectureGeometryState(base,update){
+  return {...base,...update,to:{...base.to,...update?.to},do:{...base.do,...update?.do}};
+}
+
+function bindLectureGeometry(sc,stage,pin,go,state,options,repaint,nextLabel){
+  const screen=stage.firstElementChild,feedback=screen.querySelector('.ls-geometry-note');
+  const announce=(html,style='')=>{
+    feedback.innerHTML=html;
+    feedback.className=('ls-geometry-note ls-answer-note '+style).trim();
+    feedback.hidden=false;
+    typeset(feedback);
+  };
+  const setState=update=>Object.assign(state,lectureGeometryState(state,update));
+  const label=()=>{go.textContent=nextLabel();go.disabled=false};
+  const stillHere=()=>screen.isConnected&&stage.firstElementChild===screen;
+
+  if(sc.type==='tap'||sc.type==='region'){
+    go.disabled=true;
+    const angles=sc.type==='tap';
+    const prompt=angles?sc.tap:sc.region, correctKey=angles?prompt.ans:prompt.key;
+    const keyOf=hit=>angles?hit.dataset.angle:hit.dataset.region;
+    let answered=false;
+    const handle=hit=>{
+      if(answered)return;
+      const key=keyOf(hit);
+      if(angles)state.to={...sc.state?.to};
+      if(key===correctKey){
+        answered=true;
+        if(angles){
+          const base=Object.fromEntries(Object.entries(state.to).map(([id,color])=>[id,color==='cam'?'luc':color]));
+          state.to={...base,[key]:'luc'};
+        }else state.vung=key;
+        options.tap=false;
+        options.region=false;
+        announce(lectureTex(prompt.ok),'ok');
+        sfx.ok();
+        label();
+      }else{
+        if(angles)state.to[key]='do';
+        announce(lectureTex(angles?(prompt.nhac[key]||prompt.hint):'Em quan sát hai đường thẳng rồi chạm lại nhé.'),'no');
+        sfx.no();
+      }
+      repaint();
+      if(!answered)[...pin.querySelectorAll('.cat-hit')].find(el=>keyOf(el)===key)?.focus({preventScroll:true});
+      else go.focus({preventScroll:true});
+    };
+    pin.onclick=event=>{const hit=event.target.closest('.cat-hit');if(hit)handle(hit)};
+    pin.onkeydown=event=>{
+      const hit=event.target.closest('.cat-hit');
+      if(hit&&(event.key==='Enter'||event.key===' ')){event.preventDefault();handle(hit)}
+    };
+    return;
+  }
+  if(sc.type==='slide'){
+    const button=screen.querySelector('.ls-slide-start');
+    go.disabled=true;
+    button.onclick=()=>{
+      const moving=pin.querySelector('.cat-slide');
+      button.disabled=true;
+      options.slide='to';
+      const done=()=>{
+        if(!stillHere()||!feedback.hidden)return;
+        announce(lectureTex(sc.slide.after),'ok');
+        label();
+      };
+      if(!moving||matchMedia('(prefers-reduced-motion: reduce)').matches){
+        repaint();
+        done();
+        return;
+      }
+      moving.addEventListener('transitionend',done,{once:true});
+      moving.style.transform='translate('+moving.dataset.dx+'px,'+moving.dataset.dy+'px)';
+      setTimeout(done,1500);
+    };
+    return;
+  }
+  if(sc.type==='calc'){
+    const target=screen.querySelector('.ls-calc');
+    let index=0;
+    go.disabled=true;
+    function nextQuestion(){
+      const item=sc.calc.items[index];
+      if(!item){
+        target.replaceChildren();
+        if(sc.calc.ketluan)announce(lectureTex(sc.calc.ketluan),'ok');
+        label();
+        return;
+      }
+      const answers=[{html:item.correct,ok:true,feedback:item.explainCorrect},{html:item.wrong,ok:false,feedback:item.explainWrong}];
+      target.innerHTML=`<div class="ls-q">${lectureTex(item.q)}</div><div class="ls-opts" role="group" aria-label="Các phương án">${shuffle([0,1]).map(n=>
+        `<button type="button" class="ls-opt" data-calc="${n}">${lectureTex(answers[n].html)}</button>`).join('')}</div>`;
+      const buttons=[...target.querySelectorAll('button')];
+      const evaluate=button=>{
+        const answer=answers[Number(button.dataset.calc)];
+        buttons.forEach(b=>b.disabled=true);
+        button.classList.add(answer.ok?'right':'wrong');
+        announce(lectureTex(answer.feedback),answer.ok?'ok':'no');
+        if(answer.ok){
+          setState(item.state);
+          repaint();
+          sfx.ok();
+          index++;
+          nextQuestion();
+        }else{
+          sfx.no();
+          setTimeout(()=>{
+            if(!stillHere())return;
+            buttons.forEach(b=>b.disabled=false);
+            button.classList.remove('wrong');
+            button.focus({preventScroll:true});
+          },1800);
+        }
+      };
+      buttons.forEach(button=>button.onclick=()=>evaluate(button));
+      typeset(target);
+    }
+    nextQuestion();
+    return;
+  }
+  const buttons=[...screen.querySelectorAll('[data-figure-state]')];
+  const visited=new Set();
+  const select=i=>{
+    visited.add(i);
+    const next=lectureGeometryState(sc.state||{},sc.toggle[i].state);
+    Object.assign(state,next);
+    buttons.forEach((b,index)=>{
+      b.classList.toggle('sel',i===index);
+      b.setAttribute('aria-pressed',String(i===index));
+    });
+    repaint();
+    go.disabled=visited.size<buttons.length;
+  };
+  buttons.forEach((button,i)=>button.onclick=()=>select(i));
+  select(0);
+}
+
 function renderLecture(root,t,o,plan){
   const {modern,screens,sections,parts,outline}=plan;
   const title=o.title||t.title||'Bài học';
@@ -3785,6 +4038,14 @@ function renderLecture(root,t,o,plan){
     const parsedFrames=picture?.kind==='hinhbuoc'?parseHinhBuoc(picture.src):null;
     const frames=parsedFrames?.frames.length?parsedFrames:null;
     const currentState={...sc.state};
+    const canDraw=picture?.kind==='mau'&&picture.mau?.name==='cat-tuyen';
+    const modelOptions={
+      tap:canDraw&&sc.type==='tap',
+      region:canDraw&&sc.type==='region',
+      slide:canDraw&&sc.type==='slide'?'from':false,
+    };
+    pin.onclick=null;
+    pin.onkeydown=null;
     let frame=Math.min(frames?.frames.length||1,Math.max(1,currentState.buoc||1));
     const activeFold=section?.number?sc.section:i+sections.length;
     const animateFrame=sc.type==='opening'||sc.type==='steps';
@@ -3796,8 +4057,8 @@ function renderLecture(root,t,o,plan){
       content.classList.toggle('ls-has-pin',Boolean(picture));
       if(!picture){pin.replaceChildren();return}
       const isFolded=folded.has(activeFold);
-      const body=frames?stepImage():picture.kind==='mau'?'<p class="figmiss">Hình tương tác đang được bổ sung.</p>':staticImage;
-      const canZoom=body.startsWith('<img');
+      const body=frames?stepImage():canDraw?catTuyen(picture.mau.params,currentState,modelOptions):staticImage;
+      const canZoom=!modelOptions.tap&&!modelOptions.region&&(body.startsWith('<img')||canDraw);
       pin.innerHTML=`<div class="ls-pin-bar"><span>${sc.shared?'Hình dùng chung cho phần '+section.number:'Hình'}</span>
         <button type="button" class="ls-pin-fold" aria-expanded="${!isFolded}">${isFolded?'▸ Hiện hình':'Thu gọn ▴'}</button></div>
         <div class="ls-picture" ${isFolded?'hidden':''}>${body}${canZoom?'<button type="button" class="ls-pin-zoom" aria-label="Phóng to hình">⤢</button>':''}</div>`;
@@ -3848,13 +4109,20 @@ function renderLecture(root,t,o,plan){
     }else if(sc.type==='tree'){
       body=`<p class="gm-tip">Chạm ô viền cam để mở nhánh.</p>${gmTreeHTML(sc.nodes)}`;
     }else if(['tap','region','slide','calc'].includes(sc.type)){
-      const prompt=sc.tap?.prompt||sc.region?.prompt||sc.calc?.items[0]?.q||sc.slide?.label;
-      body=`${prompt&&prompt!==sc.cherry?`<p>${lectureTex(prompt)}</p>`:''}<p class="ls-hint">Thao tác trên hình đang được bổ sung. Em có thể đi tiếp.</p>`;
+      const prompt=sc.tap?.prompt||sc.region?.prompt;
+      body=`${prompt&&prompt!==sc.cherry?`<p>${lectureTex(prompt)}</p>`:''}${canDraw?(sc.type==='calc'?'<div class="ls-calc"></div>':
+          sc.type==='slide'?`<p class="ls-center"><button type="button" class="ls-mini ls-slide-start">${lectureTex(sc.slide.label)} ↓</button></p>`:
+          ''):'<p class="ls-hint">Màn này cần hình minh họa. Em có thể đi tiếp.</p>'}
+        <div class="ls-geometry-note ls-answer-note" role="status" hidden></div>`;
     }else{
-      body=`<div class="ls-text">${sc.html||''}</div>${sc.toggle?'<p class="ls-hint">Đổi trạng thái hình đang được bổ sung.</p>':''}`;
+      body=`<div class="ls-text">${sc.html||''}</div>${canDraw&&sc.toggle?`<div class="ls-opts ls-toggles" role="group" aria-label="Đổi trạng thái hình">${sc.toggle.map((item,index)=>
+          `<button type="button" class="ls-opt" data-figure-state="${index}" aria-pressed="false">${lectureTex(item.label)}</button>`).join('')}</div>`:''}`;
     }
     if(sc.gm)body=`<div class="gm-fig">${sc.fig||''}<button type="button" class="gm-debtn">Đề bài</button></div>`+body;
     stage.innerHTML=`<div class="ls-screen" tabindex="-1">${speech}${heading}${mainTitle}${body}</div>`;
+    if(canDraw&&(sc.toggle||['tap','region','slide','calc'].includes(sc.type))){
+      bindLectureGeometry(sc,stage,pin,go,currentState,modelOptions,paintPin,advanceLabel);
+    }
 
     if(sc.type==='outline'){
       go.textContent=review()?'Ôn lại phần 1':'Bắt đầu phần 1';
@@ -3884,6 +4152,9 @@ function renderLecture(root,t,o,plan){
         if(correct)sfx.ok();else{sfx.no();missed.add(i)}
         if(frames){
           frame=Math.min(frames.frames.length,Math.max(1,sc.after?.buoc??(sc.after?frame:frames.frames.length)));
+          paintPin();
+        }else if(canDraw&&sc.after){
+          Object.assign(currentState,lectureGeometryState(currentState,sc.after));
           paintPin();
         }
         options.forEach(button=>{
