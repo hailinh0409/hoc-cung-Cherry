@@ -15,3 +15,21 @@ self.addEventListener('fetch', e => {
     }));
   }
 });
+
+// Thông báo bài tập (máy chủ gửi qua Web Push, xem lib/push-core.mjs)
+self.addEventListener('push', e => {
+  let d = {};
+  try { d = e.data ? e.data.json() : {}; } catch { d = { body: e.data && e.data.text() }; }
+  e.waitUntil(self.registration.showNotification(d.title || 'Học cùng Cherry', {
+    body: d.body || 'Em có bài tập mới.', tag: d.tag || 'cherry', renotify: true,
+    icon: '/icon-192.png', badge: '/icon-192.png', data: { url: d.url || '/' }
+  }));
+});
+self.addEventListener('notificationclick', e => {
+  e.notification.close();
+  const url = (e.notification.data && e.notification.data.url) || '/';
+  e.waitUntil(self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(list => {
+    const open = list.find(c => new URL(c.url).origin === location.origin);
+    return open ? open.focus() : self.clients.openWindow(url);
+  }));
+});
