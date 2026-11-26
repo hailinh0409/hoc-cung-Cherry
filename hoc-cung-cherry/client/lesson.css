@@ -220,17 +220,28 @@
 .tl-guide .gm-tree{margin-top:4px}
 
 /* Bài giảng: giữ hình và câu hỏi trong cùng một màn. */
-.ls-lecture{container-type:inline-size;font-size:16px}
+.ls-lecture{container-type:inline-size;font-size:19px;line-height:1.45}
+.ls-lecture .ls-stage{padding-inline:clamp(14px,4cqi,24px)}
+.ls-lecture .ls-screen h2{font-size:clamp(23px,6cqi,28px);line-height:1.18}
+.ls-lecture .ls-kind{font-size:14px}
+.ls-reading-line+.ls-reading-line{margin-top:.55em}
+.ls-reading-list{margin:.5em 0;padding-inline-start:1.2em}
+.ls-reading-list li+li{margin-top:.3em}
+.ls-optional-guide{margin-top:12px}
+.ls-optional-guide summary{min-height:44px;padding-block:9px;color:#0d7169;font-size:16px;font-weight:800;cursor:pointer}
+.ls-lecture .ls-frame-actions{margin-top:8px}
+.ls-lecture .ls-frame-caption{font-size:18px}
+.ls-lecture .ls-slide-start,.ls-lecture .ls-frame-actions button{font-size:17px}
 .ls-lecture [hidden]{display:none!important}
 .ls-lecture .ls-top{gap:8px}
 .ls-lecture .ls-x,.ls-lecture .ls-ed{min-width:44px;min-height:44px}
 .ls-lecture .ls-part{padding-bottom:4px;white-space:normal;overflow-wrap:anywhere}
-.ls-lecture .ls-girl{width:44px}
-.ls-lecture .ls-say{margin-bottom:10px}
-.ls-lecture .ls-bub{padding:8px 12px}
-.ls-lecture .ls-q{font-size:18px;font-weight:700}
+.ls-lecture .ls-girl{width:34px}
+.ls-lecture .ls-say{gap:7px;margin:2px 0 8px}
+.ls-lecture .ls-bub{padding:7px 11px;font-size:17px;line-height:1.4}
+.ls-lecture .ls-q{font-size:21px;font-weight:700;line-height:1.32}
 .ls-lecture .ls-opts{gap:9px;margin-top:8px}
-.ls-lecture .ls-opt{min-height:46px;padding:8px 10px;font-size:16px}
+.ls-lecture .ls-opt{min-height:46px;padding:8px 10px;font-size:18px;line-height:1.36}
 .ls-content{position:relative;flex:1;min-height:0;display:flex;flex-direction:column}
 .ls-content[data-loading]>.ls-pin,.ls-content[data-loading]>.ls-stage{opacity:0}
 .ls-loading{position:absolute;inset:0;display:grid;align-content:center;justify-items:center;gap:10px;padding:16px;text-align:center}
@@ -244,6 +255,9 @@
 .ls-picture{position:relative;background:#fff;border-radius:14px;text-align:center;min-width:0;overflow:hidden}
 .ls-picture img.fig,.ls-picture svg{display:block;width:auto;max-width:100%;height:auto;max-height:30vh;max-height:30dvh;margin:0 auto;object-fit:contain}
 .ls-picture img.fig{cursor:zoom-in}
+@container (max-width:759px){
+  .ls-picture img.fig,.ls-picture svg:not(:has(.cat-hit)){max-height:24vh;max-height:24dvh}
+}
 .ls-frames{display:grid;grid-template-columns:minmax(0,1fr)}
 .ls-frame-pic{grid-area:1/1;visibility:hidden}
 .ls-frame-pic[aria-hidden=false]{visibility:visible}

@@ -1046,17 +1046,28 @@ textarea.code.light{background:#fff;color:#12313a;font:14px/1.5 "Be Vietnam Pro"
 .tl-guide .gm-tree{margin-top:4px}
 
 /* Bài giảng: giữ hình và câu hỏi trong cùng một màn. */
-.ls-lecture{container-type:inline-size;font-size:16px}
+.ls-lecture{container-type:inline-size;font-size:19px;line-height:1.45}
+.ls-lecture .ls-stage{padding-inline:clamp(14px,4cqi,24px)}
+.ls-lecture .ls-screen h2{font-size:clamp(23px,6cqi,28px);line-height:1.18}
+.ls-lecture .ls-kind{font-size:14px}
+.ls-reading-line+.ls-reading-line{margin-top:.55em}
+.ls-reading-list{margin:.5em 0;padding-inline-start:1.2em}
+.ls-reading-list li+li{margin-top:.3em}
+.ls-optional-guide{margin-top:12px}
+.ls-optional-guide summary{min-height:44px;padding-block:9px;color:#0d7169;font-size:16px;font-weight:800;cursor:pointer}
+.ls-lecture .ls-frame-actions{margin-top:8px}
+.ls-lecture .ls-frame-caption{font-size:18px}
+.ls-lecture .ls-slide-start,.ls-lecture .ls-frame-actions button{font-size:17px}
 .ls-lecture [hidden]{display:none!important}
 .ls-lecture .ls-top{gap:8px}
 .ls-lecture .ls-x,.ls-lecture .ls-ed{min-width:44px;min-height:44px}
 .ls-lecture .ls-part{padding-bottom:4px;white-space:normal;overflow-wrap:anywhere}
-.ls-lecture .ls-girl{width:44px}
-.ls-lecture .ls-say{margin-bottom:10px}
-.ls-lecture .ls-bub{padding:8px 12px}
-.ls-lecture .ls-q{font-size:18px;font-weight:700}
+.ls-lecture .ls-girl{width:34px}
+.ls-lecture .ls-say{gap:7px;margin:2px 0 8px}
+.ls-lecture .ls-bub{padding:7px 11px;font-size:17px;line-height:1.4}
+.ls-lecture .ls-q{font-size:21px;font-weight:700;line-height:1.32}
 .ls-lecture .ls-opts{gap:9px;margin-top:8px}
-.ls-lecture .ls-opt{min-height:46px;padding:8px 10px;font-size:16px}
+.ls-lecture .ls-opt{min-height:46px;padding:8px 10px;font-size:18px;line-height:1.36}
 .ls-content{position:relative;flex:1;min-height:0;display:flex;flex-direction:column}
 .ls-content[data-loading]>.ls-pin,.ls-content[data-loading]>.ls-stage{opacity:0}
 .ls-loading{position:absolute;inset:0;display:grid;align-content:center;justify-items:center;gap:10px;padding:16px;text-align:center}
@@ -1070,6 +1081,9 @@ textarea.code.light{background:#fff;color:#12313a;font:14px/1.5 "Be Vietnam Pro"
 .ls-picture{position:relative;background:#fff;border-radius:14px;text-align:center;min-width:0;overflow:hidden}
 .ls-picture img.fig,.ls-picture svg{display:block;width:auto;max-width:100%;height:auto;max-height:30vh;max-height:30dvh;margin:0 auto;object-fit:contain}
 .ls-picture img.fig{cursor:zoom-in}
+@container (max-width:759px){
+  .ls-picture img.fig,.ls-picture svg:not(:has(.cat-hit)){max-height:24vh;max-height:24dvh}
+}
 .ls-frames{display:grid;grid-template-columns:minmax(0,1fr)}
 .ls-frame-pic{grid-area:1/1;visibility:hidden}
 .ls-frame-pic[aria-hidden=false]{visibility:visible}
@@ -3658,6 +3672,24 @@ function lectureTex(value){
     (_, math, bold) => math || '<strong>' + bold + '</strong>');
 }
 
+function lectureReadHTML(value){
+  const blocks=[], bullets=[];
+  const flush=()=>{
+    if(!bullets.length)return;
+    blocks.push('<ul class="ls-reading-list">'+bullets.map(line=>'<li>'+lectureTex(line)+'</li>').join('')+'</ul>');
+    bullets.length=0;
+  };
+  for(const line of lsLines(value,false)){
+    if(/^•\s+/.test(line))bullets.push(line.replace(/^•\s+/,''));
+    else{
+      flush();
+      blocks.push('<div class="ls-reading-line">'+lectureTex(line)+'</div>');
+    }
+  }
+  flush();
+  return blocks.join('');
+}
+
 function lectureQuiz(quiz){
   return {
     type:'quiz', q:lectureTex(quiz.q),
@@ -3670,7 +3702,7 @@ function lectureQuiz(quiz){
 
 function lectureScreen(sc){
   const base={...sc, say:sc.cherry ? lectureTex(sc.cherry) : '', figure:sc.fig};
-  if(sc.type==='read')return [{...base, html:lectureTex(sc.body)}];
+  if(sc.type==='read')return [{...base, html:lectureReadHTML(sc.body)}];
   if(sc.type==='quiz')return [{...base, ...lectureQuiz(sc.quiz)}];
   if(sc.type==='vidu')return [{...base, html:lectureTex(sc.body), solution:lsLines(sc.sol,false).map(lectureTex)}];
   if(sc.type==='lab')return [{...base, html:authoredTheoryHTML({template:sc.template,value:sc.value})}];
@@ -4195,6 +4227,7 @@ function renderLecture(root,t,o,plan){
     const label=sc.type==='vidu'?'Ví dụ':sc.type==='quiz'?(sc.doan?'Em đoán bước tiếp theo':'Thử ngay'):LS_KIND[sc.kind];
     const heading=label?`<span class="ls-kind" data-k="${sc.kind|| (sc.type==='quiz'?'thungay':'vidu')}">${label}</span>`:'';
     const speech=sc.say?`<div class="ls-say"><div class="ls-girl" aria-hidden="true">${owlSVG}</div><div class="ls-bub">${sc.say}</div></div>`:'';
+    const optionalGuide=modern&&sc.type==='quiz'&&Boolean(speech);
     const mainTitle=sc.title?`<h2>${lectureTex(sc.title)}</h2>`:'';
     let body='';
     if(sc.type==='outline'){
@@ -4215,9 +4248,9 @@ function renderLecture(root,t,o,plan){
       body=`<div class="ls-text">${sc.html}</div><div class="ls-answer-steps">${steps.map(step=>`<div class="ls-sol" hidden>${step}</div>`).join('')}</div>
         <p class="ls-center"><button type="button" class="ls-mini ls-reveal">Xem lời giải (0/${steps.length})</button></p>`;
     }else if(sc.type==='opening'||sc.type==='steps'){
-      body=frames?`<div class="ls-frame-caption" aria-live="polite"></div>
-        <div class="ls-frame-actions"><button type="button" class="ls-mini ls-frame-back">Lùi</button>
-        <button type="button" class="ls-mini ls-frame-next"></button></div>`:'';
+      body=frames?`<div class="ls-frame-actions"><button type="button" class="ls-mini ls-frame-back">Lùi</button>
+        <button type="button" class="ls-mini ls-frame-next"></button></div>
+        <div class="ls-frame-caption" aria-live="polite"></div>`:'';
     }else if(sc.type==='lab'){
       body=`<div class="ls-lab">${sc.html}</div><p class="ls-hint">Chạm vào hình để khám phá</p>`;
     }else if(sc.type==='gmstep'){
@@ -4236,7 +4269,8 @@ function renderLecture(root,t,o,plan){
           `<button type="button" class="ls-opt" data-figure-state="${index}" aria-pressed="false">${lectureTex(item.label)}</button>`).join('')}</div>`:''}`;
     }
     if(sc.gm)body=`<div class="gm-fig">${sc.fig||''}<button type="button" class="gm-debtn">Đề bài</button></div>`+body;
-    stage.innerHTML=`<div class="ls-screen" tabindex="-1">${speech}${heading}${mainTitle}${body}</div>`;
+    const guide=optionalGuide?`<details class="ls-optional-guide"><summary>Lời dẫn của Cherry</summary>${speech}</details>`:'';
+    stage.innerHTML=`<div class="ls-screen" tabindex="-1">${optionalGuide?'':speech}${heading}${mainTitle}${body}${guide}</div>`;
     if(canDraw&&(sc.toggle||['tap','region','slide','calc'].includes(sc.type))){
       bindLectureGeometry(sc,stage,pin,go,currentState,modelOptions,paintPin,advanceLabel);
     }
