@@ -1,7 +1,7 @@
 import 'server-only';
 import crypto from 'node:crypto';
 import { admin } from './supabase/admin';
-import { figBlocks } from './figcode';
+import { figBlocks, figRows } from './figcode';
 
 export const sha1 = c => crypto.createHash('sha1').update(c, 'utf8').digest('hex');
 
@@ -10,8 +10,7 @@ export async function figStatus(source) {
   const blocks = figBlocks(source);
   if (!blocks.length) return { map: {}, list: [] };
   const hashes = blocks.map(sha1);
-  const { data } = await admin().from('ltt_figures').select('hash,error').in('hash', hashes);
-  const rows = Object.fromEntries((data || []).map(r => [r.hash, r]));
+  const rows = Object.fromEntries((await figRows(admin(), hashes)).map(r => [r.hash, r]));
   const list = blocks.map((code, i) => {
     const r = rows[hashes[i]];
     return { code, hash: hashes[i], ok: !!r && !r.error, error: r?.error || null };

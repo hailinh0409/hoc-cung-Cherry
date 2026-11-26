@@ -1,7 +1,7 @@
 import 'server-only';
 import crypto from 'node:crypto';
 import { admin } from './supabase/admin';
-import { figBlocks } from './figcode';
+import { figBlocks, figRows } from './figcode';
 
 const ST = { draft: 'nhap', published: 'giao', hidden: 'an' }, TS = { nhap: 'draft', giao: 'published', an: 'hidden' };
 export const SPECIAL_TOPIC = 'chuyen-toan';
@@ -38,8 +38,7 @@ export async function loadTopics(teacher, knownVersion = '', specialAccess = tea
   const figs = {};
   if (blocks.length) {
     const hs = Object.fromEntries(blocks.map(b => [sha1(b), b]));
-    const { data: rows } = await admin().from('ltt_figures').select('hash,error').in('hash', Object.keys(hs));
-    for (const r of rows || []) if (!r.error) figs[hs[r.hash]] = r.hash;
+    for (const r of await figRows(admin(), Object.keys(hs))) if (!r.error) figs[hs[r.hash]] = r.hash;
   }
   return { topics, figs, topicVersion };
 }

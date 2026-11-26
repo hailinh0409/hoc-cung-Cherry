@@ -12,7 +12,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import crypto from 'node:crypto';
 import zlib from 'node:zlib';
-import { figBlocks, wrapFigure } from '../lib/figcode.js';
+import { figBlocks, figRows, wrapFigure } from '../lib/figcode.js';
 
 const db = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY, { auth: { persistSession: false } });
 const sha1 = c => crypto.createHash('sha1').update(c, 'utf8').digest('hex');
@@ -45,8 +45,8 @@ let made = 0, failed = 0, todo = 0;
 for (const t of topics) {
   const blocks = figBlocks(t.source);
   if (!blocks.length) continue;
-  const { data: have } = await db.from('ltt_figures').select('hash,error').in('hash', blocks.map(sha1));
-  const ok = new Set((have || []).filter(r => skipErr || !r.error).map(r => r.hash));
+  const have = await figRows(db, blocks.map(sha1));
+  const ok = new Set(have.filter(r => skipErr || !r.error).map(r => r.hash));
   const need = blocks.filter(b => !ok.has(sha1(b)));
   todo += need.length;
   if (countOnly) { if (need.length) console.log(`• ${t.slug}: ${need.length} hình chưa dịch`); continue; }
@@ -60,4 +60,8 @@ for (const t of topics) {
 if (countOnly) {
   console.log(`Cần dịch: ${todo} hình.`);
   if (process.env.GITHUB_OUTPUT) appendFileSync(process.env.GITHUB_OUTPUT, `can_dich=${todo}\n`);
-} else console.log(`Xong: ${made} hình mới, ${failed} hình lỗi.`);
+} else {
+  console.log(`Xong: ${made} hình mới, ${failed} hình lỗi.`);
+  // Có hình dịch lỗi thì GitHub Actions hiện dấu ✗ đỏ, không báo "thành công" nữa (trước đây vẫn tích xanh).
+  if (failed) { console.log(`::error::${failed} hình dịch lỗi, xem các dòng ✗ ở trên.`); process.exitCode = 1; }
+}
