@@ -11,10 +11,11 @@ Sau PR #38 (lý thuyết từng màn), thầy gửi ảnh màn Bài 1: hình nh�
 Thầy: "Với cách học lý thuyết mới, hình vẽ cần có sự thay đổi để tối ưu hiển thị."
 
 ## Quyết định đã chốt với thầy
-- (Claude chọn, thầy có thể đổi) Hình trong bài học từng màn được phóng 1,5 lần cỡ gốc (không quá bề ngang màn); chạm hình tĩnh để xem to gấp đôi cỡ gốc, kéo/phóng bằng ngón tay.
+- Thầy (26/11/2026): "Nếu như hình có thể tự động co giãn theo cỡ của màn hình điện thoại thì tôi nghĩ là tối ưu nhất." → hình **co giãn theo màn**: lấp bề ngang khung, không cao quá 50% chiều cao vùng nội dung (hình từng bước 60%, hình trong phương án 25%; máy xoay ngang 90%), không phóng quá 2,5 lần cỡ gốc; tự tính lại khi xoay máy/đổi cỡ.
+- Chạm hình tĩnh để xem to khoảng 1,8 lần cỡ đang thấy, kéo/phóng bằng ngón tay.
 
 ## Đã xong (đã commit)
-- [x] `lsFitFigs`: phóng hình 1,5 lần (hằng `LS_FIG_SCALE`), không quá bề ngang khung; áp cho hình trong chữ, lời giải ví dụ, đề Thử ngay, hình từng bước. Hình tĩnh có dòng "Chạm hình để phóng to".
+- [x] `lsFitFig`/`lsFitFigs` (`client/lesson.js`): hình co giãn theo màn (quy tắc ở mục Quyết định), `ResizeObserver` trên vùng nội dung tính lại khi xoay máy; áp cho hình trong chữ, lời giải ví dụ, đề Thử ngay, phương án, hình từng bước (bỏ giới hạn 440px của `.hb` trong màn học, nay tối đa 640px). Hình tĩnh có dòng "Chạm hình để phóng to". Hằng: `LS_FIG_MAX` (2,5).
 - [x] Chạm hình tĩnh → lớp xem hình to (gấp đôi cỡ gốc, cuộn/phóng được), nút × hoặc chạm ra ngoài để đóng. Hình từng bước vẫn chạm để sang bước.
 - [x] Quy tắc vẽ hình cho điện thoại dọc (5–7 cm, nhãn ngắn không đè, nhãn dài xuống dòng bằng `align=center` + `\\`, câu giải thích để ngoài hình, đặt hình ngay sau câu nó minh họa, không `scale` < 0.8): `docs/gemini-skill-soan-bai.md` mục 3.7, `docs/soan-bai.md`, `docs/soan-man-tuong-tac.txt`, câu nhờ Gemini trong nút "Sao chép chương cho Gemini" (`GEM_ASK`, `client/app.js`).
 
@@ -41,7 +42,7 @@ Thầy: "Với cách học lý thuyết mới, hình vẽ cần có sự thay đ
 
 ## Cách kiểm tra
 - `node scripts/build-app.mjs`, `npm test` 33/33, `FAKE_DB=1 … npx next build`: đạt.
-- Chạy thử 390×844 với dữ liệu giả (tạm đưa lý thuyết Bài 1 và một hình SVG 220pt vào `tests/seed.json`, đã trả lại): hình rộng 350px (trước khoảng 230px), chữ trong hình gần bằng chữ bài; chạm hình mở lớp xem to, nút × đóng; không lỗi JavaScript.
+- Chạy thử với dữ liệu giả (tạm đưa lý thuyết Bài 1, một hình ngang 220×95pt và một hình dọc 120×200pt vào `tests/seed.json`, đã trả lại) ở 5 cỡ màn: 360×740, 390×844, 430×932, iPad 820×1180, điện thoại xoay ngang 844×390. Hình dọc cao đúng 50% vùng nội dung (287/338/383/507px), hình ngang lấp bề ngang (304/334/374px, iPad 624px); xoay ngang hình cao 90% khung. Chạm hình mở lớp xem to, × đóng. Không lỗi JavaScript.
 
 ## Lưu ý cho người tiếp quản
 - Skill `nap-bai-leo-thap` của Claude (bản trên tài khoản thầy) cần thêm cùng quy tắc hình; Claude đã đề xuất bản sửa skill trong chat, thầy lưu ở thẻ đề xuất.

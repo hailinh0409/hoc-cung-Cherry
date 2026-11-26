@@ -995,6 +995,7 @@ textarea.code.light{background:#fff;color:#12313a;font:14px/1.5 "Be Vietnam Pro"
 .ls-zin{flex:1;overflow:auto;display:flex;align-items:center;padding:60px 12px 12px;touch-action:pinch-zoom pan-x pan-y}
 .ls-zin img{flex:none;margin:auto;max-width:none;height:auto;background:#fff;border-radius:12px}
 .ls-zx{position:absolute;top:max(10px,env(safe-area-inset-top));right:12px;width:44px;height:44px;border-radius:50%;background:#12313a;color:#fff;font-size:28px;line-height:1;z-index:1;cursor:pointer}
+.lstep .hb{max-width:640px}
 
 .gvlink{margin-top:4px;font-size:13px;color:#7a9399;text-decoration:underline;align-self:center}
 .figmiss{display:inline-block;padding:6px 10px;border-radius:8px;background:#fff3c4;color:#7a5a00;font-size:13px}
@@ -2659,16 +2660,27 @@ function lsChunks(src){
 }
 const lsTex=lines=>tex(lines.join('\\\\'));
 
-// Hình TikZ được dịch với chữ cỡ 10pt, trên điện thoại trông nhỏ. Trong bài học từng màn, hình được phóng
-// khoảng 1,5 lần (không quá bề ngang màn) để chữ trong hình gần bằng chữ bài học. Hình tĩnh có dòng "Chạm hình để phóng to".
-const LS_FIG_SCALE=1.5;
+// Hình co giãn theo màn hình điện thoại (thầy chốt 26/11/2026): lấp đầy bề ngang khung nhưng không cao quá
+// một phần chiều cao vùng nội dung (để còn chỗ cho chữ), và không phóng quá 2,5 lần cỡ gốc (hình rất nhỏ khỏi to
+// bất thường). Tự tính lại khi xoay máy hoặc đổi cỡ cửa sổ. Hình tĩnh có dòng "Chạm hình để phóng to".
+const LS_FIG_MAX=2.5;
+function lsFitFig(img,stage){
+  const w=img.naturalWidth,h=img.naturalHeight;if(!w||!h||!stage.clientHeight)return;
+  const hb=img.closest('.hb-pic'),opt=img.closest('.ls-opt');
+  const host=hb||opt||img.closest('.ls-text,.ls-sol,.ls-q,.ls-lab')||stage;
+  const room=host.clientWidth-(hb?16:0);
+  // hình từng bước là nội dung chính của màn nên được cao hơn; hình trong phương án nhỏ lại
+  // máy xoay ngang: vùng nội dung thấp, cho hình cao gần hết khung (học sinh cuộn xuống đọc tiếp)
+  const wideScreen=stage.clientWidth>stage.clientHeight;
+  const maxH=stage.clientHeight*(wideScreen?(opt?0.5:0.9):hb?0.6:opt?0.25:0.5);
+  let W=Math.min(room,w*LS_FIG_MAX);
+  if(W*h/w>maxH)W=maxH*w/h;
+  if(W>0)img.style.width=Math.round(W)+'px';
+}
 function lsFitFigs(stage){
-  const fit=img=>{const w=img.naturalWidth;if(!w)return;
-    const host=img.closest('.hb-pic,.ls-opt,.ls-text,.ls-sol,.ls-q,.ls-lab')||stage,room=host.clientWidth-(img.closest('.hb-pic')?16:0);
-    if(room>0)img.style.width=Math.min(room,Math.round(w*LS_FIG_SCALE))+'px'};
   stage.querySelectorAll('img.fig').forEach(img=>{
     if(!img.closest('.hb-pic,.ls-opt')&&!(img.nextElementSibling&&img.nextElementSibling.classList.contains('ls-zhint')))img.insertAdjacentHTML('afterend','<span class="ls-zhint">Chạm hình để phóng to</span>');
-    if(img.complete&&img.naturalWidth)fit(img);else{img.loading='eager';img.addEventListener('load',()=>fit(img),{once:true})}});
+    if(img.complete&&img.naturalWidth)lsFitFig(img,stage);else{img.loading='eager';img.addEventListener('load',()=>lsFitFig(img,stage),{once:true})}});
 }
 
 // Danh sách màn của một bài từ các mục đã đọc (lib/latex.js parseTheory)
@@ -2721,6 +2733,7 @@ function renderLessonMaterial(root,t,o={}){
     <div class="ls-foot"><div class="ls-fb"><b></b><div></div></div><button type="button" class="ls-go">Tiếp tục</button></div></div>`;
   const box=root.firstElementChild,stage=box.querySelector('.ls-stage'),foot=box.querySelector('.ls-foot'),go=box.querySelector('.ls-go'),bar=box.querySelector('.ls-prog b');
   const quizN=screens.filter(x=>x.type==='quiz').length;
+  if(window.ResizeObserver){let t=0;new ResizeObserver(()=>{clearTimeout(t);t=setTimeout(()=>stage.querySelectorAll('img.fig').forEach(img=>img.complete&&lsFitFig(img,stage)),80)}).observe(stage)}
   let i=Math.min(Math.max(0,o.start||0),screens.length),state='read',pick=null,missed=new Set(),labCheck=null;
   if(o.onClose)box.querySelector('.ls-x').onclick=()=>{sfx.tap();o.onClose()};
   if(o.teacherEdit)box.querySelector('.ls-ed').onclick=()=>{sfx.tap();o.teacherEdit()};
@@ -2766,9 +2779,9 @@ function renderLessonMaterial(root,t,o={}){
     const z=document.createElement('div');z.className='ls-zoom';z.setAttribute('role','dialog');z.setAttribute('aria-label','Hình phóng to');
     z.innerHTML=`<button type="button" class="ls-zx" aria-label="Đóng">×</button><div class="ls-zin"><img src="${img.getAttribute('src')}" alt="${esc(img.alt||'Hình vẽ')}"></div>`;
     z.onclick=e=>{if(e.target.closest('.ls-zx')||!e.target.closest('img'))z.remove()};box.appendChild(z);
-    // Hình hiện to gấp đôi cỡ gốc (ít nhất bằng bề ngang khung); kéo ngang/dọc để xem các phần
+    // Hình hiện to gấp khoảng 1,8 lần cỡ đang thấy (ít nhất bằng bề ngang khung); kéo ngang/dọc để xem các phần
     const big=z.querySelector('.ls-zin img'),w=img.naturalWidth||0,inner=z.querySelector('.ls-zin');
-    if(w){big.style.width=Math.max(inner.clientWidth-24,Math.round(w*2))+'px';inner.scrollLeft=(inner.scrollWidth-inner.clientWidth)/2}});
+    if(w){big.style.width=Math.max(inner.clientWidth-24,Math.round(img.getBoundingClientRect().width*1.8))+'px';inner.scrollLeft=(inner.scrollWidth-inner.clientWidth)/2}});
   function check(){
     const sc=screens[i],o2=sc.opts[pick],ok=o2.ok;
     state='fb';foot.className='ls-foot '+(ok?'ok':'no');
