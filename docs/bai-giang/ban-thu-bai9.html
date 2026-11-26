@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Bài 9 Toán 7 · bản thử</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Be+Vietnam+Pro:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* VOICE: bài giảng của thầy Linh trên điện thoại, Cherry dẫn dắt từng bước, chữ ít
+   IDEA: một tiết học: bài toán mở đầu → mục lục → khám phá, chốt, thử → kết bài trả lời câu hỏi mở đầu
+   PICTURE: hình hình học chạm được, tô màu đúng chỗ đang nói
+   COLOUR and TYPE: kem #fffaf2, xanh ngọc #149c8c của app, cam #f28c28; Baloo 2 + Be Vietnam Pro
+   LAYOUT: khung app điện thoại; hình ở trên, chữ ở dưới; màn rộng: hình trái, chữ phải */
+:root{color-scheme:light;--bg:#efe8da;--app:#fffaf2;--ink:#14323a;--mute:#6f858b;--teal:#149c8c;--teal-d:#0f7a6e;--line:#ece3d1;--or:#f28c28;--bl:#3b7be0;--gr:#2fa36b;--pu:#8b5cf6;--red:#e0475a}
+*{box-sizing:border-box;min-width:0}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 "Be Vietnam Pro",system-ui,sans-serif;overflow-x:clip}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible{outline:3px solid var(--or);outline-offset:2px}
+.demo{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center;padding:10px 12px;font-size:14px}
+.demo b{font-weight:600;color:var(--mute)}
+.seg{display:inline-flex;background:#fff;border-radius:12px;padding:3px;border:1px solid var(--line)}
+.seg button{border:0;background:none;padding:7px 12px;border-radius:9px;min-height:36px}
+.seg button.on{background:var(--teal);color:#fff}
+.dbtn{border:1px solid var(--line);background:#fff;border-radius:12px;padding:7px 12px;min-height:40px}
+.frame{margin:0 auto 18px;width:min(420px,100%);height:min(860px,calc(100vh - 70px));min-height:600px;background:var(--app);border-radius:28px;box-shadow:0 10px 40px #0002;display:flex;flex-direction:column;overflow:hidden;position:relative}
+.frame.wide{width:min(1000px,100%)}
+@media(max-width:520px){.frame{border-radius:0;height:calc(100vh - 64px)}}
+.top{display:flex;align-items:center;gap:10px;padding:14px 14px 4px}
+.x{border:0;background:none;font-size:26px;color:#8aa;width:40px;height:40px}
+.prog{flex:1;height:14px;border-radius:9px;background:#ece4d4;overflow:hidden}.prog b{display:block;height:100%;width:0;background:linear-gradient(90deg,#14a08f,#2bc48a);border-radius:9px;transition:width .3s}
+.mlbtn{border:0;background:#efe7d6;border-radius:12px;padding:8px 12px;font-weight:600;font-size:14px;display:flex;gap:6px;align-items:center;min-height:40px}
+.part{padding:2px 16px 4px;font:700 14px/1.3 "Baloo 2",sans-serif;color:var(--teal);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.body{flex:1;display:flex;overflow:hidden}
+.pin{flex:none}
+.stage{flex:1;overflow-y:auto;padding:6px 16px 16px}
+.frame:not(.wide) .body{flex-direction:column}
+.frame:not(.wide) .stage{order:2}
+.frame:not(.wide) .pin{order:1;border-bottom:2px solid var(--line);padding:4px 12px 8px}
+.frame.wide .pin{width:48%;border-right:2px solid var(--line);padding:16px;overflow:auto;display:flex;flex-direction:column;justify-content:center}
+.pinbar{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--mute)}
+.pinbar button{border:0;background:none;color:var(--teal-d);font-weight:600;font-size:13px;padding:6px 4px;min-height:32px}
+.figbox{position:relative;background:#fff;border-radius:14px}
+.figbox svg{display:block;width:100%;height:auto;max-height:30vh}
+.frame.wide .figbox svg{max-height:62vh}
+.zoom{position:absolute;right:6px;bottom:6px;border:0;background:#ffffffdd;border-radius:10px;width:36px;height:36px;font-size:18px;color:var(--teal-d)}
+.chip{border:1.5px dashed #cfc3a8;background:#fff;border-radius:12px;padding:6px 12px;font-size:14px;color:var(--teal-d);font-weight:600;min-height:38px}
+.foot{border-top:2px solid var(--line);padding:12px 14px 16px;display:flex;gap:10px}
+.go{flex:1;border:0;border-radius:16px;background:var(--teal);color:#fff;font:800 19px/1 "Baloo 2",sans-serif;letter-spacing:.06em;text-transform:uppercase;min-height:56px;box-shadow:0 4px 0 var(--teal-d)}
+.go:disabled{background:#e6dcc8;color:#a99c82;box-shadow:none}
+.recall{border:2px solid var(--line);background:#fff;border-radius:16px;padding:0 14px;font-weight:600;font-size:14px;min-height:56px}
+.kind{display:inline-block;border-radius:999px;padding:2px 12px;font-weight:600;font-size:14px;color:#fff;background:#3aa0e0;margin-top:6px}
+.kind.tinhchat{background:var(--pu)}.kind.vidu{background:#7f949a}.kind.thu{background:var(--teal)}.kind.lam{background:var(--or)}.kind.dinhly{background:#1f6fd1}.kind.nx{background:#c2410c}.kind.kp{background:#0ea5a4}
+h2{font:800 24px/1.18 "Baloo 2",sans-serif;margin:6px 0 8px;text-wrap:balance}
+.txt p{margin:0 0 8px}.txt ul{margin:0 0 8px;padding-left:22px}
+.say{display:flex;gap:10px;align-items:flex-start;margin:6px 0 10px}
+.bub{background:#fff;border:2px solid var(--line);border-radius:16px;padding:9px 13px;font-size:16px;flex:1}
+.girl{width:50px;flex:none}
+.q{font-weight:600;font-size:18px;margin:8px 0}
+.opts{display:grid;gap:10px;margin-top:10px}
+.opt{border:2px solid var(--line);background:#fff;border-radius:16px;padding:12px 14px;font-size:17px;box-shadow:0 3px 0 var(--line);min-height:54px;text-align:center}
+.opt.sel{border-color:var(--bl);background:#eef4ff}.opt.ok{border-color:var(--gr);background:#e8f7ef}.opt.no{border-color:var(--red);background:#fdecee}
+.opts.row{grid-template-columns:1fr 1fr}
+.fb{margin-top:10px;border-radius:14px;padding:10px 14px;font-size:15px}
+.fb.ok{background:#e8f7ef;color:#11613c}.fb.no{background:#fdecee;color:#8a1f2d}
+.act{border:2px solid var(--teal);background:#fff;color:var(--teal-d);border-radius:14px;padding:8px 18px;font-weight:600;min-height:46px}
+.act:disabled{opacity:.45}
+.center{text-align:center;margin-top:12px}
+.rv{border-left:4px solid var(--teal);background:#f3fbfa;border-radius:0 12px 12px 0;padding:8px 12px;margin:8px 0}
+.v{font-family:"Times New Roman",serif;font-style:italic;font-size:1.1em}
+.ang{display:inline-block;position:relative;font-family:"Times New Roman",serif;padding-top:.2em;line-height:1;white-space:nowrap}
+.ang i{font-size:1.1em}.ang sub{font-size:.7em}
+.ang::before{content:"";position:absolute;left:4%;right:4%;top:-.04em;height:.32em;border:1.4px solid currentColor;border-bottom:0;border-radius:50% 50% 0 0/100% 100% 0 0}
+.c-o{color:#c8670d;font-weight:700}.c-b{color:#2861c2;font-weight:700}.c-g{color:#1f8a57;font-weight:700}.c-p{color:#7442e0;font-weight:700}
+.sheet{position:absolute;inset:0;background:#0005;display:flex;align-items:flex-end;z-index:5}
+.sheet>div{background:var(--app);width:100%;border-radius:22px 22px 0 0;padding:16px 16px 22px;max-height:88%;overflow:auto}
+.sheet h3{font:800 22px/1.2 "Baloo 2",sans-serif;margin:4px 0 10px}
+.close{float:right;border:0;background:#efe7d6;border-radius:10px;width:40px;height:40px;font-size:20px}
+.card{display:flex;gap:12px;align-items:center;width:100%;text-align:left;border:2px solid var(--line);background:#fff;border-radius:16px;padding:10px 12px;margin-top:9px;min-height:60px}
+.card .n{flex:none;width:36px;height:36px;border-radius:12px;display:grid;place-items:center;font-weight:800;background:#e7f5f2;color:var(--teal-d)}
+.card.done .n{background:var(--teal);color:#fff}.card.lock{opacity:.55}.card.cur{border-color:var(--teal)}
+.card .t{flex:1;font-weight:600;line-height:1.3}.card .s{font-size:13px;color:var(--mute);font-weight:400;display:block}
+.bar{height:6px;background:#ece4d4;border-radius:6px;margin-top:6px;overflow:hidden}.bar b{display:block;height:100%;background:var(--teal)}
+.big{position:absolute;inset:0;background:#fffaf2;z-index:6;display:flex;flex-direction:column;padding:12px}
+.big svg{flex:1;width:100%;height:100%}
+.cap{background:#fff;border-radius:12px;padding:8px 12px;margin-top:4px;font-size:15.5px;border:2px solid var(--line)}
+.steps{display:flex;gap:8px;justify-content:center;margin-top:10px}
+.dots{display:flex;gap:6px;justify-content:center;margin-top:8px}.dots i{width:9px;height:9px;border-radius:50%;background:#e1d7c2}.dots i.on{background:var(--teal)}
+.toast{position:absolute;left:50%;top:70px;transform:translateX(-50%);background:var(--ink);color:#fff;border-radius:12px;padding:8px 14px;font-size:14px;z-index:9;white-space:nowrap}
+.ticks{list-style:none;padding:0;margin:8px 0}.ticks li{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:2px solid var(--line)}.ticks li::before{content:"✓";flex:none;width:26px;height:26px;border-radius:8px;background:var(--teal);color:#fff;display:grid;place-items:center;font-weight:800;font-size:14px}
+.note{font-size:12.5px;color:var(--mute);text-align:center;padding:0 12px 14px;max-width:660px;margin:0 auto}
+.slide{transition:transform 1.4s ease-in-out}
+.pop{animation:pop .35s ease-out both}@keyframes pop{from{opacity:0;transform:scale(.6)}to{opacity:1;transform:none}}
+svg .hit{cursor:pointer}
+@media (prefers-reduced-motion:reduce){.slide{transition:none}.pop{animation:none}.prog b{transition:none}}
+</style>
+</head>
+<body>
+<div class="demo">
+  <b>Thử:</b>
+  <span class="seg" id="mode"><button data-m="first" class="on">Lần đầu học</button><button data-m="review">Ôn lại</button></span>
+  <span class="seg" id="lay"><button data-l="phone" class="on">Điện thoại</button><button data-l="wide">Màn rộng</button></span>
+  <button class="dbtn" id="reset">Làm lại</button>
+</div>
+<div class="frame" id="app">
+  <div class="top"><button class="x" aria-label="Thoát">×</button><div class="prog" role="progressbar" aria-label="Tiến độ bài"><b id="pb"></b></div><button class="mlbtn" id="ml"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 3h12M2 8h12M2 13h8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Mục lục</button></div>
+  <div class="part" id="part"></div>
+  <div class="body"><div class="pin" id="pin"></div><div class="stage" id="stage" aria-live="polite"></div></div>
+  <div class="foot"><button class="recall" id="recall">Nhắc lại</button><button class="go" id="go">Tiếp tục</button></div>
+</div>
+<p class="note">Bản thử Toán 7 · Bài 9 (Kết nối tri thức). Hình vẽ lại, đánh số góc như SGK Hình 3.16. Nội dung diễn đạt lại theo SGK.</p>
+<script>
+{
+/* ---------- chữ toán ---------- */
+const v=x=>`<i class="v">${x}</i>`;
+const A=(P,n,c)=>`<span class="ang${c?' c-'+c:''}"><i>${P}</i><sub>${n}</sub></span>`;
+const H=(s,c)=>`<span class="ang${c?' c-'+c:''}"><i>${s}</i></span>`;
+const par=(x,y)=>`${v(x)} ∥ ${v(y)}`;
+const GIRL=`<svg class="girl" viewBox="0 0 60 70" aria-hidden="true"><ellipse cx="30" cy="66" rx="16" ry="3" fill="#0001"/><path d="M14 64c0-12 7-18 16-18s16 6 16 18z" fill="#e8455a"/><circle cx="24" cy="54" r="1.6" fill="#fff"/><circle cx="35" cy="58" r="1.6" fill="#fff"/><circle cx="30" cy="34" r="15" fill="#ffe1cc"/><path d="M15 36c0-10 6-17 15-17s15 7 15 17c-3-5-8-7-15-7s-12 2-15 7z" fill="#7a3b1f"/><path d="M12 27c2-11 9-17 18-17s16 6 18 17c-5-4-11-5-18-5s-13 1-18 5z" fill="#e8455a"/><circle cx="22" cy="18" r="1.6" fill="#fff"/><circle cx="36" cy="16" r="1.6" fill="#fff"/><path d="M30 10c2-4 6-6 10-6" stroke="#2f8a3c" stroke-width="2" fill="none"/><path d="M38 4c3 0 5 2 6 4-3 1-5 0-6-4z" fill="#3fae4f"/><circle cx="46" cy="28" r="4" fill="#c81f3a"/><circle cx="25" cy="36" r="2.2" fill="#2a1a12"/><circle cx="35" cy="36" r="2.2" fill="#2a1a12"/><circle cx="21" cy="41" r="2.4" fill="#ffb3b8"/><circle cx="39" cy="41" r="2.4" fill="#ffb3b8"/><path d="M27 42q3 3 6 0" stroke="#a33" stroke-width="1.5" fill="none"/></svg>`;
+const COL={o:'#f28c28',b:'#3b7be0',g:'#2fa36b',p:'#8b5cf6',r:'#e0475a'};
+
+/* ---------- vẽ hình ---------- */
+const S=56,rad=t=>t*Math.PI/180;
+function M(view){const[x0,y0,x1,y1]=view,m={};m.X=x=>+((x-x0)*S).toFixed(1);m.Y=y=>+((y1-y)*S).toFixed(1);m.W=Math.round((x1-x0)*S);m.H=Math.round((y1-y0)*S);
+  m.L=(p,q,st='')=>`<line x1="${m.X(p[0])}" y1="${m.Y(p[1])}" x2="${m.X(q[0])}" y2="${m.Y(q[1])}" stroke="#111" stroke-width="2.2" stroke-linecap="round" ${st}/>`;
+  m.T=(p,s,dx=0,dy=0,st='')=>`<text x="${m.X(p[0])+dx}" y="${m.Y(p[1])+dy}" dy=".35em" text-anchor="middle" font-family="Times New Roman" font-style="italic" font-size="19" ${st}>${s}</text>`;
+  m.N=(p,s,st='')=>`<text x="${m.X(p[0])}" y="${m.Y(p[1])}" dy=".35em" text-anchor="middle" font-family="Times New Roman" font-size="16" ${st}>${s}</text>`;
+  m.dot=p=>`<circle cx="${m.X(p[0])}" cy="${m.Y(p[1])}" r="4.5"/>`;
+  m.W2=(o,t1,t2,r)=>{const p=[o[0]+r*Math.cos(rad(t1)),o[1]+r*Math.sin(rad(t1))],q=[o[0]+r*Math.cos(rad(t2)),o[1]+r*Math.sin(rad(t2))];return `M${m.X(o[0])} ${m.Y(o[1])}L${m.X(p[0])} ${m.Y(p[1])}A${r*S} ${r*S} 0 ${t2-t1>180?1:0} 0 ${m.X(q[0])} ${m.Y(q[1])}Z`};
+  m.fill=(o,t1,t2,c,r=.55)=>`<path d="${m.W2(o,t1,t2,r)}" fill="${COL[c]}" fill-opacity=".33" stroke="${COL[c]}" stroke-width="2"/>`;
+  m.rt=(o,t,c='#111',s=.24)=>{const u=[Math.cos(rad(t)),Math.sin(rad(t))],w=[Math.cos(rad(t+90)),Math.sin(rad(t+90))];const p1=[o[0]+u[0]*s,o[1]+u[1]*s],p2=[p1[0]+w[0]*s,p1[1]+w[1]*s],p3=[o[0]+w[0]*s,o[1]+w[1]*s];return `<path d="M${m.X(p1[0])} ${m.Y(p1[1])}L${m.X(p2[0])} ${m.Y(p2[1])}L${m.X(p3[0])} ${m.Y(p3[1])}" fill="none" stroke="${c}" stroke-width="2"/>`};
+  m.svg=(inner,label)=>`<svg viewBox="0 0 ${m.W} ${m.H}" role="img" aria-label="${label}">${inner}</svg>`;return m}
+function inter(p1,p2,p3,p4){const d=(p1[0]-p2[0])*(p3[1]-p4[1])-(p1[1]-p2[1])*(p3[0]-p4[0]),a=p1[0]*p2[1]-p1[1]*p2[0],b=p3[0]*p4[1]-p3[1]*p4[0];return[(a*(p3[0]-p4[0])-(p1[0]-p2[0])*b)/d,(a*(p3[1]-p4[1])-(p1[1]-p2[1])*b)/d]}
+const ang=(o,p)=>Math.atan2(p[1]-o[1],p[0]-o[0])*180/Math.PI;
+// bốn góc tại giao điểm o: [trên-phải, trên-trái, dưới-trái, dưới-phải]
+function fan(o,r,up,l,dn){let tr=ang(o,r),tu=ang(o,up),tl=ang(o,l),td=ang(o,dn);while(tu<tr)tu+=360;while(tl<tu)tl+=360;while(td<tl)td+=360;return[[tr,tu],[tu,tl],[tl,td],[td,tr+360]]}
+const NUM=[3,2,1,4]; // SGK Hình 3.16: trên-phải 3, trên-trái 2, dưới-trái 1, dưới-phải 4
+
+// Hình 3.16: c cắt a tại A, cắt b tại B
+const G1=(()=>{const a1=[-2.8,2.3],a2=[3.3,2.75],b1=[-2.8,.3],b2=[3.3,-.12],c1=[-.85,3.75],c2=[1.75,-1.5];const PA=inter(a1,a2,c1,c2),PB=inter(b1,b2,c1,c2);
+  return{a1,a2,b1,b2,c1,c2,PA,PB,FA:fan(PA,a2,c1,a1,c2),FB:fan(PB,b2,c1,b1,c2)}})();
+function figCut(o={}){
+  const g=G1,m=M([-3.1,-1.75,3.95,4.05]);let s='';
+  if(o.region){s+=`<polygon points="${[g.a1,g.a2,g.b2,g.b1].map(p=>m.X(p[0])+','+m.Y(p[1])).join(' ')}" fill="#ffe08a" fill-opacity="${o.region===2?0:.5}" ${o.region===2?'class="hit" data-k="R"':''}/>`}
+  s+=m.L(g.a1,g.a2)+m.L(g.b1,g.b2)+m.L(g.c1,g.c2);
+  const pts=[['A',g.PA,g.FA],['B',g.PB,g.FB]];
+  for(const[P,p,F]of pts)F.forEach(([t1,t2],i)=>{const k=P+NUM[i],c=(o.hl||{})[k];if(c)s+=m.fill(p,t1,t2,c)});
+  if(o.slide){const c=['o','b','g','p'];let gA='';g.FA.forEach(([t1,t2],i)=>{gA+=m.fill(g.PA,t1,t2,c[NUM[i]-1]);const mid=(t1+t2)/2;gA+=m.N([g.PA[0]+.38*Math.cos(rad(mid)),g.PA[1]+.38*Math.sin(rad(mid))],NUM[i],`fill="${COL[c[NUM[i]-1]]}" font-weight="700"`)});
+    const dx=m.X(g.PB[0])-m.X(g.PA[0]),dy=m.Y(g.PB[1])-m.Y(g.PA[1]);s+=`<g class="slide" id="slg" data-d="${dx},${dy}" style="transform:translate(${o.slide===2?dx:0}px,${o.slide===2?dy:0}px)">${gA}</g>`}
+  if(o.nums!==false)for(const[P,p,F]of pts)F.forEach(([t1,t2],i)=>{const k=P+NUM[i],mid=(t1+t2)/2,c=(o.hl||{})[k];if(o.slide&&P==='A')return;
+    s+=m.N([p[0]+.38*Math.cos(rad(mid)),p[1]+.38*Math.sin(rad(mid))],NUM[i],c?`fill="${COL[c]}" font-weight="700"`:'')});
+  if(o.vals)for(const[P,p,F]of pts)F.forEach(([t1,t2],i)=>{const k=P+NUM[i],val=o.vals[k];if(!val)return;const mid=(t1+t2)/2;
+    s+=`<text class="pop" x="${m.X(p[0]+.86*Math.cos(rad(mid)))}" y="${m.Y(p[1]+.86*Math.sin(rad(mid)))}" dy=".35em" text-anchor="middle" font-size="13.5" font-weight="700" fill="${COL[(o.hl||{})[k]||'r']||'#c33'}" font-family="Be Vietnam Pro">${val}</text>`});
+  for(const[P,p]of pts){s+=m.dot(p)+m.T([p[0]+1.0*Math.cos(rad(98)),p[1]+1.0*Math.sin(rad(98))],P,10,0)}
+  s+=m.T(g.a1,'a',-6,-14)+m.T(g.b1,'b',-6,-14)+m.T(g.c1,'c',12,4);
+  if(o.tap)for(const[P,p,F]of pts)F.forEach(([t1,t2],i)=>{s+=`<path class="hit" data-k="${P+NUM[i]}" d="${m.W2(p,t1,t2,1.0)}" fill="transparent"><title>Góc ${P}${NUM[i]}</title></path>`});
+  return m.svg(s,'Đường thẳng c cắt hai đường thẳng a và b tại A và B, các góc đánh số 1 đến 4');
+}
+// Hình kiểu 3.17: mn cắt xy tại P, cắt uv tại Q
+function figMN(hl={}){
+  const m=M([-3.1,-1.7,3.9,4]),x1=[-2.8,1.95],y1=[3.3,2.75],u1=[-2.8,.05],v1=[3.3,.45],mm=[1.25,3.75],nn=[-.55,-1.45];
+  const P=inter(x1,y1,mm,nn),Q=inter(u1,v1,mm,nn),FP=fan(P,y1,mm,x1,nn),FQ=fan(Q,v1,mm,u1,nn);let s=m.L(x1,y1)+m.L(u1,v1)+m.L(mm,nn);
+  const W={xPQ:[P,FP[2]],PQv:[Q,FQ[0]],PQu:[Q,FQ[1]]};for(const k in hl){const[o,[t1,t2]]=W[k];s+=m.fill(o,t1,t2,hl[k],.6)}
+  s+=m.dot(P)+m.dot(Q)+m.T(P,'P',-4,-20)+m.T(Q,'Q',-18,14)+m.T(x1,'x',-4,-16)+m.T(y1,'y',8,-12)+m.T(u1,'u',-4,16)+m.T(v1,'v',8,14)+m.T(mm,'m',12,4)+m.T(nn,'n',-12,4);
+  return m.svg(s,'Đường thẳng mn cắt xy tại P và cắt uv tại Q');
+}
+// Mái nhà: thanh dọc, các thanh ngang
+function figHouse(o={}){
+  const m=M([-3.4,-.6,3.4,4.3]);const ys=[.9,1.9,2.9],ws=[2.5,1.75,1.0];let s='';
+  s+=`<polygon points="${m.X(-3.2)},${m.Y(0)} ${m.X(0)},${m.Y(4.0)} ${m.X(3.2)},${m.Y(0)}" fill="#fbe7c6" stroke="#9a6b3a" stroke-width="5" stroke-linejoin="round"/>`;
+  s+=`<rect x="${m.X(-3.3)}" y="${m.Y(0)}" width="${6.6*S}" height="${.35*S}" fill="#9a6b3a" rx="4"/>`;
+  ys.forEach((y,i)=>{s+=`<line x1="${m.X(-ws[i])}" y1="${m.Y(y)}" x2="${m.X(ws[i])}" y2="${m.Y(y)}" stroke="#7a4f24" stroke-width="7" stroke-linecap="round"/>`});
+  s+=`<line x1="${m.X(0)}" y1="${m.Y(.05)}" x2="${m.X(0)}" y2="${m.Y(3.9)}" stroke="#5b3a18" stroke-width="8" stroke-linecap="round"/>`;
+  const k=o.k??3;ys.slice(0,k).forEach(y=>{s+=`<g class="pop">${m.rt([0,y],0,o.hl?COL.o:'#d33',.3)}</g>`;if(o.hl)s+=m.fill([0,y],0,90,'o',.5)});
+  if(o.labels)s+=`<g font-family="Be Vietnam Pro" font-size="13" fill="#5b3a18"><text x="${m.X(.15)}" y="${m.Y(3.6)}">thanh dọc</text><text x="${m.X(-2.4)}" y="${m.Y(1.05)}">thanh ngang</text></g>`;
+  if(o.eke!==undefined&&o.eke<3){const y=ys[o.eke];s+=`<polygon class="pop" points="${m.X(.05)},${m.Y(y+.05)} ${m.X(.95)},${m.Y(y+.05)} ${m.X(.05)},${m.Y(y+1.0)}" fill="#ffd28a" fill-opacity=".85" stroke="#c77a12" stroke-width="2"/>`}
+  return m.svg(s,'Khung mái nhà: một thanh dọc và các thanh ngang');
+}
+// Hình 3.20a: c và d gặp nhau rất xa
+function figFar(z){
+  const view=z?[-10,-1.6,3.2,4]:[-3,-1.6,3.2,4],m=M(view),c=t=>[t,.5-Math.tan(rad(10))*t];let s='';
+  s+=m.L([0,3.6],[0,-1.4])+m.L([z?-9.6:-2.8,2],[2.9,2])+m.L(c(z?-9.6:-2.8),c(2.9));
+  s+=m.rt([0,2],90,'#111',.22)+m.fill([0,.5],90,170,'o',.5)+`<text x="${m.X(-.62)}" y="${m.Y(.95)}" font-size="13" font-weight="700" fill="${COL.o}" font-family="Be Vietnam Pro">80°</text>`;
+  s+=m.T([0,3.6],'u',12,4)+m.T([2.9,2],'d',10,-12)+m.T(c(2.9),'c',10,-12);
+  if(z){const X=inter([-9,2],[2,2],c(-9),c(2));s+=`<circle class="pop" cx="${m.X(X[0])}" cy="${m.Y(X[1])}" r="7" fill="${COL.r}"/>`+`<rect x="${m.X(-3)}" y="${m.Y(4)}" width="${6.2*S}" height="${5.6*S}" fill="none" stroke="#9aa" stroke-dasharray="6 5"/>`}
+  return m.svg(s,'Hai đường thẳng c và d, đường thẳng u cắt cả hai');
+}
+// Hình 3.20b,c: a ∥ b
+function figSign(mode){
+  const m=M([-3,-1.6,3.4,3.7]),a1=[-2.8,2],a2=[3,2],b1=[-2.8,0],b2=[3,0],c1=[1.3,3.5],c2=[-1.1,-1.4],PA=inter(a1,a2,c1,c2),PB=inter(b1,b2,c1,c2),FA=fan(PA,a2,c1,a1,c2),FB=fan(PB,b2,c1,b1,c2);
+  let s=m.L(a1,a2)+m.L(b1,b2)+m.L(c1,c2);
+  if(mode==='slt')s+=m.fill(PA,...FA[2],'o')+m.fill(PB,...FB[0],'o');else s+=m.fill(PA,...FA[2],'b')+m.fill(PB,...FB[2],'b');
+  s+=m.dot(PA)+m.dot(PB)+m.T(a2,'a',10,-12)+m.T(b2,'b',10,-12)+m.T(c1,'c',10,4)+m.T(PA,'A',20,-16)+m.T(PB,'B',20,-16);
+  return m.svg(s,mode==='slt'?'Một cặp góc so le trong bằng nhau':'Một cặp góc đồng vị bằng nhau');
+}
+// Hình 3.21: ví dụ
+function figVD(k){
+  const m=M([-3.2,-1.7,3.6,3.8]),x=[-2.9,2],y=[3.2,2],x2=[-2.9,0],y2=[3.2,0],z=[1.6,3.5],z2=[-.9,-1.4],PA=inter(x,y,z,z2),PB=inter(x2,y2,z,z2),FA=fan(PA,y,z,x,z2),FB=fan(PB,y2,z,x2,z2);
+  let s=m.L(x,y)+m.L(x2,y2)+m.L(z,z2);
+  if(k>=1)s+=m.fill(PA,...FA[2],'o')+m.fill(PB,...FB[0],'o');
+  s+=`<g font-size="13" font-weight="700" fill="${COL.o}" font-family="Be Vietnam Pro"><text x="${m.X(PA[0])-50}" y="${m.Y(PA[1])+22}">70°</text><text x="${m.X(PB[0])+22}" y="${m.Y(PB[1])-8}">70°</text></g>`;
+  if(k>=3)s+=`<g class="pop">${m.L(x,y,`stroke="${COL.g}" stroke-width="3.5"`)+m.L(x2,y2,`stroke="${COL.g}" stroke-width="3.5"`)}</g>`;
+  s+=m.dot(PA)+m.dot(PB)+m.T(PA,'A',14,-16)+m.T(PB,'B',16,16)+m.T(x,'x',0,-16)+m.T(y,'y',0,-16)+m.T(x2,"x'",0,-16)+m.T(y2,"y'",0,-16)+m.T(z,'z',12,4)+m.T(z2,"z'",-14,4);
+  return m.svg(s,'Đường thẳng zz\' cắt xy tại A, cắt x\'y\' tại B, hai góc 70 độ');
+}
+// Hình kiểu 3.22: tứ giác
+function figQuad(ok){
+  const m=M([-.8,-.7,5,3.9]),D=[0,0],C=[4.3,0],Aa=[1.1,2.3],B=[3.4,2.3],X=[1.65,3.45];
+  let s=m.L(D,C)+m.L(Aa,B)+m.L(B,C)+m.L(D,X)+m.fill(Aa,ang(Aa,B),ang(Aa,X),ok?'g':'o',.5)+m.fill(D,0,ang(D,Aa),ok?'g':'o',.5);
+  s+=`<g font-size="13" font-weight="700" fill="${COL[ok?'g':'o']}" font-family="Be Vietnam Pro"><text x="${m.X(Aa[0])+14}" y="${m.Y(Aa[1])-12}">65°</text><text x="${m.X(D[0])+30}" y="${m.Y(D[1])-8}">65°</text></g>`;
+  s+=m.T(D,'D',-12,8)+m.T(C,'C',12,8)+m.T(Aa,'A',-16,0)+m.T(B,'B',12,-8)+m.T(X,'x',10,-6);
+  return m.svg(s,'Tứ giác ABCD, tia Ax nằm trên đường thẳng DA');
+}
+// Hình kiểu 3.23 và hình thang vuông
+function figPerp(){
+  const m=M([-3,-1.5,3.4,3.7]);let s=m.L([0,3.4],[0,-1.3])+m.L([-2.8,2],[3,2])+m.L([-2.8,0],[3,0])+m.fill([0,2],0,90,'o',.45)+m.fill([0,0],0,90,'o',.45)+m.rt([0,2],0,COL.o)+m.rt([0,0],0,COL.o);
+  s+=m.T([0,2],'H',-16,-16)+m.T([0,0],'K',-16,-16)+m.T([-2.8,2],'x',0,-16)+m.T([3,2],'y',0,-16)+m.T([-2.8,0],"x'",0,-16)+m.T([3,0],"y'",0,-16)+m.T([0,3.4],'z',12,4)+m.T([0,-1.3],"z'",14,0);
+  return m.svg(s,'Đường thẳng zz\' vuông góc với xy tại H và với x\'y\' tại K');
+}
+function figTrap(ok){
+  const m=M([-.8,-.7,5,3.3]),Aa=[0,2.3],B=[2.5,2.3],C=[4.2,0],D=[0,0];let s=m.L(Aa,B)+m.L(B,C)+m.L(C,D)+m.L(D,Aa)+m.rt(Aa,-90,COL.o)+m.rt(D,0,COL.o);
+  if(ok)s+=`<g class="pop">${m.L(Aa,B,`stroke="${COL.g}" stroke-width="3.5"`)+m.L(D,C,`stroke="${COL.g}" stroke-width="3.5"`)}</g>`;
+  s+=m.T(Aa,'A',-14,-8)+m.T(B,'B',10,-10)+m.T(C,'C',12,6)+m.T(D,'D',-14,8);
+  return m.svg(s,'Tứ giác ABCD có góc A và góc D vuông');
+}
+// Vẽ đường thẳng song song bằng ê ke (góc 60°), 5 bước
+function figEke(k){
+  const m=M([-.6,-.6,6.4,4.3]),Ap=[3.2,2.2],Bp=[3.2-2.2/Math.tan(rad(60)),0],p=1.6,h=p*Math.tan(rad(60));let s=m.L([-.3,0],[6.2,0])+m.T([6.2,0],'a',0,-16);
+  const tri=(o,c,f)=>`<polygon class="pop" points="${m.X(o[0])},${m.Y(o[1])} ${m.X(o[0]+p)},${m.Y(o[1])} ${m.X(o[0]+p)},${m.Y(o[1]+h)}" fill="${f}" fill-opacity=".8" stroke="${c}" stroke-width="2"/>`;
+  if(k===2)s+=tri(Bp,'#c77a12','#ffd28a');
+  if(k>=3){const d=[Math.cos(rad(60)),Math.sin(rad(60))];s+=m.L([Bp[0]-d[0]*.9,Bp[1]-d[1]*.9],[Ap[0]+d[0]*1.7,Ap[1]+d[1]*1.7])}
+  if(k===4)s+=tri(Ap,'#c77a12','#ffd28a');
+  if(k>=5){s+=`<g class="pop">${m.L([-.3,2.2],[6.2,2.2],`stroke="${COL.r}" stroke-width="2.8"`)}</g>`+m.T([6.2,2.2],'b',0,-16,`fill="${COL.r}"`)+m.fill(Ap,0,60,'o',.5)+m.fill(Bp,0,60,'o',.5)+
+    `<g font-size="13" font-weight="700" fill="${COL.o}" font-family="Be Vietnam Pro"><text x="${m.X(Ap[0])+34}" y="${m.Y(Ap[1])-6}">60°</text><text x="${m.X(Bp[0])+34}" y="${m.Y(Bp[1])-6}">60°</text></g>`}
+  if(k>=2)s+=m.dot(Bp)+m.T(Bp,'B',-12,14);
+  s+=m.dot(Ap)+m.T(Ap,'A',-14,-12);
+  return m.svg(s,'Vẽ đường thẳng b qua A song song với a, bước '+k);
+}
+
+/* ---------- nội dung bài ---------- */
+const PARTS=[
+ {t:'Mở đầu',goal:'Bài toán mái nhà'},
+ {t:'Góc so le trong, góc đồng vị',goal:'Nhận biết các góc tạo bởi một đường thẳng cắt hai đường thẳng',recap:`Đường thẳng ${v('c')} cắt ${v('a')}, ${v('b')} tại ${v('A')}, ${v('B')}.<br><b>So le trong</b>: nằm giữa ${v('a')}, ${v('b')} và ở hai phía của ${v('c')}: ${A('A',1)} và ${A('B',3)}; ${A('A',4)} và ${A('B',2)}.<br><b>Đồng vị</b>: cùng vị trí ở hai đỉnh: ${A('A',1)} và ${A('B',1)}; ${A('A',2)} và ${A('B',2)}; …`},
+ {t:'Khi có một cặp góc so le trong bằng nhau',goal:'Biết các góc còn lại bằng nhau thế nào',recap:`Nếu ${v('c')} cắt ${v('a')}, ${v('b')} và có <b>một cặp góc so le trong bằng nhau</b> thì hai góc so le trong còn lại bằng nhau và các cặp góc đồng vị bằng nhau.`},
+ {t:'Dấu hiệu nhận biết hai đường thẳng song song',goal:'Dùng cặp góc so le trong, đồng vị để biết hai đường thẳng song song',recap:`Nếu ${v('c')} cắt hai đường thẳng phân biệt ${v('a')}, ${v('b')} và có <b>một cặp góc so le trong bằng nhau</b> hoặc <b>một cặp góc đồng vị bằng nhau</b> thì ${par('a','b')}.<br>Hai đường thẳng phân biệt cùng vuông góc với một đường thẳng thứ ba thì song song.`},
+ {t:'Vẽ hai đường thẳng song song',goal:'Vẽ bằng ê ke và giải thích vì sao',recap:`Dùng góc 60° của ê ke tạo ra hai góc đồng vị cùng bằng 60° ở ${v('A')} và ${v('B')}, nên ${par('b','a')}.`},
+ {t:'Kết bài',goal:'Trả lời bài toán mái nhà'}
+];
+const SC=[
+ // ===== Mở đầu
+ {p:0,say:'Người thợ đặt ê ke vào chỗ các thanh ngang gặp thanh dọc. Em đặt thử nhé!',fig:s=>figHouse({k:s.k||0,eke:s.k||0,labels:1}),
+  body:s=>`<h2>Vì sao chỉ cần như vậy là đủ biết các thanh ngang song song?</h2><p class="center"><button class="act" id="ek" ${s.k>=3?'disabled':''}>Đặt ê ke (${s.k||0}/3)</button></p>${s.k>=3?`<div class="say pop">${GIRL}<div class="bub">Các thanh ngang đều vuông góc với thanh dọc. Học xong bài này, em sẽ tự giải thích được!</div></div>`:''}`,
+  bind:(s,up)=>{const b=document.getElementById('ek');if(b)b.onclick=()=>{s.k=(s.k||0)+1;up()}},ready:s=>s.k>=3},
+ {p:0,toc:1,say:'Bài hôm nay có 4 phần, khoảng 10 phút. Học lần lượt nhé!',body:()=>`<h2>Bài 9 · Hai đường thẳng song song và dấu hiệu nhận biết</h2>${PARTS.slice(1,5).map((P,i)=>`<button class="card${st.done[i+1]?' done':''}" data-p="${i+1}"><span class="n">${st.done[i+1]?'✓':i+1}</span><span class="t">${P.t}<span class="s">Em sẽ: ${P.goal.toLowerCase()}</span></span></button>`).join('')}<p style="color:#6f858b;font-size:14px;margin-top:10px">Cần xem lại phần nào thì mở <b>Mục lục</b> ở góc trên.</p>`,go:'Bắt đầu phần 1',
+  bind:()=>document.querySelectorAll('#stage [data-p]').forEach(b=>b.onclick=()=>openPart(+b.dataset.p))},
+ // ===== Phần 1
+ {p:1,pin:1,say:`Đường thẳng ${v('c')} cắt ${v('a')} tại ${v('A')} và cắt ${v('b')} tại ${v('B')}.`,fig:s=>figCut({nums:!!s.checked}),
+  quiz:{q:`Tại hai điểm ${v('A')} và ${v('B')} có tất cả bao nhiêu góc?`,row:1,opts:[['4 góc',0,`Mỗi điểm ${v('A')}, ${v('B')} có 4 góc, nên có tất cả 8 góc.`],['8 góc',1,'Đúng! Mỗi đỉnh có 4 góc. Ta đánh số chúng 1, 2, 3, 4 như trên hình.']]}},
+ {p:1,pin:1,say:`Chạm vào phần nằm <b>giữa</b> hai đường thẳng ${v('a')} và ${v('b')}.`,fig:s=>figCut({region:s.done?1:2}),
+  body:s=>s.done?`<div class="fb ok pop">Đúng rồi! Các góc nằm trong phần tô vàng là các góc nằm <b>giữa</b> ${v('a')} và ${v('b')}.</div>`:`<p style="color:#6f858b">Chạm lên hình.</p>`,
+  tapR:1,ready:s=>s.done},
+ {p:1,pin:1,kind:'dinhnghia',kn:'Định nghĩa',title:'Cặp góc so le trong',fig:()=>figCut({region:1,hl:{A1:'o',B3:'o',A4:'b',B2:'b'}}),
+  body:()=>`<p>Hai góc nằm <b>giữa</b> ${v('a')}, ${v('b')} và ở <b>hai phía</b> của ${v('c')} gọi là một cặp góc <b>so le trong</b>:</p><p style="font-size:18px">${A('A',1,'o')} và ${A('B',3,'o')}; &nbsp; ${A('A',4,'b')} và ${A('B',2,'b')}.</p>`},
+ {p:1,pin:1,fig:(s,t)=>figCut({tap:t,hl:s.done?{A4:'g',B2:'g'}:s.wrong?{A4:'o',[s.wrong]:'r'}:{A4:'o'}}),say:`Chạm vào góc so le trong với ${A('A',4)}.`,tap:{ans:'B2',ok:`Đúng! ${A('A',4)} và ${A('B',2)} cùng nằm giữa ${v('a')}, ${v('b')} và ở hai phía của ${v('c')}.`,
+   no:{B3:`${A('B',3)} cùng phía (bên phải ${v('c')}) với ${A('A',4)}. Hãy tìm ở phía bên kia.`,B1:`${A('B',1)} nằm ngoài phần giữa ${v('a')} và ${v('b')}.`,B4:`${A('B',4)} nằm ngoài phần giữa ${v('a')} và ${v('b')}.`},hint:`Góc cần tìm ở đỉnh ${v('B')}.`}},
+ {p:1,pin:1,say:`Trượt bốn góc ở đỉnh ${v('A')} dọc theo ${v('c')} xuống đỉnh ${v('B')}. Góc nào trùng chỗ góc nào?`,fig:s=>figCut({slide:s.k?2:1,nums:true}),
+  body:s=>s.k?`<div class="pop"><p>${A('A',1,'o')} trùng chỗ ${A('B',1,'o')}, ${A('A',2,'b')} trùng chỗ ${A('B',2,'b')}, ${A('A',3,'g')} trùng chỗ ${A('B',3,'g')}, ${A('A',4,'p')} trùng chỗ ${A('B',4,'p')}.</p><p>Hai góc ở <b>vị trí giống nhau</b> như vậy gọi là một cặp góc <b>đồng vị</b>.</p></div>`:`<p class="center"><button class="act" id="sl">Trượt xuống ${v('B')} ↓</button></p>`,
+  bind:(s,up)=>{const b=document.getElementById('sl');if(b)b.onclick=()=>{s.k=1;const g=document.getElementById('slg'),[dx,dy]=g.dataset.d.split(',');g.style.transform=`translate(${dx}px,${dy}px)`;setTimeout(up,1500)}},ready:s=>s.k},
+ {p:1,pin:1,kind:'dinhnghia',kn:'Định nghĩa',title:'Cặp góc đồng vị',fig:()=>figCut({hl:{A1:'o',B1:'o',A2:'b',B2:'b',A3:'g',B3:'g',A4:'p',B4:'p'}}),
+  body:()=>`<p>Bốn cặp góc <b>đồng vị</b> (cùng màu trên hình):</p><p style="font-size:18px">${A('A',1,'o')} và ${A('B',1,'o')}; ${A('A',2,'b')} và ${A('B',2,'b')};<br>${A('A',3,'g')} và ${A('B',3,'g')}; ${A('A',4,'p')} và ${A('B',4,'p')}.</p>`},
+ {p:1,pin:1,fig:(s,t)=>figCut({tap:t,hl:s.done?{A3:'g',B3:'g'}:s.wrong?{A3:'o',[s.wrong]:'r'}:{A3:'o'}}),say:`Chạm vào góc đồng vị với ${A('A',3)}.`,tap:{ans:'B3',ok:`Chính xác! ${A('A',3)} và ${A('B',3)} cùng ở trên-phải tại mỗi đỉnh.`,
+   no:{B1:`${A('B',1)} ở dưới-trái, còn ${A('A',3)} ở trên-phải.`,B2:`${A('B',2)} ở bên trái ${v('c')}, còn ${A('A',3)} ở bên phải.`,B4:`${A('B',4)} ở dưới ${v('b')}, còn ${A('A',3)} ở trên ${v('a')}.`},hint:`Góc cần tìm ở đỉnh ${v('B')}.`}},
+ {p:1,say:'Thử với một hình mới nhé!',fig:s=>figMN(s.checked?{xPQ:'o',PQv:'o'}:{xPQ:'o'}),
+  quiz:{q:`Đường thẳng ${v('mn')} cắt ${v('xy')} tại ${v('P')}, cắt ${v('uv')} tại ${v('Q')}. Góc nào so le trong với ${H('xPQ','o')}?`,row:1,
+   opts:[[H('PQv'),1,`Đúng! ${H('xPQ')} và ${H('PQv')} nằm giữa ${v('xy')}, ${v('uv')} và ở hai phía của ${v('mn')}.`],[H('PQu'),0,`${H('PQu')} và ${H('xPQ')} cùng ở bên trái ${v('mn')}, không phải hai phía. Góc so le trong với ${H('xPQ')} là ${H('PQv')}.`]]}},
+ // ===== Phần 2
+ {p:2,pin:1,say:`Biết ${A('A',1)} = ${A('B',3)} = 60° (một cặp so le trong). Tính hai góc so le trong còn lại!`,fig:s=>figCut({hl:{A1:'o',B3:'o',A4:s.k>=1?'b':0,B2:s.k>=2?'b':0},vals:{A1:'60°',B3:'60°',A4:s.k>=1?'120°':0,B2:s.k>=2?'120°':0}}),
+  calc:[{q:`${A('A',4)} = ?`,opts:[['60°',0,`${A('A',1)} và ${A('A',4)} kề bù (tổng 180°), không bằng nhau.`],['120°',1,`Đúng: ${A('A',1)} và ${A('A',4)} kề bù nên ${A('A',4)} = 180° − 60° = 120°.`]]},
+        {q:`${A('B',2)} = ?`,opts:[['60°',0,`${A('B',3)} và ${A('B',2)} kề bù, không bằng nhau.`],['120°',1,`Đúng: ${A('B',3)} và ${A('B',2)} kề bù nên ${A('B',2)} = 180° − 60° = 120°.`]]}],
+  done:`Vậy ${A('A',4,'b')} = ${A('B',2,'b')}: hai góc so le trong còn lại <b>cũng bằng nhau</b>!`},
+ {p:2,pin:1,say:`Còn cặp góc đồng vị thì sao? Vẫn biết ${A('B',3)} = 60°.`,fig:s=>figCut({hl:{A1:'o',B3:'g',B1:s.k>=1?'o':0},vals:{A1:'60°',B3:'60°',B1:s.k>=1?'60°':0}}),
+  calc:[{q:`${A('B',1)} = ?`,opts:[['60°',1,`Đúng: ${A('B',1)} và ${A('B',3)} đối đỉnh nên ${A('B',1)} = 60°.`],['120°',0,`${A('B',1)} và ${A('B',3)} là hai góc đối đỉnh nên bằng nhau.`]]}],
+  done:`Vậy cặp góc đồng vị ${A('A',1,'o')} = ${A('B',1,'o')}!`},
+ {p:2,pin:1,kind:'tinhchat',kn:'Tính chất',title:'Khi có một cặp góc so le trong bằng nhau',fig:()=>figCut({hl:{A1:'o',B3:'o'},vals:{A1:'60°',A2:'120°',A3:'60°',A4:'120°',B1:'60°',B2:'120°',B3:'60°',B4:'120°'}}),
+  body:()=>`<p>Nếu ${v('c')} cắt ${v('a')}, ${v('b')} và có <b>một cặp góc so le trong bằng nhau</b> thì:</p><ul><li>hai góc so le trong còn lại bằng nhau;</li><li>các cặp góc đồng vị bằng nhau.</li></ul>`},
+ {p:2,pin:1,say:'Đổi số đo, em tự tính nhé!',fig:s=>figCut({hl:s.checked?{A1:'o',B3:'o',A2:'b',B2:'b'}:{A1:'o',B3:'o'},vals:s.checked?{A1:'40°',B3:'40°',A2:'140°',B2:'140°'}:{A1:'40°',B3:'40°'}}),
+  quiz:{q:`Biết ${A('A',1)} = ${A('B',3)} = 40°. Góc đồng vị với ${A('A',2)} bằng bao nhiêu?`,row:1,opts:[['40°',0,`${A('A',2)} kề bù với ${A('A',1)} nên ${A('A',2)} = 140°, góc đồng vị ${A('B',2)} cũng bằng 140°.`],['140°',1,`Đúng: ${A('A',2)} = 180° − 40° = 140°, và góc đồng vị ${A('B',2)} = ${A('A',2)} = 140°.`]]}},
+ // ===== Phần 3
+ {p:3,say:`Muốn biết ${v('c')} và ${v('d')} có điểm chung không, phải kéo dài chúng ra ngoài trang giấy!`,fig:s=>figFar(s.z),
+  quiz:{q:'Có cách nào biết hai đường thẳng song song mà không cần kéo dài?',opts:[[`Xét một cặp góc tạo bởi đường thẳng ${v('u')} cắt chúng`,1,'Đúng hướng! Phần này chỉ em cách làm.'],['Không có, phải kéo dài đến khi gặp nhau',0,`Có cách đấy: xét một cặp góc tạo bởi ${v('u')} cắt ${v('c')} và ${v('d')}.`]]},
+  after:s=>s.z?`<p class="pop" style="margin-top:10px">Thu nhỏ hình mới thấy: ${v('c')} và ${v('d')} cắt nhau ở rất xa (chấm đỏ), khung nét đứt là trang giấy ban đầu.</p>`:`<p class="center"><button class="act" id="zz">Thu nhỏ hình để xem</button></p>`,
+  bind:(s,up)=>{const b=document.getElementById('zz');if(b)b.onclick=()=>{s.z=1;up()}}},
+ {p:3,kind:'dinhly',kn:'Dấu hiệu',title:'Dấu hiệu nhận biết hai đường thẳng song song',fig:s=>figSign(s.m||'slt'),
+  body:s=>`<p>Nếu ${v('c')} cắt hai đường thẳng phân biệt ${v('a')}, ${v('b')} và có <b>một cặp góc so le trong bằng nhau</b> hoặc <b>một cặp góc đồng vị bằng nhau</b> thì ${par('a','b')}.</p><div class="opts row"><button class="opt ${s.m!=='dv'?'sel':''}" data-m="slt">Cặp so le trong</button><button class="opt ${s.m==='dv'?'sel':''}" data-m="dv">Cặp đồng vị</button></div>`,
+  bind:(s,up)=>document.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{s.m=b.dataset.m;s.seen2=s.seen2||b.dataset.m==='dv';up()}),ready:s=>s.seen2,hintGo:'Chạm "Cặp đồng vị" để xem'},
+ {p:3,kind:'vidu',kn:'Ví dụ',fig:s=>figVD(s.k||0),
+  body:s=>`<p>Quan sát hình và giải thích vì sao ${par('xy',"x'y'")}.</p>${['Ta có '+H('xAB','o')+' = '+H("ABy'",'o')+' = 70°.','Hai góc này ở vị trí <b>so le trong</b>.','Do đó '+par('xy',"x'y'")+' (dấu hiệu nhận biết hai đường thẳng song song).'].slice(0,s.k||0).map(t=>`<div class="rv pop">${t}</div>`).join('')}${(s.k||0)<3?`<p class="center"><button class="act" id="nx">${s.k?'Bước tiếp':'Xem lời giải'} (${s.k||0}/3)</button></p>`:''}`,
+  bind:(s,up)=>{const b=document.getElementById('nx');if(b)b.onclick=()=>{s.k=(s.k||0)+1;up()}},ready:s=>s.k>=3},
+ {p:3,say:'Đến lượt em giải thích!',fig:s=>figQuad(s.checked&&s.ok),
+  quiz:{q:`Biết ${H('xAB')} = ${H('ADC')} = 65°. Vì sao ${par('AB','DC')}?`,opts:[['Vì có một cặp góc đồng vị bằng nhau',1,`Đúng! Đường thẳng ${v('Dx')} cắt ${v('AB')} và ${v('DC')}; ${H('xAB')} và ${H('ADC')} ở vị trí đồng vị và bằng nhau.`],['Vì có một cặp góc so le trong bằng nhau',0,`${H('xAB')} và ${H('ADC')} ở vị trí giống nhau (cùng phía trên-phải), nên là cặp góc <b>đồng vị</b>.`]]}},
+ {p:3,kind:'nx',kn:'Nhận xét',title:'Cùng vuông góc thì song song',say:`Hai góc vuông ở ${v('H')} và ${v('K')} là một cặp góc đồng vị!`,fig:()=>figPerp(),
+  body:()=>`<p>Hai đường thẳng phân biệt cùng vuông góc với một đường thẳng thứ ba thì <b>song song</b> với nhau.</p><p>${v('xy')} ⊥ ${v("zz'")}, ${v("x'y'")} ⊥ ${v("zz'")} ⇒ ${par('xy',"x'y'")}.</p>`},
+ {p:3,say:'Một câu nữa nhé!',fig:s=>figTrap(s.checked&&s.ok),
+  quiz:{q:`Tứ giác ${v('ABCD')} có góc ${v('A')} và góc ${v('D')} vuông. Vì sao ${par('AB','DC')}?`,opts:[[`Vì ${v('AB')} và ${v('DC')} cùng vuông góc với ${v('AD')}`,1,'Đúng! Hai đường thẳng phân biệt cùng vuông góc với một đường thẳng thứ ba thì song song.'],[`Vì ${v('AB')} = ${v('DC')}`,0,`${v('AB')} và ${v('DC')} không bằng nhau. Lí do là chúng cùng vuông góc với ${v('AD')}.`]]}},
+ // ===== Phần 4
+ {p:4,say:`Cùng vẽ đường thẳng ${v('b')} qua ${v('A')} và song song với ${v('a')}, bằng góc 60° của ê ke.`,fig:s=>figEke(s.k||1),
+  steps:[`Cho đường thẳng ${v('a')} và điểm ${v('A')} nằm ngoài ${v('a')}.`,`Đặt ê ke sao cho góc 60° có một cạnh nằm trên ${v('a')}, cạnh kia đi qua ${v('A')}. Đỉnh của góc 60° là ${v('B')}.`,`Vẽ đường thẳng đi qua ${v('A')} và ${v('B')}.`,`Đặt ê ke để góc 60° có đỉnh ${v('A')}, một cạnh nằm trên đường thẳng ${v('AB')} (giống như ở ${v('B')}).`,`Vẽ đường thẳng ${v('b')} theo cạnh còn lại của ê ke.`]},
+ {p:4,say:'Vì sao cách vẽ này đúng?',fig:()=>figEke(5),
+  quiz:{q:`Vì sao đường thẳng ${v('b')} vừa vẽ song song với ${v('a')}?`,opts:[[`Hai góc 60° ở ${v('A')} và ${v('B')} là hai góc đồng vị bằng nhau`,1,'Chính xác! Đó là dấu hiệu nhận biết hai đường thẳng song song.'],[`Vì ${v('b')} đi qua điểm ${v('A')} nằm ngoài ${v('a')}`,0,`Đi qua ${v('A')} chưa đủ. Lí do là hai góc đồng vị ở ${v('A')} và ${v('B')} cùng bằng 60°.`]]}},
+ // ===== Kết bài
+ {p:5,say:'Quay lại câu hỏi của người thợ. Giờ em trả lời được rồi!',fig:s=>figHouse({k:3,hl:s.checked&&s.ok,labels:1}),
+  quiz:{q:'Vì sao các thanh ngang song song với nhau?',opts:[['Vì chúng cùng vuông góc với thanh dọc',1,'Đúng! Thanh dọc cắt các thanh ngang tạo các góc đồng vị cùng bằng 90°. Hai đường thẳng phân biệt cùng vuông góc với một đường thẳng thứ ba thì song song.'],['Vì các thanh ngang được cưa dài bằng nhau',0,'Độ dài không quyết định. Lí do là chúng cùng vuông góc với thanh dọc, tạo các góc đồng vị cùng bằng 90°.']]}},
+ {p:5,body:()=>`<div style="text-align:center">${GIRL.replace('class="girl"','class="girl" style="width:80px"')}</div><h2 style="text-align:center">Em đã học xong Bài 9!</h2><ul class="ticks"><li>Nhận biết cặp góc so le trong, cặp góc đồng vị.</li><li>Có một cặp so le trong bằng nhau thì cặp còn lại và các cặp đồng vị bằng nhau.</li><li>Dấu hiệu: một cặp so le trong hoặc đồng vị bằng nhau thì hai đường thẳng song song.</li><li>Vẽ đường thẳng song song bằng ê ke.</li></ul>`,go:'Vào làm bài',last:1}
+];
+
+/* ---------- máy chạy bài ---------- */
+const $=id=>document.getElementById(id),app=$('app'),stage=$('stage'),pin=$('pin'),go=$('go'),recall=$('recall');
+const NPART=PARTS.length,first=p=>SC.findIndex(x=>x.p===p),lastOf=p=>SC.map(x=>x.p).lastIndexOf(p);
+let mode='first',st;
+function fresh(){st={i:mode==='review'?1:0,pos:PARTS.map((_,p)=>first(p)),done:PARTS.map(()=>mode==='review'),seen:new Set(),fold:false,s:{}}}
+const unlocked=p=>mode==='review'||p===0||st.done[p-1]||st.pos[p]>first(p);
+function toast(t){const d=document.createElement('div');d.className='toast';d.textContent=t;app.appendChild(d);setTimeout(()=>d.remove(),1800)}
+function render(){
+  const sc=SC[st.i],s=st.s;st.seen.add(st.i);st.pos[sc.p]=st.i;
+  $('pb').style.width=(st.seen.size/SC.length*100)+'%';
+  $('part').textContent=sc.p===0||sc.p===5?`Bài 9 · ${PARTS[sc.p].t}`:`Phần ${sc.p}/4 · ${PARTS[sc.p].t}`;
+  recall.hidden=!PARTS[sc.p].recap;
+  // hình: ở trên (điện thoại) hoặc bên trái (màn rộng)
+  const wide=app.classList.contains('wide');
+  if(!sc.fig){pin.hidden=true;pin.innerHTML=''}else{pin.hidden=false;
+    const tap=sc.tap&&!s.done,fold=!wide&&st.fold;
+    if(fold)pin.innerHTML=`<button class="chip" id="uf">▸ Hiện hình</button>`;
+    else pin.innerHTML=`${wide?'':`<div class="pinbar"><span>${sc.pin?`Hình dùng chung cho phần ${sc.p}`:'Hình'}</span><button id="fd">Thu gọn ▴</button></div>`}<div class="figbox">${sc.fig(s,tap)}${tap||sc.tapR?'':'<button class="zoom" id="zm" aria-label="Phóng to hình">⤢</button>'}</div>`;
+  }
+  let h='';
+  if(sc.say)h+=`<div class="say">${GIRL}<div class="bub">${sc.say}</div></div>`;
+  if(sc.kind)h+=`<span class="kind ${sc.kind}">${sc.kn}</span>`;
+  if(sc.title)h+=`<h2>${sc.title}</h2>`;
+  if(sc.body)h+=`<div class="txt">${sc.body(s)}</div>`;
+  if(sc.tap)h+=s.done?`<div class="say pop">${GIRL}<div class="bub">${sc.tap.ok}</div></div>`:(s.wrong?`<div class="fb no">${sc.tap.no[s.wrong]||sc.tap.hint}</div>`:`<p style="color:#6f858b">Chạm vào góc trên hình.</p>`);
+  if(sc.quiz){const Q=sc.quiz;h+=`<span class="kind thu">Thử ngay</span><div class="q">${Q.q}</div><div class="opts${Q.row?' row':''}">${Q.opts.map((o,n)=>{let c='';if(s.checked){if(o[1])c=' ok';else if(s.pick===n)c=' no'}else if(s.pick===n)c=' sel';return `<button class="opt${c}" data-o="${n}">${o[0]}</button>`}).join('')}</div>${s.checked?`<div class="fb ${s.ok?'ok':'no'} pop">${Q.opts[s.pick][2]}</div>`:''}${s.checked&&sc.after?sc.after(s):''}`}
+  if(sc.calc){s.k=s.k||0;s.a=s.a||[];h+=`<span class="kind kp">Em tính</span>`;sc.calc.slice(0,s.k+1).forEach((c,j)=>{const an=s.a[j];h+=`<div class="q">${c.q}</div><div class="opts row">${c.opts.map((o,n)=>`<button class="opt${an!==undefined?(o[1]?' ok':an===n?' no':''):''}" data-c="${j},${n}" ${an!==undefined?'disabled':''}>${o[0]}</button>`).join('')}</div>${an!==undefined?`<div class="fb ${c.opts[an][1]?'ok':'no'}">${c.opts[an][2]}</div>`:''}`});
+    if(s.k>=sc.calc.length)h+=`<div class="say pop">${GIRL}<div class="bub">${sc.done}</div></div>`}
+  if(sc.steps){const k=s.k||1;h+=`<span class="kind kp">Hình từng bước</span><div class="cap"><b>Bước ${k}/5.</b> ${sc.steps[k-1]}</div><div class="dots">${sc.steps.map((_,j)=>`<i class="${j<k?'on':''}"></i>`).join('')}</div><div class="steps"><button class="act" id="sb" ${k<2?'disabled':''}>‹ Trước</button><button class="act" id="sf" ${k>4?'disabled':''}>Bước sau ›</button></div>`}
+  stage.innerHTML=h;
+  // trạng thái nút
+  let ready=true;
+  if(sc.quiz)ready=s.checked||s.pick!=null;
+  if(sc.tap)ready=!!s.done;
+  if(sc.calc)ready=s.k>=sc.calc.length;
+  if(sc.steps)ready=(s.k||1)>=5;
+  if(sc.ready)ready=!!sc.ready(s);
+  go.disabled=!ready;
+  go.textContent=sc.quiz&&!s.checked?'Kiểm tra':(sc.go||(!ready&&sc.hintGo)||(st.i===lastOf(sc.p)&&sc.p<5&&sc.p>0?'Xong phần '+sc.p:'Tiếp tục'));
+  // gắn sự kiện
+  const up=()=>render();
+  stage.querySelectorAll('[data-o]').forEach(b=>b.onclick=()=>{if(s.checked)return;s.pick=+b.dataset.o;up()});
+  stage.querySelectorAll('[data-c]').forEach(b=>b.onclick=()=>{const[j,n]=b.dataset.c.split(',').map(Number);if(s.a[j]!==undefined)return;s.a[j]=n;if(sc.calc[j].opts[n][1])s.k=j+1;else setTimeout(()=>{s.a[j]=undefined;up()},1800);up()});
+  if(sc.steps){$('sb').onclick=()=>{s.k=(s.k||1)-1;up()};$('sf').onclick=()=>{s.k=(s.k||1)+1;up()}}
+  if(sc.tap&&!s.done)pin.querySelectorAll('.hit').forEach(w=>w.onclick=()=>{const k=w.dataset.k;if(k===sc.tap.ans){s.done=1;s.wrong=0}else s.wrong=k;up()});
+  if(sc.tapR&&!s.done){const r=pin.querySelector('[data-k="R"]');if(r)r.onclick=()=>{s.done=1;up()};pin.querySelectorAll('svg').forEach(svg=>svg.addEventListener('click',e=>{if(!e.target.closest('[data-k]')&&!s.done)toast('Chạm vào phần giữa a và b nhé')}))}
+  if(sc.bind)sc.bind(s,up);
+  const fd=$('fd');if(fd)fd.onclick=()=>{st.fold=true;up()};const uf=$('uf');if(uf)uf.onclick=()=>{st.fold=false;up()};
+  const zm=$('zm');if(zm)zm.onclick=()=>{const d=document.createElement('div');d.className='big';d.innerHTML=`<p style="margin:0"><button class="close" aria-label="Đóng">×</button><b>Hình</b></p>${sc.fig(s)}`;d.querySelector('.close').onclick=()=>d.remove();app.appendChild(d)};
+}
+function next(){
+  const sc=SC[st.i],s=st.s;
+  if(sc.quiz&&!s.checked){s.checked=1;s.ok=!!sc.quiz.opts[s.pick][1];return render()}
+  if(sc.last)return toast('Bản thử: chỗ này mở phần làm bài');
+  if(st.i===lastOf(sc.p)){st.done[sc.p]=true;if(sc.p>0&&sc.p<5)toast(`Xong phần ${sc.p} ✓`)}
+  st.i++;st.s={};stage.scrollTop=0;render();
+}
+go.onclick=next;
+function tocHTML(){return PARTS.map((P,p)=>{const lock=!unlocked(p),d=st.done[p],cur=SC[st.i].p===p,n=SC.filter(x=>x.p===p).length,at=st.pos[p]-first(p);
+  const sub=d?'Đã xong · chạm để học lại':lock?'Học xong phần trước để mở':(at>0||cur)?`Đang học · màn ${at+1}/${n}`:P.goal;
+  return `<button class="card${d?' done':''}${lock?' lock':''}${cur?' cur':''}" data-p="${p}" ${lock?'aria-disabled="true"':''}><span class="n">${d?'✓':(p===0?'★':p===5?'⚑':p)}</span><span class="t">${P.t}<span class="s">${sub}</span>${!d&&at>0?`<span class="bar"><b style="width:${at/n*100}%"></b></span>`:''}</span></button>`}).join('')}
+function openPart(p){if(!unlocked(p))return toast('Học xong phần trước để mở');st.i=st.done[p]?first(p):st.pos[p];if(p===0&&mode==='review')st.i=1;st.s={};render()}
+$('ml').onclick=()=>{const d=document.createElement('div');d.className='sheet';d.innerHTML=`<div role="dialog" aria-label="Mục lục"><button class="close" aria-label="Đóng">×</button><h3>Mục lục · Bài 9</h3>${tocHTML()}${mode==='first'?'<p style="font-size:13px;color:#6f858b;margin-top:12px">Lần đầu học: phần sau mở khi học xong phần trước. Mở lại phần đang dở thì về đúng màn đang học.</p>':''}</div>`;
+  d.onclick=e=>{if(e.target===d)d.remove()};d.querySelector('.close').onclick=()=>d.remove();d.querySelectorAll('[data-p]').forEach(b=>b.onclick=()=>{const p=+b.dataset.p;if(!unlocked(p))return toast('Học xong phần trước để mở');d.remove();openPart(p)});app.appendChild(d)};
+recall.onclick=()=>{const P=PARTS[SC[st.i].p],d=document.createElement('div');d.className='sheet';d.innerHTML=`<div role="dialog" aria-label="Nhắc lại"><button class="close" aria-label="Đóng">×</button><h3>Nhắc lại · ${P.t}</h3><div class="txt"><p>${P.recap}</p></div></div>`;d.onclick=e=>{if(e.target===d)d.remove()};d.querySelector('.close').onclick=()=>d.remove();app.appendChild(d)};
+document.querySelectorAll('#mode button').forEach(b=>b.onclick=()=>{mode=b.dataset.m;document.querySelectorAll('#mode button').forEach(x=>x.classList.toggle('on',x===b));fresh();render()});
+document.querySelectorAll('#lay button').forEach(b=>b.onclick=()=>{app.classList.toggle('wide',b.dataset.l==='wide');document.querySelectorAll('#lay button').forEach(x=>x.classList.toggle('on',x===b));render()});
+$('reset').onclick=()=>{fresh();render()};
+fresh();render();
+}
+</script>
+</body>
+</html>
