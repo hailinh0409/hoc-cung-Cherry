@@ -36,6 +36,10 @@ Mẫu hình tương tác đã hỗ trợ:
 - \minhhoa{ghep-so-la-ma}{24}
   Thay 24 bằng số nguyên từ 1 đến 39. Học sinh chọn các mảnh I, V,
   X, IV, IX để ghép cách viết chuẩn, với phản hồi sau mỗi lượt chọn.
+- \begin{hinhbuoc} … \end{hinhbuoc}  (hình từng bước, mọi bài)
+  Một tikzpicture; phần hiện từ bước k bọc \hien{k}{…}; mỗi bước một
+  dòng \loibuoc{…} (2–8 bước). Học sinh chạm hình để hiện từng nét.
+  Chi tiết: docs/gemini-skill-soan-bai.md mục 3.7b.
 
 Ví dụ lắp ghép một ý nhỏ:
 \loidan{Chạm vào một chữ số để xem nó có giá trị bao nhiêu.}

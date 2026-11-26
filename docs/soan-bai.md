@@ -26,6 +26,17 @@ Mã bài: Bài thường `k<khối>-b<số bài SGK>`; Luyện tập chung `k<kh
 
 Mỗi bài cần: Mức 1 ít nhất 5 câu, Mức 2 ít nhất 5, Mức 3 ít nhất 3, Mức 4 (Thi đấu) 2–4 câu; câu Mức 1–3 bám sát SGK Kết nối tri thức; câu Mức 4 hóc búa, phân loại theo mức độ hiểu bài, không dùng kiểu "tính mẹo".
 
+## Soạn hàng loạt theo chương bằng Gemini (tiết kiệm token Claude)
+
+1. App → giáo viên → Toán → khối → trên biển tên chương bấm **✦ Soạn bằng Gemini** → **Sao chép chương** (có thể sửa lời nhờ trước khi chép). App chép phần lý thuyết của mọi bài thường trong chương, mỗi bài mở đầu bằng `%%% bai: <slug>` (bài chưa có: `%%% bai: <mã bài>`).
+2. Dán vào Gemini. Gemini trả một khối mã cùng định dạng (xem `docs/gemini-skill-soan-bai.md` mục 7b).
+3. **Dán kết quả** → **Kiểm tra** → xem trước từng bài → **Lưu**. App chỉ thay khối `lythuyet` của bài đã có (câu hỏi được khóa, giữ nguyên trạng thái duyệt; bài đang giao thì học sinh thấy ngay); bài chưa có thì tạo bài nháp.
+4. Khoảng 15 phút sau bấm **Kiểm tra hình của chương**. Hình lỗi: **Sao chép lỗi hình cho Gemini** → dán vào Gemini → dán kết quả lại như bước 3.
+
+## Hình từng bước
+
+`\begin{hinhbuoc}` + một `tikzpicture` (phần hiện từ bước k bọc `\hien{k}{…}`) + mỗi bước một `\loibuoc{…}` + `\end{hinhbuoc}`. Cú pháp và quy tắc: `docs/gemini-skill-soan-bai.md` mục 3.7b. GitHub Actions dịch mỗi bước thành một khung riêng (mã khung `\lttbuoc{k}` + hình, xem `lib/latex.js` `hbFrame`).
+
 ## Kho Thi đấu theo chương (câu chỉ dùng cho Thi đấu)
 
 Thi đấu rút câu Mức 1–4 của mọi bài **đã duyệt** của khối, cộng thêm **Kho Thi đấu theo chương**. Giáo viên đặt **mốc** "đã học hết Chương N" cho từng khối (Ngân hàng câu hỏi → tab Thi đấu): Thi đấu chỉ dùng câu của Chương 1..N, khoảng một nửa số câu mỗi trận thuộc Chương N. Chưa đặt mốc = mở mọi chương. Bài chưa gắn chương luôn được dùng.

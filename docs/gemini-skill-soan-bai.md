@@ -108,6 +108,7 @@ Thầy nhờ **sửa một bài đã có**: thầy dán mã hiện tại; trả 
 - **Chia mục học:** mỗi bài có **2–4 mục học** (mỗi `\loidan` mở một mục), mỗi mục xoay quanh **một ý chính** (một khái niệm, một quy tắc hoặc một dạng sai hay gặp). Bài ngắn thì 2 mục, bài nhiều khái niệm thì 3–4. Tên nút chọn là tiêu đề đầu tiên trong mục (`\dinhnghia{Tên}{…}` …), nên đặt tên ngắn, rõ.
 - **Khuôn một mục** (đủ 5 phần, theo thứ tự): `\loidan` (tình huống gần gũi hoặc thao tác cụ thể) → giải thích bằng `\dinhnghia`/`\quytac`/`\congthuc`/`\dinhly`/`\tinhchat` (thêm `\luuy` về lỗi hay gặp nếu có) → **minh họa** → `\vidu` có lời giải → `\thungay` (kiểm tra bằng **một ví dụ mới**, không lặp ví dụ vừa làm).
 - **Minh họa hiện nay chủ yếu là hình TikZ tĩnh** (thầy đang dùng cách này tạm thời cho mọi bài). Mỗi mục học có ít nhất một hình TikZ khi nội dung quan sát được (trục số, hình học, sơ đồ Venn, biểu đồ, bảng giá trị…). Viết `\begin{tikzpicture}…\end{tikzpicture}` thẳng trong nội dung `\quytac`, `\vidu`… (mục 3.7), không bọc `$…$`. Hình tự dịch sau khoảng 15 phút, nên **không vẽ hình lộ đáp án của câu Thử ngay**.
+- **Hình từng bước** (`\begin{hinhbuoc}`, mục 3.7b): dùng khi học sinh cần thấy **quá trình** (cách vẽ, các bước chứng minh, phép tính trên trục số, chia hình để ra công thức…). Học sinh chạm vào hình để hiện từng nét, mỗi bước kèm một lời giải thích. Đặt khối `hinhbuoc` đứng riêng trong `lythuyet` (sau mục giải thích, trước `\vidu`), app hiện nó ở cột minh họa. Mỗi mục học tối đa một hình từng bước; ý chỉ cần nhìn một lần thì dùng hình tĩnh.
 - **Chỉ dùng `\minhhoa` khi nội dung đúng một mẫu đã hỗ trợ** (bảng dưới; hiện chỉ cho số tự nhiên, Toán 6 Bài 1–2). Không dùng cho bài khác, kể cả khi gần giống. Không có hình để quan sát thì dùng một ví dụ cụ thể có số liệu.
 - Nếu bài rất cần thao tác mà chưa có mẫu (kéo thả, thanh trượt, ghép thanh phân số, di chuyển điểm trên trục số…): **không tự chế lệnh**; dùng hình TikZ tĩnh và ghi mẫu còn thiếu cùng thao tác học sinh cần làm vào *Đề nghị cho Claude* trong phiếu bàn giao.
 - `\minhhoa{tên-mẫu}{số}`: dùng một trong hai mẫu dưới đây. Cherry tự dựng hình, nút bấm và phản hồi. Khi cần hình để quan sát, đặt TikZ trong nội dung mục giải thích hoặc ví dụ. Khi chưa có mẫu tương tác phù hợp, dùng hình tĩnh hoặc một ví dụ ngắn.
@@ -268,6 +269,30 @@ Tính $({{a}}{{+b}})^2$.
 - Vẽ cho điện thoại: rộng khoảng 6–8 cm, mỗi hình một khối riêng, nhãn điểm rõ.
 - Hình được máy chủ tự dịch sau khoảng 15 phút. Không vẽ hình lộ đáp án.
 
+### 3.7b Hình từng bước `hinhbuoc`
+
+```latex
+\begin{hinhbuoc}
+\begin{tikzpicture}[line width=0.9pt]
+\coordinate (B) at (0,0); \coordinate (C) at (5.4,0); \coordinate (A) at (1.9,3.1);
+\draw (A)--(B)--(C)--cycle;
+\node[above=3pt] at (A) {$A$}; \node[below left] at (B) {$B$}; \node[below right] at (C) {$C$};
+\hien{2}{\draw[blue] (-0.7,3.1)--(6.2,3.1);}
+\hien{3}{\path pic[draw=orange,fill=orange!35,angle radius=8mm]{angle=C--B--A};}
+\end{tikzpicture}
+\loibuoc{Cho tam giác $ABC$.}
+\loibuoc{Qua $A$ kẻ đường thẳng song song với $BC$.}
+\loibuoc{Đánh dấu góc $B$.}
+\end{hinhbuoc}
+```
+
+- **Một** `tikzpicture` duy nhất. Phần nào chỉ hiện từ bước k thì bọc `\hien{k}{…}`; phần không bọc hiện ngay từ bước 1. Mỗi bước một dòng `\loibuoc{…}` (lời ngắn, 1–2 câu, có công thức trong `$…$`). **Số dòng `\loibuoc` = số bước**, từ 2 đến 8; mọi `\hien{k}` có k từ 2 đến số bước.
+- Trong `\hien{k}{…}` chỉ đặt lệnh vẽ (`\draw`, `\fill`, `\node`, `\path pic…`); **không** đặt `\coordinate` dùng chung, khai báo tọa độ ở ngoài, trước mọi `\hien`.
+- Phần chưa đến lượt vẫn được vẽ nhưng trong suốt, nên khung không xê dịch giữa các bước; vẽ hình đủ chỗ cho nét ở bước cuối.
+- Muốn đánh dấu góc: `\path pic[draw=…,fill=…,angle radius=8mm]{angle=X--Đỉnh--Y};` (đi ngược chiều kim đồng hồ từ tia Đỉnh→X sang tia Đỉnh→Y). Không viết `\fill[…] pic{…}` (màu tô không ăn).
+- Nhãn điểm đặt `above=3pt`, `below left`… để không đè nét; nhãn gần đường kẻ thêm thì dời xa hơn.
+- Không vẽ đáp án của câu Thử ngay trong hình.
+
 ### 3.8 Những thứ bị cấm (app báo lỗi hoặc hiện sai)
 
 - Bảng (`tabular`, `array` dùng như bảng), `\item`, `itemize`, `enumerate`, `\section`; `\textbf` ngoài công thức.
@@ -315,8 +340,9 @@ Nếu có công cụ chạy mã (Python), **dùng nó** để tính lại đáp 
 5. Mỗi `exsx` có ít nhất 2 `\buoc`, nhãn `[..]` chỉ cho các bước liền nhau thật sự đổi chỗ được. Mỗi `exsd` có đúng một ô kết luận, mọi `[ô cha]` có thật, không ẩn ô kết luận, `\anly` chỉ cho ô có căn cứ; đọc lại cả chuỗi suy luận (mỗi ô cha suy ra được từ các ô con và căn cứ của nó). Khối sai không trùng chữ với khối đúng.
 6. Đề TL: tổng điểm các bài đúng 10; điểm trong `\loigiai` cộng lại khớp điểm từng bài; đề TL không có dạng khác `extl`.
 7. Mỗi `\begin{…}` có `\end{…}` cùng loại; ngoặc nhọn cân bằng; số dấu `$` chẵn trong từng câu và từng mục lý thuyết.
-8. Lý thuyết: kiểm số cặp `{…}`, công thức và ví dụ. Trong phần văn bản của từng đối số, dùng quy tắc LaTeX ở mục 3.2. Nếu có tương tác, kiểm tên mẫu, phạm vi dữ liệu, thứ tự năm đối số của `\thungay`, kết quả khi chọn đúng và phản hồi khi chọn sai.
-9. Không có thứ trong mục 3.8. Các dòng `%%%` đủ 6 dòng, đúng mã bài trong `ma-bai.md`. Số câu từng mức đạt tối thiểu ở mục 4.
+8. Hình (bạn không chạy thử TikZ được, nên kiểm bằng mắt): tọa độ là số cụ thể, mọi tên điểm trong `--` đã khai báo bằng `\coordinate`, mỗi lệnh kết thúc bằng `;`, ngoặc `{}` `[]` cân bằng, không dùng thư viện ngoài mục 3.7. Hình từng bước: đủ quy tắc mục 3.7b.
+9. Lý thuyết: kiểm số cặp `{…}`, công thức và ví dụ. Trong phần văn bản của từng đối số, dùng quy tắc LaTeX ở mục 3.2. Nếu có tương tác, kiểm tên mẫu, phạm vi dữ liệu, thứ tự năm đối số của `\thungay`, kết quả khi chọn đúng và phản hồi khi chọn sai.
+10. Không có thứ trong mục 3.8. Các dòng `%%%` đủ 6 dòng, đúng mã bài trong `ma-bai.md`. Số câu từng mức đạt tối thiểu ở mục 4.
 
 Phát hiện lỗi trong phần đang soạn hoặc được yêu cầu sửa thì xử lý rồi mới trả. Nếu không chắc đáp án của một câu mới, thay bằng câu khác. Khi chỉ bổ sung lý thuyết, ghi những lỗi nghi ngờ trong bài tập gốc ở phiếu bàn giao và giữ nguyên bài tập.
 
@@ -342,6 +368,16 @@ Nhắc thầy một dòng cách đưa vào app:
 - Kho Thi đấu: *Ngân hàng câu hỏi → tab Thi đấu → chọn khối → + Dán câu Thi đấu → chọn chương → dán → Duyệt*.
 
 App báo lỗi cú pháp thì thầy dán nguyên thông báo lỗi lại để bạn sửa.
+
+## 7b. Soạn theo chương (thầy dán cả chương một lần)
+
+Thầy bấm **Soạn bằng Gemini** trên biển tên chương ở bản đồ → **Sao chép chương** rồi dán vào đây. Đoạn thầy dán có lời nhờ, quy tắc trả lời, rồi từng bài mở đầu bằng dòng `%%% bai: <mã>` kèm `\chude` và khối `lythuyet` hiện có.
+
+- Trả **một khối mã**. Mỗi bài giữ **nguyên dòng `%%% bai: …`** như thầy dán (đó là mã để app tìm bài), rồi `\chude{…}` và **toàn bộ khối `\begin{lythuyet}…\end{lythuyet}`** đã sửa.
+- **Không gửi câu hỏi** cho bài đã có: app chỉ thay khối `lythuyet`, bỏ qua mọi thứ khác. Bài được đánh dấu *CHƯA CÓ trên app* thì soạn đầy đủ (lý thuyết, có thể kèm `\man{1}`…`\man{4}`).
+- Không có thay đổi gì cho một bài thì bỏ hẳn bài đó khỏi câu trả lời.
+- Không cần phiếu bàn giao đầy đủ; chỉ ghi 1 dòng mỗi bài: số hình tĩnh, số hình từng bước, chỗ chưa chắc.
+- Khi thầy dán **Sao chép lỗi hình**: mỗi bài có dòng `% LỖI …` chỉ hình hỏng; sửa đúng hình đó, trả lại cả khối `lythuyet` của bài theo cùng định dạng. Lỗi ở hình trong câu hỏi thì nói thầy sửa ở *Cài đặt & sửa câu hỏi*.
 
 ## 8. Nguyên tắc chung
 
