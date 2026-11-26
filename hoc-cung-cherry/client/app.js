@@ -86,10 +86,16 @@ function mathFit(el){
     rows.forEach(x=>x.style.paddingLeft=pad+'px');
   });
   // (c) thu nhỏ công thức rộng hơn khung
+  // So với bề rộng của cả khối chữ chứa công thức, KHÔNG so với khung của chính công thức: kí hiệu đứng một mình
+  // như $\in$, $\notin$ có khoảng trống hai bên vẽ tràn ra ngoài khung nhỏ của nó (lỗi 26/11/2026: hiện "vuốt ngang"
+  // và đẩy kí hiệu xuống dòng riêng).
   el.querySelectorAll('mjx-container').forEach(x=>{
-    const w=x.scrollWidth,room=x.clientWidth;if(!room||w<=room+1)return;
+    let host=x.parentElement;while(host&&host!==el&&getComputedStyle(host).display.startsWith('inline'))host=host.parentElement;
+    if(!host)return;const cs=getComputedStyle(host);
+    const room=host.clientWidth-parseFloat(cs.paddingLeft)-parseFloat(cs.paddingRight),w=x.scrollWidth;
+    if(!x.offsetWidth||room<=0||w<=room+1)return;
     const r=room/w;x.setAttribute('data-mfit','1');x.style.fontSize=Math.max(75,Math.floor(r*100))+'%';
-    if(r<0.75&&x.scrollWidth>x.clientWidth+1)x.insertAdjacentHTML('afterend','<span class="mhint">↔ vuốt ngang để xem hết</span>');
+    if(r<0.75&&x.scrollWidth>room+1)x.insertAdjacentHTML('afterend','<span class="mhint">↔ vuốt ngang để xem hết</span>');
   });
 }
 const tex=s=>brOut(esc(s)).replace(/\\textbf\{([^}]*)\}/g,'<b>$1</b>').replace(/&quot;/g,'"');
