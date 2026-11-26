@@ -77,6 +77,92 @@ export function hinhBuocErrors(raw) {
   return errors;
 }
 
+// Bài giải mẫu từng bước (trong lythuyet; sau này dùng cho mục Bài mẫu và gợi ý Ôn tập tự luận):
+//   \begin{giaimau}
+//   \de{đề bài}
+//   \begin{tikzpicture} … \hien{k}{hiện từ bước k} … \phu{a}{b}{nét phụ chỉ hiện từ bước a đến b} … \sang{k}{tô cam ở bước k} … \end{tikzpicture}   (tùy chọn, một hình)
+//   \cau{Câu 1}{yêu cầu}                                   mở một câu (ý) của bài
+//   \doan{câu hỏi}{đúng}{sai}{vì sao đúng}{vì sao sai}[{sai 2}{vì sao sai 2}]   học sinh đoán hướng trước bước then chốt
+//   \buocgiai{mục tiêu}{các dòng biến đổi, xuống dòng \\}{vì sao}                bước k (đếm từ 1 trong cả bài)
+//   \begin{sodo} \nut{cấp}{nội dung}{ghi chú} … \end{sodo}                       sơ đồ phân tích đi lên, cấp 1 là gốc
+//   \nhanxet{…}
+//   \end{giaimau}
+// Hình: mỗi màn một khung. Khung = gmFrame(tikz, k, s): đã hiện tới bước k, tô sáng bước s (0 = không tô).
+// Phần tô sáng được vẽ sau cùng, phần còn lại mờ đi; phần chưa hiện vẫn vẽ trong suốt nên mọi khung cùng kích thước.
+export const GIAIMAU = /\\begin\{giaimau\}([\s\S]*?)\\end\{giaimau\}/g;
+export function gmFrame(tikz, k, s) {
+  let t = tikz;
+  if (s && new RegExp('\\\\sang\\s*\\{\\s*' + s + '\\s*\\}').test(t)) {
+    let i = t.indexOf('\\begin{tikzpicture}') + 19;
+    while (/\s/.test(t[i] || '')) i++;
+    if (t[i] === '[') { let d = 0; for (; i < t.length; i++) { if (t[i] === '[') d++; else if (t[i] === ']') { d--; if (!d) { i++; break; } } } }
+    const e = t.lastIndexOf('\\end{tikzpicture}');
+    t = t.slice(0, i) + '\\begin{scope}[opacity=.3]' + t.slice(i, e) + '\\end{scope}\\lttsangve\n' + t.slice(e);
+  }
+  return '\\lttbuoc{' + k + '}\\lttsang{' + s + '}\n' + t;
+}
+function gmArgs(body, at, n) {
+  const args = []; let g;
+  while ((n == null || args.length < n) && (g = group(body, at))) { args.push(g[0].trim()); at = g[1]; }
+  return [args, at];
+}
+export function parseGiaiMau(raw) {
+  const body = noComment(raw), errors = [];
+  const pics = body.match(TIKZ_ONE) || [], tikz = pics[0] || '';
+  if (pics.length > 1) errors.push(`Bài giải mẫu chỉ có một hình tikzpicture (đang có ${pics.length}); phần thay đổi theo bước dùng \\hien{k}{…} và \\sang{k}{…}`);
+  const rest = pics.reduce((x, p) => x.replace(p, ''), body);
+  const items = []; let de = '', n = 0, m;
+  const re = /\\(de|cau|doan|buocgiai|nhanxet)\b|\\begin\{sodo\}/g;
+  while ((m = re.exec(rest))) {
+    const k = m[1];
+    if (!k) {
+      const end = rest.indexOf('\\end{sodo}', m.index);
+      if (end < 0) { errors.push('Sơ đồ chưa đóng \\end{sodo}'); break; }
+      const inner = rest.slice(re.lastIndex, end), nodes = []; let q; const rn = /\\nut\b/g;
+      while ((q = rn.exec(inner))) { const [a, at] = gmArgs(inner, rn.lastIndex, 3); rn.lastIndex = at; nodes.push({ lv: Number(a[0]) || 0, t: a[1] || '', note: a[2] || '' }); }
+      if (!nodes.length || nodes[0].lv !== 1) errors.push('Sơ đồ cần bắt đầu bằng \\nut{1}{điều cần chứng minh}{}');
+      if (nodes.some((x, i) => !x.lv || (i && x.lv > nodes[i - 1].lv + 1))) errors.push('Sơ đồ: cấp của \\nut phải là số, mỗi ô con chỉ sâu hơn ô trước tối đa một cấp');
+      items.push({ k: 'sodo', nodes, done: n });
+      re.lastIndex = end + 10; continue;
+    }
+    const want = { de: 1, cau: 2, buocgiai: 3, nhanxet: 1 }[k];
+    const [a, at] = gmArgs(rest, re.lastIndex, want); re.lastIndex = at;
+    if (k === 'de') { de = a[0] || ''; continue; }
+    if (k === 'doan') {
+      if (a.length < 5 || a.length % 2 === 0) errors.push(`\\doan cần {câu hỏi}{đúng}{sai}{vì sao đúng}{vì sao sai}, thêm đáp án sai thì thêm từng cặp {sai}{vì sao} (đang có ${a.length} cặp ngoặc)`);
+      const opts = [{ t: a[1] || '', ok: true, ex: a[3] || '' }, { t: a[2] || '', ok: false, ex: a[4] || '' }];
+      for (let i = 5; i + 1 < a.length; i += 2) opts.push({ t: a[i], ok: false, ex: a[i + 1] });
+      if (opts.some(o => !o.t)) errors.push('\\doan có đáp án để trống');
+      items.push({ k: 'doan', q: a[0] || '', opts, done: n }); continue;
+    }
+    if (a.length < want) errors.push(`\\${k} cần ${want} cặp ngoặc {…} (đang có ${a.length})`);
+    if (k === 'cau') items.push({ k, title: a[0] || '', body: a[1] || '', done: n });
+    if (k === 'buocgiai') { n++; items.push({ k, n, goal: a[0] || '', body: a[1] || '', why: a[2] || '' }); }
+    if (k === 'nhanxet') items.push({ k, body: a[0] || '', done: n });
+  }
+  if (!de) errors.push('Bài giải mẫu thiếu \\de{đề bài}');
+  if (!n) errors.push('Bài giải mẫu cần ít nhất một \\buocgiai{mục tiêu}{lời giải}{vì sao}');
+  if (tikz) {
+    const bad = [...tikz.matchAll(/\\(hien|sang)\s*\{\s*(\d+)\s*\}/g)].filter(x => +x[2] < 1 || +x[2] > n);
+    if (bad.length) errors.push(`Hình bài giải mẫu: \\${bad[0][1]}{${bad[0][2]}} không khớp số bước (có ${n} \\buocgiai)`);
+    const badPhu = [...tikz.matchAll(/\\phu\s*\{\s*(\d+)\s*\}\s*\{\s*(\d+)\s*\}/g)].filter(x => +x[1] < 1 || +x[2] < +x[1] || +x[2] > n);
+    if (badPhu.length) errors.push(`Hình bài giải mẫu: \\phu{${badPhu[0][1]}}{${badPhu[0][2]}} cần 1 ≤ bước đầu ≤ bước cuối ≤ ${n}`);
+  }
+  // khung hình của từng màn
+  const fr = (k, s) => tikz ? gmFrame(tikz, k, s) : '';
+  const full = fr(99, 0);
+  for (const it of items) it.frame = it.k === 'buocgiai' ? fr(it.n, it.n) : fr(it.done, 0);
+  const frames = tikz ? [...new Set([full, ...items.map(it => it.frame)])] : [];
+  return { de, tikz, full, items, steps: n, frames, errors };
+}
+export function giaiMauErrors(raw) {
+  const src = noComment(raw), errors = [];
+  const opened = (src.match(/\\begin\{giaimau\}/g) || []).length, all = [...src.matchAll(GIAIMAU)];
+  if (opened !== all.length) errors.push('Bài giải mẫu chưa đóng \\end{giaimau}');
+  all.forEach((m, i) => { for (const e of parseGiaiMau(m[1]).errors) errors.push(all.length > 1 ? `Bài giải mẫu thứ ${i + 1}: ${e}` : e); });
+  return errors;
+}
+
 function takeCmd(body, cmd) {
   const k = body.indexOf('\\' + cmd);
   if (k < 0) return [body, null];
@@ -185,6 +271,7 @@ export function parseBank(raw) {
   const topic = tg ? tg[0].trim() : '';
   if (!topic) errors.push({ msg: 'Thiếu \\chude{Tên chủ đề}' });
   for (const msg of hinhBuocErrors(raw)) errors.push({ msg });
+  for (const msg of giaiMauErrors(raw)) errors.push({ msg });
 
   // Tóm tắt lý thuyết: \begin{lythuyet} ... \end{lythuyet} (một khối, thường đặt trước \man{1})
   let theory = null;
@@ -309,15 +396,15 @@ export const isTLBank = levels => levels.some(l => l.qs.some(q => q.type === 'ex
 // Các mục của khối lý thuyết. Hai đối số {tiêu đề}{nội dung}, riêng \luuy{nội dung}; \vidu{đề}{lời giải}.
 export const THEORY_KINDS = { dinhnghia: 'Định nghĩa', quytac: 'Quy tắc', congthuc: 'Công thức', dinhly: 'Định lý', tinhchat: 'Tính chất', luuy: 'Lưu ý', vidu: 'Ví dụ' };
 function parseTheory(body, errors) {
-  const items = [], re = /\\(dinhnghia|quytac|congthuc|dinhly|tinhchat|luuy|vidu|loidan|minhhoa|thungay)\b|\\begin\{hinhbuoc\}/g; let m;
+  const items = [], re = /\\(dinhnghia|quytac|congthuc|dinhly|tinhchat|luuy|vidu|loidan|minhhoa|thungay)\b|\\begin\{(hinhbuoc|giaimau)\}/g; let m;
   while ((m = re.exec(body))) {
     const k = m[1];
     if (!k) {
       // Hình từng bước đứng riêng trong lythuyet: hiện ở cột minh họa như \minhhoa (lỗi soạn đã báo ở hinhBuocErrors)
-      const end = body.indexOf('\\end{hinhbuoc}', m.index);
+      const env = m[2], endTag = '\\end{' + env + '}', end = body.indexOf(endTag, m.index);
       if (end < 0) break;
-      re.lastIndex = end + 14;
-      items.push({ k: 'hinhbuoc', body: body.slice(m.index, re.lastIndex) });
+      re.lastIndex = end + endTag.length;
+      items.push({ k: env, body: body.slice(m.index, re.lastIndex) });
       continue;
     }
     if (k === 'loidan' || k === 'minhhoa' || k === 'thungay') {

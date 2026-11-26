@@ -996,6 +996,34 @@ textarea.code.light{background:#fff;color:#12313a;font:14px/1.5 "Be Vietnam Pro"
 .ls-zin img{flex:none;margin:auto;max-width:none;height:auto;background:#fff;border-radius:12px}
 .ls-zx{position:absolute;top:max(10px,env(safe-area-inset-top));right:12px;width:44px;height:44px;border-radius:50%;background:#12313a;color:#fff;font-size:28px;line-height:1;z-index:1;cursor:pointer}
 .lstep .hb{max-width:640px}
+/* bài giải mẫu từng bước */
+.gm-fig{position:sticky;top:-8px;z-index:2;margin:-8px -20px 10px;padding:8px 12px 6px;background:#fffaf2;border-bottom:2px solid #efe7d6;text-align:center}
+.gm-fig img.fig{margin:0 auto;display:block}
+.gm-debtn{position:absolute;right:10px;top:10px;padding:4px 10px;border-radius:10px;background:#efe7d6;color:#12313a;font-weight:700;font-size:13px;cursor:pointer}
+.ls-kind[data-k=doan]{background:#8d7bff}.ls-kind[data-k=sodo]{background:#e0a800}.ls-kind[data-k=buoc]{background:#139a8f}
+.ls-kind[data-k=giaimau],.ls-kind[data-k=gmcau]{background:#12313a}.ls-kind[data-k=nhanxet]{background:#ff5a36}
+.gm-goal{font:800 21px/1.25 "Baloo 2",sans-serif;margin:6px 0 2px}
+.gm-why{margin-top:10px}.gm-why>button{font-weight:700;color:#0d7169;font-size:16px;cursor:pointer;min-height:36px}
+.gm-why>div{margin-top:4px;padding:10px 12px;border-radius:14px;background:#f4fbfa;border:2px solid #cdece8;font-size:16px}
+.gm-tip{margin:8px 0 0;font-size:17px}
+.gm-tree{overflow-x:auto;padding:6px 0 4px}
+.gm-tree ul{display:flex;justify-content:center;padding:18px 0 0;margin:0;position:relative}
+.gm-tree li{list-style:none;position:relative;padding:18px 3px 0;text-align:center;flex:0 1 auto}
+.gm-tree li::before,.gm-tree li::after{content:"";position:absolute;top:0;width:50%;height:18px;border-top:2px solid #b9c7c9}
+.gm-tree li::before{right:50%}.gm-tree li::after{left:50%;border-left:2px solid #b9c7c9}
+.gm-tree li:only-child::before,.gm-tree li:only-child::after{border-top:0}
+.gm-tree li:first-child::before,.gm-tree li:last-child::after{border:0}
+.gm-tree li:last-child::before{border-right:2px solid #b9c7c9}
+.gm-tree ul ul::before{content:"";position:absolute;top:0;left:50%;height:18px;border-left:2px solid #b9c7c9}
+.gm-tree>ul{padding-top:0}.gm-tree>ul>li{padding-top:0}.gm-tree>ul>li::before,.gm-tree>ul>li::after{display:none}
+.gm-tree li.hide{display:none}
+.gm-node{display:inline-block;padding:6px 8px;border-radius:12px;border:2px solid #e6ddcc;background:#fff;font-size:15px;line-height:1.3}
+.gm-node small{display:block;color:#5d777d;font-size:12px}
+.gm-node.can{border-color:#ff5a36;cursor:pointer;box-shadow:0 3px 0 #ffc7b8}
+.gm-node.root{border-color:#139a8f;background:#e6f6f4}
+.gm-sheet{display:block;overflow:auto}
+.gm-sheetin{padding:64px 20px 24px}.gm-sheetin h2{font:800 24px "Baloo 2",sans-serif;margin:0 0 8px}.gm-sheetin img.fig{display:block;margin:14px auto 0}
+.lstep .ls-text p{margin:.35em 0}
 
 .gvlink{margin-top:4px;font-size:13px;color:#7a9399;text-decoration:underline;align-self:center}
 .figmiss{display:inline-block;padding:6px 10px;border-radius:8px;background:#fff3c4;color:#7a5a00;font-size:13px}
@@ -1394,6 +1422,92 @@ function hinhBuocErrors(raw) {
   return errors;
 }
 
+// Bài giải mẫu từng bước (trong lythuyet; sau này dùng cho mục Bài mẫu và gợi ý Ôn tập tự luận):
+//   \begin{giaimau}
+//   \de{đề bài}
+//   \begin{tikzpicture} … \hien{k}{hiện từ bước k} … \phu{a}{b}{nét phụ chỉ hiện từ bước a đến b} … \sang{k}{tô cam ở bước k} … \end{tikzpicture}   (tùy chọn, một hình)
+//   \cau{Câu 1}{yêu cầu}                                   mở một câu (ý) của bài
+//   \doan{câu hỏi}{đúng}{sai}{vì sao đúng}{vì sao sai}[{sai 2}{vì sao sai 2}]   học sinh đoán hướng trước bước then chốt
+//   \buocgiai{mục tiêu}{các dòng biến đổi, xuống dòng \\}{vì sao}                bước k (đếm từ 1 trong cả bài)
+//   \begin{sodo} \nut{cấp}{nội dung}{ghi chú} … \end{sodo}                       sơ đồ phân tích đi lên, cấp 1 là gốc
+//   \nhanxet{…}
+//   \end{giaimau}
+// Hình: mỗi màn một khung. Khung = gmFrame(tikz, k, s): đã hiện tới bước k, tô sáng bước s (0 = không tô).
+// Phần tô sáng được vẽ sau cùng, phần còn lại mờ đi; phần chưa hiện vẫn vẽ trong suốt nên mọi khung cùng kích thước.
+const GIAIMAU = /\\begin\{giaimau\}([\s\S]*?)\\end\{giaimau\}/g;
+function gmFrame(tikz, k, s) {
+  let t = tikz;
+  if (s && new RegExp('\\\\sang\\s*\\{\\s*' + s + '\\s*\\}').test(t)) {
+    let i = t.indexOf('\\begin{tikzpicture}') + 19;
+    while (/\s/.test(t[i] || '')) i++;
+    if (t[i] === '[') { let d = 0; for (; i < t.length; i++) { if (t[i] === '[') d++; else if (t[i] === ']') { d--; if (!d) { i++; break; } } } }
+    const e = t.lastIndexOf('\\end{tikzpicture}');
+    t = t.slice(0, i) + '\\begin{scope}[opacity=.3]' + t.slice(i, e) + '\\end{scope}\\lttsangve\n' + t.slice(e);
+  }
+  return '\\lttbuoc{' + k + '}\\lttsang{' + s + '}\n' + t;
+}
+function gmArgs(body, at, n) {
+  const args = []; let g;
+  while ((n == null || args.length < n) && (g = group(body, at))) { args.push(g[0].trim()); at = g[1]; }
+  return [args, at];
+}
+function parseGiaiMau(raw) {
+  const body = noComment(raw), errors = [];
+  const pics = body.match(TIKZ_ONE) || [], tikz = pics[0] || '';
+  if (pics.length > 1) errors.push(`Bài giải mẫu chỉ có một hình tikzpicture (đang có ${pics.length}); phần thay đổi theo bước dùng \\hien{k}{…} và \\sang{k}{…}`);
+  const rest = pics.reduce((x, p) => x.replace(p, ''), body);
+  const items = []; let de = '', n = 0, m;
+  const re = /\\(de|cau|doan|buocgiai|nhanxet)\b|\\begin\{sodo\}/g;
+  while ((m = re.exec(rest))) {
+    const k = m[1];
+    if (!k) {
+      const end = rest.indexOf('\\end{sodo}', m.index);
+      if (end < 0) { errors.push('Sơ đồ chưa đóng \\end{sodo}'); break; }
+      const inner = rest.slice(re.lastIndex, end), nodes = []; let q; const rn = /\\nut\b/g;
+      while ((q = rn.exec(inner))) { const [a, at] = gmArgs(inner, rn.lastIndex, 3); rn.lastIndex = at; nodes.push({ lv: Number(a[0]) || 0, t: a[1] || '', note: a[2] || '' }); }
+      if (!nodes.length || nodes[0].lv !== 1) errors.push('Sơ đồ cần bắt đầu bằng \\nut{1}{điều cần chứng minh}{}');
+      if (nodes.some((x, i) => !x.lv || (i && x.lv > nodes[i - 1].lv + 1))) errors.push('Sơ đồ: cấp của \\nut phải là số, mỗi ô con chỉ sâu hơn ô trước tối đa một cấp');
+      items.push({ k: 'sodo', nodes, done: n });
+      re.lastIndex = end + 10; continue;
+    }
+    const want = { de: 1, cau: 2, buocgiai: 3, nhanxet: 1 }[k];
+    const [a, at] = gmArgs(rest, re.lastIndex, want); re.lastIndex = at;
+    if (k === 'de') { de = a[0] || ''; continue; }
+    if (k === 'doan') {
+      if (a.length < 5 || a.length % 2 === 0) errors.push(`\\doan cần {câu hỏi}{đúng}{sai}{vì sao đúng}{vì sao sai}, thêm đáp án sai thì thêm từng cặp {sai}{vì sao} (đang có ${a.length} cặp ngoặc)`);
+      const opts = [{ t: a[1] || '', ok: true, ex: a[3] || '' }, { t: a[2] || '', ok: false, ex: a[4] || '' }];
+      for (let i = 5; i + 1 < a.length; i += 2) opts.push({ t: a[i], ok: false, ex: a[i + 1] });
+      if (opts.some(o => !o.t)) errors.push('\\doan có đáp án để trống');
+      items.push({ k: 'doan', q: a[0] || '', opts, done: n }); continue;
+    }
+    if (a.length < want) errors.push(`\\${k} cần ${want} cặp ngoặc {…} (đang có ${a.length})`);
+    if (k === 'cau') items.push({ k, title: a[0] || '', body: a[1] || '', done: n });
+    if (k === 'buocgiai') { n++; items.push({ k, n, goal: a[0] || '', body: a[1] || '', why: a[2] || '' }); }
+    if (k === 'nhanxet') items.push({ k, body: a[0] || '', done: n });
+  }
+  if (!de) errors.push('Bài giải mẫu thiếu \\de{đề bài}');
+  if (!n) errors.push('Bài giải mẫu cần ít nhất một \\buocgiai{mục tiêu}{lời giải}{vì sao}');
+  if (tikz) {
+    const bad = [...tikz.matchAll(/\\(hien|sang)\s*\{\s*(\d+)\s*\}/g)].filter(x => +x[2] < 1 || +x[2] > n);
+    if (bad.length) errors.push(`Hình bài giải mẫu: \\${bad[0][1]}{${bad[0][2]}} không khớp số bước (có ${n} \\buocgiai)`);
+    const badPhu = [...tikz.matchAll(/\\phu\s*\{\s*(\d+)\s*\}\s*\{\s*(\d+)\s*\}/g)].filter(x => +x[1] < 1 || +x[2] < +x[1] || +x[2] > n);
+    if (badPhu.length) errors.push(`Hình bài giải mẫu: \\phu{${badPhu[0][1]}}{${badPhu[0][2]}} cần 1 ≤ bước đầu ≤ bước cuối ≤ ${n}`);
+  }
+  // khung hình của từng màn
+  const fr = (k, s) => tikz ? gmFrame(tikz, k, s) : '';
+  const full = fr(99, 0);
+  for (const it of items) it.frame = it.k === 'buocgiai' ? fr(it.n, it.n) : fr(it.done, 0);
+  const frames = tikz ? [...new Set([full, ...items.map(it => it.frame)])] : [];
+  return { de, tikz, full, items, steps: n, frames, errors };
+}
+function giaiMauErrors(raw) {
+  const src = noComment(raw), errors = [];
+  const opened = (src.match(/\\begin\{giaimau\}/g) || []).length, all = [...src.matchAll(GIAIMAU)];
+  if (opened !== all.length) errors.push('Bài giải mẫu chưa đóng \\end{giaimau}');
+  all.forEach((m, i) => { for (const e of parseGiaiMau(m[1]).errors) errors.push(all.length > 1 ? `Bài giải mẫu thứ ${i + 1}: ${e}` : e); });
+  return errors;
+}
+
 function takeCmd(body, cmd) {
   const k = body.indexOf('\\' + cmd);
   if (k < 0) return [body, null];
@@ -1502,6 +1616,7 @@ function parseBank(raw) {
   const topic = tg ? tg[0].trim() : '';
   if (!topic) errors.push({ msg: 'Thiếu \\chude{Tên chủ đề}' });
   for (const msg of hinhBuocErrors(raw)) errors.push({ msg });
+  for (const msg of giaiMauErrors(raw)) errors.push({ msg });
 
   // Tóm tắt lý thuyết: \begin{lythuyet} ... \end{lythuyet} (một khối, thường đặt trước \man{1})
   let theory = null;
@@ -1626,15 +1741,15 @@ const isTLBank = levels => levels.some(l => l.qs.some(q => q.type === 'extl'));
 // Các mục của khối lý thuyết. Hai đối số {tiêu đề}{nội dung}, riêng \luuy{nội dung}; \vidu{đề}{lời giải}.
 const THEORY_KINDS = { dinhnghia: 'Định nghĩa', quytac: 'Quy tắc', congthuc: 'Công thức', dinhly: 'Định lý', tinhchat: 'Tính chất', luuy: 'Lưu ý', vidu: 'Ví dụ' };
 function parseTheory(body, errors) {
-  const items = [], re = /\\(dinhnghia|quytac|congthuc|dinhly|tinhchat|luuy|vidu|loidan|minhhoa|thungay)\b|\\begin\{hinhbuoc\}/g; let m;
+  const items = [], re = /\\(dinhnghia|quytac|congthuc|dinhly|tinhchat|luuy|vidu|loidan|minhhoa|thungay)\b|\\begin\{(hinhbuoc|giaimau)\}/g; let m;
   while ((m = re.exec(body))) {
     const k = m[1];
     if (!k) {
       // Hình từng bước đứng riêng trong lythuyet: hiện ở cột minh họa như \minhhoa (lỗi soạn đã báo ở hinhBuocErrors)
-      const end = body.indexOf('\\end{hinhbuoc}', m.index);
+      const env = m[2], endTag = '\\end{' + env + '}', end = body.indexOf(endTag, m.index);
       if (end < 0) break;
-      re.lastIndex = end + 14;
-      items.push({ k: 'hinhbuoc', body: body.slice(m.index, re.lastIndex) });
+      re.lastIndex = end + endTag.length;
+      items.push({ k: env, body: body.slice(m.index, re.lastIndex) });
       continue;
     }
     if (k === 'loidan' || k === 'minhhoa' || k === 'thungay') {
@@ -2667,19 +2782,20 @@ const LS_FIG_MAX=2.5;
 function lsFitFig(img,stage){
   const w=img.naturalWidth,h=img.naturalHeight;if(!w||!h||!stage.clientHeight)return;
   const hb=img.closest('.hb-pic'),opt=img.closest('.ls-opt');
-  const host=hb||opt||img.closest('.ls-text,.ls-sol,.ls-q,.ls-lab')||stage;
+  const host=hb||opt||img.closest('.gm-fig,.ls-text,.ls-sol,.ls-q,.ls-lab')||stage;
   const room=host.clientWidth-(hb?16:0);
   // hình từng bước là nội dung chính của màn nên được cao hơn; hình trong phương án nhỏ lại
   // máy xoay ngang: vùng nội dung thấp, cho hình cao gần hết khung (học sinh cuộn xuống đọc tiếp)
   const wideScreen=stage.clientWidth>stage.clientHeight;
-  const maxH=stage.clientHeight*(wideScreen?(opt?0.5:0.9):hb?0.6:opt?0.25:0.5);
+  const pin=img.closest('.gm-fig');
+  const maxH=stage.clientHeight*(wideScreen?(opt?0.5:pin?0.6:0.9):pin?0.34:hb?0.6:opt?0.25:0.5);
   let W=Math.min(room,w*LS_FIG_MAX);
   if(W*h/w>maxH)W=maxH*w/h;
   if(W>0)img.style.width=Math.round(W)+'px';
 }
 function lsFitFigs(stage){
   stage.querySelectorAll('img.fig').forEach(img=>{
-    if(!img.closest('.hb-pic,.ls-opt')&&!(img.nextElementSibling&&img.nextElementSibling.classList.contains('ls-zhint')))img.insertAdjacentHTML('afterend','<span class="ls-zhint">Chạm hình để phóng to</span>');
+    if(!img.closest('.hb-pic,.ls-opt,.gm-fig')&&!(img.nextElementSibling&&img.nextElementSibling.classList.contains('ls-zhint')))img.insertAdjacentHTML('afterend','<span class="ls-zhint">Chạm hình để phóng to</span>');
     if(img.complete&&img.naturalWidth)lsFitFig(img,stage);else{img.loading='eager';img.addEventListener('load',()=>lsFitFig(img,stage),{once:true})}});
 }
 
@@ -2707,11 +2823,40 @@ function lessonScreens(items){
       if(it.k==='vidu'){push({type:'vidu',html:tex(it.body),sol:tex(it.sol)});continue}
       if(it.k==='minhhoa'){push({type:'lab',html:authoredTheoryHTML(it)});continue}
       if(it.k==='hinhbuoc'){push({type:'lab',html:tex(it.body)});continue}
+      if(it.k==='giaimau'){gmScreens(it.body).forEach((sc,n)=>push(n?sc:{...sc,say:say||undefined}));continue}
       if(it.k==='thungay'){push({type:'quiz',q:tex(it.body),opts:[{html:tex(it.correct),ok:true,ex:tex(it.explainCorrect)},{html:tex(it.wrong),ok:false,ex:tex(it.explainWrong)}]});continue}
     }
   }
   return S;
 }
+// Bài giải mẫu từng bước (\begin{giaimau}, cú pháp ở lib/latex.js): mỗi mục một màn, hình ghim ở trên
+// đổi khung theo màn (khung đã dịch, khóa trong FIGS là gmFrame). Đề bài xem lại được ở mọi màn.
+function gmImg(code){if(!code)return '';const h=FIGS[code];return h?`<img class="fig" src="/hinh/${h}" alt="Hình vẽ">`:'<span class="figmiss">Hình chưa dịch</span>'}
+function gmScreens(raw){
+  const g=parseGiaiMau(raw),ctx={de:tex(g.de),full:gmImg(g.full)},S=[],tot={};
+  let cur='Bài giải mẫu';
+  for(const it of g.items){if(it.k==='cau')cur=it.title;if(it.k==='buocgiai')tot[cur]=(tot[cur]||0)+1}
+  S.push({type:'read',kind:'giaimau',gm:ctx,part:'Bài giải mẫu',title:'Đề bài',fig:ctx.full,
+    html:ctx.de+'<p class="ls-hint">Mỗi câu được giải từng bước. Có lúc Cherry hỏi em nên làm gì tiếp, em thử đoán trước khi xem nhé.</p>'});
+  cur='Bài giải mẫu';const cnt={};
+  for(const it of g.items){
+    const fig=gmImg(it.frame),base={gm:ctx,fig};
+    if(it.k==='cau'){cur=it.title;S.push({...base,type:'read',kind:'gmcau',part:cur,title:it.title,html:tex(it.body)})}
+    if(it.k==='doan')S.push({...base,type:'quiz',doan:true,part:cur,q:tex(it.q),opts:it.opts.map(o=>({html:tex(o.t),ok:o.ok,ex:tex(o.ex)}))});
+    if(it.k==='buocgiai'){cnt[cur]=(cnt[cur]||0)+1;S.push({...base,type:'gmstep',part:cur,no:`Bước ${cnt[cur]}/${tot[cur]}`,goal:tex(it.goal),html:lsLines(it.body).map(l=>`<p>${tex(l)}</p>`).join(''),why:tex(it.why)})}
+    if(it.k==='sodo')S.push({...base,type:'tree',part:cur,nodes:it.nodes});
+    if(it.k==='nhanxet')S.push({...base,type:'read',kind:'nhanxet',part:cur,title:'Nhận xét',html:lsLines(it.body).map(l=>`<p>${tex(l)}</p>`).join('')});
+  }
+  return S;
+}
+// Sơ đồ phân tích đi lên: các \nut theo thứ tự trước-sau, cấp 1 là gốc; vẽ nhánh ngang, chạm ô để mở nhánh con
+function gmTreeHTML(nodes){
+  const root={c:[]},st=[root];
+  for(const n of nodes){const x={...n,c:[]};while(st.length>n.lv)st.pop();st[st.length-1].c.push(x);st.push(x)}
+  const li=(n,top)=>`<li${top?'':' class="hide"'}><span class="gm-node${top?' root':''}${n.c.length?' can':''}">${tex(n.t)}${n.note?`<small>${tex(n.note)}</small>`:''}</span>${n.c.length?`<ul>${n.c.map(c=>li(c)).join('')}</ul>`:''}</li>`;
+  return `<div class="gm-tree"><ul>${root.c.map(n=>li(n,true)).join('')}</ul></div>`;
+}
+
 // Bài Tập hợp dựng sẵn (setLesson): mỗi trang thành 3 màn (chạm thử → khái niệm → thử ngay)
 function builtInScreens(pages){
   return pages.flatMap(p=>[
@@ -2720,7 +2865,7 @@ function builtInScreens(pages){
     {type:'quiz',part:'Thử ngay',q:p.prompt,opts:p.choices.map((c,n)=>({html:c,ok:n===p.correct,ex:esc(p.feedback[n])}))}
   ]);
 }
-const LS_KIND={dinhnghia:'Định nghĩa',quytac:'Quy tắc',congthuc:'Công thức',dinhly:'Định lý',tinhchat:'Tính chất',luuy:'Lưu ý'};
+const LS_KIND={dinhnghia:'Định nghĩa',quytac:'Quy tắc',congthuc:'Công thức',dinhly:'Định lý',tinhchat:'Tính chất',luuy:'Lưu ý',giaimau:'Bài giải mẫu',gmcau:'Yêu cầu',nhanxet:'Nhận xét'};
 
 // Vẽ bài học từng màn vào root. o: {start, title, onClose, finish(el,stats,api), teacherEdit}
 function renderLessonMaterial(root,t,o={}){
@@ -2749,10 +2894,18 @@ function renderLessonMaterial(root,t,o={}){
     if(sc.type==='read')body=`${sc.kind&&sc.title?`<span class="ls-kind" data-k="${sc.kind}">${LS_KIND[sc.kind]||''}</span>`:''}${sc.title?`<h2>${tex(sc.title)}</h2>`:''}<div class="ls-text">${sc.html}</div>`;
     if(sc.type==='vidu')body=`<span class="ls-kind" data-k="vidu">Ví dụ</span><div class="ls-text">${sc.html}</div><div class="ls-sol" hidden><b>Lời giải</b><div>${sc.sol}</div></div><p class="ls-center"><button type="button" class="ls-mini" data-sol>Xem lời giải</button></p>`;
     if(sc.type==='lab')body=`<div class="ls-lab">${sc.html}</div><p class="ls-hint">Chạm vào hình để khám phá</p>`;
-    if(sc.type==='quiz')body=`<span class="ls-kind" data-k="thungay">Thử ngay</span><div class="ls-q">${sc.q}</div><div class="ls-opts">${shuffle(sc.opts.map((_,n)=>n)).map(n=>`<button type="button" class="ls-opt" data-o="${n}">${sc.opts[n].html}</button>`).join('')}</div>`;
+    if(sc.type==='gmstep')body=`<span class="ls-kind" data-k="buoc">${sc.no}</span><div class="gm-goal">${sc.goal}</div><div class="ls-text">${sc.html}</div>${sc.why?`<div class="gm-why"><button type="button">Vì sao? ▾</button><div hidden>${sc.why}</div></div>`:''}`;
+    if(sc.type==='tree')body=`<span class="ls-kind" data-k="sodo">Phân tích đi lên</span><p class="gm-tip">Muốn có điều ở trên, cần những gì ở dưới? Chạm ô viền cam để mở nhánh.</p>${gmTreeHTML(sc.nodes)}`;
+    if(sc.type==='quiz')body=`<span class="ls-kind" data-k="${sc.doan?'doan':'thungay'}">${sc.doan?'Em đoán bước tiếp theo':'Thử ngay'}</span><div class="ls-q">${sc.q}</div><div class="ls-opts">${shuffle(sc.opts.map((_,n)=>n)).map(n=>`<button type="button" class="ls-opt" data-o="${n}">${sc.opts[n].html}</button>`).join('')}</div>`;
+    if(sc.gm)body=`<div class="gm-fig">${sc.fig||''}<button type="button" class="gm-debtn">Đề bài</button></div>`+body;
     stage.innerHTML=sc.intro?`<div class="ls-screen ls-intro"><div class="ls-girl big" aria-hidden="true">${owlSVG}</div><div class="ls-bub">${sc.say}</div></div>`:`<div class="ls-screen">${say}${body}</div>`;
     state=sc.type==='quiz'?'answer':'read';go.textContent=sc.type==='quiz'?'Kiểm tra':'Tiếp tục';
-    ready(sc.type==='read');
+    ready(sc.type==='read'||sc.type==='gmstep');
+    if(sc.type==='gmstep'){const b=stage.querySelector('.gm-why button');if(b)b.onclick=()=>{sfx.tap();const d=b.nextElementSibling;d.hidden=!d.hidden;b.textContent=d.hidden?'Vì sao? ▾':'Vì sao? ▴';if(!d.hidden)typeset(d)}}
+    if(sc.type==='tree')stage.querySelectorAll('.gm-node.can').forEach(n=>n.onclick=()=>{sfx.tap();n.parentElement.querySelectorAll(':scope>ul>li').forEach(li=>li.classList.remove('hide'));n.classList.remove('can');if(!stage.querySelector('.gm-tree li.hide'))ready(true)});
+    if(sc.gm)stage.querySelector('.gm-debtn').onclick=()=>{sfx.tap();const z=document.createElement('div');z.className='ls-zoom gm-sheet';z.setAttribute('role','dialog');z.setAttribute('aria-label','Đề bài');
+      z.innerHTML=`<button type="button" class="ls-zx" aria-label="Đóng">×</button><div class="gm-sheetin"><h2>Đề bài</h2><div class="ls-text">${sc.gm.de}</div>${sc.gm.full}</div>`;
+      z.querySelector('.ls-zx').onclick=()=>z.remove();box.appendChild(z);typeset(z);lsFitFigs(z.querySelector('.gm-sheetin'))};
     if(sc.type==='vidu')stage.querySelector('[data-sol]').onclick=e=>{sfx.tap();stage.querySelector('.ls-sol').hidden=false;e.target.remove();ready(true);typeset(stage);lsFitFigs(stage)};
     if(sc.type==='quiz')stage.querySelectorAll('.ls-opt').forEach(b=>b.onclick=()=>{if(state!=='answer')return;sfx.tap();
       stage.querySelectorAll('.ls-opt').forEach(x=>x.classList.toggle('sel',x===b));pick=Number(b.dataset.o);ready(true)});
@@ -2785,10 +2938,10 @@ function renderLessonMaterial(root,t,o={}){
   function check(){
     const sc=screens[i],o2=sc.opts[pick],ok=o2.ok;
     state='fb';foot.className='ls-foot '+(ok?'ok':'no');
-    foot.querySelector('.ls-fb b').textContent=ok?'✔ Chính xác!':'✘ Chưa đúng';
+    foot.querySelector('.ls-fb b').textContent=ok?'✔ Chính xác!':sc.doan?'✘ Chưa phải hướng này':'✘ Chưa đúng';
     const fb=foot.querySelector('.ls-fb div');fb.innerHTML=o2.ex||'';typeset(fb);
     stage.querySelector('.ls-opt.sel')?.classList.add(ok?'right':'wrong');
-    go.textContent=ok?'Tiếp tục':'Thử lại';ready(true);
+    go.textContent=ok?(sc.doan?'Xem bước giải':'Tiếp tục'):(sc.doan?'Chọn lại':'Thử lại');ready(true);
     if(ok)sfx.ok();else{sfx.no();missed.add(i)}
     try{navigator.vibrate&&navigator.vibrate(ok?20:[30,40,30])}catch(e){}
   }
@@ -2796,7 +2949,7 @@ function renderLessonMaterial(root,t,o={}){
     box.querySelector('.ls-part').textContent='Hoàn thành';bar.style.width='100%';go.disabled=false;
     const stats={quiz:quizN,first:quizN-missed.size};
     const api={again:()=>{sfx.tap();i=0;missed.clear();go.onclick=next;show()},go};
-    stage.innerHTML=`<div class="ls-screen ls-done"><div class="ls-girl big" aria-hidden="true">${owlSVG}</div><h2>Xong lý thuyết!</h2>${quizN?`<div class="ls-stat"><b>${stats.first}/${quizN}</b><span>câu Thử ngay đúng ngay lần đầu</span></div>`:''}<div class="ls-end"></div></div>`;
+    stage.innerHTML=`<div class="ls-screen ls-done"><div class="ls-girl big" aria-hidden="true">${owlSVG}</div><h2>Xong lý thuyết!</h2>${quizN?`<div class="ls-stat"><b>${stats.first}/${quizN}</b><span>câu trả lời đúng ngay lần đầu</span></div>`:''}<div class="ls-end"></div></div>`;
     go.textContent='Xem lại từ đầu';go.onclick=api.again;
     if(o.finish)o.finish(stage.querySelector('.ls-end'),stats,api);
     typeset(stage);sfx.win();
@@ -2812,7 +2965,7 @@ function renderLessonMaterial(root,t,o={}){
 // Xem lại lý thuyết khi đang làm bài: bản tóm tắt gọn trên một trang (không đi từng màn).
 function renderLessonSummary(root,t){
   const builtIn=builtInLesson(t);
-  const items=(t.theory||[]).filter(it=>!['loidan','minhhoa','thungay'].includes(it.k));
+  const items=(t.theory||[]).filter(it=>!['loidan','minhhoa','thungay','giaimau'].includes(it.k));
   root.innerHTML=items.length?theoryHTML(items):builtIn?builtIn.map(p=>`<div class="thc"><h3>${esc(p.concept)}</h3><div class="thb2">${p.explanation}<br>${p.example}</div></div>`).join(''):'<div class="tbox"><p>Bài này chưa có tóm tắt lý thuyết.</p></div>';
   typeset(root);
 }
@@ -2859,7 +3012,7 @@ const TH_TPL='\\begin{lythuyet}\n\\dinhnghia{Tên khái niệm}{Nội dung, côn
 function editTheory(t){t=TOPICS.find(x=>x.id===t.id)||t;const m=t.raw.match(/\\begin\{lythuyet\}[\s\S]*?\\end\{lythuyet\}/);
   overlay(`<h2 style="font-size:24px">Lý thuyết · ${esc(t.title)}</h2><textarea class="code" id="tx" spellcheck="false">${esc(m?m[0]:TH_TPL)}</textarea>
     <p class="tnote" style="text-align:left">Mục: <b>\\dinhnghia</b>, <b>\\quytac</b>, <b>\\congthuc</b>, <b>\\dinhly</b>, <b>\\tinhchat</b> dạng {tiêu đề}{nội dung}; <b>\\luuy{…}</b>; <b>\\vidu{đề}{lời giải}</b>. Xuống dòng: <b>\\\\</b>.</p>
-    <details class="tnote theory-author-help"><summary>Thêm lời dẫn, hình tương tác và câu Thử ngay</summary><p><code>\\loidan{Lời của Cherry}</code><br><code>\\minhhoa{gia-tri-theo-hang}{2485}</code><br><code>\\minhhoa{ghep-so-la-ma}{24}</code><br><code>\\begin{hinhbuoc} hình TikZ có \\hien{2}{…} \\loibuoc{bước 1} \\loibuoc{bước 2} \\end{hinhbuoc}</code><br><code>\\thungay{Câu hỏi}{Đáp án đúng}{Đáp án sai}{Vì sao đúng}{Vì sao sai}</code></p></details>
+    <details class="tnote theory-author-help"><summary>Thêm lời dẫn, hình tương tác và câu Thử ngay</summary><p><code>\\loidan{Lời của Cherry}</code><br><code>\\minhhoa{gia-tri-theo-hang}{2485}</code><br><code>\\minhhoa{ghep-so-la-ma}{24}</code><br><code>\\begin{hinhbuoc} hình TikZ có \\hien{2}{…} \\loibuoc{bước 1} \\loibuoc{bước 2} \\end{hinhbuoc}</code><br><code>\\thungay{Câu hỏi}{Đáp án đúng}{Đáp án sai}{Vì sao đúng}{Vì sao sai}</code><br>Bài giải mẫu từng bước: <code>\\begin{giaimau} \\de{đề} hình TikZ (\\hien{k}{…}, \\phu{a}{b}{…}, \\sang{k}{…}) \\cau{Câu 1}{yêu cầu} \\doan{câu hỏi}{đúng}{sai}{vì sao đúng}{vì sao sai} \\buocgiai{mục tiêu}{lời giải}{vì sao} \\begin{sodo} \\nut{1}{…}{} \\end{sodo} \\nhanxet{…} \\end{giaimau}</code> (mẫu: docs/mau/giaimau-tiep-tuyen.tex)</p></details>
     <div class="qpv thpv" id="tpv"></div><button class="btn" id="tS">Lưu lý thuyết</button>${m?'<button class="btn alt" id="tD">Xóa lý thuyết</button>':''}<button class="btn alt" id="tC">Hủy</button>`);
   const pv=()=>{const v=$('#tx').value,P=parseBank('\\chude{x}\n'+v);let h=P.errors.length?`<div class="err">${P.errors.map(e=>esc(errorText(e))).join('<br>')}</div>`:'';
     if(!/\\begin\{lythuyet\}[\s\S]*\\end\{lythuyet\}/.test(v))h=`<div class="err">Cần bọc trong \\begin{lythuyet} … \\end{lythuyet}</div>`;
