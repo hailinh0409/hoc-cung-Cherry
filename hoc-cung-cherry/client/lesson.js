@@ -379,6 +379,24 @@ function lectureTex(value){
     (_, math, bold) => math || '<strong>' + bold + '</strong>');
 }
 
+function lectureReadHTML(value){
+  const blocks=[], bullets=[];
+  const flush=()=>{
+    if(!bullets.length)return;
+    blocks.push('<ul class="ls-reading-list">'+bullets.map(line=>'<li>'+lectureTex(line)+'</li>').join('')+'</ul>');
+    bullets.length=0;
+  };
+  for(const line of lsLines(value,false)){
+    if(/^•\s+/.test(line))bullets.push(line.replace(/^•\s+/,''));
+    else{
+      flush();
+      blocks.push('<div class="ls-reading-line">'+lectureTex(line)+'</div>');
+    }
+  }
+  flush();
+  return blocks.join('');
+}
+
 function lectureQuiz(quiz){
   return {
     type:'quiz', q:lectureTex(quiz.q),
@@ -391,7 +409,7 @@ function lectureQuiz(quiz){
 
 function lectureScreen(sc){
   const base={...sc, say:sc.cherry ? lectureTex(sc.cherry) : '', figure:sc.fig};
-  if(sc.type==='read')return [{...base, html:lectureTex(sc.body)}];
+  if(sc.type==='read')return [{...base, html:lectureReadHTML(sc.body)}];
   if(sc.type==='quiz')return [{...base, ...lectureQuiz(sc.quiz)}];
   if(sc.type==='vidu')return [{...base, html:lectureTex(sc.body), solution:lsLines(sc.sol,false).map(lectureTex)}];
   if(sc.type==='lab')return [{...base, html:authoredTheoryHTML({template:sc.template,value:sc.value})}];
@@ -916,6 +934,7 @@ function renderLecture(root,t,o,plan){
     const label=sc.type==='vidu'?'Ví dụ':sc.type==='quiz'?(sc.doan?'Em đoán bước tiếp theo':'Thử ngay'):LS_KIND[sc.kind];
     const heading=label?`<span class="ls-kind" data-k="${sc.kind|| (sc.type==='quiz'?'thungay':'vidu')}">${label}</span>`:'';
     const speech=sc.say?`<div class="ls-say"><div class="ls-girl" aria-hidden="true">${owlSVG}</div><div class="ls-bub">${sc.say}</div></div>`:'';
+    const optionalGuide=modern&&sc.type==='quiz'&&Boolean(speech);
     const mainTitle=sc.title?`<h2>${lectureTex(sc.title)}</h2>`:'';
     let body='';
     if(sc.type==='outline'){
@@ -936,9 +955,9 @@ function renderLecture(root,t,o,plan){
       body=`<div class="ls-text">${sc.html}</div><div class="ls-answer-steps">${steps.map(step=>`<div class="ls-sol" hidden>${step}</div>`).join('')}</div>
         <p class="ls-center"><button type="button" class="ls-mini ls-reveal">Xem lời giải (0/${steps.length})</button></p>`;
     }else if(sc.type==='opening'||sc.type==='steps'){
-      body=frames?`<div class="ls-frame-caption" aria-live="polite"></div>
-        <div class="ls-frame-actions"><button type="button" class="ls-mini ls-frame-back">Lùi</button>
-        <button type="button" class="ls-mini ls-frame-next"></button></div>`:'';
+      body=frames?`<div class="ls-frame-actions"><button type="button" class="ls-mini ls-frame-back">Lùi</button>
+        <button type="button" class="ls-mini ls-frame-next"></button></div>
+        <div class="ls-frame-caption" aria-live="polite"></div>`:'';
     }else if(sc.type==='lab'){
       body=`<div class="ls-lab">${sc.html}</div><p class="ls-hint">Chạm vào hình để khám phá</p>`;
     }else if(sc.type==='gmstep'){
@@ -957,7 +976,8 @@ function renderLecture(root,t,o,plan){
           `<button type="button" class="ls-opt" data-figure-state="${index}" aria-pressed="false">${lectureTex(item.label)}</button>`).join('')}</div>`:''}`;
     }
     if(sc.gm)body=`<div class="gm-fig">${sc.fig||''}<button type="button" class="gm-debtn">Đề bài</button></div>`+body;
-    stage.innerHTML=`<div class="ls-screen" tabindex="-1">${speech}${heading}${mainTitle}${body}</div>`;
+    const guide=optionalGuide?`<details class="ls-optional-guide"><summary>Lời dẫn của Cherry</summary>${speech}</details>`:'';
+    stage.innerHTML=`<div class="ls-screen" tabindex="-1">${optionalGuide?'':speech}${heading}${mainTitle}${body}${guide}</div>`;
     if(canDraw&&(sc.toggle||['tap','region','slide','calc'].includes(sc.type))){
       bindLectureGeometry(sc,stage,pin,go,currentState,modelOptions,paintPin,advanceLabel);
     }
