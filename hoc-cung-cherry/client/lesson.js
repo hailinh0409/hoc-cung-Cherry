@@ -467,6 +467,142 @@ function renderLessonMaterial(root,t,o={}){
   renderLecture(root,t,o,plan);
 }
 
+function lectureGeometryState(base,update){
+  return {...base,...update,to:{...base.to,...update?.to},do:{...base.do,...update?.do}};
+}
+
+function bindLectureGeometry(sc,stage,pin,go,state,options,repaint,nextLabel){
+  const screen=stage.firstElementChild,feedback=screen.querySelector('.ls-geometry-note');
+  const announce=(html,style='')=>{
+    feedback.innerHTML=html;
+    feedback.className=('ls-geometry-note ls-answer-note '+style).trim();
+    feedback.hidden=false;
+    typeset(feedback);
+  };
+  const setState=update=>Object.assign(state,lectureGeometryState(state,update));
+  const label=()=>{go.textContent=nextLabel();go.disabled=false};
+  const stillHere=()=>screen.isConnected&&stage.firstElementChild===screen;
+
+  if(sc.type==='tap'||sc.type==='region'){
+    go.disabled=true;
+    const angles=sc.type==='tap';
+    const prompt=angles?sc.tap:sc.region, correctKey=angles?prompt.ans:prompt.key;
+    const keyOf=hit=>angles?hit.dataset.angle:hit.dataset.region;
+    let answered=false;
+    const handle=hit=>{
+      if(answered)return;
+      const key=keyOf(hit);
+      if(angles)state.to={...sc.state?.to};
+      if(key===correctKey){
+        answered=true;
+        if(angles){
+          const base=Object.fromEntries(Object.entries(state.to).map(([id,color])=>[id,color==='cam'?'luc':color]));
+          state.to={...base,[key]:'luc'};
+        }else state.vung=key;
+        options.tap=false;
+        options.region=false;
+        announce(lectureTex(prompt.ok),'ok');
+        sfx.ok();
+        label();
+      }else{
+        if(angles)state.to[key]='do';
+        announce(lectureTex(angles?(prompt.nhac[key]||prompt.hint):'Em quan sát hai đường thẳng rồi chạm lại nhé.'),'no');
+        sfx.no();
+      }
+      repaint();
+      if(!answered)[...pin.querySelectorAll('.cat-hit')].find(el=>keyOf(el)===key)?.focus({preventScroll:true});
+      else go.focus({preventScroll:true});
+    };
+    pin.onclick=event=>{const hit=event.target.closest('.cat-hit');if(hit)handle(hit)};
+    pin.onkeydown=event=>{
+      const hit=event.target.closest('.cat-hit');
+      if(hit&&(event.key==='Enter'||event.key===' ')){event.preventDefault();handle(hit)}
+    };
+    return;
+  }
+  if(sc.type==='slide'){
+    const button=screen.querySelector('.ls-slide-start');
+    go.disabled=true;
+    button.onclick=()=>{
+      const moving=pin.querySelector('.cat-slide');
+      button.disabled=true;
+      options.slide='to';
+      const done=()=>{
+        if(!stillHere()||!feedback.hidden)return;
+        announce(lectureTex(sc.slide.after),'ok');
+        label();
+      };
+      if(!moving||matchMedia('(prefers-reduced-motion: reduce)').matches){
+        repaint();
+        done();
+        return;
+      }
+      moving.addEventListener('transitionend',done,{once:true});
+      moving.style.transform='translate('+moving.dataset.dx+'px,'+moving.dataset.dy+'px)';
+      setTimeout(done,1500);
+    };
+    return;
+  }
+  if(sc.type==='calc'){
+    const target=screen.querySelector('.ls-calc');
+    let index=0;
+    go.disabled=true;
+    function nextQuestion(){
+      const item=sc.calc.items[index];
+      if(!item){
+        target.replaceChildren();
+        if(sc.calc.ketluan)announce(lectureTex(sc.calc.ketluan),'ok');
+        label();
+        return;
+      }
+      const answers=[{html:item.correct,ok:true,feedback:item.explainCorrect},{html:item.wrong,ok:false,feedback:item.explainWrong}];
+      target.innerHTML=`<div class="ls-q">${lectureTex(item.q)}</div><div class="ls-opts" role="group" aria-label="Các phương án">${shuffle([0,1]).map(n=>
+        `<button type="button" class="ls-opt" data-calc="${n}">${lectureTex(answers[n].html)}</button>`).join('')}</div>`;
+      const buttons=[...target.querySelectorAll('button')];
+      const evaluate=button=>{
+        const answer=answers[Number(button.dataset.calc)];
+        buttons.forEach(b=>b.disabled=true);
+        button.classList.add(answer.ok?'right':'wrong');
+        announce(lectureTex(answer.feedback),answer.ok?'ok':'no');
+        if(answer.ok){
+          setState(item.state);
+          repaint();
+          sfx.ok();
+          index++;
+          nextQuestion();
+        }else{
+          sfx.no();
+          setTimeout(()=>{
+            if(!stillHere())return;
+            buttons.forEach(b=>b.disabled=false);
+            button.classList.remove('wrong');
+            button.focus({preventScroll:true});
+          },1800);
+        }
+      };
+      buttons.forEach(button=>button.onclick=()=>evaluate(button));
+      typeset(target);
+    }
+    nextQuestion();
+    return;
+  }
+  const buttons=[...screen.querySelectorAll('[data-figure-state]')];
+  const visited=new Set();
+  const select=i=>{
+    visited.add(i);
+    const next=lectureGeometryState(sc.state||{},sc.toggle[i].state);
+    Object.assign(state,next);
+    buttons.forEach((b,index)=>{
+      b.classList.toggle('sel',i===index);
+      b.setAttribute('aria-pressed',String(i===index));
+    });
+    repaint();
+    go.disabled=visited.size<buttons.length;
+  };
+  buttons.forEach((button,i)=>button.onclick=()=>select(i));
+  select(0);
+}
+
 function renderLecture(root,t,o,plan){
   const {modern,screens,sections,parts,outline}=plan;
   const title=o.title||t.title||'Bài học';
@@ -629,6 +765,14 @@ function renderLecture(root,t,o,plan){
     const parsedFrames=picture?.kind==='hinhbuoc'?parseHinhBuoc(picture.src):null;
     const frames=parsedFrames?.frames.length?parsedFrames:null;
     const currentState={...sc.state};
+    const canDraw=picture?.kind==='mau'&&picture.mau?.name==='cat-tuyen';
+    const modelOptions={
+      tap:canDraw&&sc.type==='tap',
+      region:canDraw&&sc.type==='region',
+      slide:canDraw&&sc.type==='slide'?'from':false,
+    };
+    pin.onclick=null;
+    pin.onkeydown=null;
     let frame=Math.min(frames?.frames.length||1,Math.max(1,currentState.buoc||1));
     const activeFold=section?.number?sc.section:i+sections.length;
     const animateFrame=sc.type==='opening'||sc.type==='steps';
@@ -640,8 +784,8 @@ function renderLecture(root,t,o,plan){
       content.classList.toggle('ls-has-pin',Boolean(picture));
       if(!picture){pin.replaceChildren();return}
       const isFolded=folded.has(activeFold);
-      const body=frames?stepImage():picture.kind==='mau'?'<p class="figmiss">Hình tương tác đang được bổ sung.</p>':staticImage;
-      const canZoom=body.startsWith('<img');
+      const body=frames?stepImage():canDraw?catTuyen(picture.mau.params,currentState,modelOptions):staticImage;
+      const canZoom=!modelOptions.tap&&!modelOptions.region&&(body.startsWith('<img')||canDraw);
       pin.innerHTML=`<div class="ls-pin-bar"><span>${sc.shared?'Hình dùng chung cho phần '+section.number:'Hình'}</span>
         <button type="button" class="ls-pin-fold" aria-expanded="${!isFolded}">${isFolded?'▸ Hiện hình':'Thu gọn ▴'}</button></div>
         <div class="ls-picture" ${isFolded?'hidden':''}>${body}${canZoom?'<button type="button" class="ls-pin-zoom" aria-label="Phóng to hình">⤢</button>':''}</div>`;
@@ -692,13 +836,20 @@ function renderLecture(root,t,o,plan){
     }else if(sc.type==='tree'){
       body=`<p class="gm-tip">Chạm ô viền cam để mở nhánh.</p>${gmTreeHTML(sc.nodes)}`;
     }else if(['tap','region','slide','calc'].includes(sc.type)){
-      const prompt=sc.tap?.prompt||sc.region?.prompt||sc.calc?.items[0]?.q||sc.slide?.label;
-      body=`${prompt&&prompt!==sc.cherry?`<p>${lectureTex(prompt)}</p>`:''}<p class="ls-hint">Thao tác trên hình đang được bổ sung. Em có thể đi tiếp.</p>`;
+      const prompt=sc.tap?.prompt||sc.region?.prompt;
+      body=`${prompt&&prompt!==sc.cherry?`<p>${lectureTex(prompt)}</p>`:''}${canDraw?(sc.type==='calc'?'<div class="ls-calc"></div>':
+          sc.type==='slide'?`<p class="ls-center"><button type="button" class="ls-mini ls-slide-start">${lectureTex(sc.slide.label)} ↓</button></p>`:
+          ''):'<p class="ls-hint">Màn này cần hình minh họa. Em có thể đi tiếp.</p>'}
+        <div class="ls-geometry-note ls-answer-note" role="status" hidden></div>`;
     }else{
-      body=`<div class="ls-text">${sc.html||''}</div>${sc.toggle?'<p class="ls-hint">Đổi trạng thái hình đang được bổ sung.</p>':''}`;
+      body=`<div class="ls-text">${sc.html||''}</div>${canDraw&&sc.toggle?`<div class="ls-opts ls-toggles" role="group" aria-label="Đổi trạng thái hình">${sc.toggle.map((item,index)=>
+          `<button type="button" class="ls-opt" data-figure-state="${index}" aria-pressed="false">${lectureTex(item.label)}</button>`).join('')}</div>`:''}`;
     }
     if(sc.gm)body=`<div class="gm-fig">${sc.fig||''}<button type="button" class="gm-debtn">Đề bài</button></div>`+body;
     stage.innerHTML=`<div class="ls-screen" tabindex="-1">${speech}${heading}${mainTitle}${body}</div>`;
+    if(canDraw&&(sc.toggle||['tap','region','slide','calc'].includes(sc.type))){
+      bindLectureGeometry(sc,stage,pin,go,currentState,modelOptions,paintPin,advanceLabel);
+    }
 
     if(sc.type==='outline'){
       go.textContent=review()?'Ôn lại phần 1':'Bắt đầu phần 1';
@@ -728,6 +879,9 @@ function renderLecture(root,t,o,plan){
         if(correct)sfx.ok();else{sfx.no();missed.add(i)}
         if(frames){
           frame=Math.min(frames.frames.length,Math.max(1,sc.after?.buoc??(sc.after?frame:frames.frames.length)));
+          paintPin();
+        }else if(canDraw&&sc.after){
+          Object.assign(currentState,lectureGeometryState(currentState,sc.after));
           paintPin();
         }
         options.forEach(button=>{

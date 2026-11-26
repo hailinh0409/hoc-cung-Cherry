@@ -22,7 +22,7 @@ js = must(js, '/*@@LIB@@*/', lib);
 js = must(js, '@@FX@@', R('client/fx.js'));
 js = must(js, '@@SVG@@', R('client/svg.js'));
 js = must(js, '@@Q2@@', R('client/q2.js'));
-js = must(js, '/*@@LESSON@@*/', R('client/lesson.js'));
+js = must(js, '/*@@LESSON@@*/', strip(R('client/hinhmau.js')) + '\n' + R('client/lesson.js'));
 js = must(js, '@@ART@@', R('client/art.js') + R('client/items.js'));
 js = must(js, "function login(view='in',msg=''){", "function login_artifact(view='in',msg=''){");
 js = must(js, 'function start(){', 'function start_artifact(){');

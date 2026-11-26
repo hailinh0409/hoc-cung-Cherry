@@ -281,3 +281,10 @@
   .ls-pin{overflow:auto;padding:8px 12px 12px 20px}
   .ls-picture img.fig,.ls-picture svg{max-height:62vh;max-height:62dvh}
 }
+
+.ls-picture svg{width:100%}
+.cat-hit{cursor:pointer}
+.cat-hit:focus-visible{outline:none;stroke:#2267ba;stroke-width:3}
+.cat-slide{transition:transform 1.4s ease-in-out}
+.ls-toggles{grid-template-columns:repeat(auto-fit,minmax(min(100%,140px),1fr))}
+@media (prefers-reduced-motion:reduce){.cat-slide{transition:none}}
