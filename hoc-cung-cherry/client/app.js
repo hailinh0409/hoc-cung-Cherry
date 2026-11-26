@@ -435,7 +435,7 @@ function pasteNew(L){const k=curK,name=L.lt?lessonName(L):L.title;
    và khối \begin{giaimau}…\end{giaimau} (cú pháp ở lib/latex.js). Học sinh thấy bài mẫu khi đã qua bài ghi ở \saubai;
    không ghi thì khi đã qua mọi bài có câu hỏi của chương. Giáo viên luôn thấy. Đã xem: P.bm[mã] = {d, f: đoán đúng ngay, n: số câu đoán}. */
 const bmOf=(k,n)=>gradeTopics(k).filter(t=>isBM(t)&&t.chuong===`k${k}-c${n}`).sort((a,b)=>a.order-b.order||a.title.localeCompare(b.title));
-const bmAfter=raw=>((raw||'').match(/\\saubai\s*\{\s*([^}]*?)\s*\}/)||[])[1]||'';
+const bmAfter=raw=>(String(raw||'').replace(/(^|[^\\])%.*$/gm,'$1').match(/\\saubai\s*\{\s*([^}]*?)\s*\}/)||[])[1]||''; // bỏ dòng chú thích %
 const bmItems=raw=>[...String(raw||'').matchAll(GIAIMAU)].map(m=>({k:'giaimau',body:m[0]}));
 function bmNeed(t){const k=t.khoi,n=chapOf(t),id=bmAfter(t.raw);
   const ls=id?currOf(k).filter(c=>c.id===id):currOf(k).filter(c=>c.id&&c.ch&&c.ch.n===n);
@@ -443,13 +443,30 @@ function bmNeed(t){const k=t.khoi,n=chapOf(t),id=bmAfter(t.raw);
   return {L:id?ls[0]:null,ts}}
 const bmOpen=t=>GV()||bmNeed(t).ts.every(x=>topicPassed(x)>0);
 const bmLockText=t=>{const {L}=bmNeed(t);return L?`Mở khi em qua ${lessonName(L)}`:'Mở khi em qua hết các bài của chương'};
+// Yêu cầu soạn một bài mẫu cho Gemini (giống docs/soan-bai-mau.txt), có sẵn chương, mã bài và quy trình kiểm tra
+function bmAsk(k,n){const ch=(chapsOf(k).find(c=>c.ch&&c.ch.n===n)||{}).ch,ls=currOf(k).filter(c=>c.id&&c.ch&&c.ch.n===n&&!c.lt);
+  return [`Soạn MỘT bài mẫu (lời giải từng bước) cho Chương ${n}. ${ch?ch.title:''}, Toán ${k}, SGK Kết nối tri thức, cho app Học cùng Cherry.`,
+  'Các bài trong chương (mã bài: tên bài):',...ls.map(L=>`- ${L.id}: ${lessonName(L)}`),'',
+  'Đề bài thầy chọn (nếu trống thì tự chọn một bài tự luận nhiều bước, mức thi vào 10 hoặc học sinh giỏi, chỉ dùng kiến thức đã học):','[DÁN ĐỀ BÀI Ở ĐÂY]','',
+  'Kết quả: trả đúng MỘT khối mã gồm \\chude{Tên bài mẫu ngắn}, \\saubai{mã bài cuối cùng mà lời giải dùng tới} và MỘT khối \\begin{giaimau} … \\end{giaimau}: \\de{đề}, một hình TikZ nếu là bài hình (\\hien{k}{…} hiện từ bước k, \\phu{a}{b}{…} nét phụ chỉ ở bước a→b, \\sang{k}{…} tô cam ở bước k, bên trong \\sang chỉ \\draw/\\fill không ghi màu), \\cau{Câu 1}{yêu cầu}, \\doan{câu hỏi}{đúng}{sai}{vì sao đúng}{vì sao sai}[{sai 2}{vì sao sai 2}], \\buocgiai{mục tiêu}{lời giải, mỗi dòng một \\\\}{vì sao}, \\begin{sodo} \\nut{cấp}{nội dung}{ghi chú} … \\end{sodo} cho câu khó nhất, \\nhanxet{…}. Bước đếm từ 1 trong cả bài. Ngoài $…$ chỉ viết chữ thường. Cú pháp đầy đủ: docs/gemini-skill-soan-bai.md mục 3.9 trong repo hailinh0409/hoc-cung-Cherry.','',
+  'QUY TRÌNH SUY LUẬN VÀ KIỂM TRA (BẮT BUỘC, suy nghĩ chậm và kỹ, kiểm tra từng chỗ trước khi trả):',
+  '1. Giải trọn bài ra nháp trước; giải lại bằng cách thứ hai hoặc thử lại (thay số, tính bằng Python nếu có). Hai cách phải khớp.',
+  '2. Sát chương trình: chỉ dùng kiến thức SGK Kết nối tri thức đã học đến bài ở \\saubai; không dùng kiến thức lớp trên hay chương sau. Kí hiệu, cách gọi theo SGK.',
+  '3. Logic từng bước: mỗi bước suy ra được từ giả thiết và bước trước; không nhảy bước, không dùng điều cần chứng minh, không dựa vào "nhìn hình". "Vì sao?" nêu đúng tên định lý/tính chất. Điều kiện nêu và kiểm tra đúng chỗ.',
+  '4. \\doan: 1–2 câu mỗi ý, đặt trước bước then chốt. Đáp án đúng thật sự dẫn tới lời giải; đáp án sai thật sự không đi được ở bước đó (không lấy một hướng khác cũng đúng); phản hồi nói đúng lỗi.',
+  '5. Sơ đồ: mỗi ô con (cùng căn cứ) đủ để suy ra ô cha; khớp với các bước giải.',
+  '6. Hình: TÍNH tọa độ cho đúng mọi giả thiết (tiếp điểm, vuông góc, trung điểm, giao điểm), không ước lượng; hình không gợi ý sai; mỗi \\sang{k} tô đúng phần bước k dùng; số bước trong \\hien, \\phu, \\sang khớp số \\buocgiai. Hình rộng 5–7 cm, nhãn ngắn không đè nhau.',
+  '7. Số liệu gọn, thỏa điều kiện, đã thử lại vào đề.',
+  '8. Đọc lại như một học sinh trung bình khá; sửa chỗ khó hiểu, thiếu bước.',
+  '9. Sau khối mã: mục "Đã tự kiểm tra" (cách thứ hai/phép thử, phép tính kiểm tra hình, kiến thức dùng thuộc bài nào) và ghi rõ chỗ chưa chắc.'].join('\n')}
 function bmList(n){const k=curK,ch=(chapsOf(k).find(c=>c.ch&&c.ch.n===n)||{}).ch,list=bmOf(k,n);P.bm=P.bm||{};
   overlay(`<h2 style="font-size:22px">Bài mẫu · Chương ${n}</h2><p class="tnote">${esc(ch?ch.title:'')}<br>Lời giải từng bước: em đoán hướng giải, xem từng bước và vì sao.</p>
     <div class="bmlist">${list.map((t,i)=>{const open=bmOpen(t),seen=P.bm[t.id];
       return `<button type="button" class="bmrow${open?'':' lock'}" data-i="${i}"><span class="bmno">${open?(seen?'✓':i+1):lockSVG}</span><span class="bmtx"><b>${esc(t.title)}</b><small>${open?(seen?`Đã xem${seen.n?` · đoán đúng ngay ${seen.f}/${seen.n}`:''}`:'Chưa xem'):esc(bmLockText(t))}</small></span>${GV()&&t.status!=='giao'?`<em class="bmst">${({nhap:'Nháp',an:'Đã ẩn'})[t.status]||t.status}</em>`:''}</button>`}).join('')||'<p class="tnote">Chương này chưa có bài mẫu.</p>'}</div>
-    ${GV()?'<button class="btn" id="bmAdd">+ Dán bài mẫu</button>':''}<button class="btn alt" id="bmX">Đóng</button>`);
+    ${GV()?'<button class="btn" id="bmAdd">+ Dán bài mẫu</button><button class="btn alt" id="bmAsk">Sao chép yêu cầu cho Gemini</button>':''}<button class="btn alt" id="bmX">Đóng</button>`);
   $('#bmX').onclick=closeOvl;
   $('#bmAdd')&&($('#bmAdd').onclick=()=>{sfx.tap();bmPaste(n)});
+  $('#bmAsk')&&($('#bmAsk').onclick=async()=>{sfx.tap();try{await navigator.clipboard.writeText(bmAsk(k,n));toast('Đã chép yêu cầu. Thầy dán vào Gemini, thêm đề bài nếu muốn.')}catch(e){overlay(`<h2 style="font-size:20px">Sao chép yêu cầu</h2><p class="tnote">Máy không cho chép tự động. Thầy giữ ngón tay để chọn và chép.</p><textarea class="code" readonly>${esc(bmAsk(k,n))}</textarea><button class="btn alt" id="bmB">Quay lại</button>`);$('#bmB').onclick=()=>bmList(n)}});
   $$('#panel .bmrow').forEach(b=>b.onclick=()=>{const t=list[+b.dataset.i];sfx.tap();
     if(!bmOpen(t))return toast(esc(bmLockText(t)));
     if(GV()){overlay(`<h2 style="font-size:22px">${esc(t.title)}</h2>${t.errors.length?`<div class="err">${t.errors.map(esc).join('<br>')}</div>`:''}<button class="btn" id="bm1">Xem thử</button><button class="btn alt" id="bm2">Sửa nội dung</button><button class="btn alt" id="bm3">Duyệt, ẩn, đổi chương</button><button class="btn alt" id="bm4">Quay lại</button>`);

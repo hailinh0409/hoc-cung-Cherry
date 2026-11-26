@@ -1,0 +1,27 @@
+% Bài mẫu thử (đại số, lớp 9, Chương 1): dán bằng Bài mẫu → + Dán bài mẫu trên biển Chương 1.
+% Đã tự kiểm tra: giải hai cách (ẩn là phần bể mỗi giờ → hệ bậc nhất; ẩn là thời gian → hệ với 1/a, 1/b) đều ra 12 giờ và 8 giờ (sympy);
+% thử lại: 1/12 + 1/8 = 5/24 bể mỗi giờ → 24/5 giờ = 4 giờ 48 phút; 3·(1/12) + 4·(1/8) = 3/4 bể.
+% Kiến thức: Bài 2 (giải hệ bằng phương pháp cộng đại số), Bài 3 (lập hệ phương trình). Không dùng đặt ẩn phụ.
+\chude{Hai vòi nước cùng chảy vào bể}
+\saubai{k9-b3}
+\begin{giaimau}
+\de{Hai vòi nước cùng chảy vào một bể cạn thì sau $4$ giờ $48$ phút đầy bể.\\
+Nếu mở vòi thứ nhất trong $3$ giờ và vòi thứ hai trong $4$ giờ thì được $\dfrac{3}{4}$ bể.\\
+Hỏi nếu chảy một mình thì mỗi vòi chảy bao lâu mới đầy bể?}
+\cau{Yêu cầu}{Tìm thời gian mỗi vòi chảy một mình đầy bể.}
+\doan{Chọn ẩn thế nào để lập được ngay một hệ phương trình bậc nhất hai ẩn?}{Phần bể mỗi vòi chảy được trong $1$ giờ}{Dung tích của bể (lít)}{Hai vòi cùng chảy thì phần bể mỗi giờ cộng lại được, nên hai điều kiện của đề đều thành phương trình bậc nhất.}{Đề không cho số lít nào, và cũng không cần: ta đo lượng nước bằng "phần bể".}{Thời gian hai vòi cùng chảy đầy bể}{Đại lượng này đề đã cho ($4$ giờ $48$ phút), không phải điều cần tìm.}
+\buocgiai{Đặt ẩn và điều kiện}{Gọi $x$, $y$ lần lượt là phần bể vòi thứ nhất, vòi thứ hai chảy được trong $1$ giờ.\\ Điều kiện: $x>0$, $y>0$.}{Lượng nước tính theo "phần bể", cả bể là $1$.}
+\begin{sodo}
+\nut{1}{Thời gian mỗi vòi chảy một mình}{}
+\nut{2}{$x$, $y$ (phần bể mỗi giờ)}{thời gian $=\dfrac{1}{x}$, $\dfrac{1}{y}$}
+\nut{3}{$x+y=\dfrac{5}{24}$}{cùng chảy $\dfrac{24}{5}$ giờ}
+\nut{3}{$3x+4y=\dfrac{3}{4}$}{chảy $3$ giờ và $4$ giờ}
+\end{sodo}
+\buocgiai{Lập phương trình thứ nhất}{$4$ giờ $48$ phút $=\dfrac{24}{5}$ giờ.\\ Mỗi giờ cả hai vòi chảy được $1:\dfrac{24}{5}=\dfrac{5}{24}$ bể.\\ Ta có $x+y=\dfrac{5}{24}$. (1)}{$48$ phút $=\dfrac{48}{60}=\dfrac{4}{5}$ giờ; đầy $1$ bể trong $\dfrac{24}{5}$ giờ thì mỗi giờ được $\dfrac{5}{24}$ bể.}
+\buocgiai{Lập phương trình thứ hai}{Vòi thứ nhất chảy $3$ giờ được $3x$ bể, vòi thứ hai chảy $4$ giờ được $4y$ bể.\\ Ta có $3x+4y=\dfrac{3}{4}$. (2)}{Mỗi giờ được $x$ bể thì $3$ giờ được $3x$ bể.}
+\buocgiai{Giải hệ}{Nhân hai vế của (1) với $3$: $3x+3y=\dfrac{5}{8}$. (3)\\ Lấy (2) trừ (3): $y=\dfrac{3}{4}-\dfrac{5}{8}=\dfrac{1}{8}$.\\ Thay vào (1): $x=\dfrac{5}{24}-\dfrac{1}{8}=\dfrac{1}{12}$.\\ Cả hai đều dương, thỏa điều kiện.}{Phương pháp cộng đại số: làm cho hệ số của $x$ bằng nhau rồi trừ vế theo vế.}
+\doan{Vòi thứ nhất mỗi giờ chảy được $\dfrac{1}{12}$ bể. Chảy một mình thì vòi này đầy bể sau bao lâu?}{$12$ giờ}{$\dfrac{1}{12}$ giờ}{Mỗi giờ được $\dfrac{1}{12}$ bể thì cần $12$ giờ để được $1$ bể.}{$\dfrac{1}{12}$ là phần bể chảy được trong $1$ giờ, không phải thời gian. Thời gian là $1:\dfrac{1}{12}=12$ giờ.}{Chưa tính được vì không biết dung tích bể}{Không cần dung tích: cả bể là $1$, nên thời gian là $1:\dfrac{1}{12}$.}
+\buocgiai{Trả lời}{Vòi thứ nhất chảy một mình đầy bể sau $12$ giờ.\\ Vòi thứ hai chảy một mình đầy bể sau $1:\dfrac{1}{8}=8$ giờ.}{Thời gian đầy bể bằng $1$ chia cho phần bể chảy được mỗi giờ.}
+\buocgiai{Thử lại}{Cùng chảy: $\dfrac{1}{12}+\dfrac{1}{8}=\dfrac{5}{24}$ bể mỗi giờ, đầy bể sau $\dfrac{24}{5}$ giờ $=4$ giờ $48$ phút.\\ $3\cdot\dfrac{1}{12}+4\cdot\dfrac{1}{8}=\dfrac{1}{4}+\dfrac{1}{2}=\dfrac{3}{4}$ bể. Đúng với đề.}{Thử lại vào đề để chắc chắn không tính nhầm.}
+\nhanxet{Mấu chốt: chọn ẩn là "phần bể chảy được mỗi giờ" thì có ngay hệ bậc nhất.\\ Nếu chọn ẩn là thời gian $a$, $b$ (giờ) thì được hệ chứa $\dfrac{1}{a}$, $\dfrac{1}{b}$, giải dài hơn nhưng ra cùng kết quả.\\ Lỗi hay gặp: viết $4$ giờ $48$ phút thành $4{,}48$ giờ (đúng là $4{,}8$ giờ).}
+\end{giaimau}

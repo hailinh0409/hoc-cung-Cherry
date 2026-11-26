@@ -240,6 +240,7 @@ Cho $\triangle ABC$ có $AB=AC$, $M$ là trung điểm của $BC$. Chứng minh 
 ```
 - Mỗi `extl` là **một bài** của đề (có thể nhiều ý a, b, c); **không ghi tiêu đề bài** (không viết `\textbf{Bài n}`, `Bài n`, `Câu n` ở đầu vì app tự đánh số bài), chỉ ghi điểm ở đầu dạng `(… điểm).` rồi vào thẳng nội dung đề.
 - 1–3 `\goiy`: gợi ý trước chỉ hướng, gợi ý sau cụ thể hơn, ghi rõ ý nào, **không lộ đáp số**, không chung chung (học sinh trả XP để mở).
+- **Nên dùng gợi ý từng bước** `\begin{huongdan}…\end{huongdan}` thay cho `\goiy` (mục 3.9): mỗi bước có mục tiêu, gợi ý, vì sao, có thể kèm sơ đồ đi lên và hình tô sáng. Làm đúng *Quy trình suy luận và kiểm tra* ở mục 3.9.
 - `\loigiai` trình bày như đáp án chấm, ghi điểm từng bước.
 - Ngoài `$…$` xuống dòng bằng `\\`; hệ phương trình dùng `\begin{cases}` hoặc `\begin{aligned}` trong `$…$`.
 - **Không trộn** `extl` với dạng khác trong cùng một đề (app báo lỗi).
@@ -307,6 +308,66 @@ Tính $({{a}}{{+b}})^2$.
 - Nhãn điểm đặt `above=3pt`, `below left`… để không đè nét; nhãn gần đường kẻ thêm thì dời xa hơn.
 - Không vẽ đáp án của câu Thử ngay trong hình.
 
+### 3.9 Bài giải mẫu từng bước, Bài mẫu theo chương, hướng dẫn tự luận
+
+Ba chỗ dùng cùng một cú pháp: **ví dụ dài trong lý thuyết** (khối `giaimau` đặt trong `lythuyet`), **Bài mẫu theo chương** (chủ đề riêng, mở từ biển tên chương), **gợi ý từng bước cho đề Ôn tập tự luận** (khối `huongdan` trong `extl`). App tự chia thành từng màn: đề bài → yêu cầu từng câu → học sinh đoán hướng → từng bước giải (mục tiêu, các dòng, "Vì sao?") → sơ đồ phân tích đi lên → nhận xét. Hình ghim ở trên, phần đang dùng tô cam theo từng bước.
+
+**Cú pháp `giaimau`** (mẫu đầy đủ: `docs/mau/giaimau-tiep-tuyen.tex`):
+
+```latex
+\begin{giaimau}
+\de{Đề bài đầy đủ, các câu 1), 2), 3) xuống dòng bằng \\}
+\begin{tikzpicture} … \end{tikzpicture}          % tùy chọn, ĐÚNG MỘT hình cho cả bài
+\cau{Câu 1}{Yêu cầu của câu 1}
+\doan{Câu hỏi đoán hướng}{Đáp án đúng}{Đáp án sai}{Vì sao đúng}{Vì sao sai}{Đáp án sai 2}{Vì sao sai 2}
+\buocgiai{Mục tiêu của bước (ngắn)}{Các dòng biến đổi, mỗi dòng một \\}{Vì sao: tên định lý, tính chất}
+\begin{sodo}
+\nut{1}{Điều cần chứng minh}{}
+\nut{2}{Điều cần có trước}{căn cứ ngắn}
+\nut{3}{Điều cần có trước nữa}{căn cứ}
+\end{sodo}
+\nhanxet{Ý phân loại nằm ở đâu, lỗi hay gặp. Mỗi ý một dòng \\}
+\end{giaimau}
+```
+
+- **Bước** đếm từ 1 theo thứ tự `\buocgiai` trong **cả bài** (không đếm lại ở mỗi câu). Một ý thường 2–6 bước; mỗi bước một ý, 1–3 dòng.
+- **`\doan`**: 1–2 câu mỗi ý, đặt **ngay trước bước then chốt** (chọn ẩn, vẽ thêm, chọn tam giác, chọn định lý). Thứ tự giống `\thungay`: câu hỏi, đúng, sai, vì sao đúng, vì sao sai; muốn thêm đáp án sai thì thêm từng cặp `{sai}{vì sao}` (tối đa 3 đáp án).
+- **Sơ đồ** `sodo`: các `\nut{cấp}{nội dung}{ghi chú}` viết theo thứ tự trước-sau (cấp 1 là gốc, mỗi ô con sâu hơn ô trước tối đa một cấp). Dùng cho câu khó nhất của bài (thường là câu chứng minh cuối), đặt sau bước vẽ thêm (nếu có), trước các bước giải.
+- **Hình theo bước** (trong `tikzpicture` duy nhất):
+  - `\hien{k}{…}`: phần hiện **từ bước k trở đi** (điểm, đường vẽ thêm như điểm $M$).
+  - `\phu{a}{b}{…}`: nét phụ **chỉ hiện từ bước a đến bước b** (ví dụ đường tròn tâm $J$ chỉ dùng ở câu 1).
+  - `\sang{k}{…}`: phần **tô cam ở bước k**, phần còn lại tự mờ đi. Bên trong chỉ dùng `\draw`/`\fill` **không ghi màu** (app tự tô). Nên có `\sang` cho hầu hết các bước.
+  - Màn đề bài dùng hình đầy đủ (mọi `\hien`, không có nét `\phu`). Mỗi bước, mỗi sơ đồ là một khung dịch riêng; tất cả cùng kích thước.
+  - Đặt tên điểm bằng `\coordinate`/`\tkzDefPoint` **ở đầu hình** (ngoài `\hien`, `\phu`, `\sang`).
+- Ngoài `$…$` chỉ viết chữ thường (như mục 3.2). Kí hiệu vuông góc, song song, nhân dùng `\perp`, `\parallel`, `\cdot`.
+
+**Bài mẫu theo chương** (mẫu: `docs/mau/bai-mau-chuong.tex`): một bài mẫu = một khối mã gồm `\chude{Tên bài mẫu}`, `\saubai{k9-b16}` (mã bài trong `ma-bai.md`: học sinh qua bài này thì bài mẫu mới mở; bỏ dòng thì mở khi qua hết chương) và **một** khối `giaimau`. Không có `lythuyet`, không có `\man`. Thầy dán bằng nút **Bài mẫu → + Dán bài mẫu** trên biển tên chương. Mỗi chương 3–5 bài mẫu, từ dễ đến khó; bài tổng hợp nhiều bài thì `\saubai` là bài cuối cùng mà nó dùng tới.
+
+**Hướng dẫn tự luận** (mẫu: `docs/mau/huongdan-tu-luan.tex`): trong `\begin{extl}` thay các `\goiy` bằng
+
+```latex
+\begin{huongdan}
+\begin{tikzpicture} … \sang{1}{…} … \end{tikzpicture}   % tùy chọn
+\buocgiai{Mục tiêu}{Gợi ý (không viết trọn lời giải)}{Vì sao}
+\begin{sodo} … \end{sodo}                                  % tùy chọn
+\end{huongdan}
+```
+Chỉ dùng `\buocgiai` và `sodo` (không `\de`, `\cau`, `\doan`, `\nhanxet`). Mỗi bước hoặc sơ đồ là **một gợi ý học sinh mở bằng XP**. Gợi ý đi từ chung đến cụ thể, có thể nêu **kết quả trung gian** để học sinh tự kiểm tra ("biểu thức trong ngoặc rút gọn được thành …"), **không viết trọn lời giải**, không lộ đáp số cuối. `\loigiai` vẫn bắt buộc (chỉ giáo viên thấy). Ý a, b, c: mỗi ý 1–3 bước, mục tiêu ghi rõ ý nào.
+
+#### Quy trình suy luận và kiểm tra (bắt buộc với mọi bài tự luận, bài giải mẫu, hướng dẫn)
+
+Bài tự luận là phần học sinh dựa vào để học cách trình bày, sai một bước là học sinh học sai. **Suy nghĩ chậm, kỹ, kiểm tra từng chỗ trước khi trả.** Làm theo đúng thứ tự:
+
+1. **Giải trọn bài ra nháp trước**, chưa viết mã. Giải lại bằng **một cách thứ hai** hoặc thử lại (thay số vào đề, tính lại bằng Python nếu có công cụ chạy mã). Hai cách phải ra cùng kết quả.
+2. **Sát chương trình SGK Kết nối tri thức đúng khối:** chỉ dùng kiến thức đã học **đến bài ghi ở `\saubai`** (hoặc đến bài/chương của đề). Không dùng định lý của lớp trên, của chương sau (chưa học phương trình bậc hai thì không ra ý phải giải phương trình bậc hai; chưa học tứ giác nội tiếp thì không dùng). Kí hiệu, cách gọi, cách trình bày theo SGK.
+3. **Logic từng bước:** mỗi `\buocgiai` suy ra được từ giả thiết và các bước trước; không nhảy bước, không dùng điều cần chứng minh, không dùng điều "nhìn hình thấy". "Vì sao?" nêu **đúng tên** định lý/tính chất được dùng ở bước đó. Điều kiện (mẫu khác 0, căn có nghĩa, ẩn dương, đơn vị) nêu ở đúng chỗ và được kiểm tra khi kết luận.
+4. **Câu `\doan`:** đáp án đúng là hướng **thật sự dẫn tới lời giải** ở bước đó. Đáp án sai phải **thật sự không đi được** ở bước đó; tuyệt đối không lấy một hướng khác cũng đúng làm đáp án sai. Phản hồi sai nêu **chính xác** vì sao hướng đó không ổn.
+5. **Sơ đồ:** mỗi ô con (cùng căn cứ ghi chú) là **điều kiện đủ** để suy ra ô cha; sơ đồ khớp với các bước giải sau nó.
+6. **Hình đúng giả thiết:** **tính** tọa độ để mọi điều kiện đúng thật (tiếp điểm, vuông góc, trung điểm, giao điểm, song song), không ước lượng bằng mắt; ghi phép tính kiểm tra vào phiếu bàn giao. Hình không được tạo ấn tượng sai (tam giác thường vẽ thành cân hay vuông, hai đoạn khác nhau trông bằng nhau). Kiểm lại: mỗi `\sang{k}` tô đúng phần bước k dùng; mỗi `\hien`, `\phu` có số bước khớp.
+7. **Số liệu:** đáp số gọn, thỏa điều kiện, đã thử lại vào đề. Bài thực tế có số liệu hợp lý.
+8. **Đọc lại như một học sinh trung bình khá:** chỗ nào khó hiểu, thiếu bước, viết tắt lạ, sai chính tả toán học thì sửa.
+9. Trong **phiếu bàn giao**, ghi mục **"Đã tự kiểm tra"**: cách giải thứ hai/phép thử đã làm, phép tính kiểm tra hình, kiến thức dùng thuộc bài nào. Chỗ nào **chưa chắc** thì ghi rõ để thầy xem, **không đoán**.
+
 ### 3.8 Những thứ bị cấm (app báo lỗi hoặc hiện sai)
 
 - Bảng (`tabular`, `array` dùng như bảng), `\item`, `itemize`, `enumerate`, `\section`; `\textbf` ngoài công thức.
@@ -356,6 +417,7 @@ Nếu có công cụ chạy mã (Python), **dùng nó** để tính lại đáp 
 7. Mỗi `\begin{…}` có `\end{…}` cùng loại; ngoặc nhọn cân bằng; số dấu `$` chẵn trong từng câu và từng mục lý thuyết.
 8. Hình (bạn không chạy thử TikZ được, nên kiểm bằng mắt): tọa độ là số cụ thể, mọi tên điểm trong `--` đã khai báo bằng `\coordinate`, mỗi lệnh kết thúc bằng `;`, ngoặc `{}` `[]` cân bằng, không dùng thư viện ngoài mục 3.7. Hình từng bước: đủ quy tắc mục 3.7b.
 9. Lý thuyết: kiểm số cặp `{…}`, công thức và ví dụ. Trong phần văn bản của từng đối số, dùng quy tắc LaTeX ở mục 3.2. Nếu có tương tác, kiểm tên mẫu, phạm vi dữ liệu, thứ tự năm đối số của `\thungay`, kết quả khi chọn đúng và phản hồi khi chọn sai.
+11. **Bài tự luận, bài giải mẫu, hướng dẫn tự luận:** làm đủ *Quy trình suy luận và kiểm tra* ở mục 3.9 (giải hai cách, sát chương trình, logic từng bước, đáp án sai của `\doan` thật sự sai, sơ đồ khớp, tọa độ hình được tính, đọc lại như học sinh) và ghi mục "Đã tự kiểm tra" trong phiếu bàn giao.
 10. Không có thứ trong mục 3.8. Các dòng `%%%` đủ 6 dòng, đúng mã bài trong `ma-bai.md`. Số câu từng mức đạt tối thiểu ở mục 4.
 
 Phát hiện lỗi trong phần đang soạn hoặc được yêu cầu sửa thì xử lý rồi mới trả. Nếu không chắc đáp án của một câu mới, thay bằng câu khác. Khi chỉ bổ sung lý thuyết, ghi những lỗi nghi ngờ trong bài tập gốc ở phiếu bàn giao và giữ nguyên bài tập.
