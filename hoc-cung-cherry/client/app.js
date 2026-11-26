@@ -40,9 +40,60 @@ const newP=()=>({xp:0,lp:0,matches:0,hist:[],st:{},best:{},score:{},pt:{},deh:{}
 function fromDoc(d){const v=d.data()||{};const P=parseTopic(v.text);
   return {id:d.id,khoi:String(v.khoi||'?'),phan:PHAN[v.phan]?v.phan:'dai-so',title:v.title||P.title||d.id,status:v.trangthai||'nhap',order:Number(v.thutu)||0,levels:P.levels,errors:P.errors,nguon:v.nguon||'',chuong:v.chuong||'',raw:v.text||'',prev:v.banTruoc||'',upd:v.capnhat||'',theory:P.theory||null}}
 // \\ ngoài công thức = xuống dòng; trong $...$, $$...$$, \(...\), \[...\] giữ nguyên (cases, aligned, ma trận cần \\)
-const brOut=s=>s.replace(/(\\\$|\$\$[\s\S]*?\$\$|\$(?:\\[\s\S]|[^$\\])*\$|\\\([\s\S]*?\\\)|\\\[[\s\S]*?\\\])|\\\\/g,(m,keep)=>keep?m:'<br>');
+const brOut=s=>s.replace(/(\\\$|\$\$[\s\S]*?\$\$|\$(?:\\[\s\S]|[^$\\])*\$|\\\([\s\S]*?\\\)|\\\[[\s\S]*?\\\])|\\\\/g,(m,keep)=>keep?mathBreak(m):'<br>');
+/* Công thức dài trên điện thoại (thầy chốt 26/11/2026). MathJax 3 không tự xuống dòng, nên:
+   (a) công thức $…$ có dấu quan hệ (=, <, >, ≤, ≥, ≠, ≈, ⇒, ⇔) ở ngoài ngoặc được cắt thành nhiều mảnh $…$ nối bằng <wbr>:
+       vừa một dòng thì vẫn liền nhau như cũ, không vừa thì xuống dòng ngay trước dấu "=" như khi viết tay;
+   (b) chuỗi bằng nhau từ 3 vế trở lên mà phải xuống dòng thì dàn mỗi bước một dòng, dấu "=" thẳng cột (mathFit);
+   (c) công thức không cắt được mà rộng hơn khung thì thu nhỏ cho vừa (không dưới 75%); vẫn không vừa thì cuộn ngang, có gợi ý. */
+const MB_REL=/^(=|&lt;|&gt;|\\(?:le|leq|ge|geq|ne|neq|approx|Rightarrow|Leftarrow|Leftrightarrow|equiv)(?![a-zA-Z]))/;
+function mathBreak(m){
+  if(m[0]!=='$'||m[1]==='$'||m.length<16)return m;
+  const s=m.slice(1,-1);if(/\\begin|&amp;|\\\\/.test(s))return m;
+  const cuts=[];let d=0;
+  for(let i=0;i<s.length;i++){
+    const c=s[i];
+    if(c==='\\'){
+      if(s[i+1]==='{'||s[i+1]==='}'){d+=s[i+1]==='{'?1:-1;i++;continue}
+      const r=d===0&&i>0&&s.slice(i).match(MB_REL);if(r){cuts.push(i);i+=r[0].length-1;continue}
+      const w=s.slice(i+1).match(/^[a-zA-Z]+/);if(w)i+=w[0].length;else i++;continue}
+    if('{(['.includes(c))d++;else if('})]'.includes(c))d=Math.max(0,d-1);
+    else if(d===0&&i>0){const r=s.slice(i).match(MB_REL);if(r&&s[i-1]!=='&'&&!(c==='='&&/[<>!]|&[lg]t;$/.test(s.slice(Math.max(0,i-4),i)))){cuts.push(i);i+=r[0].length-1}}
+  }
+  if(!cuts.length)return m;
+  const parts=[];let a=0;for(const k of cuts){if(k>a)parts.push(s.slice(a,k));a=k}parts.push(s.slice(a));
+  if(parts.length<2||parts.some(p=>!p.trim()))return m;
+  const eq=parts.slice(1).every(p=>p[0]==='=');
+  return `<span class="mchain"${eq?' data-eq="1"':''}>${parts.map((p,n)=>'$'+(n?'{}':'')+p+'$').join('<wbr>')}</span>`;
+}
+function mathFit(el){
+  if(!el||!el.querySelectorAll)return;
+  el.querySelectorAll('.mhint,br.mbr').forEach(x=>x.remove());
+  el.querySelectorAll('mjx-container.mrow').forEach(x=>{x.classList.remove('mrow');x.style.paddingLeft=''});
+  el.querySelectorAll('mjx-container[data-mfit]').forEach(x=>{x.style.fontSize='';x.removeAttribute('data-mfit')});
+  // (b) dàn bước: chuỗi bằng nhau ≥ 3 vế đã phải xuống dòng → mỗi "= …" một dòng, thẳng dưới dấu "=" đầu tiên.
+  // Dùng <br> (không dùng display:block) để dấu chấm cuối câu vẫn đứng ngay sau vế cuối.
+  el.querySelectorAll('.mchain[data-eq]').forEach(c=>{
+    const ms=[...c.querySelectorAll(':scope>mjx-container')];if(ms.length<3||!c.offsetWidth)return;
+    const top=x=>x.getBoundingClientRect().top,left=x=>x.getBoundingClientRect().left;
+    if(!ms.some(x=>top(x)>top(ms[0])+ms[0].offsetHeight*0.6))return;
+    const wrapped1=top(ms[1])>top(ms[0])+ms[0].offsetHeight*0.6;
+    const rows=wrapped1?ms.slice(1):ms.slice(2);
+    rows.forEach(x=>{x.classList.add('mrow');x.insertAdjacentHTML('beforebegin','<br class="mbr">')});
+    const lineStart=left(rows[0]),room=c.parentElement?c.parentElement.clientWidth:0;
+    const off=wrapped1?0:left(ms[1])-lineStart;
+    const pad=off>0&&room&&off<=room*0.6?off:24;
+    rows.forEach(x=>x.style.paddingLeft=pad+'px');
+  });
+  // (c) thu nhỏ công thức rộng hơn khung
+  el.querySelectorAll('mjx-container').forEach(x=>{
+    const w=x.scrollWidth,room=x.clientWidth;if(!room||w<=room+1)return;
+    const r=room/w;x.setAttribute('data-mfit','1');x.style.fontSize=Math.max(75,Math.floor(r*100))+'%';
+    if(r<0.75&&x.scrollWidth>x.clientWidth+1)x.insertAdjacentHTML('afterend','<span class="mhint">↔ vuốt ngang để xem hết</span>');
+  });
+}
 const tex=s=>brOut(esc(s)).replace(/\\textbf\{([^}]*)\}/g,'<b>$1</b>').replace(/&quot;/g,'"');
-const typeset=el=>{if(window.__mjReady)MathJax.typesetPromise([el]).catch(()=>{}).then(()=>sdLay(el));requestAnimationFrame(()=>sdLay(el));if(el&&el.querySelector&&el.querySelector('.sd-tw'))setTimeout(()=>sdLay(el),500)};
+const typeset=el=>{if(window.__mjReady)MathJax.typesetPromise([el]).catch(()=>{}).then(()=>{sdLay(el);mathFit(el)});requestAnimationFrame(()=>sdLay(el));if(el&&el.querySelector&&el.querySelector('.sd-tw'))setTimeout(()=>sdLay(el),500)};
 
 /* ---------- âm thanh & hiệu ứng ---------- */
 @@FX@@

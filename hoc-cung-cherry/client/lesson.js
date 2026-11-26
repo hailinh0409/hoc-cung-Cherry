@@ -117,7 +117,10 @@ function bindAuthoredTheory(root){
    App tự chia khối lythuyet đã soạn thành từng màn nhỏ: mỗi màn một ý (khoảng 3 dòng),
    thanh tiến độ ở trên, nút Tiếp tục ở dưới, câu Thử ngay có dải đúng/sai. Không cần soạn lại bài. */
 const LS_NOTE=['dinhnghia','quytac','congthuc','dinhly','tinhchat'];
-const LS_MAX=160; // số kí tự chữ tối đa trên một màn (không tính công thức, hình)
+// Chia theo Ý, không theo số chữ (thầy chốt 26/11/2026): mỗi mục (định nghĩa, quy tắc, lưu ý…) giữ trọn một màn.
+// Chỉ khi mục dài quá LS_MAX mới chia, và chỉ chia ở chỗ người soạn xuống dòng \\; màn sau giữ nhãn, tiêu đề + "(tiếp)".
+// Một dòng \\ dài hơn LS_MAX (hiếm) mới tách theo câu, và không bao giờ tách sau dấu hai chấm.
+const LS_MAX=320; // số kí tự chữ tối đa trên một màn (không tính công thức, hình); khoảng nửa màn hình điện thoại
 
 // Tách nội dung theo \\ ở ngoài công thức $…$ và ngoài môi trường (hình TikZ, hình từng bước).
 function lsLines(src){
@@ -133,14 +136,14 @@ function lsLines(src){
   out.push(cur.trim());
   return out.filter(Boolean).flatMap(l=>lsIsFig(l)||lsLen(l)<=LS_MAX?[l]:lsSentences(l));
 }
-// Đoạn quá dài (không có hình): tách theo câu, ở ngoài công thức.
+// Đoạn quá dài (không có hình): tách theo câu, ở ngoài công thức. Không tách sau ":" (sau đó là ví dụ/liệt kê của chính câu ấy).
 function lsSentences(line){
   const out=[];let cur='',math=false;
   for(let i=0;i<line.length;i++){const c=line[i];
     if(c==='\\'){cur+=line.slice(i,i+2);i++;continue}
     if(c==='$')math=!math;
     cur+=c;
-    if(!math&&/[.;:!?]/.test(c)&&line[i+1]===' '&&/[A-ZĐÀ-Ỹ$(0-9]/.test(line[i+2]||'')&&lsLen(cur)>25){out.push(cur.trim());cur=''}
+    if(!math&&/[.;!?]/.test(c)&&line[i+1]===' '&&/[A-ZĐÀ-Ỹ$(0-9]/.test(line[i+2]||'')&&lsLen(cur)>25){out.push(cur.trim());cur=''}
   }
   if(cur.trim())out.push(cur.trim());
   return out;
@@ -148,9 +151,9 @@ function lsSentences(line){
 const lsIsFig=line=>/\\begin\{(tikzpicture|hinhbuoc)\}/.test(line);
 const lsLen=line=>line.replace(/\\begin\{(tikzpicture|hinhbuoc)\}[\s\S]*?\\end\{\1\}/g,'').replace(/\$([^$]*)\$/g,(_,m)=>'x'.repeat(Math.ceil(m.replace(/\\[a-zA-Z]+|[{}\s]/g,'').length*0.8)+1)).length;
 // Gom các dòng thành từng màn: mỗi màn tối đa LS_MAX kí tự chữ; hình đi cùng đoạn chữ ngay trước nó rồi sang màn mới.
-function lsChunks(src){
+function lsChunks(src,lines=lsLines(src)){
   const pages=[];let cur=[],len=0;
-  for(const line of lsLines(src)){
+  for(const line of lines){
     const fig=lsIsFig(line),l=lsLen(line);
     if(cur.length&&!fig&&len+l>LS_MAX){pages.push(cur);cur=[];len=0}
     cur.push(line);len+=l;
@@ -159,6 +162,7 @@ function lsChunks(src){
   if(cur.length)pages.push(cur);
   return pages;
 }
+const LS_LOOK=/^(hãy |cùng |em |mình )?(xem|quan sát|nhìn|theo dõi|chạm|kéo|bấm|thử)/i;
 const lsTex=lines=>tex(lines.join('\\\\'));
 
 // Hình co giãn theo màn hình điện thoại (thầy chốt 26/11/2026): lấp đầy bề ngang khung nhưng không cao quá
@@ -191,24 +195,32 @@ function lessonScreens(items){
   for(const it of items||[]){if(it.k==='loidan'&&g.items.length){groups.push(g);g={items:[]}}g.items.push(it)}
   if(g.items.length)groups.push(g);
   for(const grp of groups){
-    let part=grp.items.find(it=>it.title)?.title||'',say='';
+    let part=grp.items.find(it=>it.title)?.title||'',say='',labSay='';
     const push=sc=>{S.push({part,say,...sc});say=''};
+    const pushLab=sc=>{if(labSay)say=say?say+' '+labSay:labSay;labSay='';push(sc)};
+    const hasLab=grp.items.some(it=>it.k==='hinhbuoc'||it.k==='minhhoa');
     for(const it of grp.items){
       if(it.title)part=it.title;
-      // Lời Cherry dài thì đứng riêng một màn, để màn kiến thức sau đó gọn
-      if(it.k==='loidan'){if(lsLen(it.body)>100)push({type:'read',html:'',intro:true});say=tex(it.body);if(S.at(-1)?.intro){S.at(-1).say=say;say=''}continue}
+      if(it.k==='loidan'){
+        // Câu cuối mời "Xem/Quan sát/Chạm…" mà mục có hình từng bước, minh họa: câu đó đi theo màn hình,
+        // để Cherry nói "Xem cách chuyển nhé!" đúng lúc hình hiện ra (lỗi Bài 1 Tập hợp 26/11/2026).
+        let body=it.body;
+        if(hasLab){const sn=lsSentences(body),last=sn.at(-1)||'';
+          if(sn.length>1&&LS_LOOK.test(last)){labSay=tex(last);body=sn.slice(0,-1).join(' ')}}
+        // Lời Cherry dài thì đứng riêng một màn, để màn kiến thức sau đó gọn
+        if(lsLen(body)>100)push({type:'read',html:'',intro:true});say=tex(body);if(S.at(-1)?.intro){S.at(-1).say=say;say=''}continue}
       if(LS_NOTE.includes(it.k)){
-        lsChunks(it.body).forEach((lines,n)=>push({type:'read',kind:it.k,title:n?'':it.title,html:lsTex(lines)}));
+        lsChunks(it.body).forEach((lines,n)=>push({type:'read',kind:it.k,title:it.title?(n?it.title+' (tiếp)':it.title):'',cont:n>0,html:lsTex(lines)}));
         continue;
       }
       if(it.k==='luuy'){
-        const lines=lsLines(it.body).flatMap(l=>lsIsFig(l)?[l]:lsSentences(l));
-        for(let n=0;n<lines.length;n+=3)push({type:'read',kind:'luuy',title:n?'':'Cần nhớ',html:lines.slice(n,n+3).map(l=>`<div class="ls-note"><span aria-hidden="true">!</span><div>${tex(l)}</div></div>`).join('')});
+        // Mỗi dòng \\ người soạn viết là một dòng "!"; không tự tách câu (câu dẫn và ví dụ của nó phải đi cùng nhau)
+        lsChunks(it.body).forEach((lines,n)=>push({type:'read',kind:'luuy',title:n?'Cần nhớ (tiếp)':'Cần nhớ',cont:n>0,html:lines.map(l=>`<div class="ls-note"><span aria-hidden="true">!</span><div>${tex(l)}</div></div>`).join('')}));
         continue;
       }
       if(it.k==='vidu'){push({type:'vidu',html:tex(it.body),sol:tex(it.sol)});continue}
-      if(it.k==='minhhoa'){push({type:'lab',html:authoredTheoryHTML(it)});continue}
-      if(it.k==='hinhbuoc'){push({type:'lab',html:tex(it.body)});continue}
+      if(it.k==='minhhoa'){pushLab({type:'lab',html:authoredTheoryHTML(it)});continue}
+      if(it.k==='hinhbuoc'){pushLab({type:'lab',html:tex(it.body)});continue}
       if(it.k==='giaimau'){gmScreens(it.body).forEach((sc,n)=>push(n?sc:{...sc,say:say||undefined}));continue}
       if(it.k==='thungay'){push({type:'quiz',q:tex(it.body),opts:[{html:tex(it.correct),ok:true,ex:tex(it.explainCorrect)},{html:tex(it.wrong),ok:false,ex:tex(it.explainWrong)}]});continue}
     }
@@ -264,7 +276,7 @@ function renderLessonMaterial(root,t,o={}){
     <div class="ls-foot"><div class="ls-fb"><b></b><div></div></div><button type="button" class="ls-go">Tiếp tục</button></div></div>`;
   const box=root.firstElementChild,stage=box.querySelector('.ls-stage'),foot=box.querySelector('.ls-foot'),go=box.querySelector('.ls-go'),bar=box.querySelector('.ls-prog b');
   const quizN=screens.filter(x=>x.type==='quiz').length;
-  if(window.ResizeObserver){let t=0;new ResizeObserver(()=>{clearTimeout(t);t=setTimeout(()=>stage.querySelectorAll('img.fig').forEach(img=>img.complete&&lsFitFig(img,stage)),80)}).observe(stage)}
+  if(window.ResizeObserver){let t=0;new ResizeObserver(()=>{clearTimeout(t);t=setTimeout(()=>{stage.querySelectorAll('img.fig').forEach(img=>img.complete&&lsFitFig(img,stage));mathFit(stage)},80)}).observe(stage)}
   let i=Math.min(Math.max(0,o.start||0),screens.length),state='read',pick=null,missed=new Set(),labCheck=null;
   if(o.onClose)box.querySelector('.ls-x').onclick=()=>{sfx.tap();o.onClose()};
   if(o.teacherEdit)box.querySelector('.ls-ed').onclick=()=>{sfx.tap();o.teacherEdit()};

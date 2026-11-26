@@ -146,7 +146,7 @@ mjx-container{max-width:100%;overflow-x:auto;overflow-y:hidden}
 </style>
 <script>
 window.MathJax={tex:{inlineMath:[['$','$'],['\\(','\\)']],displayMath:[['$$','$$'],['\\[','\\]']]},svg:{fontCache:'global'},
-startup:{typeset:false,ready(){MathJax.startup.defaultReady();MathJax.startup.promise.then(()=>{window.__mjReady=true;MathJax.typesetPromise([document.body]).catch(()=>{})})}}};
+startup:{typeset:false,ready(){MathJax.startup.defaultReady();MathJax.startup.promise.then(()=>{window.__mjReady=true;MathJax.typesetPromise([document.body]).catch(()=>{}).then(()=>{if(window.mathFit)mathFit(document.body)})})}}};
 </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js" async></script>
 

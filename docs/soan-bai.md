@@ -67,10 +67,12 @@ Thi đấu rút câu Mức 1–4 của mọi bài **đã duyệt** của khối,
 - **Chia mục học:** mỗi bài 2–4 mục (mỗi `\loidan` mở một mục), mỗi mục một ý chính, theo khuôn `\loidan` → giải thích (`\dinhnghia`/`\quytac`/`\congthuc`/`\dinhly`/`\tinhchat`, thêm `\luuy`) → minh họa → `\vidu` → `\thungay` (kiểm tra bằng một ví dụ mới).
 - **Chọn minh họa theo thứ tự:** `\minhhoa` khi đúng mẫu đã hỗ trợ (hiện chỉ `gia-tri-theo-hang` và `ghep-so-la-ma`, về số tự nhiên; không dùng cho bài khác) → hình TikZ ngay trong nội dung mục → ví dụ cụ thể có số liệu. Cần thao tác mà chưa có mẫu thì **không tự chế lệnh**; ghi mẫu còn thiếu vào phần báo lại.
 - TikZ trong lý thuyết dùng chung đường dịch hình với câu hỏi (Actions dịch mỗi 15 phút).
-- **Viết cho màn học từng màn (từ 26/11/2026):** app tự chia khối `lythuyet` thành từng màn ngắn kiểu Duolingo (thanh tiến độ, nút Tiếp tục), mỗi màn khoảng 160 kí tự chữ, theo dấu xuống dòng `\\`. Cú pháp không đổi, nhưng viết sao cho mỗi màn tròn một ý:
+- **Viết cho màn học từng màn (từ 26/11/2026):** app chia khối `lythuyet` thành từng màn kiểu Duolingo (thanh tiến độ, nút Tiếp tục) **theo ý**: mỗi mục (`\dinhnghia`, `\quytac`, `\tinhchat`, `\luuy`…) giữ trọn một màn; chỉ mục dài quá khoảng 320 kí tự chữ mới chia, và chỉ chia ở dấu xuống dòng `\\` (màn sau ghi "(tiếp)"). Không bao giờ cắt sau dấu hai chấm. Vì vậy mỗi mục chỉ nên chứa **một ý**; hai ý thì viết hai mục:
   - **Mỗi dòng `\\` 1–2 câu**, tối đa khoảng 150 kí tự. Không viết một đoạn dài liền; ý mới thì xuống dòng.
   - **`\loidan` 1–2 câu (dưới khoảng 100 kí tự)** để hiện thành bong bóng Cherry ngay trên màn kiến thức. Lời dẫn dài hơn bị tách thành một màn riêng.
-  - **`\luuy` mỗi ý một câu** (mỗi câu thành một dòng "!" trong màn *Cần nhớ*, 3 dòng một màn).
+  - **`\luuy`: mỗi dòng `\\` là một dòng "!"** trong màn *Cần nhớ*. Câu dẫn và ví dụ của nó (sau dấu hai chấm) để cùng một dòng.
+  - **`\loidan` mời xem hình** ("Xem…", "Quan sát…", "Chạm…"): viết thành câu cuối; app tự chuyển câu đó sang màn hình từng bước/minh họa của mục, để Cherry nói đúng lúc hình hiện ra.
+  - **Công thức dài**: viết liền một chuỗi `$a=b=c$` như bình thường; app tự xuống dòng ở dấu "=" và dàn từng bước thẳng cột trên điện thoại. Không tự chèn `\\` giữa chuỗi bằng nhau.
   - **Lời giải `\vidu` mỗi bước một dòng `\\`.** Học sinh bấm *Xem lời giải* mới đi tiếp.
   - **Tiêu đề mục** (`\dinhnghia{Tên}{…}`…) hiện ở dòng trên cùng của màn ("Tên bài · Tên mục"): đặt ngắn, rõ.
   - **Mỗi mục học có một `\thungay`**: đây là màn duy nhất học sinh phải trả lời; bài không có `\thungay` chỉ còn màn đọc.
