@@ -90,3 +90,8 @@
   .chat-turn {grid-template-columns:34px minmax(0,1fr);gap:6px}
   .chat-avatar {width:34px}
 }
+
+#thBody.chat-host {min-height:0;flex:1;padding:0}
+.chat-editor-preview,.chat-review-preview {height:min(660px,70vh);margin:8px 0;border:1px solid #ece3d1;border-radius:14px;overflow:hidden}
+#thChatDiagnostics button {display:block;width:100%;text-align:left;padding:6px 9px;white-space:normal}
+#thChatDiagnostics button.tnote {color:#755315;background:#fff5d4;border:1px solid #e8d197;border-radius:8px}

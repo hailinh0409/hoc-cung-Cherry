@@ -1,46 +1,51 @@
 # Tiến độ: G3 — đưa bài chat vào app
 
-- Nhánh: `codex/g3-gan-bai-chat-vao-app` · Issue: #65
+- Nhánh: `codex/g3-gan-bai-chat-vao-app` · PR: #70 · Issue: #65
 - Người đang làm: Codex · Cập nhật lần cuối: 27/11/2026
-- Trạng thái: đang làm
+- Trạng thái: xong, chờ thầy duyệt
 
 ## Bắt đầu từ đâu
 
-Đọc mục 3.3 trong `docs/bai-chat/ke-hoach.md`. Nhánh dựa trên PR #69.
+Mở công tắc trong Ngân hàng câu hỏi → Lý thuyết kiểu chat. Trên màn lý thuyết của giáo viên, dùng Sửa → Bản chat để dán và xem trước.
 
 ## Mục tiêu
 
-Giáo viên xem, lưu và bật bản chat theo từng khối. Học sinh mở bản chat khi khối đã bật.
+Nối bài chat vào app, thêm công tắc theo khối và thẻ dán bản chat cho giáo viên.
 
 ## Quyết định đã chốt với thầy
 
-Tính mọi chủ đề đã duyệt của khối. Bài thiếu bản chat tiếp tục dùng lý thuyết cũ.
+Tính mọi chủ đề đã duyệt theo khối. Muốn bật sớm khi còn thiếu bài phải xác nhận. Bài chưa có bản chat vẫn dùng lý thuyết cũ.
 
 ## Đã xong (đã commit)
 
-- [x] Tách nhánh cho phần kết nối app.
+- [x] Nối bản chat vào màn lý thuyết và phần xem lại khi luyện.
+- [x] Thêm đếm số bài, liệt kê bài thiếu và bật/tắt theo khối.
+- [x] Chỉ thay khối chat khi lưu, giữ bản trước để hoàn tác.
+- [x] Kiểm tra hình TikZ được thu thập từ khối baichat.
 
 ## Đang làm dở
 
-Nối công tắc, khung xem trước, lưu đúng khối và thử hai vai trò với dữ liệu giả.
+Không có.
 
 ## Việc tiếp theo
 
-Thử đổi bản trên app rồi dựng trang xem thử G4.
+Dùng G4 (#66) để thử bài trước khi dán vào app. Sau khi các PR gộp, xem lại khối 7 khi nội dung đã được soạn và duyệt.
 
 ## Còn lại
 
-- [ ] Hoàn thiện mã và chạy kiểm tra.
+- [ ] Thầy duyệt PR.
 
 ## File liên quan
 
 - `hoc-cung-cherry/client/app.js`
+- `hoc-cung-cherry/client/lesson.js`
 - `hoc-cung-cherry/lib/chat-source.js`
 - `hoc-cung-cherry/app/api/admin/settings/route.js`
+- `hoc-cung-cherry/app/api/admin/topic/route.js`
 
 ## Cách kiểm tra
 
-Chạy `npm test` và app với `FAKE_DB=1`.
+`npm test` 52/52, kiểm tra cú pháp app đã ghép và `next build` với dữ liệu giả. Kiểm tra hai tài khoản mẫu ở 390 × 844: từ chối quyền học sinh, chặn bật khi thiếu bài, xác nhận bật sớm, đổi phiên bản, lưu và giữ nguồn cũ, tải lại tiến độ và tắt lại.
 
 ## Lưu ý cho người tiếp quản
 

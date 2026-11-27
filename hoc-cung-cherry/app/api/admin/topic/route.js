@@ -1,7 +1,8 @@
 import { admin } from '@/lib/supabase/admin';
 import { needTeacher, json, fail } from '@/lib/session';
 import { toStatus, SPECIAL_TOPIC } from '@/lib/topics';
-import { parseBank } from '@/lib/latex';
+import { errorText, parseBank } from '@/lib/latex';
+import { inspectChatSource, replaceChatBlock } from '@/lib/chat-source';
 import { plainName } from '@/lib/names';
 
 const PHAN = ['dai-so', 'hinh-hoc', 'thong-ke', 'on-tap', 'thi-dau', 'bai-mau']; // thi-dau: Kho Thi đấu theo chương, bai-mau: Bài mẫu theo chương; cả hai có chuong = k<khối>-c<số chương>
@@ -51,10 +52,19 @@ export async function POST(req) {
 
   const { data: t } = await db.from('ltt_topics').select('id,source,updated_at,chuong,status').eq('slug', String(b.id || '')).maybeSingle();
   if (!t) return fail('Không tìm thấy chủ đề', 404);
-  if (typeof b.text === 'string' && b.base && t.updated_at && !sameTime(b.base, t.updated_at))
+  const editingChat = b.action === 'replace-chat';
+  if (editingChat && typeof b.chatSource !== 'string') return fail('Thiếu khối baichat');
+  if ((editingChat || (typeof b.text === 'string' && b.base && t.updated_at)) && !sameTime(b.base, t.updated_at))
     return fail('Bài này vừa được sửa ở nơi khác (máy tính, tab khác hoặc Claude). App sẽ tải bản mới, thầy sửa lại giúp nhé.', 409);
   const up = { updated_at: new Date().toISOString() };
-  if (typeof b.text === 'string') { up.source = b.text; up.ban_truoc = t.source; const m = b.text.match(/\\chude\s*\{([^}]*)\}/); if (m && m[1].trim()) up.title = m[1].trim(); }
+  if (editingChat) {
+    const draft = inspectChatSource(b.chatSource, { standalone: true });
+    if (draft.errors.length) return fail(draft.errors.map(errorText).join('\n'));
+    try { up.source = replaceChatBlock(t.source, draft.block); }
+    catch (error) { return fail(error.message); }
+    up.ban_truoc = t.source;
+  }
+  if (!editingChat && typeof b.text === 'string') { up.source = b.text; up.ban_truoc = t.source; const m = b.text.match(/\\chude\s*\{([^}]*)\}/); if (m && m[1].trim()) up.title = m[1].trim(); }
   if (b.trangthai) { const s = toStatus(b.trangthai); if (!s) return fail('Trạng thái không hợp lệ'); up.status = s; }
   if (b.phan) { if (!PHAN.includes(b.phan)) return fail('Phần không hợp lệ'); up.phan = b.phan; }
   if (b.chuong !== undefined) up.chuong = String(b.chuong || '') || null;
@@ -68,6 +78,9 @@ export async function POST(req) {
     }
   } else if (up.chuong === SPECIAL_TOPIC) return fail('Hãy tạo đề từ khu Chuyên Toán.');
   if (b.thutu !== undefined) up.sort = Math.floor(Number(b.thutu) || 0);
-  const { error } = await db.from('ltt_topics').update(up).eq('id', t.id);
+  let update = db.from('ltt_topics').update(up).eq('id', t.id);
+  if (editingChat && t.updated_at) update = update.eq('updated_at', t.updated_at).select('id');
+  const { data, error } = await update;
+  if (editingChat && t.updated_at && !error && !data?.length) return fail('Bài này vừa được sửa ở nơi khác. Thầy tải lại trước khi lưu nhé.', 409);
   return error ? fail('Chưa lưu được', 500) : json({ ok: true, updated_at: up.updated_at });
 }

@@ -1044,5 +1044,5 @@ function parseLesson(body, errors, warnings, chatLine = 0) {
 }
 
 export function errorText(e) {
-  return (e.level ? `Màn ${e.level}` : '') + (e.q ? `, câu ${e.q}` : '') + (e.level ? ': ' : '') + e.msg;
+  return (e.line ? 'Dòng ' + e.line + ': ' : '') + (e.level ? `Màn ${e.level}` : '') + (e.q ? `, câu ${e.q}` : '') + (e.level ? ': ' : '') + e.msg;
 }
