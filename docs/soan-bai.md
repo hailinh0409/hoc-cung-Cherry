@@ -1,5 +1,7 @@
 # Hướng dẫn soạn câu hỏi và lý thuyết (dùng chung cho Claude và Gemini)
 
+> **Lý thuyết kiểu chat với Cherry (từ 27/11/2026, khối 7 trước):** với khối đang chuyển, lý thuyết viết bằng khối `\begin{baichat}…\end{baichat}` theo [`docs/bai-chat/cu-phap.md`](bai-chat/cu-phap.md), không viết `lythuyet`. Mọi bài của khối đều cần bản chat, kể cả bài chưa từng có lý thuyết. Phân công: Codex viết mã, Gemini soạn, Claude chỉ đạo và duyệt. Chi tiết đầu ra cho Gemini: `docs/gemini-skill-soan-bai.md` mục 0b.
+
 Bản này chép từ quy trình soạn bài của Claude (skill `nap-bai-leo-thap`), để trợ lý nào cũng soạn đúng định dạng app. Nếu skill đổi, cập nhật file này theo.
 
 ## Ghi bài vào app khi KHÔNG có quyền vào Supabase (ví dụ Gemini)
