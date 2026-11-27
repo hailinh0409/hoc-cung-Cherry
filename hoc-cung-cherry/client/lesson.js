@@ -50,7 +50,7 @@ function renderChatInApp(root,t,options={}){
     const hash=typeof FIGS==='object'&&FIGS[code];
     return /^[0-9a-f]{40}$/.test(hash||'')?`<img class="fig" src="/hinh/${hash}" alt="Hình vẽ">`:'';
   };
-  return renderChatLesson(root,t,{teacher:GV(),studentName:GV()?'An':ACC?.name,progressScope:ACC?.id,
+  return renderChatLesson(root,t,{teacher:GV(),studentName:ACC?.name,progressScope:ACC?.id,
     typeset,renderTikz,figurePlaceholder:'Hình đang chờ dịch',
     renderLab:sc=>authoredTheoryHTML({...sc,k:sc.kind}),bindLab:bindAuthoredTheory,...options});
 }
