@@ -1,7 +1,7 @@
 // Ghép giao diện (thư mục client/) thành public/app.html, và sinh lib/items.js cho máy chủ.
 //   node scripts/build-app.mjs
 import { readFileSync, writeFileSync } from 'node:fs';
-const R = p => readFileSync(new URL('../' + p, import.meta.url), 'utf8');
+const R = p => readFileSync(new URL('../' + p, import.meta.url), 'utf8').replace(/\r\n/g, '\n');
 const strip = s => s.replace(/^import .*$\n?/gm, '').replace(/^export (default )?/gm, '');
 const must = (s, a, b) => { if (!s.includes(a)) throw new Error('Không tìm thấy đoạn cần thay: ' + a.slice(0, 60)); return s.replace(a, () => b); };
 
