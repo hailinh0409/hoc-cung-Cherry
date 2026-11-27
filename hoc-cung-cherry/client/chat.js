@@ -361,7 +361,7 @@ export function renderChatLesson(root, topic, options = {}) {
     };
     const endsPart = screens[visits.length]?.type === 'recap';
     next.textContent = busy ? 'Cherry đang soạn…' : !enabled ? (hints[sc.type] || 'Khám phá hình') :
-      sc.type === 'closing' ? (options.finish ? 'Vào làm bài' : 'Xong bài') :
+      sc.type === 'closing' ? (options.finishLabel || (options.finish ? 'Vào làm bài' : 'Xong bài')) :
       sc.type === 'recap' && !state.recap ? 'Tớ hiểu rồi' : endsPart ? 'Xong phần ' + sc.p : 'Tiếp tục';
     const completion = complete ? 100 : Math.round((visits.length - 1 + Number(enabled)) / screens.length * 100);
     progress.setAttribute('aria-valuenow', String(completion));
@@ -635,6 +635,7 @@ export function renderChatLesson(root, topic, options = {}) {
     visits.at(-1).recap = true;
     refresh({ scrollToEnd: true });
   };
+  if(options.onSummaryClose)summary.addEventListener('close',options.onSummaryClose);
   feed.addEventListener('scroll', () => {
     updatePip();
     const cutoff = feed.getBoundingClientRect().top + feed.clientHeight * .32;

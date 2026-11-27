@@ -7,7 +7,7 @@ const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random(
 const store={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}},del(k){try{localStorage.removeItem(k)}catch(e){}}};
 
 /*@@LIB@@*/
-function parseTopic(raw){const P=parseBank(raw);return {title:P.topic,levels:P.levels,errors:P.errors.map(errorText),warnings:P.warnings.map(errorText),theory:P.theory,lesson:P.lesson}}
+function parseTopic(raw){const P=parseBank(raw);return {title:P.topic,levels:P.levels,errors:P.errors.map(errorText),warnings:P.warnings.map(errorText),theory:P.theory,lesson:P.lesson,chat:P.chat,chatValid:!!P.chat&&!inspectChatSource(raw).errors.length}}
 
 /* ---------- hằng số ---------- */
 const GRADES=[{k:'6',c:'#ff7a59',d:'#e85a3a'},{k:'7',c:'#3aa8e0',d:'#2584b8'},{k:'8',c:'#ffd23f',d:'#d6a90b',dark:1},{k:'9',c:'#ff5d8f',d:'#d93e70'},{k:'10',c:'#5cc96b',d:'#3a9e4a'},{k:'11',c:'#9b6dff',d:'#7448d6'},{k:'12',c:'#ff9f1c',d:'#d67b00'}];
@@ -34,11 +34,11 @@ const RANK_TIME=[30,45,60,90],RANK_PTS=[10,15,20,30],RANK_PICK=[3,3,2,2],RANK_BY
 const MPC=[['#ffe1d6','#ff7a59'],['#d8eeff','#2b9bd6'],['#e8e0ff','#8d7bff'],['#d6f7e6','#1fa86b'],['#fff1c2','#e0a100'],['#ffe0ec','#e84a8a']];
 
 /* ---------- kho dữ liệu ---------- */
-let TOPICS=[],ACCS=[],ACCS_DEL=[],REPS=[],MOC={},PLAYERS=[],ASG=[],TEACHER=false,DBSTATE='loading',DB=null;
+let TOPICS=[],ACCS=[],ACCS_DEL=[],REPS=[],MOC={},BAI_CHAT_KHOI=[],PLAYERS=[],ASG=[],TEACHER=false,DBSTATE='loading',DB=null;
 let ACC=null,P=null,curK='',curPhan='',curT=null,profFrom='grades';
 const newP=()=>({xp:0,lp:0,matches:0,hist:[],st:{},best:{},score:{},pt:{},deh:{},rev:{},saved:{},wst:{},stats:{correct:0,maxCombo:0,levels:0,perfect:0,top:0,cleared:0,chests:0},own:{},eq:{},spent:0,dq:null,wk:{},season:'',seasons:[],fails:{},lvt:{},ccl:{},tut:0,follow:{},fseen:'',rseen:{},ach:{},avatar:0,nick:'',tlh:{}});
 function fromDoc(d){const v=d.data()||{};const P=parseTopic(v.text);
-  return {id:d.id,khoi:String(v.khoi||'?'),phan:PHAN[v.phan]?v.phan:'dai-so',title:v.title||P.title||d.id,status:v.trangthai||'nhap',order:Number(v.thutu)||0,levels:P.levels,errors:P.errors,nguon:v.nguon||'',chuong:v.chuong||'',raw:v.text||'',prev:v.banTruoc||'',upd:v.capnhat||'',theory:P.theory||null,lesson:P.lesson}}
+  return {id:d.id,khoi:String(v.khoi||'?'),phan:PHAN[v.phan]?v.phan:'dai-so',title:v.title||P.title||d.id,status:v.trangthai||'nhap',order:Number(v.thutu)||0,levels:P.levels,errors:P.errors,nguon:v.nguon||'',chuong:v.chuong||'',raw:v.text||'',prev:v.banTruoc||'',upd:v.capnhat||'',theory:P.theory||null,lesson:P.lesson,chat:P.chat,chatValid:P.chatValid}}
 // \\ ngoài công thức = xuống dòng; trong $...$, $$...$$, \(...\), \[...\] giữ nguyên (cases, aligned, ma trận cần \\)
 const brOut=s=>s.replace(/(\\\$|\$\$[\s\S]*?\$\$|\$(?:\\[\s\S]|[^$\\])*\$|\\\([\s\S]*?\\\)|\\\[[\s\S]*?\\\])|\\\\/g,(m,keep)=>keep?mathBreak(m):'<br>');
 /* Công thức dài trên điện thoại (thầy chốt 26/11/2026). MathJax 3 không tự xuống dòng, nên:
@@ -437,7 +437,7 @@ function journey(){show('journey');jdock();if(curK===ACC.khoi&&!ACC.teacher&&!P.
     if(!hasQ(t)){html+=`<button class="tnode ghost thy${x2<W/2?' l':' r'}" data-th="${esc(t.id)}" style="left:${x2}%;top:${ny}px"><span class="coin">${L.lt?L.coin:L.num||'?'}</span>${lab}<i class="thb">${bookSVG}</i>${GV()&&t.status!=='giao'?`<em class="hwn st">${({nhap:'Nháp',an:'Đã ẩn'})[t.status]||t.status}</em>`:''}</button>`;y-=STEP;return}
     const j=ts.indexOf(t),lo=topicOpen(ts,j),b=bestOf(t,0),a=asgFor(t),as=a&&asgStatus(a,myPt),st=!lo?'lock':b?'done':'open';
     if(st==='open'&&!cur)cur={x:x2,y:ny};
-    html+=`<button class="tnode ${st}${x2<W/2?' l':' r'}" data-t="${j}" style="left:${x2}%;top:${ny}px"><span class="coin">${st==='lock'?lockSVG:L.lt?L.coin:L.num||'★'}</span>${lab}${stars(b)}${t.theory?`<i class="thb">${bookSVG}</i>`:''}
+    html+=`<button class="tnode ${st}${x2<W/2?' l':' r'}" data-t="${j}" style="left:${x2}%;top:${ny}px"><span class="coin">${st==='lock'?lockSVG:L.lt?L.coin:L.num||'★'}</span>${lab}${stars(b)}${hasTheory(t)?`<i class="thb">${bookSVG}</i>`:''}
       ${a&&!as.complete?`<em class="hwn ${as.overdue?'late':''}">Thầy giao · ${dueLabel(a,as)}</em>`:''}${GV()&&t.status!=='giao'?`<em class="hwn st">${({nhap:'Nháp',an:'Đã ẩn'})[t.status]||t.status}</em>`:''}</button>`;
     y-=STEP});
   const allDone=ts.length>0&&ts.every(t=>topicPassed(t)>0)&&!items.some(x=>x.L&&x.L.id&&!x.t),cy=y-TOP/2+20;pts.push([W/2,cy+78]);
@@ -479,12 +479,12 @@ function pasteNew(L){const k=curK,name=L.lt?lessonName(L):L.title;
     if(!text)return er('Thầy dán nội dung bài vào ô trên.');
     if(!/\\chude\s*\{/.test(text))text=`\\chude{${name.replace(/[{}\\]/g,'')}}\n\n`+text;
     const P=parseTopic(text);if(P.errors.length)return er(P.errors.map(esc).join('<br>'));
-    const nq=P.levels.reduce((s,l)=>s+l.qs.length,0);if(!nq&&!P.theory)return er('Chưa thấy câu hỏi hay lý thuyết nào trong nội dung đã dán.');
+    const nq=P.levels.reduce((s,l)=>s+l.qs.length,0);if(!nq&&!P.theory&&!P.chat)return er('Chưa thấy câu hỏi hay lý thuyết nào trong nội dung đã dán.');
     if(TOPICS.some(t=>t.khoi===k&&t.chuong===L.id))return er('Bài này vừa có chủ đề (có thể do máy khác tạo). Thầy đóng hộp này để tải lại bản đồ.');
     const nf=(text.match(/\\begin\{tikzpicture\}/g)||[]).length,idx=currOf(k).filter(c=>c.id).findIndex(c=>c.id===L.id);
     $('#pnS').disabled=true;
     try{await DB.collection('topics').doc().set({title:P.title||name,khoi:k,phan:L.ch.phan,chuong:L.id,text,thutu:(idx+1)*10,nguon:'Dán bài mới (giáo viên)'});
-      closeOvl();sfx.ok();toast(`Đã tạo bài nháp: ${nq} câu${P.theory?' + lý thuyết':''}${nf?` · ${nf} hình đang chờ dịch`:''}.`);journey()}
+      closeOvl();sfx.ok();toast(`Đã tạo bài nháp: ${nq} câu${P.theory||P.chat?' + lý thuyết':''}${nf?` · ${nf} hình đang chờ dịch`:''}.`);journey()}
     catch(e){$('#pnS').disabled=false;er(esc(e&&e.message||'Lỗi kết nối'))}}}
 
 /* ---------- Bài mẫu theo chương (lời giải từng bước) ----------
@@ -665,15 +665,28 @@ function theoryHTML(items){let nv=0;return (items||[]).map(it=>{const [n,c]=THK[
   if(it.k==='hinhbuoc')return `<div class="thc hbwrap">${tex(it.body)}</div>`;
   if(it.k==='vidu'){nv++;return `<div class="thc vd" style="--c:${c}"><span class="thk">Ví dụ ${nv}</span><div class="thb2">${tex(it.body)}</div><details><summary>Xem lời giải</summary><div class="thb2">${tex(it.sol)}</div></details></div>`}
   return `<div class="thc" style="--c:${c}"><span class="thk">${n}</span>${it.title?`<h3>${tex(it.title)}</h3>`:''}<div class="thb2">${tex(it.body)}</div></div>`}).join('')}
-let thT=null;
-function theory(t,keep=false){
+let thT=null,thVersion;
+function theory(t,keep=false,version){
+  const shown=version || (keep && thT?.id===t.id ? thVersion : 'auto');
+  thVersion=shown;
   const body=$('#thBody'),same=keep&&thT&&thT.id===t.id;
   // Vẽ lại cùng một bài (giáo viên vừa lưu, dữ liệu đổi): giữ nguyên màn đang xem
   const keepStep=same?Number(body.querySelector('.lstep')?.dataset.i||0):0;
+  body.classList.remove('chat-host');
   thT=t;curT=t;show('theory');const L=lessonOf(t),q=hasQ(t),route=routeTopics(t.khoi),index=route.findIndex(item=>item.id===t.id);
   const canPractice=q&&(index<0||topicOpen(route,index)),name=L?lessonName(L):t.title;
   const back=()=>{sfx.tap();thT=null;journey()};
-  renderLessonMaterial(body,t,{start:same?keepStep:undefined,title:name,onClose:back,teacherEdit:GV()?()=>editTheory(t):null,
+  const edit=GV()?()=>editTheory(t,showsChat(t,shown)?'chat':'old'):null;
+  if(showsChat(t,shown)){
+    body._lectureDispose?.();
+    body.classList.add('lstep-host','chat-host');
+    renderChatInApp(body,t,{title:name,onClose:back,teacherEdit:edit,
+      onOldVersion:GV()?()=>theory(t,true,'old'):undefined,
+      finish:canPractice?()=>{sfx.tap();curT=t;startLevel()}:back,
+      finishLabel:canPractice?'Vào làm bài':'Về bản đồ'});
+    return;
+  }
+  renderLessonMaterial(body,t,{start:same?keepStep:undefined,title:name,onClose:back,teacherEdit:edit,
     finish:(el,st,api)=>{
       el.innerHTML=`<p class="ls-end-name">${esc(name)}</p>
         <details class="ls-sum"><summary>Xem tóm tắt cả bài</summary><div class="ls-sumbody"></div></details>
@@ -683,18 +696,41 @@ function theory(t,keep=false){
       $('#thAgain').onclick=api.again;$('#thBack').onclick=back;
       api.go.textContent=canPractice?(api.lecture?'Vào làm bài':'Luyện tập cả bài'):'Về bản đồ';
       api.go.onclick=canPractice?()=>{sfx.tap();curT=t;startLevel()}:back}});
+  if(GV()&&t.chatValid){
+    const switcher=document.createElement('button');
+    switcher.type='button';switcher.className='ls-ed';switcher.textContent='Bản chat';
+    switcher.onclick=()=>theory(t,true,'chat');
+    (body.querySelector('.ls-top')||body).appendChild(switcher);
+  }
   if(!body.querySelector('.lstep'))body.insertAdjacentHTML('beforeend','<button class="btn alt" id="thBack2">Về bản đồ</button>'),$('#thBack2').onclick=back}
 const TH_TPL='\\begin{lythuyet}\n\\dinhnghia{Tên khái niệm}{Nội dung, công thức viết trong $...$}\n\\quytac{Tên quy tắc}{Nội dung}\n\\luuy{Lỗi hay gặp}\n\\vidu{Đề ví dụ}{Lời giải}\n\\end{lythuyet}';
-function editTheory(t){t=TOPICS.find(x=>x.id===t.id)||t;const m=t.raw.match(/\\begin\{lythuyet\}[\s\S]*?\\end\{lythuyet\}/);
-  overlay(`<h2 style="font-size:24px">Lý thuyết · ${esc(t.title)}</h2><textarea class="code" id="tx" spellcheck="false">${esc(m?m[0]:TH_TPL)}</textarea>
+function theoryTabs(active){
+  return `<div class="seg" role="group" aria-label="Bản lý thuyết">
+    <button type="button" data-theory-tab="old" aria-pressed="${active==='old'}" class="${active==='old'?'on':''}">Bản cũ</button>
+    <button type="button" data-theory-tab="chat" aria-pressed="${active==='chat'}" class="${active==='chat'?'on':''}">Bản chat</button></div>`;
+}
+function bindTheoryTabs(t,drafts,active,read){
+  $$('#panel [data-theory-tab]').forEach(button=>button.onclick=()=>{
+    const next=button.dataset.theoryTab;
+    if(next===active)return;
+    drafts[active]=read();
+    editTheory(t,next,drafts);
+  });
+}
+function editTheory(t,tab='old',drafts={}){
+  t=TOPICS.find(x=>x.id===t.id)||t;
+  if(tab==='chat')return editChatTheory(t,drafts);
+  const m=t.raw.match(/\\begin\{lythuyet\}[\s\S]*?\\end\{lythuyet\}/);
+  overlay(`<h2 style="font-size:24px">Lý thuyết · ${esc(t.title)}</h2>${theoryTabs('old')}<textarea class="code" id="tx" aria-label="LaTeX bản cũ" spellcheck="false">${esc(drafts.old??m?.[0]??TH_TPL)}</textarea>
     <p class="tnote" style="text-align:left">Mục: <b>\\dinhnghia</b>, <b>\\quytac</b>, <b>\\congthuc</b>, <b>\\dinhly</b>, <b>\\tinhchat</b> dạng {tiêu đề}{nội dung}; <b>\\luuy{…}</b>; <b>\\vidu{đề}{lời giải}</b>. Xuống dòng: <b>\\\\</b>.</p>
     <details class="tnote theory-author-help"><summary>Thêm lời dẫn, hình tương tác và câu Thử ngay</summary><p><code>\\loidan{Lời của Cherry}</code><br><code>\\minhhoa{gia-tri-theo-hang}{2485}</code><br><code>\\minhhoa{ghep-so-la-ma}{24}</code><br><code>\\begin{hinhbuoc} hình TikZ có \\hien{2}{…} \\loibuoc{bước 1} \\loibuoc{bước 2} \\end{hinhbuoc}</code><br><code>\\thungay{Câu hỏi}{Đáp án đúng}{Đáp án sai}{Vì sao đúng}{Vì sao sai}</code><br>Bài giải mẫu từng bước: <code>\\begin{giaimau} \\de{đề} hình TikZ (\\hien{k}{…}, \\phu{a}{b}{…}, \\sang{k}{…}) \\cau{Câu 1}{yêu cầu} \\doan{câu hỏi}{đúng}{sai}{vì sao đúng}{vì sao sai} \\buocgiai{mục tiêu}{lời giải}{vì sao} \\begin{sodo} \\nut{1}{…}{} \\end{sodo} \\nhanxet{…} \\end{giaimau}</code> (mẫu: docs/mau/giaimau-tiep-tuyen.tex)</p></details>
     <div class="qpv thpv" id="tpv"></div><button class="btn" id="tS">Lưu lý thuyết</button>${m?'<button class="btn alt" id="tD">Xóa lý thuyết</button>':''}<button class="btn alt" id="tC">Hủy</button>`);
-  const pv=()=>{const v=$('#tx').value,P=parseBank('\\chude{x}\n'+v);let h=P.errors.length?`<div class="err">${P.errors.map(e=>esc(errorText(e))).join('<br>')}</div>`:'';
+  const pv=()=>{const field=$('#tx');if(!field||!$('#tpv'))return false;const v=field.value,P=parseBank('\\chude{x}\n'+v);let h=P.errors.length?`<div class="err">${P.errors.map(e=>esc(errorText(e))).join('<br>')}</div>`:'';
     if(!/\\begin\{lythuyet\}[\s\S]*\\end\{lythuyet\}/.test(v))h=`<div class="err">Cần bọc trong \\begin{lythuyet} … \\end{lythuyet}</div>`;
     const preview=$('#tpv');preview.innerHTML=h+'<div class="lesson-material"></div>';
     renderLessonMaterial(preview.querySelector('.lesson-material'),{...t,theory:P.theory,lesson:P.lesson},{teacher:true});return !h};
   let tm=null;$('#tx').oninput=()=>{clearTimeout(tm);tm=setTimeout(pv,500)};pv();$('#tC').onclick=closeOvl;
+  bindTheoryTabs(t,drafts,'old',()=>{clearTimeout(tm);return $('#tx').value});
   const put=blk=>{
     if(m)return t.raw.slice(0,m.index)+blk+t.raw.slice(m.index+m[0].length);
     if(!blk)return t.raw;
@@ -704,7 +740,51 @@ function editTheory(t){t=TOPICS.find(x=>x.id===t.id)||t;const m=t.raw.match(/\\b
   };
   $('#tS').onclick=()=>{if(!pv())return;const text=put($('#tx').value.trim());if(parseTopic(text).errors.length>t.errors.length)return $('#tpv').insertAdjacentHTML('afterbegin','<div class="err">Lưu như vậy làm bài phát sinh lỗi.</div>');
     saveText(t,text,'Đã lưu lý thuyết.').then(()=>{const x=TOPICS.find(y=>y.id===t.id)||t;const parsed=parseTopic(x.raw);x.theory=parsed.theory;x.lesson=parsed.lesson;if($$('.scr.on')[0]?.id==='theory')theory(x,true)})};
-  $('#tD')&&($('#tD').onclick=()=>saveText(t,put(''),'Đã xóa lý thuyết.').then(()=>{const x=TOPICS.find(y=>y.id===t.id)||t;x.theory=null;x.lesson=null;if($$('.scr.on')[0]?.id==='theory')theory(x,true)}))}
+  $('#tD')&&($('#tD').onclick=()=>saveText(t,put(''),'Đã xóa lý thuyết.').then(saved=>{if(!saved)return;const x=TOPICS.find(y=>y.id===t.id)||t;if($$('.scr.on')[0]?.id==='theory')theory(x,true)}))}
+
+function editChatTheory(t,drafts){
+  const initial=drafts.chat??inspectChatSource(t.raw).block;
+  overlay(`<h2 style="font-size:24px">Lý thuyết · ${esc(t.title)}</h2>${theoryTabs('chat')}
+    <label for="thChatSource">LaTeX bản chat</label>
+    <textarea class="code" id="thChatSource" spellcheck="false" placeholder="\\begin{baichat}…\\end{baichat}">${esc(initial)}</textarea>
+    <div id="thChatDiagnostics" aria-live="polite"></div><div id="thChatPreview"></div>
+    <button class="btn" id="thChatSave">Lưu bản chat</button><button class="btn alt" id="thChatCancel">Hủy</button>`);
+  const field=$('#thChatSource'),result=$('#thChatDiagnostics'),preview=$('#thChatPreview'),save=$('#thChatSave');
+  const diagnose=(items,style)=>items.map(item=>`<button class="${style}" type="button" data-line="${item.line}">${esc(errorText(item))}</button>`).join('');
+  const validate=()=>{
+    if(!field.isConnected)return;
+    const draft=inspectChatSource(field.value,{standalone:true});
+    result.innerHTML=diagnose(draft.errors,'err')+diagnose(draft.warnings,'tnote');
+    preview.classList.toggle('chat-editor-preview',!!draft.chat&&!draft.errors.length);
+    if(draft.chat&&!draft.errors.length)renderChatInApp(preview,{...t,chat:draft.chat},{persist:false});
+    else preview.replaceChildren();
+    save.disabled=!!draft.errors.length;
+    return draft;
+  };
+  result.onclick=event=>{
+    const line=Number(event.target.closest('[data-line]')?.dataset.line);
+    if(!line)return;
+    const rows=field.value.split('\n'),start=rows.slice(0,line-1).reduce((i, row)=>i+row.length+1,0);
+    field.focus();field.setSelectionRange(start,start+(rows[line-1]||'').length);
+  };
+  let timer;
+  field.oninput=()=>{clearTimeout(timer);timer=setTimeout(validate,300)};
+  bindTheoryTabs(t,drafts,'chat',()=>{clearTimeout(timer);return field.value});
+  $('#thChatCancel').onclick=closeOvl;
+  validate();
+  save.onclick=async()=>{
+    clearTimeout(timer);
+    const draft=validate();
+    if(!draft||draft.errors.length)return;
+    let text;
+    try{text=replaceChatBlock(t.raw,draft.block)}
+    catch(e){result.textContent=e.message;return}
+    save.disabled=true;
+    const saved=await saveText(t,text,'Đã lưu bản chat.',{action:'replace-chat',chatSource:draft.block});
+    if(saved&&$$('.scr.on')[0]?.id==='theory')theory(TOPICS.find(x=>x.id===t.id)||t,true,'chat');
+    else if(save.isConnected)save.disabled=false;
+  };
+}
 
 /* ---------- ôn tập: lưới đề, Phần 1 trắc nghiệm (TN), Phần 2 tự luận (TL) ---------- */
 const ICO_TN='<svg viewBox="0 0 24 24" width="34" height="34"><rect x="4" y="3" width="16" height="18" rx="3" fill="#fff"/><circle cx="8.5" cy="8.5" r="1.8" fill="#8d7bff"/><circle cx="8.5" cy="13" r="1.8" fill="none" stroke="#8d7bff" stroke-width="1.4"/><circle cx="8.5" cy="17.5" r="1.8" fill="none" stroke="#8d7bff" stroke-width="1.4"/><path d="M12 8.5h5M12 13h5M12 17.5h4" stroke="#b9aefc" stroke-width="1.8" stroke-linecap="round"/></svg>';
@@ -1520,7 +1600,7 @@ function qedit(t){QE=t.id;t=TOPICS.find(x=>x.id===QE)||t;show('track');$('#trTit
     $('#qaC').onclick=closeOvl;$('#qaS').onclick=()=>{const v=$('#qa').value,P=parseTopic(v);if(P.errors.length){$('#qaErr').innerHTML=`<div class="err">${P.errors.map(esc).join('<br>')}</div>`;return}saveText(t,v,'Đã lưu chủ đề.')}};
   $('#qUndo')&&($('#qUndo').onclick=()=>saveText(t,t.prev,'Đã hoàn tác.'))}
 function journeyOr(){if(curK===CHUYEN_TOAN)return onTap();const t=TOPICS.find(x=>x.id===curT?.id);if(t&&isDe(t))onTap();else journey()}
-async function saveText(t,text,msg){try{const r=await DB.doc('topics/'+t.id).update({text,banTruoc:t.raw,capnhat:new Date().toISOString(),base:t.upd});if(r&&r.updated_at){t.upd=r.updated_at;t.prev=t.raw;t.raw=text;const P=parseTopic(text);t.theory=P.theory;t.lesson=P.lesson}closeOvl();sfx.ok();toast(msg);const on=$$('.scr.on')[0]?.id;if(QE&&on==='track')qedit(TOPICS.find(x=>x.id===QE)||t);else if(BANKON&&on==='track')bank(true)}
+async function saveText(t,text,msg,extra){try{const changes=extra||{text,banTruoc:t.raw,capnhat:new Date().toISOString()};const r=await DB.doc('topics/'+t.id).update({...changes,base:t.upd});if(r&&r.updated_at){t.upd=r.updated_at;t.prev=t.raw;t.raw=text;const P=parseTopic(text);t.theory=P.theory;t.lesson=P.lesson;t.chat=P.chat;t.chatValid=P.chatValid}closeOvl();sfx.ok();toast(msg);const on=$$('.scr.on')[0]?.id;if(QE&&on==='track')qedit(TOPICS.find(x=>x.id===QE)||t);else if(BANKON&&on==='track')bank(true);return true}
   catch(e){msgBox('Chưa lưu được',esc(e&&e.message||'Lỗi kết nối'));if(e&&e.status===409&&typeof loadAll==='function')loadAll().then(()=>{const on=$$('.scr.on')[0]?.id;if(on!=='track')return;if(QE){const x=TOPICS.find(y=>y.id===QE);if(x)qedit(x)}else if(BANKON)bank(true)}).catch(()=>{})}}
 function editQ(t,bi,lvNew){const bs=qBlocks(t.raw),b=bi!=null?bs[bi]:null;const initialType=t.khoi===CHUYEN_TOAN?'extl':'ex';let raw=b?b.raw:QT[initialType];
   overlay(`<h2 style="font-size:26px">${b?'Sửa câu hỏi':'Thêm câu mới'}</h2>${b?'':`<div class="seg qtype">${Object.entries(TYPE).filter(([k])=>t.khoi!==CHUYEN_TOAN||k==='extl').map(([k,v])=>`<button data-qt="${k}" class="${k===initialType?'on':''}">${v}</button>`).join('')}</div>`}
@@ -1552,14 +1632,41 @@ function bank(keep){const y=keep?window.scrollY:0,sy=keep?$('#trk').scrollTop:0;
   if(!BK.k)BK.k=curK||(ACC&&ACC.khoi)||'8';
   show('track');$('#trTitle').textContent='Ngân hàng câu hỏi';
   const ks=[...new Set([...KHOI,...TOPICS.map(t=>t.khoi)])].filter(k=>/^\d+$/.test(k)).sort((a,b)=>a-b);
-  $('#trk').innerHTML=`<div class="seg">${[['all','Tất cả câu'],['td','Thi đấu'],['de','Ôn tập']].map(([v,l])=>`<button data-tab="${v}" class="${BK.tab===v?'on':''}">${l}</button>`).join('')}</div>
+  $('#trk').innerHTML=`<div class="seg">${[['all','Tất cả câu'],['td','Thi đấu'],['de','Ôn tập'],['chat','Lý thuyết kiểu chat']].map(([v,l])=>`<button data-tab="${v}" class="${BK.tab===v?'on':''}">${l}</button>`).join('')}</div>
     <div class="seg sm">${ks.map(k=>`<button data-k="${k}" class="${BK.k===k?'on':''}">Khối ${k}</button>`).join('')}</div>`+
-    (BK.tab==='de'?bankDeHTML():(BK.tab==='td'?tdTopHTML(BK.k):'')+bankFilterHTML()+'<div id="bkSum"></div><div id="bkList"></div>');
+    (BK.tab==='chat'?chatSettingsHTML():BK.tab==='de'?bankDeHTML():(BK.tab==='td'?tdTopHTML(BK.k):'')+bankFilterHTML()+'<div id="bkSum"></div><div id="bkList"></div>');
   $('#trBack').onclick=()=>{sfx.tap();BANKON=false;subjects()};
   $$('#trk [data-tab]').forEach(b=>b.onclick=()=>{sfx.tap();BK.tab=b.dataset.tab;BK.lim=25;BK.bai='';bank()});
   $$('#trk [data-k]').forEach(b=>b.onclick=()=>{sfx.tap();BK.k=b.dataset.k;BK.bai='';BK.lim=25;bank()});
-  if(BK.tab==='de')bindDe();else{if(BK.tab==='td')bindTdTop(BK.k);bindBankFilters();bankList()}
+  if(BK.tab==='chat')bindChatSettings();else if(BK.tab==='de')bindDe();else{if(BK.tab==='td')bindTdTop(BK.k);bindBankFilters();bankList()}
   if(keep){window.scrollTo(0,y);$('#trk').scrollTop=sy}}
+function chatSettingsHTML(){
+  const rows=KHOI.map(k=>{
+    const topics=TOPICS.filter(topic=>topic.khoi===k&&topic.status==='giao');
+    const missing=topics.filter(topic=>!topic.chatValid);
+    const enabled=BAI_CHAT_KHOI.includes(Number(k)),ready=topics.length>0&&!missing.length;
+    return `<div class="tbox"><b>Khối ${k}: ${topics.length-missing.length}/${topics.length} bài đã có bản chat</b>
+      <p>${enabled?'Đang bật':'Đang tắt'}</p>
+      ${missing.length?`<details><summary>${missing.length} bài còn thiếu</summary><ul>${missing.map(t=>`<li>${esc(t.title)}</li>`).join('')}</ul></details>`:''}
+      <button type="button" class="btn sm alt" data-chat-grade="${k}" ${!enabled&&!ready?'disabled':''}>${enabled?'Tắt':'Bật'}</button>
+      ${!enabled&&!ready&&topics.length?`<button type="button" class="btn sm alt" data-chat-grade="${k}" data-early>Bật sớm…</button>`:''}</div>`;
+  });
+  return '<section aria-label="Lý thuyết kiểu chat">'+rows.join('')+'</section>';
+}
+function bindChatSettings(){
+  $$('#trk [data-chat-grade]').forEach(button=>button.onclick=async()=>{
+    if(button.disabled)return;
+    const khoi=Number(button.dataset.chatGrade),enabled=!BAI_CHAT_KHOI.includes(khoi);
+    const confirmEarly=button.hasAttribute('data-early');
+    if(confirmEarly&&!window.confirm('Bật sớm cho khối '+khoi+'? Các bài còn thiếu vẫn dùng lý thuyết cũ.'))return;
+    button.disabled=true;
+    try{
+      const result=await DB.doc('settings/chat').update({khoi,enabled,confirmEarly});
+      BAI_CHAT_KHOI=chatGrades(result.chatGrades);
+      sfx.ok();toast('Đã '+(enabled?'bật':'tắt')+' kiểu chat khối '+khoi+'.');bank(true);
+    }catch(error){button.disabled=false;msgBox('Chưa lưu được',esc(error.message))}
+  });
+}
 function bankFilterHTML(){const td=BK.tab==='td',ls=bankLessons(BK.k),des=bankDes(BK.k);
   const sel=(id,cur,opts)=>`<select class="name" id="${id}">${opts.map(([v,l])=>`<option value="${esc(v)}" ${String(cur)===String(v)?'selected':''}>${esc(l)}</option>`).join('')}</select>`;
   const lab=t=>(t.chuong?t.chuong.replace(/^k\d+-/,'').toUpperCase()+' · ':'')+t.title;
@@ -1718,7 +1825,7 @@ function refresh(){const on=$$('.scr.on')[0]?.id;
   if(curK===CHUYEN_TOAN&&((on==='ontap'&&!canOpenSpecial())||(on==='tlde'&&(!canOpenSpecial()||!TOPICS.some(t=>t.id===tlT?.id)))))return grades();
   if(on==='login'&&!$('#lName')?.value)login();else if(on==='grades')refreshGrades();else if(on==='subj')subjects();else if(on==='shop')shop();else if(on==='friends'&&!$('#fq'))friends();else if(on==='area')area();else if(on==='journey')journey();else if(on==='theory'&&thT){const x=TOPICS.find(y=>y.id===thT.id);
     // Làm mới tự động (60 giây/lần, khi quay lại tab) không được vẽ lại trang lý thuyết nếu nội dung không đổi, để học sinh không bị nhảy về ý 1.
-    if(x&&JSON.stringify(x.lesson||x.theory||null)!==JSON.stringify(thT.lesson||thT.theory||null))theory(x,true)}else if(on==='ontap')onTap();else if(on==='tlde'&&tlT){const x=TOPICS.find(y=>y.id===tlT.id);if(x)tlDe(x)}else if(on==='redo')redo();else if(on==='ranked')ranked();else if(on==='board')board();
+    if(x&&(showsChat(x,thVersion)!==!!$('#thBody .cherry-chat')||JSON.stringify(showsChat(x,thVersion)?x.chat:x.lesson||x.theory)!==JSON.stringify(showsChat(x,thVersion)?thT.chat:thT.lesson||thT.theory)))theory(x,true)}else if(on==='ontap')onTap();else if(on==='tlde'&&tlT){const x=TOPICS.find(y=>y.id===tlT.id);if(x)tlDe(x)}else if(on==='redo')redo();else if(on==='ranked')ranked();else if(on==='board')board();
 }
 (async()=>{if(!window.claude||!claude.use){DBSTATE='off';refresh();return}
   const tm=setTimeout(()=>{if(DBSTATE==='loading'){DBSTATE='slow';refresh()}},10000);

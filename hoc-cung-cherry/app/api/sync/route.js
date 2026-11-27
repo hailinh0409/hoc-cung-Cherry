@@ -2,6 +2,7 @@ import { admin } from '@/lib/supabase/admin';
 import { getAccount, json, fail } from '@/lib/session';
 import { loadTopics, SPECIAL_TOPIC } from '@/lib/topics';
 import { publicOf } from '@/lib/validate';
+import { CHAT_SETTING_KEY, chatGrades } from '@/lib/chat-source';
 
 // Chỉ lấy các trường publicOf dùng cho danh sách bạn bè và bảng xếp hạng.
 const playerFields = ['name','khoi','nick','avatar','eq','xp','lp','tier','tdh','matches','season','seasons','wk','st','stats','ach','own','follow','best','hist'];
@@ -22,7 +23,7 @@ export async function GET(request) {
     withPlayers ? db.from('ltt_players').select(T ? 'account_id,data,mau' : publicPlayerColumns) : none,
     withPlayers ? db.from('ltt_accounts').select(T ? 'id,name,khoi,mon,reset_req,is_default,active' : 'id,active').eq('role', 'student') : none,
     T && withPlayers ? db.from('ltt_reports').select('id,account_id,topic_slug,qkey,kind,note,snap,status,created_at,resolved_at') : Promise.resolve({ data: null }),
-    db.from('ltt_settings').select('key,value').eq('key', 'moc_thi_dau')
+    db.from('ltt_settings').select('key,value').in('key', ['moc_thi_dau', CHAT_SETTING_KEY])
   ]);
   // Tài khoản đã xoá: không hiện trên bảng xếp hạng, danh sách bạn bè
   const off = new Set((accs.data || []).filter(x => !x.active).map(x => x.id));
@@ -42,5 +43,6 @@ export async function GET(request) {
   }
   // Mốc Thi đấu theo khối (bảng chưa có thì coi như chưa đặt mốc)
   const moc = (st?.data || []).find(r => r.key === 'moc_thi_dau')?.value || {};
-  return json({ ...catalog, specialAccess, assignments, players, accounts, removed, reports, moc });
+  const chat = chatGrades((st?.data || []).find(r => r.key === CHAT_SETTING_KEY)?.value);
+  return json({ ...catalog, specialAccess, assignments, players, accounts, removed, reports, moc, chatGrades: chat });
 }

@@ -5,7 +5,7 @@ const R = p => readFileSync(new URL('../' + p, import.meta.url), 'utf8').replace
 const strip = s => s.replace(/^import .*$\n?/gm, '').replace(/^export (default )?/gm, '');
 const must = (s, a, b) => { if (!s.includes(a)) throw new Error('Không tìm thấy đoạn cần thay: ' + a.slice(0, 60)); return s.replace(a, () => b); };
 
-const lib = ['lib/params.js', 'lib/latex.js', 'lib/srs.js', 'lib/rank.js'].map(f => strip(R(f))).join('\n');
+const lib = ['lib/params.js', 'lib/latex.js', 'lib/chat-source.js', 'lib/srs.js', 'lib/rank.js'].map(f => strip(R(f))).join('\n');
 const head0 = R('client/head.html');
 let head = head0.slice(0, head0.indexOf('</style>'));
 const mj = head0.slice(head0.indexOf('</style>'), head0.indexOf('<!-- ====='));

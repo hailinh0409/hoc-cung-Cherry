@@ -22,7 +22,7 @@ async function loadAll(force = false) {
     topicVersion = j.topicVersion || '';
     lastCatalog = Date.now();
   }
-  ASG=j.assignments||[]; MOC=j.moc||{};
+  ASG=j.assignments||[]; MOC=j.moc||{}; BAI_CHAT_KHOI=chatGrades(j.chatGrades);
   if (Array.isArray(j.players)) { PLAYERS=j.players; ACCS=j.accounts||[]; ACCS_DEL=j.removed||[]; REPS=j.reports||[]; lastPlayers = Date.now(); }
   lastSync = Date.now();
 }
@@ -32,7 +32,7 @@ function softRefresh(){const on=$$('.scr.on')[0]?.id;if($('#ovl').classList.cont
   if(on==='track'&&$('#trTitle').textContent.startsWith('Tài khoản'))return accounts();if(on==='track'&&$('#trTitle').textContent.startsWith('Câu báo lỗi'))return reportsPage();if(on==='track'&&$('#trTitle').textContent.startsWith('Theo dõi'))return track();refresh()}
 const after=p=>p.then(r=>{lastPlayers=0;loadAll().then(softRefresh).catch(()=>{});return r});
 DB={doc:path=>{const i=path.indexOf('/'),c=path.slice(0,i),id=path.slice(i+1);return {
-    update:v=>c==='settings'?after(api('/api/admin/settings',{action:'moc',...v})):c==='reports'?after(api('/api/admin/report',v)):c==='topics'?after(api('/api/admin/topic',{id,...v})):c==='accounts'?after(v.restore?api('/api/admin/accounts',{action:'restore',id}):v.mon?api('/api/admin/accounts',{action:'mon',id,mon:v.mon}):('ph' in v)&&v.isDefault?api('/api/admin/accounts',{action:'reset',id}):Promise.resolve()):Promise.resolve(),
+    update:v=>c==='settings'?after(api('/api/admin/settings',{action:id==='chat'?CHAT_SETTING_KEY:'moc',...v})):c==='reports'?after(api('/api/admin/report',v)):c==='topics'?after(api('/api/admin/topic',{id,...v})):c==='accounts'?after(v.restore?api('/api/admin/accounts',{action:'restore',id}):v.mon?api('/api/admin/accounts',{action:'mon',id,mon:v.mon}):('ph' in v)&&v.isDefault?api('/api/admin/accounts',{action:'reset',id}):Promise.resolve()):Promise.resolve(),
     set:v=>c==='players'?api('/api/me/save',{doc:v}):Promise.resolve(),
     delete:()=>c==='assignments'?after(api('/api/admin/assign?id='+encodeURIComponent(id),null,'DELETE')):c==='players'?after(api('/api/admin/samples',{id})):c==='accounts'?after(api('/api/admin/accounts',{action:'remove',id})):Promise.resolve()}},
   collection:c=>({doc:()=>({set:v=>c==='reports'?api('/api/report',v):c==='topics'?api('/api/admin/topic',{action:'create',...v}).then(async r=>{await loadAll();return r}):c==='assignments'?after(api('/api/admin/assign',v)):c==='accounts'?after(api('/api/admin/accounts',{action:'create',name:v.name,khoi:v.khoi,mon:v.mon})):Promise.resolve()})})};
