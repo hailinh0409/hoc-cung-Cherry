@@ -12,7 +12,7 @@ Thầy: "Viết bàn giao trên Github để Codex viết mã cho phần lý thu
 
 ## Quyết định đã chốt với thầy
 - Cherry xưng "tớ", gọi học sinh bằng tên riêng thật hoặc "cậu".
-- Bài cũ: viết lại hết rồi mới bật, theo từng khối lớp (công tắc `bai_chat_khoi`). Bản chat nằm trong khối `baichat` cạnh `lythuyet` cũ.
+- Bài cũ: viết lại hết rồi mới bật (gồm cả chủ đề chưa từng có lý thuyết), theo từng khối lớp (công tắc `bai_chat_khoi`). Bản chat nằm trong khối `baichat` cạnh `lythuyet` cũ.
 - Trang xem thử trên Artifact chỉ để xem và báo lỗi; thầy sao chép rồi dán vào trang quản trị app.
 - Hình: TikZ tĩnh + thư viện hình mẫu tương tác (`cat-tuyen`, `can`, `dang-thuc`).
 - Công thức đứng riêng dòng, căn giữa.

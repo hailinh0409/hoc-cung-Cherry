@@ -29,7 +29,7 @@ Một bài là **một dòng chat cuộn dọc**. Cherry nhắn từng lượt; 
 ## 2. Quyết định đã chốt với thầy
 
 1. Cherry xưng **tớ**, gọi học sinh bằng **tên riêng thật** (chữ cuối của `ACC.name`, không dùng biệt danh `nick`) hoặc **cậu**.
-2. **Bài cũ:** viết lại hết rồi mới bật. Bản chat nằm trong khối `\begin{baichat}` **bên cạnh** khối `lythuyet` cũ của cùng chủ đề. Học sinh chỉ thấy bản chat khi thầy **bật kiểu chat cho cả khối lớp** đó. Trước khi bật, học sinh vẫn học bản cũ như hiện nay.
+2. **Bài cũ:** viết lại hết rồi mới bật. Bản chat nằm trong khối `\begin{baichat}` **bên cạnh** khối `lythuyet` cũ của cùng chủ đề. Học sinh chỉ thấy bản chat khi thầy **bật kiểu chat cho cả khối lớp** đó. Trước khi bật, học sinh vẫn học bản cũ như hiện nay. **"Viết lại hết" gồm mọi chủ đề đã duyệt của khối, kể cả chủ đề chưa từng có lý thuyết** (thầy chốt 27/11/2026): khối chỉ bật khi mọi chủ đề đều có `baichat`.
 3. **Xem thử trước khi nạp:** Claude làm một trang trên Artifact. Người soạn dán bài vào, xem chạy y như trên app, sửa lỗi, rồi **sao chép và dán vào trang quản trị của app** như hiện nay. Trang xem thử **không** ghi lên app. Nạp lên app là học sinh dùng được ngay (nếu khối đã bật).
 4. **Hình:** cả hai loại. Hình tĩnh vẽ TikZ (app dịch như cũ). Hình tương tác dùng **thư viện hình mẫu** (`cat-tuyen` đã có; thêm `can`, `dang-thuc`; sau này thêm dần).
 5. Gemini soạn nội dung. Codex viết mã. Claude chỉ đạo và duyệt.
@@ -67,7 +67,7 @@ Một bài là **một dòng chat cuộn dọc**. Cherry nhắn từng lượt; 
 
 ### 3.3. Gắn vào app
 
-- **Công tắc từng khối:** khóa mới `bai_chat_khoi` trong bảng `ltt_settings` (mảng số khối, mặc định rỗng). Trang quản trị có mục "Lý thuyết kiểu chat": mỗi khối một dòng "Khối 7: 12/23 bài đã có bản chat", kèm nút bật/tắt.
+- **Công tắc từng khối:** khóa mới `bai_chat_khoi` trong bảng `ltt_settings` (mảng số khối, mặc định rỗng). Trang quản trị có mục "Lý thuyết kiểu chat": mỗi khối một dòng "Khối 7: 12/23 bài đã có bản chat" (mẫu số là **mọi chủ đề đã duyệt** của khối, không chỉ chủ đề có lý thuyết), kèm danh sách bài còn thiếu và nút bật/tắt. Nút bật chỉ bấm được khi đủ bài; giáo viên vẫn có thể bật sớm sau một lời xác nhận.
 - Học sinh khối đã bật mở lý thuyết: chủ đề có `baichat` → `renderChatLesson`; không có → bản cũ.
 - Giáo viên luôn xem được cả hai: khi chủ đề có `baichat`, màn lý thuyết của giáo viên có nút chuyển "Bản chat / Bản cũ".
 - **Dán bài chat:** trong cửa sổ Sửa lý thuyết, thêm thẻ "Bản chat". Dán khối `\begin{baichat}…\end{baichat}` vào thì app thay đúng khối đó trong `source` của chủ đề (chưa có thì chèn ngay sau khối `lythuyet`, hoặc sau `\chude`), giữ nguyên mọi thứ khác. Có xem trước bằng `renderChatLesson` và hiện lỗi/cảnh báo. Lưu bản cũ vào `ban_truoc` như cơ chế có sẵn.
