@@ -1134,6 +1134,98 @@ textarea.code.light{background:#fff;color:#12313a;font:14px/1.5 "Be Vietnam Pro"
 .cat-slide{transition:transform 1.4s ease-in-out}
 .ls-toggles{grid-template-columns:repeat(auto-fit,minmax(min(100%,140px),1fr))}
 @media (prefers-reduced-motion:reduce){.cat-slide{transition:none}}
+.cherry-chat {
+  --chat-app:#fffaf2; --chat-ink:#14323a; --chat-muted:#526b72; --chat-teal:#087c6f;
+  --chat-line:#ece3d1; --chat-green:#11613c; --chat-red:#8a1f2d;
+  position:relative; display:flex; flex-direction:column; height:100%; min-height:0; overflow:hidden;
+  isolation:isolate; background:var(--chat-app); color:var(--chat-ink);
+  font:16px/1.55 "Be Vietnam Pro",system-ui,sans-serif;
+}
+.cherry-chat *, .cherry-chat *::before, .cherry-chat *::after {box-sizing:border-box;min-width:0}
+.cherry-chat [hidden] {display:none!important}
+.cherry-chat button {font:inherit;color:inherit;cursor:pointer}
+.cherry-chat button:disabled {cursor:default}
+.cherry-chat button:focus-visible,.cherry-chat .cat-hit:focus-visible {outline:3px solid #be640e;outline-offset:2px}
+.chat-top,.chat-dock,.chat-finished {display:flex;align-items:center;gap:8px;flex:none;padding:10px 14px}
+.chat-top {padding-bottom:4px;flex-wrap:wrap}
+.chat-top button,.chat-pane button {background:#efe7d6;border:0;border-radius:12px;padding:8px 10px;min-height:42px;font-size:14px;font-weight:600}
+.chat-top .chat-close {font-size:23px;min-width:38px;line-height:1;padding:4px}
+.chat-progress {min-width:36px;flex:1;height:12px;overflow:hidden;border-radius:12px;background:#e8dfcb}
+.chat-progress b {display:block;height:100%;border-radius:12px;background:linear-gradient(90deg,#0e8b79,#26b784);transition:width .25s}
+.chat-current {padding:0 16px 4px;font-weight:700;font-size:14px;color:var(--chat-teal)}
+.chat-feed {flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;position:relative}
+.chat-stream,.chat-summary-inner {width:min(100%,620px);margin:auto;padding:10px 14px 22px;display:grid;gap:12px}
+.chat-turn {display:grid;grid-template-columns:40px minmax(0,1fr);gap:8px;align-items:start}
+.chat-avatar {width:40px;height:auto;flex:none}
+.chat-col {display:grid;gap:8px;align-content:start}
+.chat-bubble,.chat-knowledge,.chat-figure {background:white;border:2px solid var(--chat-line);border-radius:16px;padding:9px 13px;overflow-wrap:anywhere}
+.chat-bubble {border-top-left-radius:4px;justify-self:start;max-width:100%}
+.chat-question {font-weight:600}
+.chat-knowledge h2 {font:800 23px/1.16 "Baloo 2",system-ui,sans-serif;margin:4px 0 8px}
+.chat-label {width:max-content;max-width:100%;border-radius:20px;padding:2px 10px;background:#127e79;color:white;font-size:13px;font-weight:700}
+.chat-label[data-kind="tinhchat"] {background:#7250a9}
+.chat-label[data-kind="vidu"] {background:#496873}
+.chat-label[data-kind="quytac"] {background:#2860aa}
+.chat-figure {padding:5px 6px}
+.chat-figure svg,.chat-figure img,.chat-pip svg,.chat-pip img {display:block;width:100%;height:auto;max-height:min(40vh,390px);object-fit:contain;margin:auto}
+.chat-figure .cat-hit {cursor:pointer}
+.chat-figure .cat-slide {transition:transform 1.4s ease}
+.chat-placeholder {min-height:84px;display:grid;place-items:center;text-align:center;color:var(--chat-muted);background:#edf0f0;border-radius:10px;padding:8px;font-size:14px}
+.chat-answer {justify-self:end;background:var(--chat-teal);color:white;border-radius:16px 16px 4px 16px;padding:7px 13px;max-width:88%;font-size:16px;overflow-wrap:anywhere}
+.chat-separator {display:flex;align-items:center;gap:10px;margin:12px 0 2px;color:var(--chat-teal);text-align:center;font-size:15px;font-weight:700;scroll-margin-top:8px}
+.chat-separator::before,.chat-separator::after {content:"";flex:1;height:2px;background:var(--chat-line)}
+.chat-separator small {display:block;font-size:13px;font-weight:400;color:var(--chat-muted)}
+.chat-choice,.chat-action {background:white;border:2px solid var(--chat-line);border-radius:14px;padding:10px;min-height:48px;box-shadow:0 2px var(--chat-line);overflow-wrap:anywhere}
+.chat-action {border-color:var(--chat-teal);color:var(--chat-teal)!important;font-weight:700!important}
+.chat-choice[data-wrong] {background:#fdecee;color:var(--chat-red);border-color:#dc7c8a}
+.chat-dock {border-top:2px solid var(--chat-line);padding-bottom:max(14px,env(safe-area-inset-bottom))}
+.chat-dock button {flex:1;background:var(--chat-teal);color:white;border:0;border-radius:14px;padding:8px;min-height:48px;font-weight:800}
+.chat-dock button:disabled {background:#e8decb;color:#615d52}
+.chat-dock .chat-recap-button {background:white;color:var(--chat-teal);border:2px solid var(--chat-teal)}
+.chat-feedback {padding:9px 12px;border-radius:14px;background:#e8f7ef;color:var(--chat-green)}
+.chat-feedback[data-wrong] {background:#fdecee;color:var(--chat-red)}
+.chat-feedback[data-warn] {background:#fff0d7;color:#823e0c}
+.chat-hint {font-size:14px;color:var(--chat-muted)}
+.chat-math {display:block;text-align:center;overflow-x:auto;margin:7px 0}
+.chat-math mjx-container[display="true"] {margin:.3em 0!important}
+.chat-steps {margin:6px 0;padding-left:24px}
+.chat-steps li + li {margin-top:8px}
+.chat-pip {position:absolute;right:12px;top:92px;z-index:2;width:118px;background:white;border:2px solid var(--chat-teal);border-radius:12px;box-shadow:0 3px 10px #0002;padding:3px;color:var(--chat-teal)!important;font-size:12px!important}
+.chat-pip svg,.chat-pip img {max-height:66px;pointer-events:none}
+.chat-pane {position:absolute;z-index:3;inset:0;margin:0;border:0;padding:0;background:var(--chat-app);color:var(--chat-ink);width:100%;height:100%;max-width:none;max-height:none;overflow:hidden}
+.chat-pane[open] {display:flex;flex-direction:column}
+.chat-pane::backdrop {background:#0006}
+.chat-toc-pane {inset:auto 0 0;height:auto;max-height:88%;border-radius:20px 20px 0 0}
+.chat-pane header {display:flex;justify-content:space-between;align-items:center;gap:10px;border-bottom:2px solid var(--chat-line);padding:10px 14px}
+.chat-pane h2 {font:800 22px/1.2 "Baloo 2",system-ui,sans-serif;margin:0}
+.chat-pane-scroll {overflow:auto;min-height:0}
+.chat-toc-item {display:flex;align-items:center;gap:10px;text-align:left;width:100%;background:white!important;border:2px solid var(--chat-line)!important}
+.chat-toc-item[aria-current="step"] {border-color:var(--chat-teal)!important}
+.chat-toc-item small {display:block;color:var(--chat-muted)}
+.chat-toc-item[aria-disabled="true"] {color:var(--chat-muted)}
+.chat-summary-inner section {background:white;border:2px solid var(--chat-line);border-radius:16px;padding:12px;scroll-margin-top:10px}
+.chat-summary-inner h3 {margin:0 0 8px;color:var(--chat-teal)}
+.chat-summary-inner .chat-figure {margin:8px 0}
+.chat-summary-inner .chat-figure svg {max-height:235px}
+.chat-finished {flex-wrap:wrap;font-size:14px;background:#e8f7ef}
+.chat-finished button {background:white;border:1px solid var(--chat-teal);border-radius:10px;padding:4px 8px}
+.chat-toast {position:absolute;z-index:4;bottom:66px;left:50%;transform:translateX(-50%);background:var(--chat-ink);color:white;border-radius:12px;padding:7px 12px;text-align:center;width:max-content;max-width:90%}
+.chat-dots {display:flex;gap:5px;padding:12px 14px}
+.chat-dots i {width:8px;height:8px;border-radius:50%;background:#8f8267;animation:cherry-dot 1s infinite ease-in-out}
+.chat-dots i:nth-child(2) {animation-delay:.15s}
+.chat-dots i:nth-child(3) {animation-delay:.3s}
+@keyframes cherry-dot {0%,60%,100% {transform:none;opacity:.5} 30% {transform:translateY(-4px);opacity:1}}
+@media (prefers-reduced-motion:reduce) {
+  .chat-dots i {animation:none}
+  .chat-figure .cat-slide,.chat-progress b {transition:none}
+}
+@media (max-width:430px) {
+  .chat-top {gap:5px;padding-inline:9px}
+  .chat-top button {padding-inline:7px;font-size:13px}
+  .chat-stream,.chat-summary-inner {padding-inline:8px}
+  .chat-turn {grid-template-columns:34px minmax(0,1fr);gap:6px}
+  .chat-avatar {width:34px}
+}
 
 .gvlink{margin-top:4px;font-size:13px;color:#7a9399;text-decoration:underline;align-self:center}
 .figmiss{display:inline-block;padding:6px 10px;border-radius:8px;background:#fff3c4;color:#7a5a00;font-size:13px}
@@ -1740,7 +1832,22 @@ function parseBank(raw) {
   for (const msg of giaiMauErrors(raw)) errors.push({ msg });
 
   // Tóm tắt lý thuyết: \begin{lythuyet} ... \end{lythuyet} (một khối, thường đặt trước \man{1})
-  let theory = null, lesson = null;
+  let theory = null, lesson = null, chat = null;
+  const chatTags = [...raw.matchAll(/\\(begin|end)\s*\{baichat\}/g)];
+  if (chatTags.length) {
+    const [open, close] = chatTags;
+    const line = at => raw.slice(0, at).split('\n').length;
+    if (open[1] !== 'begin' || close?.[1] !== 'end') {
+      errors.push({ line: line(open.index), msg: 'Cần một khối \\begin{baichat}…\\end{baichat} đầy đủ' });
+    } else {
+      const start = open.index + open[0].length;
+      chat = parseLesson(raw.slice(start, close.index), errors, warnings, line(start)).lesson;
+    }
+    if (chatTags.length > 2) errors.push({ line: line(chatTags[2].index), msg: 'Chỉ được có một khối baichat' });
+    const end = chatTags.at(-1);
+    const endIndex = end[1] === 'end' ? end.index + end[0].length : raw.length;
+    raw = raw.slice(0, open.index) + raw.slice(open.index, endIndex).replace(/[^\n]/g, ' ') + raw.slice(endIndex);
+  }
   const lt = raw.match(/\\begin\{lythuyet\}([\s\S]*?)\\end\{lythuyet\}/);
   if (lt) {
     ({ theory, lesson } = parseLesson(lt[1], errors, warnings));
@@ -1754,7 +1861,7 @@ function parseBank(raw) {
   const marks = []; const re = /\\man\s*\{/g; let m;
   while ((m = re.exec(raw))) marks.push(m.index);
   // Bài mẫu (phan bai-mau) chỉ có khối giaimau, không có màn câu hỏi
-  if (!marks.length && !theory && !/\\begin\{giaimau\}/.test(raw)) errors.push({ msg: 'Chưa có màn nào. Mỗi màn bắt đầu bằng \\man{số}{tên mức}' });
+  if (!marks.length && !theory && !chat && !/\\begin\{giaimau\}/.test(raw)) errors.push({ msg: 'Chưa có màn nào. Mỗi màn bắt đầu bằng \\man{số}{tên mức}' });
 
   const levels = [];
   marks.forEach((at, x) => {
@@ -1860,7 +1967,7 @@ function parseBank(raw) {
   const all = levels.flatMap(l => l.qs);
   if (all.some(q => q.type === 'extl') && all.some(q => q.type !== 'extl'))
     errors.push({ msg: 'Đề tự luận (\\begin{extl}) không trộn chung với câu trắc nghiệm, đúng/sai, điền số, nối ý. Thầy tách thành hai đề.' });
-  return { topic, levels, errors, warnings, theory, lesson };
+  return { topic, levels, errors, warnings, theory, lesson, chat };
 }
 // Đề tự luận: mọi câu là extl
 const isTLBank = levels => levels.some(l => l.qs.some(q => q.type === 'extl'));
@@ -1940,6 +2047,8 @@ const LESSON_ARGS = {
   luuy: 1, vidu: 2, thungay: 5, chamhinh: 4, nhac: 2, chamvung: 3,
   truot: 2, emtinh: 6, ketluan: 1, xemtungbuoc: 0, minhhoa: 2, hinhmau: 2,
 };
+const CHAT_ARGS = { dung: 2, sai: 2, thaotac: 3 };
+const CHAT_ENVS = new Set(['thu', 'tinh']);
 const LESSON_ENVS = new Set(['modau', 'ketbai', 'tikzpicture', 'hinhbuoc', 'giaimau']);
 const LESSON_RECAP = new Set(['dinhnghia', 'quytac', 'congthuc', 'dinhly', 'tinhchat']);
 const LESSON_REGIONS = new Set(['giua', 'tren', 'duoi']);
@@ -1947,7 +2056,7 @@ const LESSON_COLORS = new Set(['cam', 'lam', 'luc', 'tim', 'do']);
 const LESSON_ANGLE = /^\p{L}[\p{L}\p{N}_'′]*[1-4]$/u;
 
 // Chỉ đọc lệnh ở ngoài đối số và môi trường hình. Nội dung LaTeX bên trong được giữ nguyên.
-function lessonTokens(body) {
+function lessonTokens(body, chat = false) {
   const tokens = [], re = /\\([a-zA-Z]+)\b|\\./g;
   for (const match of body.matchAll(re)) {
     const previous = tokens.at(-1);
@@ -1957,13 +2066,19 @@ function lessonTokens(body) {
     let end = start + match[0].length;
     if (name === 'begin') {
       const arg = group(body, end);
-      if (arg && LESSON_ENVS.has(arg[0])) {
+      if (arg && (LESSON_ENVS.has(arg[0]) || (chat && CHAT_ENVS.has(arg[0])))) {
         const tag = '\\end{' + arg[0] + '}', close = body.indexOf(tag, arg[1]);
         end = close < 0 ? body.length : close + tag.length;
         tokens.push({ name: arg[0], start, end, args: [], env: true, closed: close >= 0,
-          content: body.slice(arg[1], close < 0 ? end : close), raw: body.slice(start, end) });
+          contentStart: arg[1], content: body.slice(arg[1], close < 0 ? end : close), raw: body.slice(start, end) });
         continue;
       }
+    }
+    let label = '';
+    if (chat && name === 'thaotac') {
+      const optional = lessonLabel(body.slice(end));
+      label = optional.label;
+      end += optional.end;
     }
     const args = [];
     let arg;
@@ -1971,9 +2086,9 @@ function lessonTokens(body) {
       args.push(arg[0].trim());
       end = arg[1];
     }
-    tokens.push({ name, start, end, args, raw: body.slice(start, end) });
+    tokens.push({ name, start, end, args, label, raw: body.slice(start, end) });
   }
-  return tokens.filter(t => t.env || Object.hasOwn(LESSON_ARGS, t.name) || t.name === 'emdahoc');
+  return tokens.filter(t => t.env || Object.hasOwn(LESSON_ARGS, t.name) || t.name === 'emdahoc' || (chat && (Object.hasOwn(CHAT_ARGS, t.name) || t.name === 'theobuoc')));
 }
 
 function lessonArgs(token, error) {
@@ -1982,17 +2097,125 @@ function lessonArgs(token, error) {
     if (!token.closed) error('Khối ' + name + ' chưa đóng \\end{' + name + '}');
     return token.closed;
   }
+  if (name === 'theobuoc') {
+    if (!args.length) error('\\theobuoc cần ít nhất một trạng thái {…}');
+    return args.length > 0;
+  }
+  const count = LESSON_ARGS[name] ?? CHAT_ARGS[name];
   const filled = args.every((arg, index) => Boolean(arg) || (name === 'hinhmau' && index === 1));
   const valid = filled && (name === 'emdahoc'
     ? args.length >= 2 && args.length <= 5
-    : args.length === LESSON_ARGS[name]);
-  if (!valid) error('\\' + name + ' cần ' + (name === 'emdahoc' ? '2–5' : LESSON_ARGS[name]) + ' cặp {…} có nội dung');
+    : args.length === count);
+  if (!valid) error('\\' + name + ' cần ' + (name === 'emdahoc' ? '2–5' : count) + ' cặp {…} có nội dung');
   return valid;
 }
 
-function lessonFigureToken(token, error) {
+function lessonLabel(source) {
+  const match = /^\s*\[([^\]\n]*)\]/.exec(source);
+  return { label: match?.[1].trim() || '', end: match?.[0].length || 0 };
+}
+
+function chatMath(text, warn) {
+  if ([...text.matchAll(/(?<!\\)\$(?!\$)((?:\\.|[^$\\])+)\$/g)]
+    .some(match => /[=<>]|\\Rightarrow\b/.test(match[1]))) {
+    warn('Viết công thức có dấu so sánh hoặc suy ra trên dòng riêng \\[…\\]');
+  }
+}
+
+function chatOptions(token, error, warn, locate) {
+  const { label, end } = token.name === 'thu' ? lessonLabel(token.content) : { label: '', end: 0 };
+  const question = group(token.content, end);
+  const q = question?.[0].trim() || '';
+  if (!q) error('Khối ' + token.name + ' cần câu hỏi {…}');
+  const optionsSource = token.content.slice(question?.[1] ?? end);
+  const opts = [];
+  let cursor = 0;
+  for (const cmd of lessonTokens(optionsSource, true)) {
+    locate(token.contentStart + (question?.[1] ?? end) + cmd.start);
+    if (optionsSource.slice(cursor, cmd.start).trim() || !['dung', 'sai'].includes(cmd.name)) {
+      error('Chỉ đặt \\dung và \\sai sau câu hỏi trong khối ' + token.name);
+    }
+    cursor = cmd.end;
+    if (!['dung', 'sai'].includes(cmd.name) || !lessonArgs(cmd, error)) continue;
+    const [text, why] = cmd.args;
+    opts.push({ text, ok: cmd.name === 'dung', why });
+    chatMath(why, warn);
+  }
+  locate(token.start);
+  if (optionsSource.slice(cursor).trim()) error('Khối ' + token.name + ' có nội dung ngoài phương án');
+  if (opts.length < 2 || opts.length > 4 || opts.filter(option => option.ok).length !== 1) {
+    error('Khối ' + token.name + ' cần 2–4 phương án, đúng một \\dung, mỗi phương án có giải thích');
+  }
+  if (new Set(opts.map(option => option.text)).size !== opts.length) error('Các phương án phải khác nhau');
+  chatMath(q, warn);
+  return { label, quiz: { q, opts } };
+}
+
+function chatFigureFields(name, source, error, state = false) {
+  const result = {};
+  for (const field of source.split(';').map(s => s.trim()).filter(Boolean)) {
+    const [, key, value] = /^([a-z]+\d*)\s*=\s*(.*)$/.exec(field) || [];
+    if (name === 'can') {
+      if (key === 'trai' || key === 'phai') {
+        const items = value ? value.split(/\s+\+\s+/).map(item => {
+          const weight = /^q(?:\*([1-9]\d?))?$/.exec(item);
+          const object = /^([ktb]):(.+)$/.exec(item);
+          if (weight) return { kind: 'q', count: Number(weight[1] || 1) };
+          if (object && object[2].trim()) return { kind: object[1], label: object[2].trim() };
+          return null;
+        }) : [];
+        if (items.every(Boolean)) { result[key] = items; continue; }
+      }
+      if (key === 'nghieng' && /^(khong|trai|phai)$/.test(value)) { result[key] = value; continue; }
+      if (key === 'ghichu') { result[key] = value; continue; }
+    } else {
+      if (/^dong[1-4]$/.test(key || '')) {
+        const sides = value.split('=').map(side => side.trim()
+          .replace(/(^|\s)([+-])\s+(?=\S)/g, '$1$2').split(/\s+/).filter(Boolean));
+        if (sides.length === 2 && sides.every(side => side.length)) { result[key] = sides; continue; }
+      }
+      if (/^mui[1-3]$/.test(key || '')) { result[key] = value; continue; }
+      if (state && key === 'dong' && /^[1-4]$/.test(value)) { result.dong = Number(value); continue; }
+      if (state && key === 'to') {
+        result.to = {};
+        for (const pair of value.split(',').filter(Boolean)) {
+          const [, term, color] = /^\s*([1-4][tp][1-9]\d*)\s*:\s*([a-z]+)\s*$/.exec(pair) || [];
+          if (!term || !LESSON_COLORS.has(color)) error('Số hạng hoặc màu không hợp lệ: ' + pair);
+          else result.to[term] = color;
+        }
+        continue;
+      }
+    }
+    error('Tham số hoặc trạng thái hình ' + name + ' không hợp lệ: ' + field);
+  }
+  return result;
+}
+
+function chatTermExists(params, key) {
+  const [, row, side, term] = /^([1-4])([tp])([1-9]\d*)$/.exec(key) || [];
+  return Boolean(params['dong' + row]?.[side === 't' ? 0 : 1]?.[Number(term) - 1]);
+}
+
+function chatApplyState(figure, state, error) {
+  if (!state || figure?.mau?.name !== 'dang-thuc') return figure;
+  const params = { ...figure.mau.params, ...state };
+  for (const key of Object.keys(state.to || {})) {
+    if (!chatTermExists(params, key)) error('Khóa số hạng không có trong hình: ' + key);
+  }
+  if (state.dong && !params['dong' + state.dong]) error('Hình không có dòng ' + state.dong);
+  return { ...figure, mau: { ...figure.mau, params } };
+}
+
+function lessonFigureToken(token, error, chat) {
   if (token.name === 'hinhmau' && lessonArgs(token, error)) {
     const [name, source] = token.args;
+    if (chat && ['can', 'dang-thuc'].includes(name)) {
+      const params = chatFigureFields(name, source, error);
+      if (name === 'dang-thuc' && (!params.dong1 || [2, 3, 4].some(i => params['dong' + i] && !params['dong' + (i - 1)]))) {
+        error('Hình dang-thuc cần các dòng liên tiếp, bắt đầu bằng dong1');
+      }
+      return { kind: 'mau', src: token.raw, mau: { name, params } };
+    }
     if (name !== 'cat-tuyen') {
       error('Chưa có hình mẫu ' + name);
       return null;
@@ -2024,17 +2247,19 @@ function lessonFigureToken(token, error) {
   return null;
 }
 
-function lessonFigure(source, error) {
+function lessonFigure(source, error, chat) {
   const tokens = lessonTokens(source);
   if (tokens.length !== 1 || (tokens[0]?.raw !== source.trim()) ||
       !['tikzpicture', 'hinhbuoc', 'hinhmau'].includes(tokens[0]?.name)) {
     error('Cần một hình TikZ, hinhbuoc hoặc \\hinhmau');
     return null;
   }
-  return lessonFigureToken(tokens[0], error);
+  return lessonFigureToken(tokens[0], error, chat);
 }
 
-function lessonState(source, error) {
+function lessonState(source, error, figure) {
+  const name = figure?.mau?.name;
+  if (name === 'can' || name === 'dang-thuc') return chatFigureFields(name, source, error, true);
   const state = {};
   for (const field of source.split(';').map(s => s.trim()).filter(Boolean)) {
     const match = field.match(/^([a-z]+)\s*=\s*(.+)$/);
@@ -2056,37 +2281,60 @@ function lessonState(source, error) {
   return state;
 }
 
-function lessonQuiz(args, error) {
+function lessonQuiz(args, error, chat = false) {
   const [q, correct, wrong, explainCorrect, explainWrong] = args;
   if (correct === wrong) error('Hai phương án phải khác nhau');
+  if (chat) return { q, opts: [
+    { text: correct, ok: true, why: explainCorrect },
+    { text: wrong, ok: false, why: explainWrong },
+  ] };
   return { q, correct, wrong, explainCorrect, explainWrong };
 }
 
-function lessonBoundary(token, error, warn) {
+function lessonBoundary(token, error, warn, chat = false, locate = () => {}) {
   const opening = token.name === 'modau';
   const boundary = opening
     ? { cherry: '', cauhoi: '', nutbuoc: '', fig: null }
     : { cherry: '', fig: null, quiz: null, emdahoc: [] };
   if (!lessonArgs(token, error)) return boundary;
-  for (const cmd of lessonTokens(token.content)) {
+  let after;
+  for (const cmd of lessonTokens(token.content, chat)) {
+    locate(token.contentStart + cmd.start);
     const [a] = cmd.args;
     const { name } = cmd;
     if (['tikzpicture', 'hinhbuoc', 'hinhmau'].includes(name)) {
-      boundary.fig = lessonFigureToken(cmd, error);
+      boundary.fig = lessonFigureToken(cmd, error, chat);
       continue;
     }
     if (!lessonArgs(cmd, error)) continue;
+    if (chat && !cmd.env) chatLessonMath(cmd, warn);
     if (name === 'cherry' || name === 'loidan') {
       boundary.cherry = a;
       if ([...a].length > 120) warn('\\cherry dài hơn 120 kí tự');
     } else if (opening && (name === 'cauhoi' || name === 'nutbuoc')) boundary[name] = a;
-    else if (!opening && name === 'thungay') boundary.quiz = lessonQuiz(cmd.args, error);
+    else if (!opening && (name === 'thungay' || name === 'thu')) {
+      if (chat && boundary.quiz) error('Khối ketbai chỉ có một câu hỏi');
+      if (name === 'thu') {
+        const parsed = chatOptions(cmd, error, warn, offset => locate(token.contentStart + offset));
+        boundary.quiz = parsed.quiz;
+        if (parsed.label) boundary.label = parsed.label;
+      } else boundary.quiz = lessonQuiz(cmd.args, error, chat);
+    } else if (chat && !opening && name === 'saukhitra') {
+      if (!boundary.quiz) error('\\saukhitra cần theo sau câu hỏi');
+      else after = { source: a, at: token.contentStart + cmd.start };
+    }
     else if (!opening && name === 'emdahoc') boundary.emdahoc = cmd.args;
-    else if (name === 'hinhrieng') boundary.fig = lessonFigure(a, error);
+    else if (name === 'hinhrieng') boundary.fig = lessonFigure(a, error, chat);
   }
+  if (after) {
+    locate(after.at);
+    boundary.after = lessonState(after.source, error, boundary.fig);
+    chatApplyState(boundary.fig, boundary.after, error);
+  }
+  locate(token.start);
   if (opening && !boundary.fig) error('Khối modau cần có hình');
   if (opening && !boundary.cauhoi) error('Khối modau cần có \\cauhoi');
-  if (!opening && !boundary.quiz) error('Khối ketbai cần có \\thungay');
+  if (!opening && !boundary.quiz) error(chat ? 'Khối ketbai cần có thu hoặc \\thungay' : 'Khối ketbai cần có \\thungay');
   return boundary;
 }
 
@@ -2123,12 +2371,30 @@ function lessonRecap(part) {
   return part.screens.filter(sc => LESSON_RECAP.has(sc.kind)).map(sc => sc.body).join(' \\\\ ');
 }
 
-function parseLesson(body, errors, warnings) {
-  const tokens = lessonTokens(body);
-  const legacy = !tokens.some(t => t.name === 'phan');
+function chatLessonMath(cmd, warn) {
+  const { name, args } = cmd;
+  if (['hinhchung', 'hinhrieng', 'hinhmau', 'trangthai', 'saukhitra', 'theobuoc'].includes(name)) return;
+  if (name === 'thungay' || name === 'emtinh') {
+    for (const i of [0, 3, 4]) chatMath(args[i] || '', warn);
+  } else if (name === 'thaotac') {
+    chatMath(args[2], warn);
+  } else args.forEach(text => chatMath(text, warn));
+}
+
+function parseLesson(body, errors, warnings, chatLine = 0) {
+  const chat = Boolean(chatLine);
+  const tokens = lessonTokens(body, chat);
+  const legacy = !chat && !tokens.some(t => t.name === 'phan');
   const lesson = { modau: null, parts: [], ketbai: null, legacy };
-  const error = msg => errors.push({ msg: 'Bài giảng: ' + msg });
-  const warn = msg => warnings.push({ msg: 'Bài giảng: ' + msg });
+  let at = 0;
+  const locate = offset => { at = offset; };
+  const diagnostic = msg => chat
+    ? { line: chatLine + body.slice(0, at).split('\n').length - 1, msg: 'Bài chat: ' + msg }
+    : { msg: 'Bài giảng: ' + msg };
+  const error = msg => errors.push(diagnostic(msg));
+  const warn = msg => warnings.push(diagnostic(msg));
+  const screenLocations = new Map();
+  const partLocations = new Map();
   if (legacy) {
     const theory = parseTheory(body, errors);
     for (const cmd of tokens.filter(t => t.name === 'modau' || t.name === 'ketbai')) {
@@ -2141,15 +2407,27 @@ function parseLesson(body, errors, warnings) {
   // Dùng bộ đọc cũ cho các lệnh cũ ở cấp màn. Các khối và đối số mới thuộc riêng lesson.
   const oldNames = new Set([...Object.keys(THEORY_KINDS), 'loidan', 'thungay', 'minhhoa', 'hinhbuoc', 'giaimau']);
   const oldCommands = tokens.filter(t => oldNames.has(t.name));
-  const theory = oldCommands.length ? parseTheory(oldCommands.map(t => t.raw).join('\n'), errors) : [];
+  const theory = !chat && oldCommands.length ? parseTheory(oldCommands.map(t => t.raw).join('\n'), errors) : [];
   let part, pending = {}, previous, lastName;
+  let stepStates, calcCommand;
+  const hasQuestion = screen => ['quiz', 'tap', 'region', 'calc'].includes(screen?.type);
+  const figureFor = (screen = pending) => screen?.fig || part?.fig;
+  const stateFor = (source, screen = pending) => lessonState(source, error, chat ? figureFor(screen) : undefined);
+  const setAfter = (target, source, screen) => {
+    target.after = stateFor(source, screen);
+  };
   for (const [index, cmd] of tokens.entries()) {
     const { name, args: [a, b, c, d, e, f] } = cmd;
+    locate(cmd.start);
     const preceding = lastName;
     lastName = name;
+    if (stepStates && name !== 'vidu') {
+      error('\\theobuoc phải đứng ngay trước \\vidu');
+      stepStates = undefined;
+    }
     if (name === 'modau' || name === 'ketbai') {
       if (lesson[name]) error('Chỉ được có một khối ' + name);
-      lesson[name] = lessonBoundary(cmd, error, warn);
+      lesson[name] = lessonBoundary(cmd, error, warn, chat, locate);
       part = undefined;
       continue;
     }
@@ -2157,6 +2435,7 @@ function parseLesson(body, errors, warnings) {
       if (!lessonArgs(cmd, error)) continue;
       part = lessonPart(a, b);
       lesson.parts.push(part);
+      partLocations.set(part, cmd.start);
       pending = {};
       previous = undefined;
       continue;
@@ -2166,15 +2445,27 @@ function parseLesson(body, errors, warnings) {
       continue;
     }
     if (!lessonArgs(cmd, error)) continue;
+    if (chat && !cmd.env) chatLessonMath(cmd, warn);
     if (name === 'cherry' || name === 'loidan') {
       pending.cherry = a;
       if ([...a].length > 120) warn('\\cherry dài hơn 120 kí tự');
       continue;
     }
     if (name === 'nhaclai') { part.recap = a; continue; }
-    if (name === 'hinhchung') { part.fig = lessonFigure(a, error); continue; }
-    if (name === 'hinhrieng') { pending.fig = lessonFigure(a, error); continue; }
-    if (name === 'trangthai') { pending.state = lessonState(a, error); continue; }
+    if (name === 'hinhchung') { part.fig = lessonFigure(a, error, chat); continue; }
+    if (name === 'hinhrieng') { pending.fig = lessonFigure(a, error, chat); continue; }
+    if (name === 'trangthai') { pending.state = stateFor(a); continue; }
+    if (name === 'theobuoc') { stepStates = cmd.args; continue; }
+    if (name === 'saukhitra' && chat) {
+      if (previous?.type === 'calc' && ['tinh', 'emtinh'].includes(preceding)) {
+        setAfter(previous.calc.items.at(-1), a, previous);
+      } else if (hasQuestion(previous) && ['thu', 'thungay', 'chamhinh', 'chamvung', 'nhac'].includes(preceding)) {
+        setAfter(previous, a, previous);
+      } else if (tokens[index + 1]?.name === 'thungay') {
+        pending.after = stateFor(a);
+      } else error('\\saukhitra cần theo sau một câu hỏi hoặc thao tác chạm');
+      continue;
+    }
     if (name === 'saukhitra') {
       const after = lessonState(a, error);
       // Bài mẫu đặt sau câu hỏi; cú pháp soạn cũng cho phép đặt trước.
@@ -2183,17 +2474,17 @@ function parseLesson(body, errors, warnings) {
       continue;
     }
     if (name === 'chuyen') {
-      pending.toggle = [{ label: a, state: lessonState(b, error) }, { label: c, state: lessonState(d, error) }];
+      pending.toggle = [{ label: a, state: stateFor(b) }, { label: c, state: stateFor(d) }];
       continue;
     }
     if (name === 'nhac') {
       if (previous?.type !== 'tap' || !['chamhinh', 'nhac'].includes(preceding)) error('\\nhac cần theo sau \\chamhinh');
-      else if (!LESSON_ANGLE.test(a)) error('Khóa góc không hợp lệ: ' + a);
+      else if (!(chat && figureFor(previous)?.mau?.name === 'dang-thuc') && !LESSON_ANGLE.test(a)) error('Khóa góc không hợp lệ: ' + a);
       else previous.tap.nhac[a] = b;
       continue;
     }
     if (name === 'ketluan') {
-      if (previous?.type !== 'calc' || preceding !== 'emtinh') error('\\ketluan cần theo sau \\emtinh');
+      if (previous?.type !== 'calc' || !(preceding === 'emtinh' || (chat && ['tinh', 'saukhitra'].includes(preceding)))) error('\\ketluan cần theo sau \\emtinh');
       else previous.calc.ketluan = a;
       continue;
     }
@@ -2201,18 +2492,43 @@ function parseLesson(body, errors, warnings) {
     let screen;
     if (LESSON_RECAP.has(name) || name === 'nhanxet') screen = { type: 'read', kind: name, title: a, body: b };
     else if (name === 'luuy') screen = { type: 'read', kind: name, title: 'Cần nhớ', body: a };
-    else if (name === 'vidu') screen = { type: 'vidu', body: a, sol: b };
-    else if (name === 'thungay') screen = { type: 'quiz', quiz: lessonQuiz(cmd.args, error) };
+    else if (name === 'vidu') {
+      screen = { type: 'vidu', body: a, sol: b };
+      if (stepStates) {
+        if (stepStates.length > b.split(/\\\\/).filter(step => step.trim()).length) {
+          error('\\theobuoc có nhiều trạng thái hơn số bước của \\vidu');
+        }
+        screen.stepStates = stepStates.map(source => stateFor(source));
+        stepStates = undefined;
+      }
+    } else if (name === 'thu') {
+      const { label, quiz } = chatOptions(cmd, error, warn, locate);
+      screen = { type: 'quiz', label: label || 'Thử ngay', quiz };
+    } else if (name === 'thungay') screen = { type: 'quiz', quiz: lessonQuiz(cmd.args, error, chat) };
+    else if (name === 'thaotac') {
+      if (cmd.label && cmd.label !== 'lech') error('Nhãn của \\thaotac chỉ nhận [lech]');
+      const act = { label: a, state: stateFor(b, preceding === name ? previous : pending), say: c, warn: cmd.label === 'lech' };
+      if (preceding === name && previous?.type === 'act') {
+        previous.acts.push(act);
+        continue;
+      }
+      screen = { type: 'act', acts: [act] };
+    }
     else if (name === 'chamhinh') {
-      if (!LESSON_ANGLE.test(b)) error('Khóa góc không hợp lệ: ' + b);
+      if (!(chat && figureFor()?.mau?.name === 'dang-thuc') && !LESSON_ANGLE.test(b)) error('Khóa góc không hợp lệ: ' + b);
       screen = { type: 'tap', tap: { prompt: a, ans: b, ok: c, hint: d, nhac: {} } };
     } else if (name === 'chamvung') {
       if (!LESSON_REGIONS.has(b)) error('Khóa vùng không hợp lệ: ' + b);
       screen = { type: 'region', region: { prompt: a, key: b, ok: c } };
     } else if (name === 'truot') screen = { type: 'slide', slide: { label: a, after: b } };
-    else if (name === 'emtinh') {
-      const item = { ...lessonQuiz([a, b, c, d, e], error), state: lessonState(f, error) };
-      if (preceding === 'emtinh' && previous?.type === 'calc') {
+    else if (name === 'emtinh' || name === 'tinh') {
+      const consecutive = previous?.type === 'calc' &&
+        (preceding === name || (chat && preceding === 'saukhitra' && calcCommand === name));
+      const item = name === 'tinh'
+        ? chatOptions(cmd, error, warn, locate).quiz
+        : { ...lessonQuiz([a, b, c, d, e], error, chat), state: stateFor(f, consecutive ? previous : pending) };
+      calcCommand = name;
+      if (consecutive) {
         previous.calc.items.push(item);
         continue;
       }
@@ -2227,17 +2543,41 @@ function parseLesson(body, errors, warnings) {
     }
     previous = { ...pending, ...screen };
     part.screens.push(previous);
+    screenLocations.set(previous, cmd.start);
     pending = {};
   }
+  if (stepStates) error('\\theobuoc phải đứng ngay trước \\vidu');
+  locate(0);
+  if (chat && !lesson.parts.length) error('Cần ít nhất một \\phan');
+  if (chat && !/\\ten\b/.test(body)) warn('Bài chưa dùng \\ten để gọi tên học sinh');
   if (!lesson.modau) warn('Thiếu khối modau');
   if (!lesson.ketbai) warn('Thiếu khối ketbai');
   for (const item of lesson.parts) {
     const { title, screens, fig } = item;
+    locate(partLocations.get(item));
     if (!screens.length) error('Phần "' + title + '" chưa có màn');
+    if (chat && screens.length && !screens.some(hasQuestion)) warn('Phần "' + title + '" chưa có câu hỏi');
     if (screens.length > 10) warn('Phần "' + title + '" có hơn 10 màn');
     if (!item.recap) item.recap = lessonRecap(item);
     for (const [index, screen] of screens.entries()) {
+      locate(screenLocations.get(screen));
       const figure = screen.fig || fig;
+      if (chat && figure?.mau?.name === 'dang-thuc') {
+        let current = chatApplyState(figure, screen.state, error);
+        if (screen.tap) {
+          for (const key of [screen.tap.ans, ...Object.keys(screen.tap.nhac)]) {
+            if (!chatTermExists(current.mau.params, key)) error('Khóa số hạng không có trong hình: ' + key);
+          }
+        }
+        for (const toggle of screen.toggle || []) chatApplyState(current, toggle.state, error);
+        for (const state of screen.stepStates || []) current = chatApplyState(current, state, error);
+        for (const act of screen.acts || []) current = chatApplyState(current, act.state, error);
+        for (const calc of screen.calc?.items || []) {
+          current = chatApplyState(current, calc.state, error);
+          current = chatApplyState(current, calc.after, error);
+        }
+        chatApplyState(current, screen.after, error);
+      }
       if (['tap', 'region', 'slide'].includes(screen.type) && figure?.kind !== 'mau') {
         error('Phần "' + title + '", màn ' + (index + 1) + ' cần hình mẫu');
       }
@@ -2298,6 +2638,7 @@ function liveStreak(p, today = vnDay()) {
 
 // Thi đấu: mùa 30 ngày, bậc và thanh tiến trình, bài kiểm tra thăng hạng, điểm phong độ Thách Đấu.
 // Dùng chung cho giao diện (scripts/build-app.mjs ghép vào app) và máy chủ (lib/validate.js).
+
 
 const SEASON0 = '2026-11-23';  // ngày bắt đầu Mùa 1
 const SEASON_DAYS = 30;        // mỗi mùa 30 ngày; sang mùa mới tụt SEASON_DROP bậc
@@ -3289,6 +3630,91 @@ function catTuyen(params={},state={}, {tap=false,region=false,slide=false}={}){
   }
   return `<svg viewBox="0 0 395 325" role="${tap||region?'group':'img'}" aria-label="${catEsc('Đường thẳng '+c+' cắt '+a+' và '+b+' tại '+A+' và '+B)}">
     <style>.cat-label{font:italic 19px "Times New Roman",serif}.cat-number{font:16px "Times New Roman",serif}.cat-value{font:700 13.5px Nunito,sans-serif}</style>${out}</svg>`;
+}
+
+const CHAT_FIG_INK='#14323a';
+function scaleItem(it,x,y,w,h){
+  if(it.k==='w')return `<circle cx="${x}" cy="${y}" r="11" fill="#9fb4c2" stroke="#4d6372" stroke-width="1.5"/><text x="${x}" y="${y}" dy=".35em" text-anchor="middle" font-size="12" font-weight="700" fill="#fff" font-family="Be Vietnam Pro">${catEsc(it.label||'1')}</text>`;
+  if(it.k==='big')return `<rect x="${x-w/2}" y="${y-h/2}" width="${w}" height="${h}" rx="7" fill="#9fb4c2" stroke="#4d6372" stroke-width="1.5"/><text x="${x}" y="${y}" dy=".35em" text-anchor="middle" font-size="13" font-weight="700" fill="#fff" font-family="Be Vietnam Pro">${catEsc(it.label)}</text>`;
+  if(it.k==='pom')return `<circle cx="${x}" cy="${y}" r="22" fill="#d7e87a" stroke="#8aa536" stroke-width="2"/><path d="M${x} ${y-22}q6 -10 14 -8q-4 8 -14 8" fill="#4fa34a"/><text x="${x}" y="${y+2}" dy=".35em" text-anchor="middle" font-size="22" font-weight="700" fill="${CHAT_FIG_INK}" font-family="Be Vietnam Pro">${catEsc(it.label||'?')}</text>`;
+  return `<path d="M${x-18} ${y+20}q-6 -22 8 -30l-2 -8h24l-2 8q14 8 8 30z" fill="#f2b14a" stroke="#b9770e" stroke-width="2"/><text x="${x}" y="${y+8}" text-anchor="middle" font-size="22" font-style="italic" font-family="Times New Roman" fill="${CHAT_FIG_INK}">${catEsc(it.label||'x')}</text>`;
+}
+function drawScale(o={}){
+  const cx=210,py=60,half=140,a=(({bal:0,L:-9,R:9})[o.tilt||'bal'])*Math.PI/180;
+  const Lx=cx-half*Math.cos(a),Ly=py-half*Math.sin(a),Rx=cx+half*Math.cos(a),Ry=py+half*Math.sin(a);
+  const dims=it=>it.k==='w'?[24,24]:it.k==='big'?[70,28]:it.k==='pom'?[46,46]:[44,40];
+  const pan=(ex,ey,items)=>{
+    const p2=ey+80;let g=`<line x1="${ex}" y1="${ey}" x2="${ex-52}" y2="${p2}" stroke="#7a5a2f" stroke-width="2"/><line x1="${ex}" y1="${ey}" x2="${ex+52}" y2="${p2}" stroke="#7a5a2f" stroke-width="2"/>`;
+    const rows=[];let row=[],wr=0;
+    items.forEach(it=>{const[w,h]=dims(it);if(row.length&&wr+w+4>108){rows.push(row);row=[];wr=0}row.push({it,w,h});wr+=w+4});if(row.length)rows.push(row);
+    let y=p2-3;
+    rows.forEach(r=>{const rh=Math.max(...r.map(q=>q.h)),tw=r.reduce((t,q)=>t+q.w+4,-4);let x=ex-tw/2;r.forEach(q=>{g+=scaleItem(q.it,x+q.w/2,y-q.h/2,q.w,q.h);x+=q.w+4});y-=rh+3});
+    return g+`<path d="M${ex-60} ${p2}A60 24 0 0 0 ${ex+60} ${p2}Z" fill="#efe3c6" stroke="#9a7b4f" stroke-width="2.5"/>`};
+  let s=`<polygon points="140,238 280,238 258,216 162,216" fill="#d9c7a0" stroke="#9a7b4f" stroke-width="2"/><rect x="203" y="${py}" width="14" height="${216-py}" fill="#b08d5a"/>`;
+  s+=pan(Lx,Ly,o.L||[])+pan(Rx,Ry,o.R||[]);
+  s+=`<line x1="${Lx}" y1="${Ly}" x2="${Rx}" y2="${Ry}" stroke="#7a5a2f" stroke-width="9" stroke-linecap="round"/><circle cx="${cx}" cy="${py}" r="10" fill="#b08d5a" stroke="#7a5a2f" stroke-width="2"/>`;
+  if(o.note)s+=`<text x="210" y="22" text-anchor="middle" font-size="15" font-weight="700" fill="${(o.tilt||'bal')==='bal'?'#1f8a57':'#c2410c'}" font-family="Be Vietnam Pro">${catEsc(o.note)}</text>`;
+  return `<svg viewBox="0 0 420 250" role="img" aria-label="${catEsc(o.label||'Cân đĩa')}">${s}</svg>`;
+}
+function drawEquation(o={}){
+  const rows=o.rows||[],cx=210,RH=58,AG=32,y0=14;
+  const H=y0+rows.length*(RH+AG)-AG+14;
+  const parse=t=>{const m=t.match(/^([+−])?(.+)$/);return{sg:m[1]||'',b:m[2]}};
+  const isFr=b=>/^\d+\/\d+$/.test(b);
+  const bodyW=b=>isFr(b)?Math.max(...b.split('/').map(z=>z.length))*15+8:b.length*16+2;
+  const tw=t=>{const p=parse(t);return(p.sg?30:0)+bodyW(p.b)+12};
+  const draw=(t,x,y,c,key)=>{const p=parse(t),w=tw(t),col=c||CHAT_FIG_INK;let g='',xx=x;
+    if(p.sg){g+=`<text x="${xx+13}" y="${y}" dy=".35em" text-anchor="middle" font-size="26" font-weight="600" fill="${col}" font-family="Be Vietnam Pro">${p.sg}</text>`;xx+=30}
+    const bw=bodyW(p.b);
+    if(isFr(p.b)){const[n,d]=p.b.split('/');g+=`<text x="${xx+bw/2}" y="${y-12}" text-anchor="middle" font-size="20" fill="${col}" font-family="Times New Roman">${n}</text><line x1="${xx}" x2="${xx+bw}" y1="${y}" y2="${y}" stroke="${col}" stroke-width="2"/><text x="${xx+bw/2}" y="${y+18}" text-anchor="middle" font-size="20" fill="${col}" font-family="Times New Roman">${d}</text>`}
+    else g+=`<text x="${xx+bw/2}" y="${y}" dy=".35em" text-anchor="middle" font-size="28" ${/^[a-z]$/.test(p.b)?'font-style="italic"':''} font-family="Times New Roman" fill="${col}" font-weight="${c?700:400}">${catEsc(p.b)}</text>`;
+    if(o.tap&&key)g+=`<rect class="cat-hit" data-angle="${key}" tabindex="0" role="button" aria-label="${catEsc(t)}" x="${x-4}" y="${y-28}" width="${w}" height="56" rx="10" fill="transparent"><title>${catEsc(t)}</title></rect>`;
+    return g};
+  let s='';
+  rows.forEach((r,i)=>{const yc=y0+i*(RH+AG)+RH/2;
+    s+=`<rect x="12" y="${yc-RH/2}" width="396" height="${RH}" rx="14" fill="#fffaf2" stroke="#ece3d1" stroke-width="2"/>`;
+    const L=r.l||[],Rr=r.r||[],totL=L.reduce((t,z)=>t+tw(z),0),totR=Rr.reduce((t,z)=>t+tw(z),0),kk=Math.min(1,186/(30+Math.max(totL,totR)));
+    s+=`<g transform="translate(${cx} ${yc}) scale(${kk.toFixed(3)}) translate(${-cx} ${-yc})">`;let x=cx-30-totL;
+    L.forEach((t,j)=>{s+=draw(t,x,yc,CAT_COLORS[o.colors?.[`${i+1}t${j+1}`]],`${i+1}t${j+1}`);x+=tw(t)});
+    s+=`<text x="${cx}" y="${yc}" dy=".35em" text-anchor="middle" font-size="30" fill="${CHAT_FIG_INK}" font-family="Be Vietnam Pro">=</text>`;
+    x=cx+30;Rr.forEach((t,j)=>{s+=draw(t,x,yc,CAT_COLORS[o.colors?.[`${i+1}p${j+1}`]],`${i+1}p${j+1}`);x+=tw(t)});s+='</g>';
+    if(i<rows.length-1){const ya=yc+RH/2+3,yb=ya+AG-6;
+      s+=`<path d="M${cx} ${ya}V${yb}" stroke="#149c8c" stroke-width="2.5" fill="none"/><path d="M${cx-6} ${yb-6}L${cx} ${yb}L${cx+6} ${yb-6}" stroke="#149c8c" stroke-width="2.5" fill="none" stroke-linecap="round"/>`;
+      if((o.arrows||[])[i])s+=`<text x="${cx+14}" y="${ya+AG/2-1}" dy=".35em" font-size="13" font-weight="600" fill="#0f7a6e" font-family="Be Vietnam Pro">${catEsc(o.arrows[i])}</text>`}
+  });
+  return `<svg viewBox="0 0 420 ${H}" role="${o.tap?'group':'img'}" aria-label="${catEsc(o.label||'Đẳng thức')}">${s}</svg>`;
+}
+
+function can(params = {}, state = {}) {
+  const values = { ...params, ...state };
+  const side = items => (items || []).flatMap(({ kind, count, label }) => {
+    if (kind === 'q') return count <= 12
+      ? Array.from({ length: count }, () => ({ k: 'w' }))
+      : [{ k: 'big', label: count + ' × 1' }];
+    return [{ k: { k: 'big', t: 'bag', b: 'pom' }[kind], label }];
+  });
+  const L = side(values.trai), R = side(values.phai);
+  const describe = items => items.map(item => item.label || '1').join(', ') || 'trống';
+  return drawScale({
+    L, R, tilt: { trai: 'L', phai: 'R' }[values.nghieng], note: values.ghichu,
+    label: 'Cân đĩa. Trái: ' + describe(L) + '. Phải: ' + describe(R),
+  });
+}
+
+function dangThuc(params = {}, state = {}, { tap = false } = {}) {
+  const values = { ...params, ...state, to: { ...params.to, ...state.to } };
+  const rows = [];
+  for (let i = 1; i <= (values.dong || 4); i++) {
+    const row = values['dong' + i];
+    if (!row) break;
+    const [l, r] = row.map(side => side.map(term => term.replace(/^-/, '−')));
+    rows.push({ l, r });
+  }
+  if (!rows.length) return '';
+  return drawEquation({
+    rows, colors: values.to, tap, arrows: [values.mui1, values.mui2, values.mui3],
+    label: rows.map(({ l, r }) => l.join(' ') + ' = ' + r.join(' ')).join('. '),
+  });
 }
 
 const setLesson = [
@@ -4418,6 +4844,666 @@ function openTheoryReview(t,returnLabel='Tiếp tục làm bài'){
 }
 
 $('#playTheory').innerHTML=bookSVG;
+
+
+const CHAT_AVATAR=`<svg class="chat-avatar" viewBox="0 0 60 70" aria-hidden="true"><ellipse cx="30" cy="66" rx="16" ry="3" fill="#0001"/><path d="M14 64c0-12 7-18 16-18s16 6 16 18z" fill="#e8455a"/><circle cx="24" cy="54" r="1.6" fill="#fff"/><circle cx="35" cy="58" r="1.6" fill="#fff"/><circle cx="30" cy="34" r="15" fill="#ffe1cc"/><path d="M15 36c0-10 6-17 15-17s15 7 15 17c-3-5-8-7-15-7s-12 2-15 7z" fill="#7a3b1f"/><path d="M12 27c2-11 9-17 18-17s16 6 18 17c-5-4-11-5-18-5s-13 1-18 5z" fill="#e8455a"/><circle cx="22" cy="18" r="1.6" fill="#fff"/><circle cx="36" cy="16" r="1.6" fill="#fff"/><path d="M30 10c2-4 6-6 10-6" stroke="#2f8a3c" stroke-width="2" fill="none"/><path d="M38 4c3 0 5 2 6 4-3 1-5 0-6-4z" fill="#3fae4f"/><circle cx="46" cy="28" r="4" fill="#c81f3a"/><circle cx="25" cy="36" r="2.2" fill="#2a1a12"/><circle cx="35" cy="36" r="2.2" fill="#2a1a12"/><circle cx="21" cy="41" r="2.4" fill="#ffb3b8"/><circle cx="39" cy="41" r="2.4" fill="#ffb3b8"/><path d="M27 42q3 3 6 0" stroke="#a33" stroke-width="1.5" fill="none"/></svg>`;
+
+const CHAT_LABELS = {
+  dinhnghia: 'Định nghĩa', quytac: 'Quy tắc', congthuc: 'Công thức', dinhly: 'Định lý',
+  tinhchat: 'Tính chất', nhanxet: 'Nhận xét', luuy: 'Lưu ý', vidu: 'Ví dụ',
+};
+const CHAT_ECHO = ['Tớ hiểu rồi', 'Tiếp đi Cherry', 'Tớ sẵn sàng rồi', 'Được, tiếp nào'];
+const CHAT_FIGURES = { can, 'dang-thuc': dangThuc, 'cat-tuyen': catTuyen };
+const CHAT_TIKZ = /\\begin\{tikzpicture\}[\s\S]*?\\end\{tikzpicture\}/g;
+const chatEscape = value => String(value ?? '').replace(/[&<>"']/g, c => ({
+  '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+})[c]);
+
+function chatHinhBuoc(figure) {
+  return figure?.kind === 'hinhbuoc' ? parseHinhBuoc(figure.src) : null;
+}
+
+function chatExampleSteps(value) {
+  const tokens = String(value || '').match(/\\\[[\s\S]*?\\\]|\$(?:\\.|[^$\\])*\$|\\\\|\\.|[^\\$]+|[$\\]/g) || [];
+  const lines = [''];
+  for (const token of tokens) {
+    if (token === '\\\\') lines.push('');
+    else lines[lines.length - 1] += token;
+  }
+  return lines.map(line => line.trim()).filter(Boolean);
+}
+
+function chatPlan(chat) {
+  const lastPart = chat.parts.length + 1;
+  const parts = [{ title: 'Mở đầu' }, ...chat.parts, { title: 'Kết bài' }];
+  const screens = [];
+  if (chat.modau) screens.push({ ...chat.modau, p: 0, type: 'opening', figure: chat.modau.fig });
+  screens.push({ p: 0, type: 'contents' });
+  for (const [index, part] of chat.parts.entries()) {
+    part.screens.forEach((screen, i) => {
+      const { type, fig, state, after, toggle, stepStates, calc } = screen;
+      const useShared = !i || state || after || toggle || stepStates ||
+        ['tap', 'region', 'act', 'slide', 'steps'].includes(type) || calc?.items.some(item => item.state || item.after);
+      const figure = fig || (useShared ? part.fig : null);
+      screens.push({ ...screen, p: index + 1, figure,
+        steps: type === 'vidu' ? chatExampleSteps(screen.sol) : null,
+        frames: chatHinhBuoc(figure),
+      });
+    });
+    screens.push({ p: index + 1, type: 'recap' });
+  }
+  if (chat.ketbai) {
+    const { fig, ...closing } = chat.ketbai;
+    screens.push({ ...closing, p: lastPart, type: 'closing', figure: fig });
+  } else {
+    screens.push({ p: lastPart, type: 'closing' });
+  }
+  for (const sc of screens) {
+    if (sc.type === 'opening') sc.frames = chatHinhBuoc(sc.figure);
+  }
+  return { parts, screens };
+}
+
+function chatMerge(base, change) {
+  if (!change) return base;
+  return { ...base, ...change, to: { ...base.to, ...change.to }, do: { ...base.do, ...change.do } };
+}
+
+function chatFigureState(sc, state) {
+  let result = { ...sc.state };
+  if (sc.toggle && Number.isInteger(state.toggle)) result = chatMerge(result, sc.toggle[state.toggle]?.state);
+  if (sc.type === 'vidu') {
+    for (const step of (sc.stepStates || []).slice(0, state.steps || 1)) result = chatMerge(result, step);
+  }
+  if (sc.type === 'act') {
+    for (const act of sc.acts.slice(0, state.steps || 0)) result = chatMerge(result, act.state);
+  }
+  if (sc.type === 'calc') {
+    for (const item of sc.calc.items.slice(0, state.steps || 0)) result = chatMerge(chatMerge(result, item.state), item.after);
+  }
+  if (state.hit) {
+    const color = state.correct ? 'luc' : 'do';
+    result = sc.type === 'tap' ? chatMerge(result, { to: { [state.hit]: color } }) :
+      { ...result, vung: state.hit };
+  }
+  if (state.correct) result = chatMerge(result, sc.after);
+  if (sc.type === 'steps' || sc.type === 'opening' && sc.nutbuoc) result.buoc = state.steps || 1;
+  return result;
+}
+
+function chatOrder(length) {
+  const items = Array.from({ length }, (_, i) => i);
+  for (let i = length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [items[i], items[j]] = [items[j], items[i]];
+  }
+  return items;
+}
+
+function chatStorage(topic, options) {
+  const key = topic.id && options.persist !== false && !options.teacher ? 'ltt-chat:' + topic.id : '';
+  const scope = 'account:' + (options.progressScope || '');
+  let fingerprint = 0;
+  for (const c of JSON.stringify(topic.chat)) fingerprint = (Math.imul(fingerprint, 31) + c.codePointAt(0)) | 0;
+  function readAll() {
+    return JSON.parse(localStorage.getItem(key) || '{}') || {};
+  }
+  return {
+    read() {
+      if (!key) return null;
+      try {
+        const saved = readAll()[scope];
+        return saved?.fingerprint === fingerprint && Array.isArray(saved.visits) ? saved : null;
+      } catch { return null; }
+    },
+    write(data) {
+      if (!key) return;
+      try {
+        const saved = readAll();
+        if (data) saved[scope] = { ...data, fingerprint };
+        else delete saved[scope];
+        if (Object.keys(saved).length) localStorage.setItem(key, JSON.stringify(saved));
+        else localStorage.removeItem(key);
+      } catch { /* Việc học vẫn hoạt động khi trình duyệt chặn bộ nhớ. */ }
+    },
+  };
+}
+
+function renderChatLesson(root, topic, options = {}) {
+  if (!topic.chat) return;
+  const { parts, screens } = chatPlan(topic.chat);
+  const lastPart = parts.length - 1;
+  const name = String(options.studentName || '').trim().split(/\s+/).at(-1);
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const storage = chatStorage(topic, options);
+  const saved = storage.read();
+  let visits = saved?.visits.slice(0, screens.length) || [];
+  let complete = Boolean(saved?.complete && visits.length === screens.length);
+  let busy = false, focusedPart = 0, seenOptions = 0, toastTimer;
+  const anchors = new Map(), rows = [];
+  const title = options.title || topic.title || 'Chat với Cherry';
+  const praise = ['Giỏi quá, \\ten!', 'Chuẩn luôn!', 'Cậu nhanh thật!', 'Chính xác!'];
+  const partLabel = p => p === 0 || p === lastPart ? parts[p].title :
+    'Phần ' + p + '/' + (lastPart - 1) + ' · ' + parts[p].title;
+  const typeset = node => {
+    if (options.typeset) options.typeset(node);
+    else {
+      const math = globalThis.MathJax;
+      math?.startup?.promise?.then(() => node.isConnected && math.typesetPromise([node])).catch(() => {});
+    }
+  };
+  const clearMath = node => globalThis.MathJax?.typesetClear?.([node]);
+  const placeholder = () => '<div class="chat-placeholder">' +
+    chatEscape(options.figurePlaceholder || 'Hình TikZ, sẽ hiện sau khi nạp lên app') + '</div>';
+  const staticFigure = source => options.renderTikz?.(source) || placeholder();
+
+  function text(value) {
+    const source = String(value ?? '').replace(/\\ten\b/g, () => name || 'cậu');
+    const tokens = /\\begin\{tikzpicture\}[\s\S]*?\\end\{tikzpicture\}|\\\[[\s\S]*?\\\]|\$\$[\s\S]*?\$\$|\\\([\s\S]*?\\\)|\$(?:\\.|[^$\\])*\$|\\textbf\s*\{([^{}]*)\}|\\\\/g;
+    let result = '', from = 0;
+    for (const match of source.matchAll(tokens)) {
+      const token = match[0];
+      result += chatEscape(source.slice(from, match.index));
+      if (token.startsWith('\\begin{tikzpicture}')) result += '<div class="chat-figure">' + staticFigure(token) + '</div>';
+      else if (token.startsWith('\\[') || token.startsWith('$$')) result += '<div class="chat-math">' + chatEscape(token) + '</div>';
+      else if (match[1] !== undefined) result += '<strong>' + text(match[1]) + '</strong>';
+      else if (token === '\\\\') result += '<br>';
+      else result += chatEscape(token);
+      from = match.index + token.length;
+    }
+    return result + chatEscape(source.slice(from));
+  }
+
+  const bubble = (value, question = false) => `<div class="chat-bubble${question ? ' chat-question' : ''}">${text(value)}</div>`;
+  const answer = value => `<div class="chat-answer">${text(value)}</div>`;
+  const tag = (label, kind = '') => `<span class="chat-label" data-kind="${kind}">${chatEscape(label)}</span>`;
+  const feedback = (value, style = '') => `<div class="chat-feedback"${style ? ' data-' + style : ''} role="status">${text(value)}</div>`;
+  const action = (id, label, disabled = false) => `<button type="button" class="chat-action" data-${id}${disabled ? ' disabled' : ''}>${text(label)}</button>`;
+  const activeScreen = () => screens[visits.length - 1];
+  const setTitle = p => { focusedPart = p; current.textContent = partLabel(p); };
+  const save = () => storage.write({ visits, complete });
+  const scroll = (node, animation = true) => {
+    if (!node) return;
+    const top = node.getBoundingClientRect().top - feed.getBoundingClientRect().top + feed.scrollTop - 9;
+    feed.scrollTo({ top: Math.max(0, top), behavior: animation && !reduced ? 'smooth' : 'instant' });
+  };
+
+  function figureHTML(sc, state, live = false) {
+    const figure = sc.figure;
+    if (!figure) return '';
+    const view = chatFigureState(sc, state);
+    const renderer = CHAT_FIGURES[figure.mau?.name];
+    let html;
+    if (renderer) {
+      html = renderer(figure.mau.params, view, {
+        tap: live && sc.type === 'tap' && !state.correct,
+        region: live && sc.type === 'region' && !state.correct,
+        slide: sc.type === 'slide' && (state.correct ? 'to' : true),
+      });
+    } else if (sc.frames) {
+      const frame = sc.frames.frames[Math.max(0, Math.min(sc.frames.frames.length, view.buoc || 1) - 1)];
+      html = frame ? staticFigure(frame) : placeholder();
+    } else html = staticFigure(figure.src);
+    return html ? `<div class="chat-figure">${html}</div>` : '';
+  }
+
+  function quizHTML(quiz, state, live, index, isCalc = false) {
+    if (!quiz) return '';
+    const id = 'q' + index;
+    const attempts = state[id] || [];
+    const order = state['order' + index] || (state['order' + index] = chatOrder(quiz.opts.length));
+    const last = quiz.opts[attempts.at(-1)];
+    const locked = attempts.includes(order.find(i => quiz.opts[i]?.ok));
+    let content = bubble(quiz.q, true);
+    if (last) {
+      const intro = last.ok && state['praise' + index] ? state['praise' + index] + ' ' : '';
+      const why = last.why.replace(/^(Đúng rồi|Đúng hướng|Chính xác|Chuẩn|Đúng)[!.:]?\s+/u, '');
+      content += answer(last.text) + feedback(last.ok ? intro + why : last.why + ' Cậu thử lại nhé.', last.ok ? '' : 'wrong');
+    }
+    if (live && !locked) {
+      for (const i of order) {
+        const wrong = attempts.includes(i);
+        const disabled = state.waiting || (wrong && !isCalc);
+        content += `<button class="chat-choice" type="button" data-option="${index},${i}"${wrong ? ' data-wrong' : ''}${disabled ? ' disabled' : ''}>${text(quiz.opts[i].text)}</button>`;
+      }
+    }
+    return content;
+  }
+
+  function knowledgeHTML(sc, count) {
+    const label = tag(CHAT_LABELS[sc.kind || sc.type] || 'Kiến thức', sc.kind || sc.type);
+    let body = sc.body || '';
+    if (sc.steps?.length) body = body.replace(CHAT_TIKZ, '');
+    const title = sc.title ? '<h2>' + text(sc.title) + '</h2>' : '';
+    const steps = sc.steps?.length ? '<ol class="chat-steps">' +
+      sc.steps.slice(0, count).map(line => '<li>' + text(line) + '</li>').join('') + '</ol>' : '';
+    return `<div class="chat-knowledge">${label}${title}<div>${text(body)}</div>${steps}</div>`;
+  }
+
+  function blockHTML(sc, state, live) {
+    let html = sc.cherry ? bubble(sc.cherry) : '';
+    html += figureHTML(sc, state, live);
+    if (sc.type === 'opening') {
+      html += bubble(sc.cauhoi, true) + bubble('Học xong bài này, cậu sẽ tự trả lời được.');
+      if (sc.nutbuoc && sc.frames?.caps.length) {
+        if (state.steps > 1) html += bubble(sc.frames.caps[state.steps - 1]);
+        if (live && state.steps !== sc.frames.caps.length) html += action('frame', sc.nutbuoc);
+      }
+    }
+    if (sc.type === 'contents') {
+      html += bubble('Bài học hôm nay', true) + '<div class="chat-knowledge"><ol>' +
+        parts.slice(1, -1).map(part => '<li>' + text(part.title) + '</li>').join('') + '</ol></div>';
+    }
+    if (['read', 'vidu'].includes(sc.type)) {
+      const count = state.steps || 1;
+      html += knowledgeHTML(sc, count);
+      if (live && count < (sc.steps?.length || 0)) html += action('step', 'Bước tiếp');
+    }
+    if (sc.type === 'tap' || sc.type === 'region') {
+      const prompt = sc.tap || sc.region;
+      html += bubble(prompt.prompt, true);
+      if (state.correct) html += feedback(prompt.ok);
+      else if (state.hit) html += feedback(prompt.nhac?.[state.hit] || prompt.hint || 'Nhìn lại hình rồi chạm lần nữa nhé.', 'wrong');
+    }
+    if (sc.type === 'quiz' || sc.type === 'closing') {
+      if (sc.quiz) html += tag(sc.label || 'Thử ngay') + quizHTML(sc.quiz, state, live, 0);
+      if (sc.emdahoc?.length && (!sc.quiz || state.correct)) {
+        html += '<div class="chat-knowledge"><h2>Cậu đã học</h2><ul>' +
+          sc.emdahoc.map(item => '<li>' + text(item) + '</li>').join('') + '</ul></div>';
+      }
+    }
+    if (sc.type === 'calc') {
+      html += tag('Cậu tính');
+      const count = state.steps || 0;
+      for (const [index, quiz] of sc.calc.items.entries()) {
+        if (index > count) break;
+        html += quizHTML(quiz, state, live && index === count, index, true);
+      }
+      if (count === sc.calc.items.length && sc.calc.ketluan) html += feedback(sc.calc.ketluan);
+    }
+    if (sc.type === 'act') {
+      const count = state.steps || 0;
+      for (const act of sc.acts.slice(0, count)) html += answer(act.label) + feedback(act.say, act.warn ? 'warn' : '');
+      if (live && sc.acts[count]) html += action('step', sc.acts[count].label);
+    }
+    if (sc.type === 'steps' && sc.frames) {
+      const index = (state.steps || 1) - 1;
+      html += tag('Hình từng bước') + bubble('Bước ' + (index + 1) + '/' + sc.frames.caps.length + '. ' + sc.frames.caps[index]);
+      if (live && index) html += action('back-frame', 'Bước trước');
+      if (live && index + 1 < sc.frames.caps.length) html += action('frame', 'Bước sau');
+    }
+    if (sc.type === 'slide') {
+      html += state.correct ? feedback(sc.slide.after) : live ? action('slide', sc.slide.label, state.waiting) : '';
+    }
+    if (sc.toggle) {
+      sc.toggle.forEach((choice, i) => {
+        if (live) html += `<button class="chat-action" type="button" data-toggle="${i}" aria-pressed="${state.toggle === i}">${text(choice.label)}</button>`;
+      });
+    }
+    if (sc.type === 'recap') {
+      html += bubble('Xong phần ' + sc.p + ' rồi, ' + (name || 'cậu') + '! Cậu thấy phần này thế nào?', true);
+      if (state.recap) html += answer('Hơi rối, nhắc lại giúp tớ') + bubble(parts[sc.p].recap || 'Mở Tóm tắt để xem các ý chính nhé.');
+    }
+    if (sc.type === 'lab') html += options.renderLab?.(sc) || '';
+    if (sc.type === 'giaimau') {
+      const clean = sc.body.replace(/\\(?:begin|end)\{giaimau\}/g, '').replace(CHAT_TIKZ, '');
+      const prompt = clean.match(/\\de\s*\{([^{}]*)\}/)?.[1];
+      if (prompt) html += bubble(prompt);
+    }
+    if (state.echo) html += answer(state.echo);
+    return html;
+  }
+
+  const turn = html => `<div class="chat-turn">${CHAT_AVATAR}<div class="chat-col">${html}</div></div>`;
+  root.innerHTML = `<div class="cherry-chat" role="region" aria-label="${chatEscape(title)}">
+    <div class="chat-top">
+      ${options.onClose ? '<button class="chat-close" type="button" data-close aria-label="Đóng lý thuyết">×</button>' : ''}
+      <div class="chat-progress" role="progressbar" aria-label="Tiến độ bài học" aria-valuemin="0" aria-valuemax="100"><b></b></div>
+      <button type="button" data-summary>Tóm tắt</button>
+      <button type="button" data-toc>Mục lục</button>
+      ${options.teacherEdit ? '<button type="button" data-edit>Sửa</button>' : ''}
+      ${options.onOldVersion ? '<button type="button" data-old-version>Bản cũ</button>' : ''}
+    </div>
+    <div class="chat-current"></div>
+    <div class="chat-finished" hidden>Cậu đã học xong <button type="button" data-summary>Xem tóm tắt</button><button type="button" data-reset>Học lại từ đầu</button></div>
+    <div class="chat-feed"><div class="chat-stream" role="log" aria-label="Trò chuyện với Cherry"></div></div>
+    <button type="button" class="chat-pip" aria-label="Cuộn về hình" hidden></button>
+    <div class="chat-dock"><button class="chat-recap-button" type="button" data-recap hidden>Hơi rối, nhắc lại</button><button type="button" data-next>Tiếp tục</button></div>
+    <dialog class="chat-pane chat-toc-pane" aria-label="Mục lục"></dialog>
+    <dialog class="chat-pane chat-summary-pane" aria-label="Tóm tắt"></dialog>
+    <div class="chat-toast" role="status" hidden></div>
+  </div>`;
+  const shell = root.firstElementChild;
+  const $ = selector => shell.querySelector(selector);
+  const feed = $('.chat-feed'), stream = $('.chat-stream'), current = $('.chat-current');
+  const next = $('[data-next]'), recap = $('[data-recap]'), pip = $('.chat-pip');
+  const toc = $('.chat-toc-pane'), summary = $('.chat-summary-pane'), toast = $('.chat-toast');
+  const finished = $('.chat-finished'), progress = $('.chat-progress');
+  let pipFigure = null;
+
+  function ready(sc, state) {
+    if (sc.quiz || ['tap', 'region', 'slide'].includes(sc.type)) return !!state.correct;
+    if (sc.type === 'calc') return state.steps === sc.calc.items.length;
+    if (sc.type === 'act') return state.steps === sc.acts.length;
+    if (sc.type === 'vidu') return (state.steps || 1) >= sc.steps.length;
+    if (sc.type === 'steps' && sc.frames) return (state.steps || 1) === sc.frames.caps.length || state.viewedFrames;
+    if (sc.type === 'opening' && sc.nutbuoc && sc.frames) return state.steps === sc.frames.caps.length;
+    if (sc.toggle) return state.toggles?.length === sc.toggle.length;
+    return true;
+  }
+
+  function dock() {
+    const sc = activeScreen(), state = visits.at(-1);
+    if (!sc) return;
+    const enabled = ready(sc, state);
+    next.disabled = busy || !enabled;
+    recap.hidden = busy || sc.type !== 'recap' || Boolean(state.recap);
+    const hints = {
+      quiz: 'Chọn một đáp án', closing: 'Chọn một đáp án', tap: 'Chạm vào hình',
+      region: 'Chạm vào hình', calc: 'Trả lời để tiếp tục', steps: 'Xem hết các bước',
+      vidu: 'Xem hết lời giải', act: 'Làm từng thao tác', slide: 'Thử di chuyển hình',
+      opening: 'Khám phá hình',
+    };
+    const endsPart = screens[visits.length]?.type === 'recap';
+    next.textContent = busy ? 'Cherry đang soạn…' : !enabled ? (hints[sc.type] || 'Khám phá hình') :
+      sc.type === 'closing' ? (options.finish ? 'Vào làm bài' : 'Xong bài') :
+      sc.type === 'recap' && !state.recap ? 'Tớ hiểu rồi' : endsPart ? 'Xong phần ' + sc.p : 'Tiếp tục';
+    const completion = complete ? 100 : Math.round((visits.length - 1 + Number(enabled)) / screens.length * 100);
+    progress.setAttribute('aria-valuenow', String(completion));
+    progress.firstElementChild.style.width = completion + '%';
+    finished.hidden = !complete;
+  }
+
+  function updatePip() {
+    const figure = rows.at(-1)?.querySelector('.chat-figure');
+    const above = figure && figure.getBoundingClientRect().bottom < feed.getBoundingClientRect().top + 5;
+    pip.hidden = !above;
+    if (!above || figure === pipFigure) return;
+    pipFigure = figure;
+    const graphic = figure.querySelector('svg,img')?.cloneNode(true);
+    pip.replaceChildren(document.createTextNode('Hình · chạm để xem'));
+    if (!graphic) return;
+    for (const node of graphic.querySelectorAll('.cat-hit')) node.remove();
+    for (const node of [graphic, ...graphic.querySelectorAll('[id]')]) node.removeAttribute('id');
+    graphic.setAttribute('aria-hidden', 'true');
+    pip.appendChild(graphic);
+  }
+
+  function render(index, focus) {
+    const sc = screens[index], state = visits[index], row = rows[index];
+    const column = row.querySelector('.chat-col');
+    clearMath(column);
+    column.innerHTML = blockHTML(sc, state, index === visits.length - 1 && !state.final);
+    if (sc.type === 'lab') options.bindLab?.(column);
+    typeset(column);
+    if (focus) {
+      const replacement = column.querySelector(focus);
+      (replacement || next).focus({ preventScroll: true });
+    }
+    updatePip();
+  }
+
+  function append(index) {
+    const sc = screens[index];
+    if (!anchors.has(sc.p)) {
+      const separator = document.createElement('div');
+      separator.className = 'chat-separator';
+      separator.innerHTML = '<span>' + text(partLabel(sc.p)) +
+        (parts[sc.p].goal ? '<small>Cậu sẽ: ' + text(parts[sc.p].goal) + '</small>' : '') + '</span>';
+      anchors.set(sc.p, separator);
+      stream.appendChild(separator);
+    }
+    stream.insertAdjacentHTML('beforeend', turn(''));
+    rows.push(stream.lastElementChild);
+    render(index);
+    setTitle(sc.p);
+    dock();
+    save();
+  }
+
+  function addNext() {
+    const index = visits.length;
+    if (index >= screens.length) return;
+    const add = () => {
+      busy = false;
+      visits.push({});
+      append(index);
+      scroll(anchors.get(screens[index].p) === rows[index].previousElementSibling
+        ? rows[index].previousElementSibling : rows[index]);
+    };
+    if (reduced) return add();
+    busy = true;
+    dock();
+    stream.insertAdjacentHTML('beforeend', turn('<div class="chat-bubble chat-dots" role="status" aria-label="Cherry đang soạn"><i></i><i></i><i></i></div>'));
+    const typing = stream.lastElementChild;
+    scroll(typing);
+    setTimeout(() => {
+      typing.remove();
+      if (shell.isConnected) add();
+    }, 650);
+  }
+
+  function refresh({ scrollToEnd = false, focus } = {}) {
+    render(visits.length - 1, focus);
+    dock();
+    save();
+    if (scrollToEnd) scroll(rows.at(-1).querySelector('.chat-col').lastElementChild);
+  }
+
+  function notify(message) {
+    clearTimeout(toastTimer);
+    toast.textContent = message;
+    toast.hidden = false;
+    toastTimer = setTimeout(() => { toast.hidden = true; }, 1800);
+  }
+
+  function change(event, keyboard = false) {
+    const target = event.target.closest('[data-option],[data-step],[data-toggle],[data-frame],[data-back-frame],[data-slide],.cat-hit');
+    if (!target || busy || !rows.at(-1)?.contains(target) || target.disabled || visits.at(-1).final) return;
+    if (keyboard) event.preventDefault();
+    const sc = activeScreen(), state = visits.at(-1);
+    if (target.dataset.option !== undefined) {
+      const [index, choice] = target.dataset.option.split(',').map(Number);
+      const quiz = sc.calc?.items[index] || sc.quiz;
+      const picked = quiz.opts[choice];
+      (state['q' + index] ||= []).push(choice);
+      if (picked.ok) {
+        const praiseIndex = seenOptions++ % praise.length;
+        state['praise' + index] = praise[praiseIndex];
+        if (sc.calc) state.steps = index + 1;
+        else state.correct = true;
+      } else if (sc.calc) {
+        state.waiting = true;
+        setTimeout(() => {
+          delete state.waiting;
+          if (shell.isConnected && state === visits.at(-1)) refresh({ focus: '[data-option]:not(:disabled)' });
+        }, 1800);
+      }
+      refresh({ scrollToEnd: true, focus: '[data-option]:not(:disabled)' });
+    } else if (target.matches('.cat-hit')) {
+      const key = target.dataset.angle || target.dataset.region;
+      state.hit = key;
+      state.correct = key === (sc.tap?.ans || sc.region?.key);
+      refresh({ scrollToEnd: state.correct, focus: state.correct ? '[data-none]' : '.cat-hit[data-' +
+        (sc.tap ? 'angle' : 'region') + '="' + CSS.escape(key) + '"]' });
+    } else if (target.dataset.toggle !== undefined) {
+      state.toggle = Number(target.dataset.toggle);
+      state.toggles = [...new Set([...(state.toggles || []), state.toggle])];
+      refresh({ focus: `[data-toggle="${state.toggle}"]` });
+    } else if (target.hasAttribute('data-slide')) {
+      const moving = rows.at(-1).querySelector('.cat-slide');
+      state.waiting = true;
+      target.disabled = true;
+      if (moving && !reduced) moving.style.transform = `translate(${moving.dataset.dx}px,${moving.dataset.dy}px)`;
+      setTimeout(() => {
+        delete state.waiting;
+        state.correct = true;
+        if (shell.isConnected && state === visits.at(-1)) refresh({ scrollToEnd: true, focus: '[data-none]' });
+      }, reduced || !moving ? 0 : 1400);
+    } else {
+      const back = target.hasAttribute('data-back-frame');
+      state.steps = (state.steps || (sc.type === 'act' ? 0 : 1)) + (back ? -1 : 1);
+      if (sc.frames?.caps.length === state.steps) state.viewedFrames = true;
+      refresh({ scrollToEnd: true, focus: '[data-step],[data-frame],[data-back-frame]' });
+    }
+  }
+
+  function finishState(sc, state) {
+    const completeQuiz = (quiz, index) => {
+      const correct = quiz.opts.findIndex(option => option.ok);
+      const attempts = state['q' + index] ||= [];
+      if (attempts.at(-1) !== correct) attempts.push(correct);
+    };
+    if (sc.quiz) {
+      completeQuiz(sc.quiz, 0);
+      state.correct = true;
+    }
+    if (sc.type === 'tap' || sc.type === 'region') {
+      state.hit = sc.tap?.ans || sc.region?.key;
+      state.correct = true;
+    }
+    if (sc.type === 'calc') {
+      sc.calc.items.forEach(completeQuiz);
+      state.steps = sc.calc.items.length;
+    }
+    if (sc.type === 'vidu') state.steps = sc.steps.length;
+    if (sc.type === 'act') state.steps = sc.acts.length;
+    if (sc.frames) state.steps = sc.frames.caps.length;
+    if (sc.type === 'slide') state.correct = true;
+    state.final = true;
+  }
+
+  function showToc() {
+    toc.innerHTML = '<header><h2>Mục lục</h2><button type="button" data-dismiss>Đóng</button></header>' +
+      '<div class="chat-pane-scroll"><div class="chat-summary-inner">' + parts.map((part, p) => {
+        const reached = anchors.has(p), done = activeScreen().p > p || complete;
+        return `<button type="button" class="chat-toc-item" data-part="${p}" ${focusedPart === p ? 'aria-current="step"' : ''}
+          aria-disabled="${!reached && !options.teacher}"><b>${done ? '✓' : (p || '★')}</b><span>${text(partLabel(p))}
+          <small>${done ? 'Đã xong' : reached ? 'Đang học' : 'Chưa tới'}</small></span></button>`;
+      }).join('') + '</div></div>';
+    toc.showModal();
+  }
+
+  function summaryHTML() {
+    const correct = topic.chat.ketbai?.quiz?.opts.find(option => option.ok);
+    const section = (p, body) => `<section data-section="${p}"><h3>${text(partLabel(p))}</h3>${body}</section>`;
+    const opening = screens.find(sc => sc.type === 'opening');
+    const start = opening ? figureHTML(opening, {}) + bubble(opening.cauhoi, true) +
+      (correct ? feedback(correct.text + ' ' + correct.why) : '') : '';
+    const content = parts.slice(1, -1).map((part, i) => {
+      const p = i + 1;
+      const included = screens.filter(sc => sc.p === p && ['read', 'vidu'].includes(sc.type));
+      const material = included.map(sc => {
+        const state = { steps: sc.steps?.length || 0 };
+        return figureHTML(sc, state) + knowledgeHTML(sc, state.steps);
+      }).join('');
+      return section(p, material || (part.recap ? bubble(part.recap) : ''));
+    }).join('');
+    const closing = topic.chat.ketbai?.emdahoc;
+    const end = closing?.length ? section(lastPart, '<ul>' + closing.map(item => '<li>' + text(item) + '</li>').join('') + '</ul>') : '';
+    return (start ? section(0, start) : '') + content + end;
+  }
+
+  function showSummary() {
+    clearMath(summary);
+    summary.innerHTML = '<header><h2>Tóm tắt</h2><button type="button" data-dismiss>Đóng</button></header>' +
+      '<div class="chat-pane-scroll"><div class="chat-summary-inner">' + summaryHTML() + '</div></div>';
+    summary.showModal();
+    typeset(summary);
+    summary.querySelector(`[data-section="${focusedPart}"]`)?.scrollIntoView({ block: 'start' });
+  }
+
+  function restart() {
+    clearMath(stream);
+    stream.replaceChildren();
+    visits = [{}];
+    complete = false;
+    seenOptions = 0;
+    rows.length = 0;
+    anchors.clear();
+    storage.write(null);
+    append(0);
+    feed.scrollTop = 0;
+  }
+
+  shell.addEventListener('click', event => {
+    const target = event.target.closest('button');
+    if (!target) return;
+    if (target.hasAttribute('data-close')) options.onClose?.();
+    else if (target.hasAttribute('data-edit')) options.teacherEdit?.();
+    else if (target.hasAttribute('data-old-version')) options.onOldVersion?.();
+    else if (target.hasAttribute('data-summary')) showSummary();
+    else if (target.hasAttribute('data-toc')) showToc();
+    else if (target.hasAttribute('data-dismiss')) target.closest('dialog').close();
+    else if (target.hasAttribute('data-reset')) restart();
+    else if (target === pip) scroll(rows.at(-1)?.querySelector('.chat-figure'));
+    else if (target.dataset.part !== undefined) {
+      const p = Number(target.dataset.part);
+      toc.close();
+      if (!anchors.has(p) && !options.teacher) return notify('Học tới phần đó thì mở nhé');
+      if (busy) return;
+      if (!anchors.has(p)) {
+        while (activeScreen().p < p) {
+          finishState(activeScreen(), visits.at(-1));
+          render(visits.length - 1);
+          visits.push({});
+          append(visits.length - 1);
+        }
+      }
+      setTitle(p);
+      scroll(anchors.get(p));
+    }
+  });
+  stream.addEventListener('click', change);
+  stream.addEventListener('keydown', event => {
+    if ((event.key === 'Enter' || event.key === ' ') && event.target.closest('.cat-hit')) change(event, true);
+  });
+  next.onclick = () => {
+    if (busy) return;
+    const sc = activeScreen(), state = visits.at(-1);
+    if (!ready(sc, state)) return;
+    if (sc.type === 'closing') {
+      complete = true;
+      state.final = true;
+      refresh();
+      options.finish?.();
+      return;
+    }
+    if (sc.type === 'recap' && !state.recap) state.echo = 'Tớ hiểu rồi';
+    else if (!sc.quiz && !['act', 'calc', 'tap', 'region', 'recap'].includes(sc.type)) state.echo = CHAT_ECHO[(visits.length - 1) % CHAT_ECHO.length];
+    state.final = true;
+    refresh();
+    addNext();
+  };
+  recap.onclick = () => {
+    if (busy || activeScreen().type !== 'recap') return;
+    visits.at(-1).recap = true;
+    refresh({ scrollToEnd: true });
+  };
+  feed.addEventListener('scroll', () => {
+    updatePip();
+    const cutoff = feed.getBoundingClientRect().top + feed.clientHeight * .32;
+    let p = 0;
+    for (const [part, anchor] of anchors) {
+      if (anchor.getBoundingClientRect().top > cutoff) break;
+      p = part;
+    }
+    if (feed.scrollTop + feed.clientHeight >= feed.scrollHeight - 4) p = activeScreen().p;
+    setTitle(p);
+  }, { passive: true });
+  if (!visits.length) restart();
+  else {
+    for (const [i, state] of visits.entries()) {
+      delete state.waiting;
+      if (i < visits.length - 1 || complete) state.final = true;
+      append(i);
+    }
+    scroll(rows.at(-1), false);
+    updatePip();
+  }
+  if (options.openSummary) showSummary();
+  return { restart, showSummary };
+}
 
 const THK={dinhnghia:['Định nghĩa','#3aa8e0'],quytac:['Quy tắc','#2fb787'],congthuc:['Công thức','#ffb703'],dinhly:['Định lý','#8d7bff'],tinhchat:['Tính chất','#8d7bff'],luuy:['Lưu ý','#ef3b55'],vidu:['Ví dụ','#7a9399']};
 function theoryHTML(items){let nv=0;return (items||[]).map(it=>{const [n,c]=THK[it.k]||['',  '#7a9399'];
