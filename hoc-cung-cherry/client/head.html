@@ -145,6 +145,17 @@ mjx-container{max-width:100%;overflow-x:auto;overflow-y:hidden}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 </style>
 <script>
+/* Máy cũ: bù các hàm Safari < 15.4 chưa có; nếu mã chính không chạy được thì báo rõ thay vì đứng ở màn logo. */
+if(!Array.prototype.at)Object.defineProperty(Array.prototype,'at',{value:function(i){i=Math.trunc(i)||0;if(i<0)i+=this.length;return this[i]},writable:true,configurable:true});
+if(!String.prototype.at)Object.defineProperty(String.prototype,'at',{value:function(i){i=Math.trunc(i)||0;if(i<0)i+=this.length;return i<0||i>=this.length?undefined:this.charAt(i)},writable:true,configurable:true});
+if(!Object.hasOwn)Object.hasOwn=function(o,k){return Object.prototype.hasOwnProperty.call(o,k)};
+window.__cherryUp=0;
+window.addEventListener('error',function(e){if(window.__cherryUp||e.target&&e.target!==window)return;window.__cherryFail=(e.message||'')+' @'+(e.lineno||'')});
+window.addEventListener('load',function(){setTimeout(function(){if(window.__cherryUp)return;var d=document.createElement('div');
+d.style.cssText='position:fixed;left:0;right:0;bottom:0;z-index:99999;background:#fff3c4;color:#5a4300;padding:14px 16px;font:15px/1.4 sans-serif;text-align:center';
+d.innerHTML='Máy của em chưa chạy được app. Em thử: cập nhật iOS (Cài đặt › Cài đặt chung › Cập nhật phần mềm), hoặc mở link bằng Safari mới nhất / Chrome, rồi báo thầy nhé.<br><small>'+String(window.__cherryFail||'không rõ lỗi').replace(/</g,'&lt;')+'</small>';document.body.appendChild(d)},6000)});
+</script>
+<script>
 window.MathJax={tex:{inlineMath:[['$','$'],['\\(','\\)']],displayMath:[['$$','$$'],['\\[','\\]']]},svg:{fontCache:'global'},
 startup:{typeset:false,ready(){MathJax.startup.defaultReady();MathJax.startup.promise.then(()=>{window.__mjReady=true;MathJax.typesetPromise([document.body]).catch(()=>{}).then(()=>{if(window.mathFit)mathFit(document.body)})})}}};
 </script>

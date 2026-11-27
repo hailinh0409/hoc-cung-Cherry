@@ -569,8 +569,10 @@ function lessonLabel(source) {
 }
 
 function chatMath(text, warn) {
-  if ([...text.matchAll(/(?<!\\)\$(?!\$)((?:\\.|[^$\\])+)\$/g)]
-    .some(match => /[=<>]|\\Rightarrow\b/.test(match[1]))) {
+  // Không dùng regex lookbehind: Safari iOS < 16.4 báo lỗi cú pháp làm cả app không chạy.
+  // Cặp "\\x" được nuốt trước nên "\\$" không bao giờ mở một công thức.
+  if ([...text.matchAll(/\\[\s\S]|\$(?!\$)((?:\\.|[^$\\])+)\$/g)]
+    .some(match => match[1] !== undefined && /[=<>]|\\Rightarrow\b/.test(match[1]))) {
     warn('Viết công thức có dấu so sánh hoặc suy ra trên dòng riêng \\[…\\]');
   }
 }
