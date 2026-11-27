@@ -1,17 +1,17 @@
 // Ghép giao diện (thư mục client/) thành public/app.html, và sinh lib/items.js cho máy chủ.
 //   node scripts/build-app.mjs
 import { readFileSync, writeFileSync } from 'node:fs';
-const R = p => readFileSync(new URL('../' + p, import.meta.url), 'utf8');
+const R = p => readFileSync(new URL('../' + p, import.meta.url), 'utf8').replace(/\r\n/g, '\n');
 const strip = s => s.replace(/^import .*$\n?/gm, '').replace(/^export (default )?/gm, '');
 const must = (s, a, b) => { if (!s.includes(a)) throw new Error('Không tìm thấy đoạn cần thay: ' + a.slice(0, 60)); return s.replace(a, () => b); };
 
-const lib = ['lib/params.js', 'lib/latex.js', 'lib/srs.js', 'lib/rank.js'].map(f => strip(R(f))).join('\n');
+const lib = ['lib/params.js', 'lib/latex.js', 'lib/chat-source.js', 'lib/srs.js', 'lib/rank.js'].map(f => strip(R(f))).join('\n');
 const head0 = R('client/head.html');
 let head = head0.slice(0, head0.indexOf('</style>'));
 const mj = head0.slice(head0.indexOf('</style>'), head0.indexOf('<!-- ====='));
 head = head.replace(/<title>[^<]*<\/title>/, '<title>Học cùng Cherry</title>')
   .replace('<head>', '<head>\n<link rel="manifest" href="/manifest.webmanifest"><meta name="theme-color" content="#0b4654"><link rel="apple-touch-icon" href="/apple-icon.png"><link rel="icon" href="/icon.svg" type="image/svg+xml">');
-const css = R('client/app1.css') + R('client/app2.css') + R('client/responsive.css') + R('client/lesson.css') + `
+const css = R('client/app1.css') + R('client/app2.css') + R('client/responsive.css') + R('client/lesson.css') + R('client/chat.css') + `
 .gvlink{margin-top:4px;font-size:13px;color:#7a9399;text-decoration:underline;align-self:center}
 .figmiss{display:inline-block;padding:6px 10px;border-radius:8px;background:#fff3c4;color:#7a5a00;font-size:13px}
 img.fig{display:block;max-width:100%;height:auto;margin:8px auto;background:#fff;border-radius:8px}
@@ -22,7 +22,7 @@ js = must(js, '/*@@LIB@@*/', lib);
 js = must(js, '@@FX@@', R('client/fx.js'));
 js = must(js, '@@SVG@@', R('client/svg.js'));
 js = must(js, '@@Q2@@', R('client/q2.js'));
-js = must(js, '/*@@LESSON@@*/', strip(R('client/hinhmau.js')) + '\n' + R('client/lesson.js'));
+js = must(js, '/*@@LESSON@@*/', strip(R('client/hinhmau.js')) + '\n' + R('client/lesson.js') + '\n' + strip(R('client/chat.js')));
 js = must(js, '@@ART@@', R('client/art.js') + R('client/items.js'));
 js = must(js, "function login(view='in',msg=''){", "function login_artifact(view='in',msg=''){");
 js = must(js, 'function start(){', 'function start_artifact(){');

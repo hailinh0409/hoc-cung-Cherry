@@ -107,3 +107,88 @@ export function catTuyen(params={},state={}, {tap=false,region=false,slide=false
   return `<svg viewBox="0 0 395 325" role="${tap||region?'group':'img'}" aria-label="${catEsc('Đường thẳng '+c+' cắt '+a+' và '+b+' tại '+A+' và '+B)}">
     <style>.cat-label{font:italic 19px "Times New Roman",serif}.cat-number{font:16px "Times New Roman",serif}.cat-value{font:700 13.5px Nunito,sans-serif}</style>${out}</svg>`;
 }
+
+const CHAT_FIG_INK='#14323a';
+function scaleItem(it,x,y,w,h){
+  if(it.k==='w')return `<circle cx="${x}" cy="${y}" r="11" fill="#9fb4c2" stroke="#4d6372" stroke-width="1.5"/><text x="${x}" y="${y}" dy=".35em" text-anchor="middle" font-size="12" font-weight="700" fill="#fff" font-family="Be Vietnam Pro">${catEsc(it.label||'1')}</text>`;
+  if(it.k==='big')return `<rect x="${x-w/2}" y="${y-h/2}" width="${w}" height="${h}" rx="7" fill="#9fb4c2" stroke="#4d6372" stroke-width="1.5"/><text x="${x}" y="${y}" dy=".35em" text-anchor="middle" font-size="13" font-weight="700" fill="#fff" font-family="Be Vietnam Pro">${catEsc(it.label)}</text>`;
+  if(it.k==='pom')return `<circle cx="${x}" cy="${y}" r="22" fill="#d7e87a" stroke="#8aa536" stroke-width="2"/><path d="M${x} ${y-22}q6 -10 14 -8q-4 8 -14 8" fill="#4fa34a"/><text x="${x}" y="${y+2}" dy=".35em" text-anchor="middle" font-size="22" font-weight="700" fill="${CHAT_FIG_INK}" font-family="Be Vietnam Pro">${catEsc(it.label||'?')}</text>`;
+  return `<path d="M${x-18} ${y+20}q-6 -22 8 -30l-2 -8h24l-2 8q14 8 8 30z" fill="#f2b14a" stroke="#b9770e" stroke-width="2"/><text x="${x}" y="${y+8}" text-anchor="middle" font-size="22" font-style="italic" font-family="Times New Roman" fill="${CHAT_FIG_INK}">${catEsc(it.label||'x')}</text>`;
+}
+function drawScale(o={}){
+  const cx=210,py=60,half=140,a=(({bal:0,L:-9,R:9})[o.tilt||'bal'])*Math.PI/180;
+  const Lx=cx-half*Math.cos(a),Ly=py-half*Math.sin(a),Rx=cx+half*Math.cos(a),Ry=py+half*Math.sin(a);
+  const dims=it=>it.k==='w'?[24,24]:it.k==='big'?[70,28]:it.k==='pom'?[46,46]:[44,40];
+  const pan=(ex,ey,items)=>{
+    const p2=ey+80;let g=`<line x1="${ex}" y1="${ey}" x2="${ex-52}" y2="${p2}" stroke="#7a5a2f" stroke-width="2"/><line x1="${ex}" y1="${ey}" x2="${ex+52}" y2="${p2}" stroke="#7a5a2f" stroke-width="2"/>`;
+    const rows=[];let row=[],wr=0;
+    items.forEach(it=>{const[w,h]=dims(it);if(row.length&&wr+w+4>108){rows.push(row);row=[];wr=0}row.push({it,w,h});wr+=w+4});if(row.length)rows.push(row);
+    let y=p2-3;
+    rows.forEach(r=>{const rh=Math.max(...r.map(q=>q.h)),tw=r.reduce((t,q)=>t+q.w+4,-4);let x=ex-tw/2;r.forEach(q=>{g+=scaleItem(q.it,x+q.w/2,y-q.h/2,q.w,q.h);x+=q.w+4});y-=rh+3});
+    return g+`<path d="M${ex-60} ${p2}A60 24 0 0 0 ${ex+60} ${p2}Z" fill="#efe3c6" stroke="#9a7b4f" stroke-width="2.5"/>`};
+  let s=`<polygon points="140,238 280,238 258,216 162,216" fill="#d9c7a0" stroke="#9a7b4f" stroke-width="2"/><rect x="203" y="${py}" width="14" height="${216-py}" fill="#b08d5a"/>`;
+  s+=pan(Lx,Ly,o.L||[])+pan(Rx,Ry,o.R||[]);
+  s+=`<line x1="${Lx}" y1="${Ly}" x2="${Rx}" y2="${Ry}" stroke="#7a5a2f" stroke-width="9" stroke-linecap="round"/><circle cx="${cx}" cy="${py}" r="10" fill="#b08d5a" stroke="#7a5a2f" stroke-width="2"/>`;
+  if(o.note)s+=`<text x="210" y="22" text-anchor="middle" font-size="15" font-weight="700" fill="${(o.tilt||'bal')==='bal'?'#1f8a57':'#c2410c'}" font-family="Be Vietnam Pro">${catEsc(o.note)}</text>`;
+  return `<svg viewBox="0 0 420 250" role="img" aria-label="${catEsc(o.label||'Cân đĩa')}">${s}</svg>`;
+}
+function drawEquation(o={}){
+  const rows=o.rows||[],cx=210,RH=58,AG=32,y0=14;
+  const H=y0+rows.length*(RH+AG)-AG+14;
+  const parse=t=>{const m=t.match(/^([+−])?(.+)$/);return{sg:m[1]||'',b:m[2]}};
+  const isFr=b=>/^\d+\/\d+$/.test(b);
+  const bodyW=b=>isFr(b)?Math.max(...b.split('/').map(z=>z.length))*15+8:b.length*16+2;
+  const tw=t=>{const p=parse(t);return(p.sg?30:0)+bodyW(p.b)+12};
+  const draw=(t,x,y,c,key)=>{const p=parse(t),w=tw(t),col=c||CHAT_FIG_INK;let g='',xx=x;
+    if(p.sg){g+=`<text x="${xx+13}" y="${y}" dy=".35em" text-anchor="middle" font-size="26" font-weight="600" fill="${col}" font-family="Be Vietnam Pro">${p.sg}</text>`;xx+=30}
+    const bw=bodyW(p.b);
+    if(isFr(p.b)){const[n,d]=p.b.split('/');g+=`<text x="${xx+bw/2}" y="${y-12}" text-anchor="middle" font-size="20" fill="${col}" font-family="Times New Roman">${n}</text><line x1="${xx}" x2="${xx+bw}" y1="${y}" y2="${y}" stroke="${col}" stroke-width="2"/><text x="${xx+bw/2}" y="${y+18}" text-anchor="middle" font-size="20" fill="${col}" font-family="Times New Roman">${d}</text>`}
+    else g+=`<text x="${xx+bw/2}" y="${y}" dy=".35em" text-anchor="middle" font-size="28" ${/^[a-z]$/.test(p.b)?'font-style="italic"':''} font-family="Times New Roman" fill="${col}" font-weight="${c?700:400}">${catEsc(p.b)}</text>`;
+    if(o.tap&&key)g+=`<rect class="cat-hit" data-angle="${key}" tabindex="0" role="button" aria-label="${catEsc(t)}" x="${x-4}" y="${y-28}" width="${w}" height="56" rx="10" fill="transparent"><title>${catEsc(t)}</title></rect>`;
+    return g};
+  let s='';
+  rows.forEach((r,i)=>{const yc=y0+i*(RH+AG)+RH/2;
+    s+=`<rect x="12" y="${yc-RH/2}" width="396" height="${RH}" rx="14" fill="#fffaf2" stroke="#ece3d1" stroke-width="2"/>`;
+    const L=r.l||[],Rr=r.r||[],totL=L.reduce((t,z)=>t+tw(z),0),totR=Rr.reduce((t,z)=>t+tw(z),0),kk=Math.min(1,186/(30+Math.max(totL,totR)));
+    s+=`<g transform="translate(${cx} ${yc}) scale(${kk.toFixed(3)}) translate(${-cx} ${-yc})">`;let x=cx-30-totL;
+    L.forEach((t,j)=>{s+=draw(t,x,yc,CAT_COLORS[o.colors?.[`${i+1}t${j+1}`]],`${i+1}t${j+1}`);x+=tw(t)});
+    s+=`<text x="${cx}" y="${yc}" dy=".35em" text-anchor="middle" font-size="30" fill="${CHAT_FIG_INK}" font-family="Be Vietnam Pro">=</text>`;
+    x=cx+30;Rr.forEach((t,j)=>{s+=draw(t,x,yc,CAT_COLORS[o.colors?.[`${i+1}p${j+1}`]],`${i+1}p${j+1}`);x+=tw(t)});s+='</g>';
+    if(i<rows.length-1){const ya=yc+RH/2+3,yb=ya+AG-6;
+      s+=`<path d="M${cx} ${ya}V${yb}" stroke="#149c8c" stroke-width="2.5" fill="none"/><path d="M${cx-6} ${yb-6}L${cx} ${yb}L${cx+6} ${yb-6}" stroke="#149c8c" stroke-width="2.5" fill="none" stroke-linecap="round"/>`;
+      if((o.arrows||[])[i])s+=`<text x="${cx+14}" y="${ya+AG/2-1}" dy=".35em" font-size="13" font-weight="600" fill="#0f7a6e" font-family="Be Vietnam Pro">${catEsc(o.arrows[i])}</text>`}
+  });
+  return `<svg viewBox="0 0 420 ${H}" role="${o.tap?'group':'img'}" aria-label="${catEsc(o.label||'Đẳng thức')}">${s}</svg>`;
+}
+
+export function can(params = {}, state = {}) {
+  const values = { ...params, ...state };
+  const side = items => (items || []).flatMap(({ kind, count, label }) => {
+    if (kind === 'q') return count <= 12
+      ? Array.from({ length: count }, () => ({ k: 'w' }))
+      : [{ k: 'big', label: count + ' × 1' }];
+    return [{ k: { k: 'big', t: 'bag', b: 'pom' }[kind], label }];
+  });
+  const L = side(values.trai), R = side(values.phai);
+  const describe = items => items.map(item => item.label || '1').join(', ') || 'trống';
+  return drawScale({
+    L, R, tilt: { trai: 'L', phai: 'R' }[values.nghieng], note: values.ghichu,
+    label: 'Cân đĩa. Trái: ' + describe(L) + '. Phải: ' + describe(R),
+  });
+}
+
+export function dangThuc(params = {}, state = {}, { tap = false } = {}) {
+  const values = { ...params, ...state, to: { ...params.to, ...state.to } };
+  const rows = [];
+  for (let i = 1; i <= (values.dong || 4); i++) {
+    const row = values['dong' + i];
+    if (!row) break;
+    const [l, r] = row.map(side => side.map(term => term.replace(/^-/, '−')));
+    rows.push({ l, r });
+  }
+  if (!rows.length) return '';
+  return drawEquation({
+    rows, colors: values.to, tap, arrows: [values.mui1, values.mui2, values.mui3],
+    label: rows.map(({ l, r }) => l.join(' ') + ' = ' + r.join(' ')).join('. '),
+  });
+}

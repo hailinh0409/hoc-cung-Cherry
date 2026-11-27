@@ -41,7 +41,19 @@ function builtInLesson(t){
   if(t?.khoi==='6'&&t.chuong==='k6-b1'&&!t.theory?.some(it=>['loidan','minhhoa','thungay'].includes(it.k)))return setLesson;
   return null;
 }
-function hasTheory(t){return Boolean(t?.lesson?.parts.length||t?.theory?.length||builtInLesson(t))}
+function showsChat(t,version){
+  return Boolean(t?.chatValid&&t.chat&&(GV()?version!=='old':BAI_CHAT_KHOI.includes(Number(t.khoi))));
+}
+function hasTheory(t){return showsChat(t)||Boolean(t?.lesson?.parts.length||t?.theory?.length||builtInLesson(t))}
+function renderChatInApp(root,t,options={}){
+  const renderTikz=code=>{
+    const hash=typeof FIGS==='object'&&FIGS[code];
+    return /^[0-9a-f]{40}$/.test(hash||'')?`<img class="fig" src="/hinh/${hash}" alt="Hình vẽ">`:'';
+  };
+  return renderChatLesson(root,t,{teacher:GV(),studentName:GV()?'An':ACC?.name,progressScope:ACC?.id,
+    typeset,renderTikz,figurePlaceholder:'Hình đang chờ dịch',
+    renderLab:sc=>authoredTheoryHTML({...sc,k:sc.kind}),bindLab:bindAuthoredTheory,...options});
+}
 function theoryTopics(k){return mapItems(k).map(item=>item.t).filter(hasTheory)}
 
 function theoryIndex(){
@@ -1120,7 +1132,13 @@ function openTheoryReview(t,returnLabel='Tiếp tục làm bài'){
   close.textContent=returnLabel;
   close.onclick=()=>dialog.close();
   dialog.showModal();
-  renderLessonSummary(content,t);
+  if(showsChat(t)){
+    content.classList.add('chat-review-preview');
+    renderChatInApp(content,t,{persist:false,openSummary:true,onSummaryClose:()=>dialog.close()});
+  }else{
+    content.classList.remove('chat-review-preview');
+    renderLessonSummary(content,t);
+  }
   dialog.scrollTop=0;
 }
 
