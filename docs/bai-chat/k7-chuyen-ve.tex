@@ -1,0 +1,168 @@
+% =====================================================================
+% Toán 7 · Bài 4 (KNTT): phần QUY TẮC CHUYỂN VẾ, viết theo cú pháp bài chat
+% (docs/bai-chat/cu-phap.md). Thầy Linh duyệt kịch bản 27/11/2026 qua bản thử
+% docs/bai-chat/ban-thu-dai-so.html.
+% Dùng làm: (1) dữ liệu kiểm tra cho bộ đọc và giao diện chat (tests),
+%           (2) bài mẫu cho Gemini.
+% Chủ đề trên app: lop7-b4-thu-tu-phep-tinh-chuyen-ve. Bài SGK còn mục
+% "Thứ tự thực hiện các phép tính"; khi soạn thật, Gemini thêm một \phan cho mục đó
+% TRƯỚC phần 1 dưới đây. File mẫu này chỉ có phần chuyển vế.
+% =====================================================================
+\begin{baichat}
+
+% ---------------- MỞ ĐẦU ----------------
+\begin{modau}
+\cherry{Chào \ten! Cái cân này đang thăng bằng. Quả bưởi ở đĩa trái nặng bao nhiêu nhỉ?}
+\cauhoi{Quả bưởi nặng bao nhiêu kilôgam?}
+\hinhmau{can}{trai=b:? + k:5,1 kg; phai=k:7 kg; ghichu=Cân thăng bằng}
+\end{modau}
+
+% ---------------- PHẦN 1 ----------------
+\phan{Tính chất của đẳng thức}{Hiểu vì sao thêm hoặc bớt cùng một số ở hai vế thì đẳng thức vẫn đúng}
+\nhaclai{Đẳng thức giống chiếc cân thăng bằng: thêm hoặc bớt \textbf{cùng một số} ở hai vế thì đẳng thức vẫn đúng. \[a = b \Rightarrow a + c = b + c\] \[a + c = b + c \Rightarrow a = b\]}
+\hinhchung{\hinhmau{can}{trai=t:x + q*3; phai=q*7; ghichu=Cân thăng bằng}}
+
+\cherry{Túi kẹo và 3 quả cân 1 kg cân bằng với 7 quả cân. Cậu thử bớt quả cân đi nhé!}
+\thaotac[lech]{Bớt 3 quả cân ở đĩa trái}{trai=t:x; nghieng=phai; ghichu=Cân lệch!}{Cân lệch về phía đĩa phải rồi. Phải làm gì để cân thăng bằng lại?}
+\thaotac{Bớt 3 quả cân ở đĩa phải}{phai=q*4; nghieng=khong; ghichu=Cân thăng bằng}{Thăng bằng lại rồi! Bớt \textbf{cùng một số} ở hai đĩa thì cân vẫn thăng bằng. Túi kẹo nặng bằng 4 quả cân.}
+
+\cherry{Cân đang thăng bằng. Nếu thêm 2 quả cân vào đĩa phải thì sao?}
+\begin{thu}{Thêm 2 quả cân \textbf{chỉ} vào đĩa phải. Cân sẽ thế nào?}
+\dung{Nghiêng về đĩa phải}{Chỉ thêm vào một đĩa thì hai bên không còn bằng nhau. Muốn giữ thăng bằng phải thêm cùng một lượng ở cả hai đĩa.}
+\sai{Vẫn thăng bằng}{Đĩa phải nặng thêm, đĩa trái không đổi. Hai bên còn bằng nhau không?}
+\sai{Nghiêng về đĩa trái}{Đĩa trái có thêm gì đâu. Đĩa nào vừa nặng thêm?}
+\sai{Không đoán được}{Đoán được đấy! Chỉ đĩa phải nặng thêm, cậu nghĩ xem cân nghiêng về đâu.}
+\end{thu}
+\saukhitra{phai=q*9; nghieng=phai; ghichu=Cân nghiêng về đĩa phải}
+
+\hinhrieng{\hinhmau{dang-thuc}{dong1=a = b; dong2=a + c = b + c; mui1=cộng c vào cả hai vế}}
+\trangthai{to=2t2:lam,2p2:lam}
+\tinhchat{Tính chất của đẳng thức}{Với ba số $a$, $b$, $c$: \[a = b \Rightarrow a + c = b + c\] \[a + c = b + c \Rightarrow a = b\] \[a = b \Rightarrow b = a\]}
+
+\cherry{Thử trên một đẳng thức khác nhé, \ten!}
+\hinhrieng{\hinhmau{dang-thuc}{dong1=x - 5 = 2; dong2=x - 5 + 5 = 2 + 5; mui1=cộng 5 vào cả hai vế}}
+\trangthai{dong=1}
+\begin{thu}{Từ đẳng thức \[x - 5 = 2\] cộng 5 vào cả hai vế, ta được:}
+\dung{$x - 5 + 5 = 2 + 5$, tức $x = 7$}{Cộng 5 vào cả hai vế: \[x - 5 + 5 = 2 + 5\] \[x = 7\]}
+\sai{$x - 5 + 5 = 2$, tức $x = 2$}{Cậu mới cộng 5 vào vế trái, còn vế phải thì sao? Phải cộng cùng một số ở cả hai vế.}
+\sai{$x = 2 - 5 = -3$}{Đề bảo cộng 5 vào hai vế, không phải trừ 5.}
+\sai{$x - 5 = 2 + 5$, tức $x = 12$}{Vế trái cậu vẫn để nguyên, chưa cộng 5. Cộng 5 vào cả hai vế mới giữ được đẳng thức.}
+\end{thu}
+\saukhitra{dong=2; to=2t3:lam,2p2:lam}
+
+% ---------------- PHẦN 2 ----------------
+\phan{Quy tắc chuyển vế}{Chuyển một số hạng sang vế kia và đổi dấu đúng}
+\nhaclai{Khi chuyển một số hạng từ vế này sang vế kia của một đẳng thức, ta phải \textbf{đổi dấu} số hạng đó. \[a + b = c \Rightarrow a = c - b\] \[a - b = c \Rightarrow a = c + b\]}
+
+\cherry{Nhắc nhanh một điều sẽ cần cho quy tắc mới nhé.}
+\begin{thu}[Nhắc nhanh]{Số đối của số sau là số nào? \[-\dfrac{3}{4}\]}
+\dung{$\dfrac{3}{4}$}{Vì \[-\dfrac{3}{4} + \dfrac{3}{4} = 0\] nên hai số này là hai số đối nhau. Quy tắc chuyển vế dùng đúng điều này.}
+\sai{$-\dfrac{3}{4}$}{Đó chính là số đã cho. Số đối cộng với số đã cho phải bằng 0.}
+\sai{$\dfrac{4}{3}$}{Đó là số nghịch đảo (đổi tử và mẫu), không phải số đối. Số đối cộng với số đã cho bằng 0.}
+\sai{$-\dfrac{4}{3}$}{Số đối chỉ đổi dấu, không đổi tử và mẫu. Thử cộng với số đã cho xem có bằng 0 không.}
+\end{thu}
+
+\cherry{Muốn tìm $x$, ta bớt 3 ở cả hai vế. Chạm vào số hạng $+3$ xem nó đi đâu nhé!}
+\hinhrieng{\hinhmau{dang-thuc}{dong1=x + 3 = 7; dong2=x = 7 - 3; mui1=chuyển +3, đổi dấu}}
+\trangthai{dong=1}
+\chamhinh{Chạm vào số hạng $+3$.}{1t2}{Đúng! Bớt 3 ở cả hai vế thì $+3$ ở vế trái mất đi, vế phải thành $7 - 3$. Số hạng $+3$ sang vế phải và \textbf{đổi dấu} thành $-3$.}{Chọn số hạng $+3$.}
+\nhac{1t1}{$x$ là số cần tìm, ta giữ nó ở vế trái. Chọn số hạng cần chuyển đi.}
+\nhac{1p1}{Số 7 đã ở vế phải rồi. Chọn số hạng ở vế trái cần chuyển đi.}
+\saukhitra{dong=2; to=1t2:cam,2p2:cam}
+
+\hinhrieng{\hinhmau{dang-thuc}{dong1=a + b = c; dong2=a = c - b; mui1=chuyển +b, đổi dấu}}
+\trangthai{to=1t2:cam,2p2:cam}
+\quytac{Quy tắc chuyển vế}{Khi chuyển một số hạng từ vế này sang vế kia của một đẳng thức, ta phải \textbf{đổi dấu} số hạng đó. \[a + b = c \Rightarrow a = c - b\] \[a - b = c \Rightarrow a = c + b\]}
+
+\hinhrieng{\hinhmau{dang-thuc}{dong1=x - 2/3 = 1/4; dong2=x = 1/4 + 2/3; dong3=x = 11/12; mui1=chuyển -2/3, đổi dấu; mui2=quy đồng rồi cộng}}
+\trangthai{dong=1; to=1t2:cam}
+\theobuoc{dong=2; to=2p2:cam}{}{dong=3; to=3p1:luc}
+\vidu{Tìm $x$, biết \[x - \dfrac{2}{3} = \dfrac{1}{4}\]}{Chuyển $-\dfrac{2}{3}$ sang vế phải và đổi dấu thành $+\dfrac{2}{3}$: \[x = \dfrac{1}{4} + \dfrac{2}{3}\] \\ Quy đồng mẫu số 12: \[x = \dfrac{3}{12} + \dfrac{8}{12}\] \\ Cộng hai phân số: \[x = \dfrac{11}{12}\]}
+
+\cherry{Đến lượt cậu chuyển vế!}
+\hinhrieng{\hinhmau{dang-thuc}{dong1=x - 7 = 3}}
+\begin{thu}{Chuyển $-7$ sang vế phải của đẳng thức \[x - 7 = 3\] ta được:}
+\dung{$x = 3 + 7$}{$-7$ sang vế phải đổi dấu thành $+7$: \[x = 3 + 7 = 10\]}
+\sai{$x = 3 - 7$}{Cậu đã chuyển $-7$ sang vế phải nhưng chưa đổi dấu. Sang vế kia, $-7$ thành dấu gì?}
+\sai{$x = -3 - 7$}{Cậu đổi dấu cả số 3, nhưng 3 không được chuyển. Chỉ đổi dấu số hạng được chuyển.}
+\sai{$x = -3 + 7$}{Số 3 ở yên nên giữ nguyên dấu. Chỉ số hạng $-7$ được chuyển và đổi dấu.}
+\end{thu}
+
+\cherry{Đổi chỗ nè: lần này $x$ ở vế phải. Cậu vẫn chuyển được chứ?}
+\hinhrieng{\hinhmau{dang-thuc}{dong1=11 = x + 4}}
+\begin{thu}{Từ đẳng thức \[11 = x + 4\] chuyển $+4$ sang vế trái, ta được:}
+\dung{$11 - 4 = x$}{$+4$ sang vế trái đổi dấu thành $-4$: \[11 - 4 = x\] Vậy \[x = 7\]}
+\sai{$11 + 4 = x$}{Cậu giữ nguyên dấu $+4$. Sang vế trái, $+4$ phải đổi dấu.}
+\sai{$-11 - 4 = x$}{Cậu đổi dấu cả số 11 là số không được chuyển.}
+\sai{$11 - 4 = -x$}{$x$ ở yên nên giữ nguyên dấu. Chỉ số hạng $+4$ được chuyển sang vế trái.}
+\end{thu}
+
+\cherry{Không nhìn lại bài nhé, \ten: câu nào đúng?}
+\begin{thu}[Tự nhớ lại]{Câu nào phát biểu đúng quy tắc chuyển vế?}
+\dung{Chuyển một số hạng sang vế kia thì đổi dấu số hạng đó}{Số hạng được chuyển sang vế kia thì đổi dấu: $+$ thành $-$, $-$ thành $+$.}
+\sai{Chuyển một số hạng sang vế kia thì giữ nguyên dấu}{Giữ nguyên dấu thì đẳng thức không còn đúng. Nhớ lại ví dụ chuyển $+3$ ở trên nhé.}
+\sai{Chuyển một số hạng sang vế kia thì đổi dấu tất cả các số hạng}{Chỉ số hạng được chuyển mới đổi dấu, các số hạng còn lại ở yên.}
+\sai{Chuyển một số hạng sang vế kia thì đổi dấu cả hai vế}{Không đổi dấu hai vế. Chỉ đổi dấu số hạng được chuyển.}
+\end{thu}
+
+% ---------------- PHẦN 3 ----------------
+\phan{Vận dụng tìm x}{Tìm x với số thập phân, phân số và số âm}
+\nhaclai{Chuyển số hạng ở vế nào cũng được, nhớ \textbf{đổi dấu} số hạng được chuyển, rồi tính. \[x + 7{,}25 = 15{,}75 \Rightarrow x = 15{,}75 - 7{,}25 = 8{,}5\]}
+
+\cherry{Cùng giải bài của SGK nào!}
+\hinhrieng{\hinhmau{dang-thuc}{dong1=x + 7,25 = 15,75; dong2=x = 15,75 - 7,25; dong3=x = 8,5; mui1=chuyển +7,25, đổi dấu; mui2=tính hiệu}}
+\trangthai{dong=1; to=1t2:cam}
+\begin{tinh}{Chuyển $+7{,}25$ sang vế phải: \[x = \ ?\]}
+\dung{$15{,}75 - 7{,}25$}{$+7{,}25$ sang vế phải đổi dấu thành $-7{,}25$.}
+\sai{$15{,}75 + 7{,}25$}{Cậu chưa đổi dấu $+7{,}25$ khi chuyển sang vế phải.}
+\sai{$7{,}25 - 15{,}75$}{Cậu đổi vị trí các số. $15{,}75$ ở yên, chỉ $+7{,}25$ được chuyển.}
+\end{tinh}
+\saukhitra{dong=2; to=2p2:cam}
+\begin{tinh}{Tính: \[15{,}75 - 7{,}25 = \ ?\]}
+\dung{$8{,}5$}{Đúng, kết quả là $8{,}5$.}
+\sai{$9$}{Tính lại phép trừ, chú ý phần thập phân nhé.}
+\sai{$23$}{23 là kết quả của phép cộng. Ở đây ta làm phép trừ.}
+\end{tinh}
+\saukhitra{dong=3; to=3p1:luc}
+\ketluan{Vậy \[x = 8{,}5\] Cậu giải đúng bài của SGK rồi!}
+
+\cherry{Thử với phân số và số âm nhé!}
+\hinhrieng{\hinhmau{dang-thuc}{dong1=x - 1/3 = -1/2; dong2=x = -1/2 + 1/3; dong3=x = -1/6; mui1=chuyển -1/3, đổi dấu; mui2=quy đồng rồi cộng}}
+\trangthai{dong=1; to=1t2:cam}
+\begin{tinh}{Từ đẳng thức \[x - \dfrac{1}{3} = -\dfrac{1}{2}\] chuyển vế, ta được \[x = \ ?\]}
+\dung{$-\dfrac{1}{2} + \dfrac{1}{3}$}{$-\dfrac{1}{3}$ sang vế phải đổi dấu thành $+\dfrac{1}{3}$.}
+\sai{$-\dfrac{1}{2} - \dfrac{1}{3}$}{Cậu chưa đổi dấu $-\dfrac{1}{3}$ khi chuyển.}
+\sai{$\dfrac{1}{2} + \dfrac{1}{3}$}{Cậu đổi dấu cả $-\dfrac{1}{2}$, nhưng số này không được chuyển.}
+\end{tinh}
+\saukhitra{dong=2; to=2p2:cam}
+\begin{tinh}{Tính: \[-\dfrac{1}{2} + \dfrac{1}{3} = \ ?\]}
+\dung{$-\dfrac{1}{6}$}{Quy đồng: \[-\dfrac{3}{6} + \dfrac{2}{6} = -\dfrac{1}{6}\]}
+\sai{$-\dfrac{5}{6}$}{Đó là kết quả của $-\dfrac{1}{2} - \dfrac{1}{3}$. Ở đây ta cộng.}
+\sai{$\dfrac{1}{6}$}{Cậu quên dấu âm. Số âm có giá trị tuyệt đối lớn hơn nên kết quả âm.}
+\end{tinh}
+\saukhitra{dong=3; to=3p1:luc}
+\ketluan{Vậy \[x = -\dfrac{1}{6}\]}
+
+\cherry{Một câu nữa, lần này $x$ nằm ở vế phải.}
+\hinhrieng{\hinhmau{dang-thuc}{dong1=-0,4 = x - 1,1}}
+\begin{thu}{Tìm $x$, biết \[-0{,}4 = x - 1{,}1\]}
+\dung{$x = -0{,}4 + 1{,}1$}{$-1{,}1$ sang vế trái đổi dấu thành $+1{,}1$: \[x = -0{,}4 + 1{,}1 = 0{,}7\]}
+\sai{$x = -0{,}4 - 1{,}1$}{Cậu chưa đổi dấu $-1{,}1$ khi chuyển sang vế trái.}
+\sai{$x = 0{,}4 - 1{,}1$}{Cậu đổi dấu $-0{,}4$ là số không được chuyển.}
+\sai{$x = 0{,}4 + 1{,}1$}{Cậu đổi dấu cả $-0{,}4$. Chỉ đổi dấu số hạng được chuyển.}
+\end{thu}
+
+% ---------------- KẾT BÀI ----------------
+\begin{ketbai}
+\cherry{Quay lại quả bưởi nào, \ten. Giờ cậu tính được rồi!}
+\hinhrieng{\hinhmau{can}{trai=b:? + k:5,1 kg; phai=k:7 kg; ghichu=Cân thăng bằng}}
+\begin{thu}{Gọi $x$ là khối lượng quả bưởi (kg), ta có \[x + 5{,}1 = 7\] Quả bưởi nặng bao nhiêu?}
+\dung{$x = 7 - 5{,}1 = 1{,}9$ (kg)}{$+5{,}1$ sang vế phải đổi dấu thành $-5{,}1$: \[x = 7 - 5{,}1 = 1{,}9\] Quả bưởi nặng 1,9 kg.}
+\sai{$x = 7 + 5{,}1 = 12{,}1$ (kg)}{Cậu chưa đổi dấu $+5{,}1$ khi chuyển vế. Quả bưởi cũng không thể nặng hơn cả đĩa bên kia.}
+\sai{$x = 5{,}1 - 7 = -1{,}9$ (kg)}{Khối lượng không thể âm. Cậu đã chuyển nhầm số hạng.}
+\sai{$x = 7 - 5{,}1 = 2{,}1$ (kg)}{Chuyển vế đúng rồi, nhưng phép trừ chưa đúng. Tính lại $7 - 5{,}1$ nhé.}
+\end{thu}
+\emdahoc{Thêm hoặc bớt cùng một số ở hai vế thì đẳng thức vẫn đúng.}{Chuyển một số hạng sang vế kia thì đổi dấu số hạng đó.}{Dùng quy tắc để tìm $x$ với số thập phân, phân số và số âm.}
+\end{ketbai}
+
+\end{baichat}

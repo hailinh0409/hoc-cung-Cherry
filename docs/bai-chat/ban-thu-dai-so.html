@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Quy tắc chuyển vế · Toán 7 · trò chuyện với Cherry</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Be+Vietnam+Pro:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* VOICE: bài giảng của thầy Linh trên điện thoại, Cherry dẫn dắt từng bước, chữ ít
+   IDEA: một tiết học: bài toán mở đầu → mục lục → khám phá, chốt, thử → kết bài trả lời câu hỏi mở đầu
+   PICTURE: hình hình học chạm được, tô màu đúng chỗ đang nói
+   COLOUR and TYPE: kem #fffaf2, xanh ngọc #149c8c của app, cam #f28c28; Baloo 2 + Be Vietnam Pro
+   LAYOUT: khung app điện thoại; hình ở trên, chữ ở dưới; màn rộng: hình trái, chữ phải */
+:root{color-scheme:light;--bg:#efe8da;--app:#fffaf2;--ink:#14323a;--mute:#6f858b;--teal:#149c8c;--teal-d:#0f7a6e;--line:#ece3d1;--or:#f28c28;--bl:#3b7be0;--gr:#2fa36b;--pu:#8b5cf6;--red:#e0475a}
+*{box-sizing:border-box;min-width:0}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 "Be Vietnam Pro",system-ui,sans-serif;overflow-x:clip}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible{outline:3px solid var(--or);outline-offset:2px}
+.demo{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center;padding:10px 12px;font-size:14px}
+.demo b{font-weight:600;color:var(--mute)}
+.seg{display:inline-flex;background:#fff;border-radius:12px;padding:3px;border:1px solid var(--line)}
+.seg button{border:0;background:none;padding:7px 12px;border-radius:9px;min-height:36px}
+.seg button.on{background:var(--teal);color:#fff}
+.dbtn{border:1px solid var(--line);background:#fff;border-radius:12px;padding:7px 12px;min-height:40px}
+.frame{margin:0 auto 18px;width:min(420px,100%);height:min(860px,calc(100vh - 70px));min-height:600px;background:var(--app);border-radius:28px;box-shadow:0 10px 40px #0002;display:flex;flex-direction:column;overflow:hidden;position:relative}
+.frame.wide{width:min(1000px,100%)}
+@media(max-width:520px){.frame{border-radius:0;height:calc(100vh - 64px)}}
+.top{display:flex;align-items:center;gap:10px;padding:14px 14px 4px}
+.x{border:0;background:none;font-size:26px;color:#8aa;width:40px;height:40px}
+.prog{flex:1;height:14px;border-radius:9px;background:#ece4d4;overflow:hidden}.prog b{display:block;height:100%;width:0;background:linear-gradient(90deg,#14a08f,#2bc48a);border-radius:9px;transition:width .3s}
+.mlbtn{border:0;background:#efe7d6;border-radius:12px;padding:8px 12px;font-weight:600;font-size:14px;display:flex;gap:6px;align-items:center;min-height:40px}
+.part{padding:2px 16px 4px;font:700 14px/1.3 "Baloo 2",sans-serif;color:var(--teal);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.body{flex:1;display:flex;overflow:hidden}
+.pin{flex:none}
+.stage{flex:1;overflow-y:auto;padding:6px 16px 16px}
+.frame:not(.wide) .body{flex-direction:column}
+.frame:not(.wide) .stage{order:2}
+.frame:not(.wide) .pin{order:1;border-bottom:2px solid var(--line);padding:4px 12px 8px}
+.frame.wide .pin{width:48%;border-right:2px solid var(--line);padding:16px;overflow:auto;display:flex;flex-direction:column;justify-content:center}
+.pinbar{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--mute)}
+.pinbar button{border:0;background:none;color:var(--teal-d);font-weight:600;font-size:13px;padding:6px 4px;min-height:32px}
+.figbox{position:relative;background:#fff;border-radius:14px}
+.figbox svg{display:block;width:100%;height:auto;max-height:30vh}
+.frame.wide .figbox svg{max-height:62vh}
+.zoom{position:absolute;right:6px;bottom:6px;border:0;background:#ffffffdd;border-radius:10px;width:36px;height:36px;font-size:18px;color:var(--teal-d)}
+.chip{border:1.5px dashed #cfc3a8;background:#fff;border-radius:12px;padding:6px 12px;font-size:14px;color:var(--teal-d);font-weight:600;min-height:38px}
+.foot{border-top:2px solid var(--line);padding:12px 14px 16px;display:flex;gap:10px}
+.go{flex:1;border:0;border-radius:16px;background:var(--teal);color:#fff;font:800 19px/1 "Baloo 2",sans-serif;letter-spacing:.06em;text-transform:uppercase;min-height:56px;box-shadow:0 4px 0 var(--teal-d)}
+.go:disabled{background:#e6dcc8;color:#a99c82;box-shadow:none}
+.recall{border:2px solid var(--line);background:#fff;border-radius:16px;padding:0 14px;font-weight:600;font-size:14px;min-height:56px}
+.kind{display:inline-block;border-radius:999px;padding:2px 12px;font-weight:600;font-size:14px;color:#fff;background:#3aa0e0;margin-top:6px}
+.kind.tinhchat{background:var(--pu)}.kind.vidu{background:#7f949a}.kind.thu{background:var(--teal)}.kind.lam{background:var(--or)}.kind.dinhly{background:#1f6fd1}.kind.nx{background:#c2410c}.kind.kp{background:#0ea5a4}
+h2{font:800 24px/1.18 "Baloo 2",sans-serif;margin:6px 0 8px;text-wrap:balance}
+.txt p{margin:0 0 8px}.txt ul{margin:0 0 8px;padding-left:22px}
+.say{display:flex;gap:10px;align-items:flex-start;margin:6px 0 10px}
+.bub{background:#fff;border:2px solid var(--line);border-radius:16px;padding:9px 13px;font-size:16px;flex:1}
+.girl{width:50px;flex:none}
+.q{font-weight:600;font-size:18px;margin:8px 0}
+.opts{display:grid;gap:10px;margin-top:10px}
+.opt{border:2px solid var(--line);background:#fff;border-radius:16px;padding:12px 14px;font-size:17px;box-shadow:0 3px 0 var(--line);min-height:54px;text-align:center}
+.opt.sel{border-color:var(--bl);background:#eef4ff}.opt.ok{border-color:var(--gr);background:#e8f7ef}.opt.no{border-color:var(--red);background:#fdecee}
+.opts.row{grid-template-columns:1fr 1fr}
+.fb{margin-top:10px;border-radius:14px;padding:10px 14px;font-size:15px}
+.fb.ok{background:#e8f7ef;color:#11613c}.fb.no{background:#fdecee;color:#8a1f2d}
+.act{border:2px solid var(--teal);background:#fff;color:var(--teal-d);border-radius:14px;padding:8px 18px;font-weight:600;min-height:46px}
+.act:disabled{opacity:.45}
+.center{text-align:center;margin-top:12px}
+.rv{border-left:4px solid var(--teal);background:#f3fbfa;border-radius:0 12px 12px 0;padding:8px 12px;margin:8px 0}
+.v{font-family:"Times New Roman",serif;font-style:italic;font-size:1.1em}
+.ang{display:inline-block;position:relative;font-family:"Times New Roman",serif;padding-top:.2em;line-height:1;white-space:nowrap}
+.ang i{font-size:1.1em}.ang sub{font-size:.7em}
+.ang::before{content:"";position:absolute;left:4%;right:4%;top:-.04em;height:.32em;border:1.4px solid currentColor;border-bottom:0;border-radius:50% 50% 0 0/100% 100% 0 0}
+.c-o{color:#c8670d;font-weight:700}.c-b{color:#2861c2;font-weight:700}.c-g{color:#1f8a57;font-weight:700}.c-p{color:#7442e0;font-weight:700}
+.sheet{position:absolute;inset:0;background:#0005;display:flex;align-items:flex-end;z-index:5}
+.sheet>div{background:var(--app);width:100%;border-radius:22px 22px 0 0;padding:16px 16px 22px;max-height:88%;overflow:auto}
+.sheet h3{font:800 22px/1.2 "Baloo 2",sans-serif;margin:4px 0 10px}
+.close{float:right;border:0;background:#efe7d6;border-radius:10px;width:40px;height:40px;font-size:20px}
+.card{display:flex;gap:12px;align-items:center;width:100%;text-align:left;border:2px solid var(--line);background:#fff;border-radius:16px;padding:10px 12px;margin-top:9px;min-height:60px}
+.card .n{flex:none;width:36px;height:36px;border-radius:12px;display:grid;place-items:center;font-weight:800;background:#e7f5f2;color:var(--teal-d)}
+.card.done .n{background:var(--teal);color:#fff}.card.lock{opacity:.55}.card.cur{border-color:var(--teal)}
+.card .t{flex:1;font-weight:600;line-height:1.3}.card .s{font-size:13px;color:var(--mute);font-weight:400;display:block}
+.bar{height:6px;background:#ece4d4;border-radius:6px;margin-top:6px;overflow:hidden}.bar b{display:block;height:100%;background:var(--teal)}
+.big{position:absolute;inset:0;background:#fffaf2;z-index:6;display:flex;flex-direction:column;padding:12px}
+.big svg{flex:1;width:100%;height:100%}
+.cap{background:#fff;border-radius:12px;padding:8px 12px;margin-top:4px;font-size:15.5px;border:2px solid var(--line)}
+.steps{display:flex;gap:8px;justify-content:center;margin-top:10px}
+.dots{display:flex;gap:6px;justify-content:center;margin-top:8px}.dots i{width:9px;height:9px;border-radius:50%;background:#e1d7c2}.dots i.on{background:var(--teal)}
+.toast{position:absolute;left:50%;top:70px;transform:translateX(-50%);background:var(--ink);color:#fff;border-radius:12px;padding:8px 14px;font-size:14px;z-index:9;white-space:nowrap}
+.ticks{list-style:none;padding:0;margin:8px 0}.ticks li{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:2px solid var(--line)}.ticks li::before{content:"✓";flex:none;width:26px;height:26px;border-radius:8px;background:var(--teal);color:#fff;display:grid;place-items:center;font-weight:800;font-size:14px}
+.note{font-size:12.5px;color:var(--mute);text-align:center;padding:0 12px 14px;max-width:660px;margin:0 auto}
+.slide{transition:transform 1.4s ease-in-out}
+.pop{animation:pop .35s ease-out both}@keyframes pop{from{opacity:0;transform:scale(.6)}to{opacity:1;transform:none}}
+svg .hit{cursor:pointer}
+@media (prefers-reduced-motion:reduce){.slide{transition:none}.pop{animation:none}.prog b{transition:none}}
+/* ===== bản chat cuộn ===== */
+.body{flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0}
+.frame.wide .body{flex-direction:row}
+.frame:not(.wide) .pin{order:0;border-bottom:2px solid var(--line);padding:4px 12px 8px;flex:none}
+.figbox{height:clamp(150px,26vh,250px)}
+.figbox svg{height:100%;max-height:none}
+.frame.wide .figbox{height:min(62vh,520px)}
+.frame.wide .figbox svg{max-height:none}
+.feed{flex:1;min-height:0;overflow-y:auto;padding:12px 14px 22px;display:flex;flex-direction:column;gap:12px;position:relative;scroll-behavior:smooth;overscroll-behavior:contain}
+@media(prefers-reduced-motion:reduce){.feed{scroll-behavior:auto}}
+.turn{display:grid;grid-template-columns:40px 1fr;gap:8px;align-items:start}
+.turn>.girl{width:40px;margin-top:2px}
+.col{display:flex;flex-direction:column;gap:8px;align-items:stretch}
+.bub{background:#fff;border:2px solid var(--line);border-radius:4px 16px 16px 16px;padding:9px 13px;font-size:16px;flex:none;align-self:flex-start;max-width:100%}
+.bub.q2{font-weight:600;font-size:17px}
+.bub.okb{background:#e8f7ef;border-color:#bfe6d0;color:#11613c}
+.me{align-self:flex-end;background:var(--teal);color:#fff;border-radius:16px 16px 4px 16px;padding:8px 14px;max-width:88%;font-size:17px}
+.me .ang,.me .v{color:#fff}
+.cardx{background:#fff;border:2px solid var(--line);border-radius:16px;padding:10px 14px}
+.cardx h2{font-size:21px;margin:4px 0 6px}
+.cardx .kind{margin-top:0}
+.hintline{font-size:14px;color:var(--mute)}
+.divider{display:flex;align-items:center;gap:10px;margin:14px 0 2px;color:var(--teal-d);text-align:center}
+.divider::before,.divider::after{content:"";flex:1;height:2px;background:var(--line)}
+.divider span{flex:0 1 auto;font:700 15px/1.25 "Baloo 2",sans-serif}
+.divider small{display:block;font:400 12.5px/1.3 "Be Vietnam Pro",sans-serif;color:var(--mute)}
+.dots3{display:flex;gap:5px;padding:12px 14px}
+.dots3 i{width:8px;height:8px;border-radius:50%;background:#b9ad92;animation:bl 1s infinite ease-in-out}
+.dots3 i:nth-child(2){animation-delay:.15s}.dots3 i:nth-child(3){animation-delay:.3s}
+@keyframes bl{0%,60%,100%{transform:none;opacity:.5}30%{transform:translateY(-4px);opacity:1}}
+@media(prefers-reduced-motion:reduce){.dots3 i{animation:none}}
+.col .opts{margin-top:0}
+.col .fb{margin-top:0}
+.card.cur{border-color:var(--teal)}
+#pin{display:none}
+.figcard{background:#fff;border:2px solid var(--line);border-radius:14px;padding:4px 6px}
+.figcard svg{display:block;width:100%;height:auto;max-height:38vh;margin:0 auto}
+.frame.wide .figcard svg{max-height:50vh}
+.body{position:relative}
+.pip{position:absolute;top:8px;right:12px;z-index:4;width:128px;background:#fff;border:2px solid var(--teal);border-radius:12px;padding:3px 4px 4px;box-shadow:0 4px 14px #0003;cursor:pointer}
+.pip small{display:block;font:600 11px/1.3 "Be Vietnam Pro",sans-serif;color:var(--teal-d);text-align:center}
+.pip svg{display:block;width:100%;height:auto;max-height:90px}
+.past .figcard{align-self:flex-start;width:112px;padding:2px 4px;cursor:zoom-in}
+.past .figcard svg{max-height:88px}
+.past .figcard.open{width:100%;cursor:zoom-out}
+.past .figcard.open svg{max-height:38vh}
+.me-row{display:flex;justify-content:flex-end}
+.go.alt{background:#fff;color:var(--teal-d);border:2px solid var(--teal);box-shadow:0 4px 0 #bfe3dd;font-size:15px;letter-spacing:.02em;flex:.8}
+.top{gap:6px}.mlbtn{padding:8px 10px}
+.sumpage{position:absolute;inset:0;background:var(--app);z-index:7;display:flex;flex-direction:column}
+.sumhead{display:flex;align-items:center;gap:10px;padding:14px 14px 8px;border-bottom:2px solid var(--line)}
+.sumhead h3{flex:1;margin:0;font:800 21px/1.2 "Baloo 2",sans-serif}
+.sumhead .close{float:none;flex:none}
+.sumbody{flex:1;overflow-y:auto;padding:12px 14px 28px;display:flex;flex-direction:column;gap:14px}
+.sumbody .sec{background:#fff;border:2px solid var(--line);border-radius:16px;padding:12px 14px}
+.sumbody .sec h4{margin:0 0 6px;font:800 18px/1.25 "Baloo 2",sans-serif;color:var(--teal-d);display:flex;gap:8px;align-items:center}
+.sumbody .sec h4 .n{flex:none;width:28px;height:28px;border-radius:9px;background:var(--teal);color:#fff;display:grid;place-items:center;font-size:15px}
+.sumbody .item{margin:10px 0 0}
+.sumbody .item p{margin:6px 0}
+.sumbody .sf{background:#fffaf2;border-radius:12px;padding:2px 4px;margin:8px 0}
+.sumbody .sf svg{display:block;width:100%;height:auto;max-height:26vh;margin:0 auto}
+.sumbody .pair{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.sumbody .pair .sf svg{max-height:20vh}
+.sumbody .pair small{display:block;text-align:center;font-size:13px;color:var(--mute);margin-top:2px}
+.sumbody ol{margin:6px 0;padding-left:22px}.sumbody ol li{margin:4px 0}
+.sumfoot{border-top:2px solid var(--line);padding:10px 14px 14px}
+.fr{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;line-height:1.1;font-size:.85em;margin:0 2px}.fr i{font-style:normal;padding:0 2px}.fr i:first-child{border-bottom:1.5px solid currentColor}
+.eqc{display:block;text-align:center;margin:8px 0;font-size:1.08em;line-height:1.5}.eqc .fr{font-size:.9em}.opt{text-align:center}
+</style>
+</head>
+<body>
+<div class="demo">
+  <b>Chat với Cherry:</b>
+  <span class="seg" id="lay"><button data-l="phone" class="on">Điện thoại</button><button data-l="wide">Màn rộng</button></span>
+  <button class="dbtn" id="reset">Làm lại</button>
+</div>
+<div class="frame" id="app">
+  <div class="top"><button class="x" aria-label="Thoát">×</button><div class="prog" role="progressbar" aria-label="Tiến độ bài"><b id="pb"></b></div><button class="mlbtn" id="sumbtn" aria-label="Trang tóm tắt"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 2h7l3 3v9H3z M10 2v3h3 M5.5 8h5 M5.5 11h5" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linejoin="round" stroke-linecap="round"/></svg>Tóm tắt</button><button class="mlbtn" id="ml"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 3h12M2 8h12M2 13h8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Mục lục</button></div>
+  <div class="part" id="part"></div>
+  <div class="body"><div class="pin" id="pin"></div><div class="feed" id="feed" aria-live="polite"></div><div class="pip" id="pip" hidden role="button" tabindex="0" aria-label="Xem lại hình"></div></div>
+  <div class="foot"><button class="go alt" id="go2" hidden>Hơi rối, nhắc lại</button><button class="go" id="go">Tiếp tục</button></div>
+</div>
+<p class="note">Bản thử Toán 7 · Quy tắc chuyển vế (Kết nối tri thức) dạng trò chuyện cuộn: Cherry nhắn từng đoạn, hình hiện ngay trong dòng chat cùng đoạn đó; vuốt lên để xem lại. Nội dung diễn đạt lại theo SGK.</p>
+<script>
+{
+/* ---------- chữ toán ---------- */
+const v=x=>`<i class="v">${x}</i>`;
+const A=(P,n,c)=>`<span class="ang${c?' c-'+c:''}"><i>${P}</i><sub>${n}</sub></span>`;
+const H=(s,c)=>`<span class="ang${c?' c-'+c:''}"><i>${s}</i></span>`;
+const par=(x,y)=>`${v(x)} ∥ ${v(y)}`;
+const GIRL=`<svg class="girl" viewBox="0 0 60 70" aria-hidden="true"><ellipse cx="30" cy="66" rx="16" ry="3" fill="#0001"/><path d="M14 64c0-12 7-18 16-18s16 6 16 18z" fill="#e8455a"/><circle cx="24" cy="54" r="1.6" fill="#fff"/><circle cx="35" cy="58" r="1.6" fill="#fff"/><circle cx="30" cy="34" r="15" fill="#ffe1cc"/><path d="M15 36c0-10 6-17 15-17s15 7 15 17c-3-5-8-7-15-7s-12 2-15 7z" fill="#7a3b1f"/><path d="M12 27c2-11 9-17 18-17s16 6 18 17c-5-4-11-5-18-5s-13 1-18 5z" fill="#e8455a"/><circle cx="22" cy="18" r="1.6" fill="#fff"/><circle cx="36" cy="16" r="1.6" fill="#fff"/><path d="M30 10c2-4 6-6 10-6" stroke="#2f8a3c" stroke-width="2" fill="none"/><path d="M38 4c3 0 5 2 6 4-3 1-5 0-6-4z" fill="#3fae4f"/><circle cx="46" cy="28" r="4" fill="#c81f3a"/><circle cx="25" cy="36" r="2.2" fill="#2a1a12"/><circle cx="35" cy="36" r="2.2" fill="#2a1a12"/><circle cx="21" cy="41" r="2.4" fill="#ffb3b8"/><circle cx="39" cy="41" r="2.4" fill="#ffb3b8"/><path d="M27 42q3 3 6 0" stroke="#a33" stroke-width="1.5" fill="none"/></svg>`;
+const COL={o:'#f28c28',b:'#3b7be0',g:'#2fa36b',p:'#8b5cf6',r:'#e0475a'};
+
+/* ---------- vẽ hình ---------- */
+const S=56,rad=t=>t*Math.PI/180;
+function M(view){const[x0,y0,x1,y1]=view,m={};m.X=x=>+((x-x0)*S).toFixed(1);m.Y=y=>+((y1-y)*S).toFixed(1);m.W=Math.round((x1-x0)*S);m.H=Math.round((y1-y0)*S);
+  m.L=(p,q,st='')=>`<line x1="${m.X(p[0])}" y1="${m.Y(p[1])}" x2="${m.X(q[0])}" y2="${m.Y(q[1])}" stroke="#111" stroke-width="2.2" stroke-linecap="round" ${st}/>`;
+  m.T=(p,s,dx=0,dy=0,st='')=>`<text x="${m.X(p[0])+dx}" y="${m.Y(p[1])+dy}" dy=".35em" text-anchor="middle" font-family="Times New Roman" font-style="italic" font-size="19" ${st}>${s}</text>`;
+  m.N=(p,s,st='')=>`<text x="${m.X(p[0])}" y="${m.Y(p[1])}" dy=".35em" text-anchor="middle" font-family="Times New Roman" font-size="16" ${st}>${s}</text>`;
+  m.dot=p=>`<circle cx="${m.X(p[0])}" cy="${m.Y(p[1])}" r="4.5"/>`;
+  m.W2=(o,t1,t2,r)=>{const p=[o[0]+r*Math.cos(rad(t1)),o[1]+r*Math.sin(rad(t1))],q=[o[0]+r*Math.cos(rad(t2)),o[1]+r*Math.sin(rad(t2))];return `M${m.X(o[0])} ${m.Y(o[1])}L${m.X(p[0])} ${m.Y(p[1])}A${r*S} ${r*S} 0 ${t2-t1>180?1:0} 0 ${m.X(q[0])} ${m.Y(q[1])}Z`};
+  m.fill=(o,t1,t2,c,r=.55)=>`<path d="${m.W2(o,t1,t2,r)}" fill="${COL[c]}" fill-opacity=".33" stroke="${COL[c]}" stroke-width="2"/>`;
+  m.rt=(o,t,c='#111',s=.24)=>{const u=[Math.cos(rad(t)),Math.sin(rad(t))],w=[Math.cos(rad(t+90)),Math.sin(rad(t+90))];const p1=[o[0]+u[0]*s,o[1]+u[1]*s],p2=[p1[0]+w[0]*s,p1[1]+w[1]*s],p3=[o[0]+w[0]*s,o[1]+w[1]*s];return `<path d="M${m.X(p1[0])} ${m.Y(p1[1])}L${m.X(p2[0])} ${m.Y(p2[1])}L${m.X(p3[0])} ${m.Y(p3[1])}" fill="none" stroke="${c}" stroke-width="2"/>`};
+  m.svg=(inner,label)=>`<svg viewBox="0 0 ${m.W} ${m.H}" role="img" aria-label="${label}">${inner}</svg>`;return m}
+function inter(p1,p2,p3,p4){const d=(p1[0]-p2[0])*(p3[1]-p4[1])-(p1[1]-p2[1])*(p3[0]-p4[0]),a=p1[0]*p2[1]-p1[1]*p2[0],b=p3[0]*p4[1]-p3[1]*p4[0];return[(a*(p3[0]-p4[0])-(p1[0]-p2[0])*b)/d,(a*(p3[1]-p4[1])-(p1[1]-p2[1])*b)/d]}
+const ang=(o,p)=>Math.atan2(p[1]-o[1],p[0]-o[0])*180/Math.PI;
+// bốn góc tại giao điểm o: [trên-phải, trên-trái, dưới-trái, dưới-phải]
+function fan(o,r,up,l,dn){let tr=ang(o,r),tu=ang(o,up),tl=ang(o,l),td=ang(o,dn);while(tu<tr)tu+=360;while(tl<tu)tl+=360;while(td<tl)td+=360;return[[tr,tu],[tu,tl],[tl,td],[td,tr+360]]}
+const NUM=[3,2,1,4]; // SGK Hình 3.16: trên-phải 3, trên-trái 2, dưới-trái 1, dưới-phải 4
+
+// Hình 3.16: c cắt a tại A, cắt b tại B
+const G1=(()=>{const a1=[-2.8,2.3],a2=[3.3,2.75],b1=[-2.8,.3],b2=[3.3,-.12],c1=[-.85,3.75],c2=[1.75,-1.5];const PA=inter(a1,a2,c1,c2),PB=inter(b1,b2,c1,c2);
+  return{a1,a2,b1,b2,c1,c2,PA,PB,FA:fan(PA,a2,c1,a1,c2),FB:fan(PB,b2,c1,b1,c2)}})();
+function figCut(o={}){
+  const g=G1,m=M([-3.1,-1.75,3.95,4.05]);let s='';
+  if(o.region){s+=`<polygon points="${[g.a1,g.a2,g.b2,g.b1].map(p=>m.X(p[0])+','+m.Y(p[1])).join(' ')}" fill="#ffe08a" fill-opacity="${o.region===2?0:.5}" ${o.region===2?'class="hit" data-k="R"':''}/>`}
+  s+=m.L(g.a1,g.a2)+m.L(g.b1,g.b2)+m.L(g.c1,g.c2);
+  const pts=[['A',g.PA,g.FA],['B',g.PB,g.FB]];
+  for(const[P,p,F]of pts)F.forEach(([t1,t2],i)=>{const k=P+NUM[i],c=(o.hl||{})[k];if(c)s+=m.fill(p,t1,t2,c)});
+  if(o.slide){const c=['o','b','g','p'];let gA='';g.FA.forEach(([t1,t2],i)=>{gA+=m.fill(g.PA,t1,t2,c[NUM[i]-1]);const mid=(t1+t2)/2;gA+=m.N([g.PA[0]+.38*Math.cos(rad(mid)),g.PA[1]+.38*Math.sin(rad(mid))],NUM[i],`fill="${COL[c[NUM[i]-1]]}" font-weight="700"`)});
+    const dx=m.X(g.PB[0])-m.X(g.PA[0]),dy=m.Y(g.PB[1])-m.Y(g.PA[1]);s+=`<g class="slide" id="slg" data-d="${dx},${dy}" style="transform:translate(${o.slide===2?dx:0}px,${o.slide===2?dy:0}px)">${gA}</g>`}
+  if(o.nums!==false)for(const[P,p,F]of pts)F.forEach(([t1,t2],i)=>{const k=P+NUM[i],mid=(t1+t2)/2,c=(o.hl||{})[k];if(o.slide&&P==='A')return;
+    s+=m.N([p[0]+.38*Math.cos(rad(mid)),p[1]+.38*Math.sin(rad(mid))],NUM[i],c?`fill="${COL[c]}" font-weight="700"`:'')});
+  if(o.vals)for(const[P,p,F]of pts)F.forEach(([t1,t2],i)=>{const k=P+NUM[i],val=o.vals[k];if(!val)return;const mid=(t1+t2)/2;
+    s+=`<text class="pop" x="${m.X(p[0]+.86*Math.cos(rad(mid)))}" y="${m.Y(p[1]+.86*Math.sin(rad(mid)))}" dy=".35em" text-anchor="middle" font-size="13.5" font-weight="700" fill="${COL[(o.hl||{})[k]||'r']||'#c33'}" font-family="Be Vietnam Pro">${val}</text>`});
+  for(const[P,p]of pts){s+=m.dot(p)+m.T([p[0]+1.0*Math.cos(rad(98)),p[1]+1.0*Math.sin(rad(98))],P,10,0)}
+  s+=m.T(g.a1,'a',-6,-14)+m.T(g.b1,'b',-6,-14)+m.T(g.c1,'c',12,4);
+  if(o.tap)for(const[P,p,F]of pts)F.forEach(([t1,t2],i)=>{s+=`<path class="hit" data-k="${P+NUM[i]}" d="${m.W2(p,t1,t2,1.0)}" fill="transparent"><title>Góc ${P}${NUM[i]}</title></path>`});
+  return m.svg(s,'Đường thẳng c cắt hai đường thẳng a và b tại A và B, các góc đánh số 1 đến 4');
+}
+// Hình kiểu 3.17: mn cắt xy tại P, cắt uv tại Q
+function figMN(hl={}){
+  const m=M([-3.1,-1.7,3.9,4]),x1=[-2.8,1.95],y1=[3.3,2.75],u1=[-2.8,.05],v1=[3.3,.45],mm=[1.25,3.75],nn=[-.55,-1.45];
+  const P=inter(x1,y1,mm,nn),Q=inter(u1,v1,mm,nn),FP=fan(P,y1,mm,x1,nn),FQ=fan(Q,v1,mm,u1,nn);let s=m.L(x1,y1)+m.L(u1,v1)+m.L(mm,nn);
+  const W={xPQ:[P,FP[2]],PQv:[Q,FQ[0]],PQu:[Q,FQ[1]]};for(const k in hl){const[o,[t1,t2]]=W[k];s+=m.fill(o,t1,t2,hl[k],.6)}
+  s+=m.dot(P)+m.dot(Q)+m.T(P,'P',-4,-20)+m.T(Q,'Q',-18,14)+m.T(x1,'x',-4,-16)+m.T(y1,'y',8,-12)+m.T(u1,'u',-4,16)+m.T(v1,'v',8,14)+m.T(mm,'m',12,4)+m.T(nn,'n',-12,4);
+  return m.svg(s,'Đường thẳng mn cắt xy tại P và cắt uv tại Q');
+}
+// Mái nhà: thanh dọc, các thanh ngang
+function figHouse(o={}){
+  const m=M([-3.4,-.6,3.4,4.3]);const ys=[.9,1.9,2.9],ws=[2.5,1.75,1.0];let s='';
+  s+=`<polygon points="${m.X(-3.2)},${m.Y(0)} ${m.X(0)},${m.Y(4.0)} ${m.X(3.2)},${m.Y(0)}" fill="#fbe7c6" stroke="#9a6b3a" stroke-width="5" stroke-linejoin="round"/>`;
+  s+=`<rect x="${m.X(-3.3)}" y="${m.Y(0)}" width="${6.6*S}" height="${.35*S}" fill="#9a6b3a" rx="4"/>`;
+  ys.forEach((y,i)=>{s+=`<line x1="${m.X(-ws[i])}" y1="${m.Y(y)}" x2="${m.X(ws[i])}" y2="${m.Y(y)}" stroke="#7a4f24" stroke-width="7" stroke-linecap="round"/>`});
+  s+=`<line x1="${m.X(0)}" y1="${m.Y(.05)}" x2="${m.X(0)}" y2="${m.Y(3.9)}" stroke="#5b3a18" stroke-width="8" stroke-linecap="round"/>`;
+  const k=o.k??3;ys.slice(0,k).forEach(y=>{s+=`<g class="pop">${m.rt([0,y],0,o.hl?COL.o:'#d33',.3)}</g>`;if(o.hl)s+=m.fill([0,y],0,90,'o',.5)});
+  if(o.labels)s+=`<g font-family="Be Vietnam Pro" font-size="13" fill="#5b3a18"><text x="${m.X(.15)}" y="${m.Y(3.6)}">thanh dọc</text><text x="${m.X(-2.4)}" y="${m.Y(1.05)}">thanh ngang</text></g>`;
+  if(o.eke!==undefined&&o.eke<3){const y=ys[o.eke];s+=`<polygon class="pop" points="${m.X(.05)},${m.Y(y+.05)} ${m.X(.95)},${m.Y(y+.05)} ${m.X(.05)},${m.Y(y+1.0)}" fill="#ffd28a" fill-opacity=".85" stroke="#c77a12" stroke-width="2"/>`}
+  return m.svg(s,'Khung mái nhà: một thanh dọc và các thanh ngang');
+}
+// Hình 3.20a: c và d gặp nhau rất xa
+function figFar(z){
+  const view=z?[-10,-1.6,3.2,4]:[-3,-1.6,3.2,4],m=M(view),c=t=>[t,.5-Math.tan(rad(10))*t];let s='';
+  s+=m.L([0,3.6],[0,-1.4])+m.L([z?-9.6:-2.8,2],[2.9,2])+m.L(c(z?-9.6:-2.8),c(2.9));
+  s+=m.rt([0,2],90,'#111',.22)+m.fill([0,.5],90,170,'o',.5)+`<text x="${m.X(-.62)}" y="${m.Y(.95)}" font-size="13" font-weight="700" fill="${COL.o}" font-family="Be Vietnam Pro">80°</text>`;
+  s+=m.T([0,3.6],'u',12,4)+m.T([2.9,2],'d',10,-12)+m.T(c(2.9),'c',10,-12);
+  if(z){const X=inter([-9,2],[2,2],c(-9),c(2));s+=`<circle class="pop" cx="${m.X(X[0])}" cy="${m.Y(X[1])}" r="7" fill="${COL.r}"/>`+`<rect x="${m.X(-3)}" y="${m.Y(4)}" width="${6.2*S}" height="${5.6*S}" fill="none" stroke="#9aa" stroke-dasharray="6 5"/>`}
+  return m.svg(s,'Hai đường thẳng c và d, đường thẳng u cắt cả hai');
+}
+// Hình 3.20b,c: a ∥ b
+function figSign(mode){
+  const m=M([-3,-1.6,3.4,3.7]),a1=[-2.8,2],a2=[3,2],b1=[-2.8,0],b2=[3,0],c1=[1.3,3.5],c2=[-1.1,-1.4],PA=inter(a1,a2,c1,c2),PB=inter(b1,b2,c1,c2),FA=fan(PA,a2,c1,a1,c2),FB=fan(PB,b2,c1,b1,c2);
+  let s=m.L(a1,a2)+m.L(b1,b2)+m.L(c1,c2);
+  if(mode==='slt')s+=m.fill(PA,...FA[2],'o')+m.fill(PB,...FB[0],'o');else s+=m.fill(PA,...FA[2],'b')+m.fill(PB,...FB[2],'b');
+  s+=m.dot(PA)+m.dot(PB)+m.T(a2,'a',10,-12)+m.T(b2,'b',10,-12)+m.T(c1,'c',10,4)+m.T(PA,'A',20,-16)+m.T(PB,'B',20,-16);
+  return m.svg(s,mode==='slt'?'Một cặp góc so le trong bằng nhau':'Một cặp góc đồng vị bằng nhau');
+}
+// Hình 3.21: ví dụ
+function figVD(k){
+  const m=M([-3.2,-1.7,3.6,3.8]),x=[-2.9,2],y=[3.2,2],x2=[-2.9,0],y2=[3.2,0],z=[1.6,3.5],z2=[-.9,-1.4],PA=inter(x,y,z,z2),PB=inter(x2,y2,z,z2),FA=fan(PA,y,z,x,z2),FB=fan(PB,y2,z,x2,z2);
+  let s=m.L(x,y)+m.L(x2,y2)+m.L(z,z2);
+  if(k>=1)s+=m.fill(PA,...FA[2],'o')+m.fill(PB,...FB[0],'o');
+  s+=`<g font-size="13" font-weight="700" fill="${COL.o}" font-family="Be Vietnam Pro"><text x="${m.X(PA[0])-50}" y="${m.Y(PA[1])+22}">70°</text><text x="${m.X(PB[0])+22}" y="${m.Y(PB[1])-8}">70°</text></g>`;
+  if(k>=3)s+=`<g class="pop">${m.L(x,y,`stroke="${COL.g}" stroke-width="3.5"`)+m.L(x2,y2,`stroke="${COL.g}" stroke-width="3.5"`)}</g>`;
+  s+=m.dot(PA)+m.dot(PB)+m.T(PA,'A',14,-16)+m.T(PB,'B',16,16)+m.T(x,'x',0,-16)+m.T(y,'y',0,-16)+m.T(x2,"x'",0,-16)+m.T(y2,"y'",0,-16)+m.T(z,'z',12,4)+m.T(z2,"z'",-14,4);
+  return m.svg(s,'Đường thẳng zz\' cắt xy tại A, cắt x\'y\' tại B, hai góc 70 độ');
+}
+// Hình kiểu 3.22: tứ giác
+function figQuad(ok){
+  const m=M([-.8,-.7,5,3.9]),D=[0,0],C=[4.3,0],Aa=[1.1,2.3],B=[3.4,2.3],X=[1.65,3.45];
+  let s=m.L(D,C)+m.L(Aa,B)+m.L(B,C)+m.L(D,X)+m.fill(Aa,ang(Aa,B),ang(Aa,X),ok?'g':'o',.5)+m.fill(D,0,ang(D,Aa),ok?'g':'o',.5);
+  s+=`<g font-size="13" font-weight="700" fill="${COL[ok?'g':'o']}" font-family="Be Vietnam Pro"><text x="${m.X(Aa[0])+14}" y="${m.Y(Aa[1])-12}">65°</text><text x="${m.X(D[0])+30}" y="${m.Y(D[1])-8}">65°</text></g>`;
+  s+=m.T(D,'D',-12,8)+m.T(C,'C',12,8)+m.T(Aa,'A',-16,0)+m.T(B,'B',12,-8)+m.T(X,'x',10,-6);
+  return m.svg(s,'Tứ giác ABCD, tia Ax nằm trên đường thẳng DA');
+}
+// Hình kiểu 3.23 và hình thang vuông
+function figPerp(){
+  const m=M([-3,-1.5,3.4,3.7]);let s=m.L([0,3.4],[0,-1.3])+m.L([-2.8,2],[3,2])+m.L([-2.8,0],[3,0])+m.fill([0,2],0,90,'o',.45)+m.fill([0,0],0,90,'o',.45)+m.rt([0,2],0,COL.o)+m.rt([0,0],0,COL.o);
+  s+=m.T([0,2],'H',-16,-16)+m.T([0,0],'K',-16,-16)+m.T([-2.8,2],'x',0,-16)+m.T([3,2],'y',0,-16)+m.T([-2.8,0],"x'",0,-16)+m.T([3,0],"y'",0,-16)+m.T([0,3.4],'z',12,4)+m.T([0,-1.3],"z'",14,0);
+  return m.svg(s,'Đường thẳng zz\' vuông góc với xy tại H và với x\'y\' tại K');
+}
+function figTrap(ok){
+  const m=M([-.8,-.7,5,3.3]),Aa=[0,2.3],B=[2.5,2.3],C=[4.2,0],D=[0,0];let s=m.L(Aa,B)+m.L(B,C)+m.L(C,D)+m.L(D,Aa)+m.rt(Aa,-90,COL.o)+m.rt(D,0,COL.o);
+  if(ok)s+=`<g class="pop">${m.L(Aa,B,`stroke="${COL.g}" stroke-width="3.5"`)+m.L(D,C,`stroke="${COL.g}" stroke-width="3.5"`)}</g>`;
+  s+=m.T(Aa,'A',-14,-8)+m.T(B,'B',10,-10)+m.T(C,'C',12,6)+m.T(D,'D',-14,8);
+  return m.svg(s,'Tứ giác ABCD có góc A và góc D vuông');
+}
+// Vẽ đường thẳng song song bằng ê ke (góc 60°), 5 bước
+function figEke(k){
+  const m=M([-.6,-.6,6.4,4.3]),Ap=[3.2,2.2],Bp=[3.2-2.2/Math.tan(rad(60)),0],p=1.6,h=p*Math.tan(rad(60));let s=m.L([-.3,0],[6.2,0])+m.T([6.2,0],'a',0,-16);
+  const tri=(o,c,f)=>`<polygon class="pop" points="${m.X(o[0])},${m.Y(o[1])} ${m.X(o[0]+p)},${m.Y(o[1])} ${m.X(o[0]+p)},${m.Y(o[1]+h)}" fill="${f}" fill-opacity=".8" stroke="${c}" stroke-width="2"/>`;
+  if(k===2)s+=tri(Bp,'#c77a12','#ffd28a');
+  if(k>=3){const d=[Math.cos(rad(60)),Math.sin(rad(60))];s+=m.L([Bp[0]-d[0]*.9,Bp[1]-d[1]*.9],[Ap[0]+d[0]*1.7,Ap[1]+d[1]*1.7])}
+  if(k===4)s+=tri(Ap,'#c77a12','#ffd28a');
+  if(k>=5){s+=`<g class="pop">${m.L([-.3,2.2],[6.2,2.2],`stroke="${COL.r}" stroke-width="2.8"`)}</g>`+m.T([6.2,2.2],'b',0,-16,`fill="${COL.r}"`)+m.fill(Ap,0,60,'o',.5)+m.fill(Bp,0,60,'o',.5)+
+    `<g font-size="13" font-weight="700" fill="${COL.o}" font-family="Be Vietnam Pro"><text x="${m.X(Ap[0])+34}" y="${m.Y(Ap[1])-6}">60°</text><text x="${m.X(Bp[0])+34}" y="${m.Y(Bp[1])-6}">60°</text></g>`}
+  if(k>=2)s+=m.dot(Bp)+m.T(Bp,'B',-12,14);
+  s+=m.dot(Ap)+m.T(Ap,'A',-14,-12);
+  return m.svg(s,'Vẽ đường thẳng b qua A song song với a, bước '+k);
+}
+
+/* ---------- hình mới: cân và đẳng thức ---------- */
+const eq=h=>`<div class="eqc">${h}</div>`;
+const fr=(n,d)=>`<span class="fr"><i>${n}</i><i>${d}</i></span>`;
+const INK='#14323a';
+function drawItem(it,x,y,w,h){
+  if(it.k==='w')return `<circle cx="${x}" cy="${y}" r="11" fill="#9fb4c2" stroke="#4d6372" stroke-width="1.5"/><text x="${x}" y="${y}" dy=".35em" text-anchor="middle" font-size="12" font-weight="700" fill="#fff" font-family="Be Vietnam Pro">${it.label||'1'}</text>`;
+  if(it.k==='big')return `<rect x="${x-w/2}" y="${y-h/2}" width="${w}" height="${h}" rx="7" fill="#9fb4c2" stroke="#4d6372" stroke-width="1.5"/><text x="${x}" y="${y}" dy=".35em" text-anchor="middle" font-size="13" font-weight="700" fill="#fff" font-family="Be Vietnam Pro">${it.label}</text>`;
+  if(it.k==='pom')return `<circle cx="${x}" cy="${y}" r="22" fill="#d7e87a" stroke="#8aa536" stroke-width="2"/><path d="M${x} ${y-22}q6 -10 14 -8q-4 8 -14 8" fill="#4fa34a"/><text x="${x}" y="${y+2}" dy=".35em" text-anchor="middle" font-size="22" font-weight="700" fill="${INK}" font-family="Be Vietnam Pro">?</text>`;
+  return `<path d="M${x-18} ${y+20}q-6 -22 8 -30l-2 -8h24l-2 8q14 8 8 30z" fill="#f2b14a" stroke="#b9770e" stroke-width="2"/><text x="${x}" y="${y+8}" text-anchor="middle" font-size="22" font-style="italic" font-family="Times New Roman" fill="${INK}">${it.label||'x'}</text>`;
+}
+function figScale(o={}){
+  const cx=210,py=60,half=140,a=rad(({bal:0,L:-9,R:9})[o.tilt||'bal']);
+  const Lx=cx-half*Math.cos(a),Ly=py-half*Math.sin(a),Rx=cx+half*Math.cos(a),Ry=py+half*Math.sin(a);
+  const dims=it=>it.k==='w'?[24,24]:it.k==='big'?[70,28]:it.k==='pom'?[46,46]:[44,40];
+  const pan=(ex,ey,items)=>{
+    const p2=ey+80;let g=`<line x1="${ex}" y1="${ey}" x2="${ex-52}" y2="${p2}" stroke="#7a5a2f" stroke-width="2"/><line x1="${ex}" y1="${ey}" x2="${ex+52}" y2="${p2}" stroke="#7a5a2f" stroke-width="2"/>`;
+    const rows=[];let row=[],wr=0;
+    items.forEach(it=>{const[w,h]=dims(it);if(row.length&&wr+w+4>108){rows.push(row);row=[];wr=0}row.push({it,w,h});wr+=w+4});if(row.length)rows.push(row);
+    let y=p2-3;
+    rows.forEach(r=>{const rh=Math.max(...r.map(q=>q.h)),tw=r.reduce((t,q)=>t+q.w+4,-4);let x=ex-tw/2;r.forEach(q=>{g+=drawItem(q.it,x+q.w/2,y-q.h/2,q.w,q.h);x+=q.w+4});y-=rh+3});
+    return g+`<path d="M${ex-60} ${p2}A60 24 0 0 0 ${ex+60} ${p2}Z" fill="#efe3c6" stroke="#9a7b4f" stroke-width="2.5"/>`};
+  let s=`<polygon points="140,238 280,238 258,216 162,216" fill="#d9c7a0" stroke="#9a7b4f" stroke-width="2"/><rect x="203" y="${py}" width="14" height="${216-py}" fill="#b08d5a"/>`;
+  s+=pan(Lx,Ly,o.L||[])+pan(Rx,Ry,o.R||[]);
+  s+=`<line x1="${Lx}" y1="${Ly}" x2="${Rx}" y2="${Ry}" stroke="#7a5a2f" stroke-width="9" stroke-linecap="round"/><circle cx="${cx}" cy="${py}" r="10" fill="#b08d5a" stroke="#7a5a2f" stroke-width="2"/>`;
+  if(o.note)s+=`<text x="210" y="22" text-anchor="middle" font-size="15" font-weight="700" fill="${(o.tilt||'bal')==='bal'?'#1f8a57':'#c2410c'}" font-family="Be Vietnam Pro">${o.note}</text>`;
+  return `<svg viewBox="0 0 420 250" role="img" aria-label="${o.label||'Cân đĩa'}">${s}</svg>`;
+}
+function figEq(o={}){
+  const rows=o.rows||[],cx=210,RH=58,AG=32,y0=14;
+  const H=y0+rows.length*(RH+AG)-AG+14;
+  const parse=t=>{const m=t.match(/^([+−])?(.+)$/);return{sg:m[1]||'',b:m[2]}};
+  const isFr=b=>/^\d+\/\d+$/.test(b);
+  const bodyW=b=>isFr(b)?Math.max(...b.split('/').map(z=>z.length))*15+8:b.length*16+2;
+  const tw=t=>{const p=parse(t);return(p.sg?30:0)+bodyW(p.b)+12};
+  const draw=(t,x,y,c,key)=>{const p=parse(t),w=tw(t),col=c||INK;let g='',xx=x;
+    if(p.sg){g+=`<text x="${xx+13}" y="${y}" dy=".35em" text-anchor="middle" font-size="26" font-weight="600" fill="${col}" font-family="Be Vietnam Pro">${p.sg}</text>`;xx+=30}
+    const bw=bodyW(p.b);
+    if(isFr(p.b)){const[n,d]=p.b.split('/');g+=`<text x="${xx+bw/2}" y="${y-12}" text-anchor="middle" font-size="20" fill="${col}" font-family="Times New Roman">${n}</text><line x1="${xx}" x2="${xx+bw}" y1="${y}" y2="${y}" stroke="${col}" stroke-width="2"/><text x="${xx+bw/2}" y="${y+18}" text-anchor="middle" font-size="20" fill="${col}" font-family="Times New Roman">${d}</text>`}
+    else g+=`<text x="${xx+bw/2}" y="${y}" dy=".35em" text-anchor="middle" font-size="28" ${/^[a-z]$/.test(p.b)?'font-style="italic"':''} font-family="Times New Roman" fill="${col}" font-weight="${c?700:400}">${p.b}</text>`;
+    if(o.tap&&key)g+=`<rect class="hit" data-k="${key}" x="${x-4}" y="${y-28}" width="${w}" height="56" rx="10" fill="transparent"><title>${t}</title></rect>`;
+    return g};
+  let s='';
+  rows.forEach((r,i)=>{const yc=y0+i*(RH+AG)+RH/2,hl=r.hl||{},col=COL[r.c||'o'];
+    s+=`<rect x="12" y="${yc-RH/2}" width="396" height="${RH}" rx="14" fill="#fffaf2" stroke="#ece3d1" stroke-width="2"/>`;
+    const L=r.l||[],Rr=r.r||[],totL=L.reduce((t,z)=>t+tw(z),0),totR=Rr.reduce((t,z)=>t+tw(z),0),kk=Math.min(1,186/(30+Math.max(totL,totR)));
+    s+=`<g transform="translate(${cx} ${yc}) scale(${kk.toFixed(3)}) translate(${-cx} ${-yc})">`;let x=cx-30-totL;
+    L.forEach((t,j)=>{s+=draw(t,x,yc,(hl.l||[]).includes(j)?col:null,'l'+j);x+=tw(t)});
+    s+=`<text x="${cx}" y="${yc}" dy=".35em" text-anchor="middle" font-size="30" fill="${INK}" font-family="Be Vietnam Pro">=</text>`;
+    x=cx+30;Rr.forEach((t,j)=>{s+=draw(t,x,yc,(hl.r||[]).includes(j)?col:null,'r'+j);x+=tw(t)});s+='</g>';
+    if(i<rows.length-1){const ya=yc+RH/2+3,yb=ya+AG-6;
+      s+=`<path d="M${cx} ${ya}V${yb}" stroke="#149c8c" stroke-width="2.5" fill="none"/><path d="M${cx-6} ${yb-6}L${cx} ${yb}L${cx+6} ${yb-6}" stroke="#149c8c" stroke-width="2.5" fill="none" stroke-linecap="round"/>`;
+      if((o.arrows||[])[i])s+=`<text x="${cx+14}" y="${ya+AG/2-1}" dy=".35em" font-size="13" font-weight="600" fill="#0f7a6e" font-family="Be Vietnam Pro">${o.arrows[i]}</text>`}
+  });
+  return `<svg viewBox="0 0 420 ${H}" role="img" aria-label="${o.label||'Đẳng thức'}">${s}</svg>`;
+}
+const W7=n=>Array.from({length:n},()=>({k:'w'}));
+const BAG={k:'bag',label:'x'};
+
+/* ---------- nội dung bài ---------- */
+const PARTS=[
+ {t:'Mở đầu',goal:'Bài toán quả bưởi trên cân'},
+ {t:'Tính chất của đẳng thức',goal:'Hiểu vì sao thêm hoặc bớt cùng một số ở hai vế thì đẳng thức vẫn đúng',recap:`Đẳng thức giống chiếc cân thăng bằng.<br>Nếu ${v('a')} = ${v('b')} thì ${v('a')} + ${v('c')} = ${v('b')} + ${v('c')}. Nếu ${v('a')} + ${v('c')} = ${v('b')} + ${v('c')} thì ${v('a')} = ${v('b')}. Nếu ${v('a')} = ${v('b')} thì ${v('b')} = ${v('a')}.`},
+ {t:'Quy tắc chuyển vế',goal:'Chuyển một số hạng sang vế kia và đổi dấu đúng',recap:`Khi chuyển một số hạng từ vế này sang vế kia của một đẳng thức, ta phải <b>đổi dấu</b> số hạng đó.<br>${v('a')} + ${v('b')} = ${v('c')} ⇒ ${v('a')} = ${v('c')} − ${v('b')}; &nbsp; ${v('a')} − ${v('b')} = ${v('c')} ⇒ ${v('a')} = ${v('c')} + ${v('b')}.`},
+ {t:'Vận dụng tìm x',goal:'Tìm x với số thập phân, phân số và số âm',recap:`Chuyển số hạng có thể ở vế nào cũng được, nhớ <b>đổi dấu</b> số hạng được chuyển, rồi tính.<br>Ví dụ: ${v('x')} + 7,25 = 15,75 ⇒ ${v('x')} = 15,75 − 7,25 = 8,5.`},
+ {t:'Kết bài',goal:'Trả lời bài toán quả bưởi'}
+];
+const KET=PARTS.length-1;
+const SC=[
+ // ===== Mở đầu
+ {p:0,say:'Cân thăng bằng: đĩa trái có quả bưởi và quả cân 5,1 kg, đĩa phải có quả cân 7 kg.',fig:()=>figScale({L:[{k:'pom'},{k:'big',label:'5,1 kg'}],R:[{k:'big',label:'7 kg'}],note:'Cân thăng bằng',label:'Cân: quả bưởi và quả cân 5,1 kg ở đĩa trái, quả cân 7 kg ở đĩa phải'}),
+  body:()=>`<h2>Quả bưởi nặng bao nhiêu kilôgam?</h2><p>Em chưa cần trả lời ngay. Học xong bài này, em sẽ tự tính được.</p>`,go:'Cùng học nhé'},
+ {p:0,toc:1,say:'Bài hôm nay có 3 phần, khoảng 8 phút. Học lần lượt nhé!',body:()=>`<h2>Quy tắc chuyển vế</h2>${PARTS.slice(1,KET).map((P,i)=>`<button class="card${st.done[i+1]?' done':''}" data-p="${i+1}"><span class="n">${st.done[i+1]?'✓':i+1}</span><span class="t">${P.t}<span class="s">Em sẽ: ${P.goal.charAt(0).toLowerCase()+P.goal.slice(1)}</span></span></button>`).join('')}<p style="color:#6f858b;font-size:14px;margin-top:10px">Cần xem lại phần nào thì mở <b>Mục lục</b> hoặc <b>Tóm tắt</b> ở góc trên.</p>`,go:'Bắt đầu phần 1',
+  bind:()=>R.qa('[data-p]').forEach(b=>b.onclick=()=>openPart(+b.dataset.p))},
+ // ===== Phần 1
+ {p:1,say:'Túi kẹo và 3 quả cân 1 kg cân bằng với 7 quả cân. Em thử bớt quả cân đi nhé!',
+  fig:s=>{const k=s.k||0;return figScale({L:[BAG].concat(W7(k?0:3)),R:W7(k>=2?4:7),tilt:k===1?'R':'bal',note:k===1?'Cân lệch!':'Cân thăng bằng',label:'Cân đĩa có túi kẹo và các quả cân'})},
+  body:s=>{const k=s.k||0;return `<p class="center">${k===0?`<button class="act" id="b1">Bớt 3 quả cân ở đĩa trái</button>`:k===1?`<button class="act" id="b2">Bớt 3 quả cân ở đĩa phải</button>`:''}</p>${k===1?`<div class="fb no pop">Cân lệch về phía đĩa phải. Phải làm gì để cân thăng bằng lại?</div>`:''}${k>=2?`<div class="fb ok pop">Cân thăng bằng lại! Bớt <b>cùng một số</b> ở hai đĩa thì cân vẫn thăng bằng, và túi kẹo nặng bằng 4 quả cân.</div>`:''}`},
+  bind:(s,up)=>{const a=R.q('#b1'),b=R.q('#b2');if(a)a.onclick=()=>{s.k=1;up()};if(b)b.onclick=()=>{s.k=2;up()}},ready:s=>(s.k||0)>=2},
+ {p:1,say:'Cân đang thăng bằng. Nếu em thêm 2 quả cân vào đĩa phải thì sao?',
+  fig:s=>figScale({L:[BAG].concat(W7(3)),R:W7(s.checked?9:7),tilt:s.checked?'R':'bal',note:s.checked?'Cân nghiêng về đĩa phải':'Cân thăng bằng',label:'Cân đĩa sau khi thêm quả cân vào đĩa phải'}),
+  quiz:{q:'Thêm 2 quả cân chỉ vào đĩa phải. Cân sẽ thế nào?',opts:[
+   ['Vẫn thăng bằng',0,'Đĩa phải nặng thêm, đĩa trái không đổi. Hai bên còn bằng nhau không?'],
+   ['Nghiêng về đĩa trái',0,'Đĩa trái có thêm gì không? Đĩa nào vừa nặng thêm?'],
+   ['Nghiêng về đĩa phải',1,'Đúng! Chỉ thêm vào một đĩa thì hai bên không còn bằng nhau. Phải thêm cùng một lượng ở cả hai đĩa.'],
+   ['Không đoán được',0,'Đoán được đấy. Chỉ có đĩa phải nặng thêm, hãy nghĩ xem cân nghiêng về đâu.']]}},
+ {p:1,kind:'tinhchat',kn:'Tính chất',title:'Tính chất của đẳng thức',fig:()=>figEq({rows:[{l:['a'],r:['b']},{l:['a','+c'],r:['b','+c'],hl:{l:[1],r:[1]},c:'b'}],arrows:['cộng c vào cả hai vế'],label:'Nếu a = b thì a + c = b + c'}),
+  body:()=>`<p>Với ba số ${v('a')}, ${v('b')}, ${v('c')}:</p><p>Nếu ${v('a')} = ${v('b')} thì</p>${eq(`${v('a')} + ${v('c')} = ${v('b')} + ${v('c')}`)}<p>Nếu ${v('a')} + ${v('c')} = ${v('b')} + ${v('c')} thì</p>${eq(`${v('a')} = ${v('b')}`)}<p>Nếu ${v('a')} = ${v('b')} thì</p>${eq(`${v('b')} = ${v('a')}`)}`},
+ {p:1,say:'Thử trên một đẳng thức khác nhé!',
+  fig:s=>figEq({rows:[{l:['x','−5'],r:['2']}].concat(s.checked&&s.ok?[{l:['x','−5','+5'],r:['2','+5'],hl:{l:[2],r:[1]},c:'b'}]:[]),arrows:['cộng 5 vào cả hai vế'],label:'Đẳng thức x − 5 = 2'}),
+  quiz:{q:`Từ đẳng thức ${eq(`${v('x')} − 5 = 2`)}cộng 5 vào cả hai vế ta được:`,opts:[
+   [`${v('x')} − 5 + 5 = 2 + 5, tức ${v('x')} = 7`,1,`Đúng! Cộng 5 vào cả hai vế, vì −5 + 5 = 0 nên:${eq(`${v('x')} = 2 + 5 = 7`)}`],
+   [`${v('x')} − 5 + 5 = 2, tức ${v('x')} = 2`,0,'Em cộng 5 vào vế trái, còn vế phải thì sao? Phải cộng cùng một số ở cả hai vế.'],
+   [`${v('x')} = 2 − 5 = −3`,0,'Đề bảo cộng 5 vào hai vế, không phải trừ 5.'],
+   [`${v('x')} − 5 = 2 + 5, tức ${v('x')} = 12`,0,`Vế trái em vẫn để ${v('x')} − 5, chưa cộng 5. Cộng 5 vào cả hai vế mới giữ được đẳng thức.`]]}},
+ // ===== Phần 2
+ {p:2,say:'Nhắc nhanh một điều sẽ cần cho quy tắc mới.',
+  quiz:{label:'Nhắc nhanh',q:`Số đối của số sau là số nào?${eq(`−${fr(3,4)}`)}`,opts:[
+   [`−${fr(3,4)}`,0,'Đó chính là số đã cho. Số đối cộng với số đã cho phải bằng 0.'],
+   [fr(3,4),1,`Đúng! Vì${eq(`−${fr(3,4)} + ${fr(3,4)} = 0`)}nên hai số này là hai số đối nhau. Quy tắc chuyển vế dùng đúng điều này.`],
+   [fr(4,3),0,'Đó là số nghịch đảo (đổi tử và mẫu), không phải số đối. Số đối cộng với số đã cho bằng 0.'],
+   [`−${fr(4,3)}`,0,'Số đối chỉ đổi dấu, không đổi tử và mẫu. Hãy thử cộng với số đã cho xem có bằng 0 không.']]}},
+ {p:2,say:'Muốn tìm x, ta cần bớt 3 ở cả hai vế. Chạm vào số hạng +3 để xem nó đi đâu!',
+  fig:(s,t)=>s.done?figEq({rows:[{l:['x','+3'],r:['7'],hl:{l:[1]}},{l:['x'],r:['7','−3'],hl:{r:[1]}}],arrows:['chuyển +3, đổi dấu'],label:'x + 3 = 7 suy ra x = 7 − 3'}):figEq({rows:[{l:['x','+3'],r:['7']}],tap:t,label:'Đẳng thức x + 3 = 7'}),
+  tap:{ans:'l1',ok:`Đúng! Bớt 3 ở cả hai vế: +3 ở vế trái mất đi, vế phải thành 7 − 3. Số hạng +3 sang vế phải và <b>đổi dấu</b> thành −3.`,
+   no:{l0:`${v('x')} là số cần tìm, ta giữ nó ở vế trái. Hãy chọn số hạng cần chuyển đi.`,r0:'Số 7 đã ở vế phải. Hãy chọn số hạng ở vế trái cần chuyển đi.'},hint:'Chọn số hạng +3.',line:'Chạm vào số hạng trên hình.'}},
+ {p:2,kind:'quytac',kn:'Quy tắc',title:'Quy tắc chuyển vế',fig:()=>figEq({rows:[{l:['a','+b'],r:['c'],hl:{l:[1]}},{l:['a'],r:['c','−b'],hl:{r:[1]}}],arrows:['chuyển +b, đổi dấu'],label:'a + b = c suy ra a = c − b'}),
+  body:()=>`<p>Khi chuyển một số hạng từ vế này sang vế kia của một đẳng thức, ta phải <b>đổi dấu</b> số hạng đó.</p>${eq(`${v('a')} + ${v('b')} = ${v('c')} ⇒ ${v('a')} = ${v('c')} − ${v('b')}`)}${eq(`${v('a')} − ${v('b')} = ${v('c')} ⇒ ${v('a')} = ${v('c')} + ${v('b')}`)}`},
+ {p:2,kind:'vidu',kn:'Ví dụ',fig:s=>{const k=s.k||0;return figEq({rows:[{l:['x','−2/3'],r:['1/4'],hl:{l:[1]}}].concat(k>=1?[{l:['x'],r:['1/4','+2/3'],hl:{r:[1]}}]:[]).concat(k>=3?[{l:['x'],r:['11/12'],c:'g',hl:{r:[0]}}]:[]),arrows:['chuyển −2/3, đổi dấu','quy đồng rồi cộng'],label:'Tìm x biết x − 2/3 = 1/4'})},
+  body:s=>{const k=s.k||0,st3=[`Chuyển −${fr(2,3)} sang vế phải và đổi dấu thành +${fr(2,3)}:${eq(`${v('x')} = ${fr(1,4)} + ${fr(2,3)}`)}`,`Quy đồng mẫu số 12:${eq(`${v('x')} = ${fr(3,12)} + ${fr(8,12)}`)}`,`Cộng hai phân số:${eq(`${v('x')} = ${fr(11,12)}`)}`];
+   return `<p>Tìm ${v('x')}, biết</p>${eq(`${v('x')} − ${fr(2,3)} = ${fr(1,4)}`)}${st3.slice(0,k).map(t=>`<div class="rv pop">${t}</div>`).join('')}${k<3?`<p class="center"><button class="act" id="nx">${k?'Bước tiếp':'Xem lời giải'} (${k}/3)</button></p>`:''}`},
+  bind:(s,up)=>{const b=R.q('#nx');if(b)b.onclick=()=>{s.k=(s.k||0)+1;up()}},ready:s=>(s.k||0)>=3},
+ {p:2,say:'Đến lượt em chuyển vế!',fig:()=>figEq({rows:[{l:['x','−7'],r:['3']}],label:'Đẳng thức x − 7 = 3'}),
+  quiz:{q:`Chuyển −7 sang vế phải của đẳng thức${eq(`${v('x')} − 7 = 3`)}ta được:`,opts:[
+   [`${v('x')} = 3 − 7`,0,'Em đã chuyển −7 sang vế phải nhưng chưa đổi dấu. Khi sang vế kia, −7 thành dấu gì?'],
+   [`${v('x')} = 3 + 7`,1,`Đúng! −7 sang vế phải đổi dấu thành +7:${eq(`${v('x')} = 3 + 7 = 10`)}`],
+   [`${v('x')} = −3 − 7`,0,'Em đã đổi dấu cả số 3, nhưng 3 không được chuyển. Chỉ đổi dấu số hạng được chuyển.'],
+   [`${v('x')} = −3 + 7`,0,'Em đổi dấu số 3, nhưng số hạng cần chuyển là −7. Số 3 ở yên và giữ nguyên dấu.']]}},
+ {p:2,say:'Đổi chỗ: lần này x ở vế phải. Em vẫn chuyển được chứ?',fig:()=>figEq({rows:[{l:['11'],r:['x','+4']}],label:'Đẳng thức 11 = x + 4'}),
+  quiz:{q:`Từ đẳng thức${eq(`11 = ${v('x')} + 4`)}chuyển +4 sang vế trái ta được:`,opts:[
+   [`11 + 4 = ${v('x')}`,0,'Em giữ nguyên dấu +4. Khi sang vế trái, +4 phải đổi dấu.'],
+   [`11 − 4 = ${v('x')}`,1,`Đúng! +4 sang vế trái đổi dấu thành −4:${eq(`11 − 4 = ${v('x')}, tức ${v('x')} = 7`)}`],
+   [`−11 − 4 = ${v('x')}`,0,'Em đổi dấu cả số 11 là số không được chuyển. Chỉ đổi dấu số hạng được chuyển.'],
+   [`11 − 4 = −${v('x')}`,0,`Em đổi dấu cả ${v('x')} ở vế phải. ${v('x')} ở yên, chỉ số hạng +4 được chuyển sang vế trái.`]]}},
+ {p:2,say:'Nhớ lại nào: không nhìn lại bài, em chọn câu đúng nhé.',
+  quiz:{label:'Tự nhớ lại',q:'Câu nào phát biểu đúng quy tắc chuyển vế?',opts:[
+   ['Chuyển một số hạng sang vế kia thì giữ nguyên dấu số hạng đó',0,'Giữ nguyên dấu thì đẳng thức không còn đúng. Hãy nhớ lại ví dụ x + 3 = 7.'],
+   ['Chuyển một số hạng sang vế kia thì đổi dấu số hạng đó',1,'Đúng! Số hạng được chuyển sang vế kia thì đổi dấu: + thành −, − thành +.'],
+   ['Chuyển một số hạng sang vế kia thì đổi dấu tất cả các số hạng',0,'Chỉ số hạng được chuyển mới đổi dấu, các số hạng còn lại ở yên.'],
+   ['Chuyển một số hạng sang vế kia thì đổi dấu cả hai vế',0,'Không đổi dấu hai vế. Chỉ đổi dấu số hạng được chuyển.']]}},
+ // ===== Phần 3
+ {p:3,say:'Cùng giải bài tìm x của SGK: x + 7,25 = 15,75.',fig:s=>{const k=s.k||0;return figEq({rows:[{l:['x','+7,25'],r:['15,75'],hl:{l:[1]}}].concat(k>=1?[{l:['x'],r:['15,75','−7,25'],hl:{r:[1]}}]:[]).concat(k>=2?[{l:['x'],r:['8,5'],c:'g',hl:{r:[0]}}]:[]),arrows:['chuyển +7,25, đổi dấu','tính hiệu'],label:'Tìm x biết x + 7,25 = 15,75'})},
+  calc:[{q:`Chuyển +7,25 sang vế phải:${eq(`${v('x')} = ?`)}`,opts:[['15,75 + 7,25',0,'Em chưa đổi dấu +7,25 khi chuyển sang vế phải.'],['15,75 − 7,25',1,'Đúng: +7,25 sang vế phải đổi dấu thành −7,25.'],['7,25 − 15,75',0,'Em đã đổi vị trí các số. 15,75 ở yên, chỉ +7,25 được chuyển.']]},
+        {q:`Tính:${eq('15,75 − 7,25 = ?')}`,opts:[['8,5',1,'Đúng, kết quả là 8,5.'],['9',0,'Tính lại phép trừ 15,75 − 7,25 nhé.'],['23',0,'23 là kết quả của phép cộng. Ở đây ta làm phép trừ.']]}],
+  done:`Vậy${eq(`${v('x')} = 8,5`)}Em giải đúng bài của SGK rồi!`},
+ {p:3,say:'Thử với phân số và số âm nhé!',fig:s=>{const k=s.k||0;return figEq({rows:[{l:['x','−1/3'],r:['−1/2'],hl:{l:[1]}}].concat(k>=1?[{l:['x'],r:['−1/2','+1/3'],hl:{r:[1]}}]:[]).concat(k>=2?[{l:['x'],r:['−1/6'],c:'g',hl:{r:[0]}}]:[]),arrows:['chuyển −1/3, đổi dấu','quy đồng rồi cộng'],label:'Tìm x biết x − 1/3 = −1/2'})},
+  calc:[{q:`Từ đẳng thức${eq(`${v('x')} − ${fr(1,3)} = −${fr(1,2)}`)}chuyển vế ta được:${eq(`${v('x')} = ?`)}`,opts:[[`−${fr(1,2)} + ${fr(1,3)}`,1,`Đúng: −${fr(1,3)} sang vế phải đổi dấu thành +${fr(1,3)}.`],[`−${fr(1,2)} − ${fr(1,3)}`,0,`Em chưa đổi dấu −${fr(1,3)} khi chuyển.`],[`${fr(1,2)} + ${fr(1,3)}`,0,`Em đổi dấu cả −${fr(1,2)}, nhưng số này không được chuyển.`]]},
+        {q:`Tính:${eq(`−${fr(1,2)} + ${fr(1,3)} = ?`)}`,opts:[[`−${fr(1,6)}`,1,`Đúng: −${fr(3,6)} + ${fr(2,6)} = −${fr(1,6)}.`],[`−${fr(5,6)}`,0,`Đó là −${fr(1,2)} − ${fr(1,3)}. Ở đây ta cộng.`],[fr(1,6),0,'Em quên dấu âm. Số âm có giá trị tuyệt đối lớn hơn nên kết quả âm.']]}],
+  done:`Vậy${eq(`${v('x')} = −${fr(1,6)}`)}`},
+ {p:3,say:'Một câu nữa, x nằm ở vế phải.',fig:()=>figEq({rows:[{l:['−0,4'],r:['x','−1,1']}],label:'Đẳng thức −0,4 = x − 1,1'}),
+  quiz:{q:`Tìm ${v('x')}, biết${eq(`−0,4 = ${v('x')} − 1,1`)}`,opts:[
+   [`${v('x')} = −0,4 + 1,1`,1,`Đúng! −1,1 sang vế trái đổi dấu thành +1,1:${eq(`${v('x')} = −0,4 + 1,1 = 0,7`)}`],
+   [`${v('x')} = −0,4 − 1,1`,0,'Em chưa đổi dấu −1,1 khi chuyển sang vế trái.'],
+   [`${v('x')} = 0,4 − 1,1`,0,'Em đổi dấu −0,4 là số không được chuyển.'],
+   [`${v('x')} = 0,4 + 1,1`,0,'Em đổi dấu cả −0,4. Chỉ đổi dấu số hạng được chuyển, và −0,4 ở yên.']]}},
+ // ===== Kết bài
+ {p:4,say:'Quay lại quả bưởi trên cân. Giờ em tính được rồi!',fig:()=>figScale({L:[{k:'pom'},{k:'big',label:'5,1 kg'}],R:[{k:'big',label:'7 kg'}],note:'Cân thăng bằng',label:'Cân: quả bưởi và quả cân 5,1 kg ở đĩa trái, quả cân 7 kg ở đĩa phải'}),
+  quiz:{q:`Gọi ${v('x')} là khối lượng quả bưởi, ta có${eq(`${v('x')} + 5,1 = 7`)}Quả bưởi nặng bao nhiêu?`,opts:[
+   [`${v('x')} = 7 − 5,1 = 1,9 (kg)`,1,`Đúng! +5,1 sang vế phải đổi dấu thành −5,1:${eq(`${v('x')} = 7 − 5,1 = 1,9 (kg)`)}Quả bưởi nặng 1,9 kg.`],
+   [`${v('x')} = 7 + 5,1 = 12,1 (kg)`,0,'Em chưa đổi dấu +5,1 khi chuyển vế. Quả bưởi cũng không thể nặng hơn cả đĩa bên kia.'],
+   [`${v('x')} = 5,1 − 7 = −1,9 (kg)`,0,'Khối lượng không thể âm. Em đã chuyển nhầm số hạng cần đổi dấu.'],
+   [`${v('x')} = 7 − 5,1 = 2,1 (kg)`,0,'Cách chuyển vế đúng rồi, nhưng phép trừ 7 − 5,1 chưa đúng. Tính lại nhé.']]}},
+ {p:4,body:()=>`<h2 style="text-align:center">Em đã học xong quy tắc chuyển vế!</h2><ul class="ticks"><li>Thêm hoặc bớt cùng một số ở hai vế thì đẳng thức vẫn đúng.</li><li>Chuyển một số hạng sang vế kia thì đổi dấu số hạng đó.</li><li><span>Dùng quy tắc để tìm ${v('x')} với số thập phân, phân số và số âm.</span></li></ul><p class="center"><button class="act" id="sm">Xem trang tóm tắt bài</button></p>`,
+  bind:(s,up)=>{const b=R.q('#sm');if(b)b.onclick=()=>openSummary()},go:'Vào làm bài',last:1}
+];
+
+
+/* ---------- máy chạy bài: dòng chat cuộn ---------- */
+const $=id=>document.getElementById(id),app=$('app'),feed=$('feed'),pin=$('pin'),go=$('go');
+const first=p=>SC.findIndex(x=>x.p===p),lastOf=p=>SC.map(x=>x.p).lastIndexOf(p);
+const reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
+let st,curEl=null;
+const OKR=['Giỏi quá!','Chuẩn luôn!','Em nhanh thật!','Chính xác!'],NOR=['Gần đúng rồi, cùng xem nhé.','Chưa đúng, không sao đâu.'];let rc=0;
+const react=ok=>{const a=ok?OKR:NOR;return a[(rc++)%a.length]};
+const ECHO=['Em hiểu rồi','Tiếp đi Cherry','Em sẵn sàng rồi','Được ạ, tiếp nào'];let ec=0;
+const R={q:s=>curEl.querySelector(s),qa:s=>curEl.querySelectorAll(s)};
+const partLabel=p=>p===0?'Mở đầu':p===KET?'Kết bài':`Phần ${p}/${KET-1} · ${PARTS[p].t}`;
+function fresh(){feed.innerHTML='';st={blocks:[],focus:0,done:PARTS.map(()=>false),fold:false,lock:0,busy:false}}
+function toast(t){const d=document.createElement('div');d.className='toast';d.textContent=t;app.appendChild(d);setTimeout(()=>d.remove(),1800)}
+
+function blockHTML(b){
+  const sc=SC[b.i],s=b.s;let h='';
+  if(sc.say)h+=`<div class="bub">${sc.say}</div>`;
+  if(sc.fig)h+=`<div class="figcard">${sc.fig(s,!!sc.tap&&!s.done)}</div>`;
+  if(sc.kind||sc.title||sc.body)h+=`<div class="cardx">${sc.kind?`<span class="kind ${sc.kind}">${sc.kn}</span>`:''}${sc.title?`<h2>${sc.title}</h2>`:''}${sc.body?`<div class="txt">${sc.body(s)}</div>`:''}</div>`;
+  if(sc.tap)h+=s.done?`<div class="bub okb pop">${sc.tap.ok}</div>`:(s.wrong?`<div class="fb no">${sc.tap.no[s.wrong]||sc.tap.hint}</div>`:`<div class="hintline">👆 ${sc.tap.line||'Chạm vào góc trên hình.'}</div>`);
+  if(sc.quiz){const Q=sc.quiz;h+=`<span class="kind thu" style="align-self:flex-start">Thử ngay</span><div class="bub q2">${Q.q}</div>`;
+    const wr=s.wr||[];
+    if(!s.checked){if(wr.length){const n=wr[wr.length-1];h+=`<div class="me pop">${Q.opts[n][0]}</div><div class="fb no pop"><b>${s.react}</b> ${Q.opts[n][2]} Em thử chọn lại nhé.</div>`}
+      h+=`<div class="opts${Q.row?' row':''}">${Q.opts.map((o,n)=>`<button class="opt${wr.includes(n)?' no':''}" data-o="${n}" ${wr.includes(n)?'disabled':''}>${o[0]}</button>`).join('')}</div>`}
+    else h+=`<div class="me pop">${Q.opts[s.pick][0]}</div><div class="fb ok pop"><b>${s.react}</b> ${Q.opts[s.pick][2].replace(/^(Đúng rồi|Đúng hướng|Chính xác|Chuẩn|Đúng)[!.:]?\s*/,'')}</div>${sc.after?sc.after(s):''}`}
+  if(sc.calc){s.k=s.k||0;s.a=s.a||[];h+=`<span class="kind kp" style="align-self:flex-start">Em tính</span>`;
+    sc.calc.slice(0,s.k+1).forEach((c,j)=>{const an=s.a[j];h+=`<div class="bub q2">${c.q}</div><div class="opts row">${c.opts.map((o,n)=>`<button class="opt${an!==undefined?(o[1]?' ok':an===n?' no':''):''}" data-c="${j},${n}" ${an!==undefined?'disabled':''}>${o[0]}</button>`).join('')}</div>${an!==undefined?`<div class="fb ${c.opts[an][1]?'ok':'no'}">${c.opts[an][2]}</div>`:''}`});
+    if(s.k>=sc.calc.length)h+=`<div class="bub okb pop">${sc.done}</div>`}
+  if(sc.steps){const k=s.k||1;h+=`<span class="kind kp" style="align-self:flex-start">Hình từng bước</span><div class="bub"><b>Bước ${k}/5.</b> ${sc.steps[k-1]}</div><div class="dots">${sc.steps.map((_,j)=>`<i class="${j<k?'on':''}"></i>`).join('')}</div><div class="steps"><button class="act" id="sb" ${k<2?'disabled':''}>‹ Trước</button><button class="act" id="sf" ${k>4?'disabled':''}>Bước sau ›</button></div>`}
+  return h;
+}
+function renderBlock(b){
+  const sc=SC[b.i],s=b.s,col=b.col;col.innerHTML=blockHTML(b);curEl=col;
+  const up=()=>{renderBlock(b);afterChange(b)};
+  col.querySelectorAll('[data-o]').forEach(x=>x.onclick=()=>{if(s.checked)return;const n=+x.dataset.o;s.ok=!!sc.quiz.opts[n][1];s.react=react(s.ok);if(s.ok){s.pick=n;s.checked=1}else{s.wr=(s.wr||[]).concat(n)}up()});
+  col.querySelectorAll('[data-c]').forEach(x=>x.onclick=()=>{const[j,n]=x.dataset.c.split(',').map(Number);if(s.a[j]!==undefined)return;s.a[j]=n;if(sc.calc[j].opts[n][1])s.k=j+1;else setTimeout(()=>{s.a[j]=undefined;up()},1800);up()});
+  if(sc.steps){R.q('#sb').onclick=()=>{s.k=(s.k||1)-1;up()};R.q('#sf').onclick=()=>{s.k=(s.k||1)+1;up()}}
+  if(sc.bind)sc.bind(s,up);
+  if(sc.tap&&!s.done)col.querySelectorAll('.hit').forEach(w=>w.onclick=()=>{const k=w.dataset.k;if(k===sc.tap.ans){s.done=1;s.wrong=0}else s.wrong=k;up()});
+  if(sc.tapR&&!s.done){const r=col.querySelector('[data-k="R"]');if(r)r.onclick=()=>{s.done=1;up()};col.querySelectorAll('.figcard svg').forEach(svg=>svg.addEventListener('click',e=>{if(!e.target.closest('[data-k]')&&!s.done)toast('Chạm vào phần giữa a và b nhé')}))}
+}
+const lastB=()=>st.blocks[st.blocks.length-1];
+function afterChange(b){
+  if(b===lastB()){updateDock();ensureVisible(b)}
+  updatePip();
+}
+function figIdx(f){for(let k=f;k>=0;k--)if(SC[k].fig)return k;return 0}
+function refreshPin(){$('part').textContent=partLabel(SC[st.focus].p)}
+function updateDock(){
+  const go2=$('go2');
+  if(st.check){go.disabled=st.busy;go.textContent=st.busy?'Cherry đang soạn…':'Em hiểu rồi';go2.hidden=st.busy||st.check.recap;updatePip();return}
+  go2.hidden=true;
+  const b=lastB(),sc=SC[b.i],s=b.s;let ready=true,hint='Tiếp tục';
+  if(sc.quiz){ready=!!s.checked;hint='Chọn một đáp án'}
+  if(sc.tap){ready=!!s.done;hint='Chạm vào hình'}
+  if(sc.calc){ready=s.k>=sc.calc.length;hint='Trả lời để tiếp tục'}
+  if(sc.steps){ready=(s.k||1)>=5;hint='Xem hết các bước'}
+  if(sc.ready){ready=!!sc.ready(s);hint=sc.hintGo||hint}
+  go.disabled=!ready||st.busy;
+  go.textContent=st.busy?'Cherry đang soạn…':ready?(sc.go||(b.i===lastOf(sc.p)&&sc.p>0&&sc.p<KET?'Xong phần '+sc.p:'Tiếp tục')):hint;
+  $('pb').style.width=(st.blocks.length/SC.length*100)+'%';
+}
+function ensureVisible(b){
+  const H=feed.clientHeight,a=b.anchor,top=a.offsetTop,h=b.el.offsetTop+b.el.offsetHeight-top;
+  feed.scrollTo({top:Math.max(0,Math.min(top-8,top+h-H+14)),behavior:reduce?'auto':'smooth'});
+}
+function addBlock(i,anim){
+  const sc=SC[i];
+  const mk=()=>{
+    let dv=null;
+    if(i===first(sc.p)){dv=document.createElement('div');dv.className='divider';dv.dataset.part=sc.p;dv.innerHTML=`<span>${partLabel(sc.p)}${sc.p>0&&sc.p<KET?`<small>Em sẽ: ${PARTS[sc.p].goal.toLowerCase()}</small>`:''}</span>`;feed.appendChild(dv)}
+    const el=document.createElement('div');el.className='turn';el.innerHTML=`${GIRL}<div class="col"></div>`;feed.appendChild(el);
+    const b={i,s:{},el,col:el.querySelector('.col'),anchor:dv||el};st.blocks[i]=b;
+    renderBlock(b);st.focus=i;st.lock=Date.now()+1100;st.busy=false;
+    refreshPin();updateDock();ensureVisible(b);
+  };
+  if(anim&&!reduce){
+    st.busy=true;updateDock();
+    const t=document.createElement('div');t.className='turn';t.innerHTML=`${GIRL}<div class="col"><div class="bub dots3" aria-label="Cherry đang soạn"><i></i><i></i><i></i></div></div>`;feed.appendChild(t);
+    feed.scrollTo({top:feed.scrollHeight,behavior:'smooth'});
+    setTimeout(()=>{t.remove();mk()},650);
+  }else mk();
+}
+function typingEl(){const d=document.createElement('div');d.className='turn';d.innerHTML=`${GIRL}<div class="col"><div class="bub dots3" aria-label="Cherry đang soạn"><i></i><i></i><i></i></div></div>`;return d}
+function meRow(x){const d=document.createElement('div');d.className='me-row';d.innerHTML=`<div class="me pop">${x}</div>`;feed.appendChild(d)}
+function say(html){
+  st.busy=true;updateDock();const t=typingEl();feed.appendChild(t);feed.scrollTo({top:feed.scrollHeight,behavior:reduce?'auto':'smooth'});
+  setTimeout(()=>{t.remove();const el=document.createElement('div');el.className='turn';el.innerHTML=`${GIRL}<div class="col">${html}</div>`;feed.appendChild(el);
+    st.busy=false;st.lock=Date.now()+1100;ensureVisible({anchor:el,el});updateDock()},reduce?0:650);
+}
+function next(){
+  if(st.check){const p=st.check.p;st.check=null;meRow('Em hiểu rồi');return addBlock(lastOf(p)+1,true)}
+  const b=lastB(),sc=SC[b.i];
+  if(sc.last)return toast('Bản thử: chỗ này mở phần làm bài');
+  if(b.i===lastOf(sc.p)){st.done[sc.p]=true;if(sc.p>0&&sc.p<KET){st.check={p:sc.p,recap:false};return say(`<div class="bub q2">Xong phần ${sc.p} rồi! Em thấy phần này thế nào?</div>`)}}
+  if(!(sc.quiz||sc.tap||sc.calc))meRow(sc.go||ECHO[(ec++)%ECHO.length]);
+  addBlock(b.i+1,true);
+}
+$('go2').onclick=()=>{if(!st.check||st.busy)return;const p=st.check.p;st.check.recap=true;meRow('Hơi rối, nhắc lại giúp em');
+  say(`<div class="bub">Không sao! Cherry nhắc lại nhé:</div><div class="cardx"><div class="txt"><p>${PARTS[p].recap}</p></div></div><div class="bub">Giờ em thử lại với bài tiếp theo nhé!</div>`)};
+function updatePip(){
+  const pip=$('pip'),b=lastB();
+  if(!b||st.check){pip.hidden=true;return}
+  const fc=b.el.querySelector('.figcard');if(!fc){pip.hidden=true;return}
+  const r=fc.getBoundingClientRect(),f=feed.getBoundingClientRect();
+  if(r.bottom<f.top+6){pip.innerHTML=`<small>Hình · chạm để xem</small>`+fc.innerHTML.replace(/ id="slg"/g,'');pip.hidden=false}else pip.hidden=true;
+}
+$('pip').onclick=()=>{const b=lastB(),fc=b&&b.el.querySelector('.figcard');if(fc)feed.scrollTo({top:Math.max(0,fc.offsetTop-8),behavior:reduce?'auto':'smooth'})};
+feed.addEventListener('click',e=>{const f=e.target.closest('.past .figcard');if(f)f.classList.toggle('open')});
+go.onclick=()=>{if(!go.disabled)next()};
+feed.addEventListener('scroll',()=>{
+  updatePip();
+  if(Date.now()<st.lock||!st.blocks.length)return;
+  let f=0;
+  if(feed.scrollTop+feed.clientHeight>=feed.scrollHeight-6)f=st.blocks.length-1;
+  else{const probe=feed.scrollTop+feed.clientHeight*.4;st.blocks.forEach((b,k)=>{if(b&&b.el.offsetTop<=probe)f=k})}
+  if(f!==st.focus){st.focus=f;refreshPin()}
+},{passive:true});
+function openPart(p){const d=feed.querySelector(`.divider[data-part="${p}"]`);if(!d)return toast('Học tới phần đó thì mở nhé');st.lock=0;feed.scrollTo({top:d.offsetTop-6})}
+function tocHTML(){return PARTS.map((P,p)=>{const reached=!!st.blocks[first(p)],d=st.done[p],cur=SC[st.blocks.length-1].p===p,n=SC.filter(x=>x.p===p).length,at=Math.max(0,st.blocks.filter(x=>x&&SC[x.i].p===p).length-1);
+  const sub=d?'Đã xong · chạm để xem lại':!reached?'Chưa tới':cur?`Đang học · ${at+1}/${n}`:P.goal;
+  return `<button class="card${d?' done':''}${!reached?' lock':''}${cur?' cur':''}" data-p="${p}"><span class="n">${d?'✓':(p===0?'★':p===KET?'⚑':p)}</span><span class="t">${P.t}<span class="s">${sub}</span></span></button>`}).join('')}
+function summaryHTML(){
+  const F=f=>`<div class="sf">${f}</div>`;
+  const sec=(p,body)=>`<section class="sec" data-sp="${p}"><h4><span class="n">${p===0?'★':p}</span>${p===0?'Câu hỏi mở đầu':PARTS[p].t}</h4>${body}</section>`;
+  return [
+   sec(0,`<div class="item">${F(figScale({L:[{k:'pom'},{k:'big',label:'5,1 kg'}],R:[{k:'big',label:'7 kg'}],note:'Cân thăng bằng'}))}<p>Gọi ${v('x')} là khối lượng quả bưởi:</p>${eq(`${v('x')} + 5,1 = 7 ⇒ ${v('x')} = 7 − 5,1 = <b>1,9</b> (kg)`)}</div>`),
+   sec(1,`<div class="item"><span class="kind tinhchat">Tính chất</span>${F(figEq({rows:[{l:['a'],r:['b']},{l:['a','+c'],r:['b','+c'],hl:{l:[1],r:[1]},c:'b'}],arrows:['cộng c vào cả hai vế']}))}<p>Với ba số ${v('a')}, ${v('b')}, ${v('c')}:</p>${eq(`${v('a')} = ${v('b')} ⇒ ${v('a')} + ${v('c')} = ${v('b')} + ${v('c')}`)}${eq(`${v('a')} + ${v('c')} = ${v('b')} + ${v('c')} ⇒ ${v('a')} = ${v('b')}`)}${eq(`${v('a')} = ${v('b')} ⇒ ${v('b')} = ${v('a')}`)}<p>Hình cân: thêm hoặc bớt <b>cùng một lượng</b> ở hai đĩa thì cân vẫn thăng bằng.</p></div>`),
+   sec(2,`<div class="item"><span class="kind tinhchat">Quy tắc</span>${F(figEq({rows:[{l:['a','+b'],r:['c'],hl:{l:[1]}},{l:['a'],r:['c','−b'],hl:{r:[1]}}],arrows:['chuyển +b, đổi dấu']}))}<p>Khi chuyển một số hạng từ vế này sang vế kia của một đẳng thức, ta phải <b>đổi dấu</b> số hạng đó.</p>${eq(`${v('a')} + ${v('b')} = ${v('c')} ⇒ ${v('a')} = ${v('c')} − ${v('b')}`)}${eq(`${v('a')} − ${v('b')} = ${v('c')} ⇒ ${v('a')} = ${v('c')} + ${v('b')}`)}</div>
+     <div class="item"><span class="kind vidu">Ví dụ</span>${F(figEq({rows:[{l:['x','−2/3'],r:['1/4'],hl:{l:[1]}},{l:['x'],r:['1/4','+2/3'],hl:{r:[1]}},{l:['x'],r:['11/12'],c:'g',hl:{r:[0]}}],arrows:['chuyển −2/3, đổi dấu','quy đồng rồi cộng']}))}${eq(`${v('x')} − ${fr(2,3)} = ${fr(1,4)} ⇒ ${v('x')} = ${fr(1,4)} + ${fr(2,3)} = ${fr(3,12)} + ${fr(8,12)} = ${fr(11,12)}`)}</div>`),
+   sec(3,`<div class="item"><span class="kind vidu">Ví dụ</span>${F(figEq({rows:[{l:['x','+7,25'],r:['15,75'],hl:{l:[1]}},{l:['x'],r:['15,75','−7,25'],hl:{r:[1]}},{l:['x'],r:['8,5'],c:'g',hl:{r:[0]}}],arrows:['chuyển +7,25, đổi dấu','tính hiệu']}))}${eq(`${v('x')} + 7,25 = 15,75 ⇒ ${v('x')} = 15,75 − 7,25 = 8,5`)}</div>
+     <div class="item"><span class="kind vidu">Ví dụ</span>${eq(`${v('x')} − ${fr(1,3)} = −${fr(1,2)} ⇒ ${v('x')} = −${fr(1,2)} + ${fr(1,3)} = −${fr(1,6)}`)}</div>
+     <div class="item"><span class="kind nx">Lưu ý</span><p>Số hạng cần chuyển có thể ở vế nào cũng được, nhưng chỉ <b>số hạng được chuyển</b> mới đổi dấu, các số còn lại ở yên. Ví dụ:</p>${eq(`−0,4 = ${v('x')} − 1,1 ⇒ ${v('x')} = −0,4 + 1,1 = 0,7`)}</div>`)
+  ].join('');
+}
+function openSummary(p){
+  const d=document.createElement('div');d.className='sumpage';
+  d.innerHTML=`<div class="sumhead"><h3>Tóm tắt quy tắc chuyển vế</h3><button class="close" aria-label="Đóng">×</button></div><div class="sumbody">${summaryHTML()}</div><div class="sumfoot"><button class="go" style="width:100%" id="sclose">Quay lại bài</button></div>`;
+  d.querySelector('.close').onclick=d.querySelector('#sclose').onclick=()=>d.remove();
+  app.appendChild(d);
+  if(p!==undefined){const s=d.querySelector(`[data-sp="${p}"]`);if(s)d.querySelector('.sumbody').scrollTop=s.offsetTop-8}
+}
+$('sumbtn').onclick=()=>openSummary(st.blocks.length?SC[st.focus].p:undefined);
+$('ml').onclick=()=>{const d=document.createElement('div');d.className='sheet';d.innerHTML=`<div role="dialog" aria-label="Mục lục"><button class="close" aria-label="Đóng">×</button><h3>Mục lục · quy tắc chuyển vế</h3>${tocHTML()}<p style="font-size:13px;color:#6f858b;margin-top:12px">Chạm để cuộn tới phần đã học. Muốn xem lại cũng chỉ cần vuốt lên.</p></div>`;
+  d.onclick=e=>{if(e.target===d)d.remove()};d.querySelector('.close').onclick=()=>d.remove();d.querySelectorAll('[data-p]').forEach(x=>x.onclick=()=>{d.remove();openPart(+x.dataset.p)});app.appendChild(d)};
+document.querySelectorAll('#lay button').forEach(b=>b.onclick=()=>{app.classList.toggle('wide',b.dataset.l==='wide');document.querySelectorAll('#lay button').forEach(x=>x.classList.toggle('on',x===b));refreshPin();ensureVisible(lastB())});
+$('reset').onclick=()=>{fresh();addBlock(0,false)};
+fresh();addBlock(0,false);
+
+}
+</script>
+</body>
+</html>
