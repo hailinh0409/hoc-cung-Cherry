@@ -1,3 +1,4 @@
+window.__cherryUp=1;
 /* ===================== BẢN APP THẬT: dữ liệu qua máy chủ ===================== */
 let SERVERP=null,SESS=null,FIGS={};
 const api=async(path,body,method)=>{const r=await fetch(path,{method:method||(body?'POST':'GET'),headers:body?{'content-type':'application/json'}:{},body:body?JSON.stringify(body):undefined,credentials:'same-origin'});
