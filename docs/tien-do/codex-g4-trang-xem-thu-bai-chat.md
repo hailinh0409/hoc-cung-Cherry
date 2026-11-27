@@ -1,36 +1,38 @@
 # Tiến độ: G4 — trang xem thử bài chat
 
-- Nhánh: `codex/g4-trang-xem-thu-bai-chat` · Issue: #66
+- Nhánh: `codex/g4-trang-xem-thu-bai-chat` · PR: #71 · Issue: #66
 - Người đang làm: Codex · Cập nhật lần cuối: 27/11/2026
-- Trạng thái: đang làm
+- Trạng thái: xong, chờ thầy duyệt
 
 ## Bắt đầu từ đâu
 
-Chạy `node scripts/build-xem-thu.mjs` trong `hoc-cung-cherry/`. Mở `xem-thu/index.html` rồi dán mã.
+Mở `hoc-cung-cherry/xem-thu/index.html` trong trình duyệt. Để dựng lại, chạy `node scripts/build-xem-thu.mjs` trong `hoc-cung-cherry/`.
 
 ## Mục tiêu
 
-Dựng một trang HTML tự chứa để kiểm tra và sao chép bài chat trước khi dán lên app.
+Cung cấp một file HTML tự chứa để người soạn kiểm tra và sao chép bài chat trước khi dán vào app.
 
 ## Quyết định đã chốt với thầy
 
-Dùng cùng bộ đọc và trình hiển thị với app. Hình TikZ dùng khung giữ chỗ trong bản xem thử.
+Dùng cùng bộ đọc và trình hiển thị với app. Hình TikZ có khung giữ chỗ. Bản xem thử chỉ lấy MathJax và phông chữ từ ngoài.
 
 ## Đã xong (đã commit)
 
-- [x] Tách nhánh riêng để duyệt trang xem thử.
+- [x] Dựng trang dán bài có cảnh báo theo dòng, khung 390 × 844, sao chép khối và làm lại.
+- [x] Thêm bước dựng HTML trong GitHub Actions.
+- [x] Kiểm tra hai bài mẫu và MathJax trong Edge.
 
 ## Đang làm dở
 
-Đưa trình dựng, bản HTML và bước kiểm tra vào GitHub.
+Không có.
 
 ## Việc tiếp theo
 
-Sau khi PR được gộp, Claude đăng HTML lên Artifact.
+Sau khi PR được gộp, Claude đăng `xem-thu/index.html` lên Artifact để thầy và Gemini mở.
 
 ## Còn lại
 
-- [ ] Hoàn thiện mã và chạy kiểm tra.
+- [ ] Thầy duyệt PR.
 
 ## File liên quan
 
@@ -40,7 +42,7 @@ Sau khi PR được gộp, Claude đăng HTML lên Artifact.
 
 ## Cách kiểm tra
 
-Mở trang HTML với hai bài mẫu, bật thử, sao chép và tải lại.
+Đã dựng lại HTML và chạy thử hai bài mẫu. Kiểm tra chọn tên, hiển thị hình, công thức, số dòng, sao chép, nhớ bản dán và làm lại.
 
 ## Lưu ý cho người tiếp quản
 
