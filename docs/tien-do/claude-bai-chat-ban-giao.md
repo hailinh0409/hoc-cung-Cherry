@@ -1,6 +1,6 @@
 # Tiến độ: Bàn giao lý thuyết kiểu chat với Cherry
 
-- Nhánh: `claude/bai-chat-ban-giao` · PR: (ghi sau khi mở)
+- Nhánh: `claude/bai-chat-ban-giao` · PR: #67
 - Người đang làm: Claude · Cập nhật lần cuối: 27/11/2026
 - Trạng thái: xong, chờ thầy duyệt
 
