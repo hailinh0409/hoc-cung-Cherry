@@ -27,7 +27,7 @@ Thầy: "Viết bàn giao trên Github để Codex viết mã cho phần lý thu
 Không có.
 
 ## Việc tiếp theo
-- Thầy chọn khối soạn trước để Gemini bắt đầu.
+- Khối 7 làm trước (thầy chốt). Thầy gửi `docs/bai-chat/giao-viec-gemini-dot1.md` cho Gemini; Claude duyệt bài Gemini gửi về.
 - Sau khi G4 gộp: Claude đăng trang xem thử lên Artifact, cập nhật `docs/gemini-skill-soan-bai.md`.
 
 ## Còn lại

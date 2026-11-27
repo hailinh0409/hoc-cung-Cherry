@@ -101,7 +101,7 @@ Mỗi việc là một nhánh `codex/<việc>`, một PR, kèm `docs/tien-do/<nh
 ## 5. Việc của Gemini và Claude
 
 - **Claude** (sau khi G4 gộp): đăng trang xem thử lên Artifact; cập nhật `docs/gemini-skill-soan-bai.md` theo `cu-phap.md`; duyệt các PR của Codex.
-- **Gemini** (bắt đầu được ngay, không cần chờ mã): soạn lại các bài theo `cu-phap.md`, **khối thầy chọn trước**, từng bài một. Bài đầu tiên: viết lại Bài 9 Toán 7 (`docs/bai-giang/k7-b9-bai-giang.tex`) sang khối `baichat` giọng tớ–cậu, và hoàn thiện Bài 4 Toán 7 (thêm phần "Thứ tự thực hiện các phép tính" vào `k7-chuyen-ve.tex`).
+- **Gemini** (bắt đầu được ngay, không cần chờ mã): soạn lại các bài theo `cu-phap.md`, **khối 7 trước** (thầy chốt 27/11/2026), từng bài một. Lời giao việc đợt 1: [`giao-viec-gemini-dot1.md`](giao-viec-gemini-dot1.md). Bài đầu tiên: viết lại Bài 9 Toán 7 (`docs/bai-giang/k7-b9-bai-giang.tex`) sang khối `baichat` giọng tớ–cậu, và hoàn thiện Bài 4 Toán 7 (thêm phần "Thứ tự thực hiện các phép tính" vào `k7-chuyen-ve.tex`).
 - **Quy trình một bài:** Gemini soạn → dán vào trang xem thử, sửa hết lỗi → gửi Claude duyệt (nội dung đúng SGK, giọng, phương án sai, công thức) → thầy dán vào app (thẻ "Bản chat") → khi đủ cả khối, thầy bật công tắc.
 
 ## 6. Không làm trong đợt này
