@@ -100,3 +100,7 @@
 .chat-sumtitle small {color:var(--chat-muted);font-size:12.5px;font-weight:600}
 .chat-sumtitle b {font:800 19px/1.15 "Baloo 2",system-ui,sans-serif}
 .chat-summary-page .chat-feed {padding-top:4px}
+/* Hàng nút bước (thầy duyệt 28/11/2026): quay lại nhỏ bên trái, đi tiếp chính bên phải */
+.chat-step-row {display:flex;gap:8px;align-items:stretch}
+.chat-step-row .chat-action {flex:1}
+.chat-step-row .chat-back {flex:0 0 auto;padding-inline:14px;border-color:var(--chat-line);color:var(--chat-muted)!important;font-weight:600!important}

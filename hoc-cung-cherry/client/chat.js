@@ -14,6 +14,111 @@ const chatEscape = value => String(value ?? '').replace(/[&<>"']/g, c => ({
   '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
 })[c]);
 
+/* ---------- Cập nhật lượt nhắn mà không làm nhảy chữ (thầy yêu cầu 28/11/2026) ----------
+   Trước đây mỗi lần học sinh bấm, cả lượt nhắn bị xoá rồi vẽ lại: công thức hiện chữ thô cho tới khi MathJax
+   vẽ xong, hình bị gỡ ra gắn lại, nên chữ co giãn, màn giật. Nay chỉ thay phần thật sự đổi:
+   - phần tử có mã nguồn giống hệt thì giữ nguyên (kể cả công thức đã vẽ);
+   - cùng loại phần tử, chỉ đổi thuộc tính (nút bị khóa, nút sai tô đỏ) thì sửa thuộc tính tại chỗ;
+   - khung chỉ chứa phần tử con (khung kiến thức, danh sách bước) thì so tiếp từng con;
+   - khung hình giữ nguyên, chỉ thay nội dung bên trong, giữ chiều cao cho tới khi ảnh mới tải xong;
+   - phần mới thêm được ẩn tới khi MathJax vẽ xong rồi mới hiện. */
+function chatMark(node) {
+  for (const el of [node, ...node.querySelectorAll('*')]) {
+    el.chatSrc = el.outerHTML;
+    el.chatInner = el.innerHTML;
+  }
+}
+
+function chatElementOnly(node) {
+  return [...node.childNodes].every(child => child.nodeType === 1 || (child.nodeType === 3 && !child.textContent.trim()));
+}
+
+function chatSyncAttrs(node, fresh) {
+  for (const { name } of [...node.attributes]) if (!fresh.hasAttribute(name)) node.removeAttribute(name);
+  for (const { name, value } of [...fresh.attributes]) if (node.getAttribute(name) !== value) node.setAttribute(name, value);
+}
+
+function chatSwapFigure(node, fresh, onSwap) {
+  const children = [...fresh.childNodes];
+  const token = node.chatSwap = {};
+  const swap = () => {
+    if (node.chatSwap !== token) return;
+    const height = node.offsetHeight;
+    if (height) node.style.minHeight = height + 'px';
+    node.replaceChildren(...children);
+    const release = () => { if (node.chatSwap === token) node.style.minHeight = ''; };
+    const images = [...node.querySelectorAll('img')].filter(img => !img.complete);
+    if (!images.length) release();
+    else {
+      let left = images.length;
+      for (const img of images) {
+        const done = () => { if (--left <= 0) release(); };
+        img.addEventListener('load', done, { once: true });
+        img.addEventListener('error', done, { once: true });
+      }
+      setTimeout(release, 3000);
+    }
+    onSwap?.();
+  };
+  // Ảnh mới (bước tiếp của hình từng bước) được tải trước, ảnh cũ ở lại trên màn cho tới lúc đó.
+  const sources = [...fresh.querySelectorAll('img')].map(img => img.getAttribute('src')).filter(Boolean);
+  if (!sources.length || typeof Image !== 'function') return swap();
+  let left = sources.length;
+  const done = () => { if (--left <= 0) swap(); };
+  for (const src of sources) {
+    const probe = new Image();
+    probe.onload = probe.onerror = done;
+    probe.src = src;
+  }
+  setTimeout(swap, 1500);
+}
+
+export function chatMorph(parent, fresh, added = [], removed = [], onSwap) {
+  const olds = [...parent.children];
+  let k = 0;
+  for (const item of [...fresh.children]) {
+    const source = item.outerHTML, inner = item.innerHTML;
+    let m = -1, node = null;
+    for (let i = k; i < olds.length; i++) {
+      if (olds[i].chatSrc === source) { m = i; node = olds[i]; break; }
+    }
+    if (!node) {
+      const old = olds[k];
+      if (old && old.tagName === item.tagName && old.getAttribute('class') === item.getAttribute('class')) {
+        let kept = true;
+        chatSyncAttrs(old, item);
+        if (old.chatInner !== inner) {
+          if (old.classList.contains('chat-figure')) chatSwapFigure(old, item, onSwap);
+          else if (chatElementOnly(item) && chatElementOnly(old)) chatMorph(old, item, added, removed, onSwap);
+          else kept = false;
+        }
+        if (kept) {
+          old.chatSrc = source;
+          old.chatInner = inner;
+          m = k;
+          node = old;
+        }
+      }
+    }
+    if (!node) {
+      parent.insertBefore(item, olds[k] || null);
+      chatMark(item);
+      added.push(item);
+      continue;
+    }
+    for (let i = k; i < m; i++) {
+      removed.push(olds[i]);
+      olds[i].remove();
+    }
+    k = m + 1;
+  }
+  for (let i = k; i < olds.length; i++) {
+    removed.push(olds[i]);
+    olds[i].remove();
+  }
+  return { added, removed };
+}
+
 function chatHinhBuoc(figure) {
   return figure?.kind === 'hinhbuoc' ? parseHinhBuoc(figure.src) : null;
 }
@@ -141,11 +246,9 @@ export function renderChatLesson(root, topic, options = {}) {
   const partLabel = p => p === 0 || p === lastPart ? parts[p].title :
     'Phần ' + p + '/' + (lastPart - 1) + ' · ' + parts[p].title;
   const typeset = node => {
-    if (options.typeset) options.typeset(node);
-    else {
-      const math = globalThis.MathJax;
-      math?.startup?.promise?.then(() => node.isConnected && math.typesetPromise([node])).catch(() => {});
-    }
+    if (options.typeset) return Promise.resolve(options.typeset(node)).catch(() => {});
+    const math = globalThis.MathJax;
+    return Promise.resolve(math?.startup?.promise?.then(() => node.isConnected && math.typesetPromise([node])).catch(() => {}));
   };
   const clearMath = node => globalThis.MathJax?.typesetClear?.([node]);
   const placeholder = () => '<div class="chat-placeholder">' +
@@ -174,6 +277,9 @@ export function renderChatLesson(root, topic, options = {}) {
   const tag = (label, kind = '') => `<span class="chat-label" data-kind="${kind}">${chatEscape(label)}</span>`;
   const feedback = (value, style = '') => `<div class="chat-feedback"${style ? ' data-' + style : ''} role="status">${text(value)}</div>`;
   const action = (id, label, disabled = false) => `<button type="button" class="chat-action" data-${id}${disabled ? ' disabled' : ''}>${text(label)}</button>`;
+  // Nút đi tiếp và nút quay lại cùng một hàng: quay lại nhỏ, bên trái; đi tiếp chính, bên phải.
+  const stepRow = (back, forward) => back || forward ? `<div class="chat-step-row">${back}${forward}</div>` : '';
+  const backAction = (id, label) => `<button type="button" class="chat-action chat-back" data-${id}>‹ ${text(label)}</button>`;
   const activeScreen = () => screens[visits.length - 1];
   const setTitle = p => { focusedPart = p; current.textContent = partLabel(p); };
   const save = () => storage.write({ visits, complete });
@@ -242,7 +348,7 @@ export function renderChatLesson(root, topic, options = {}) {
       html += bubble(sc.cauhoi, true) + bubble('Học xong bài này, cậu sẽ tự trả lời được.');
       if (sc.nutbuoc && sc.frames?.caps.length) {
         if (state.steps > 1) html += bubble(sc.frames.caps[state.steps - 1]);
-        if (live && state.steps !== sc.frames.caps.length) html += action('frame', sc.nutbuoc);
+        if (live && state.steps !== sc.frames.caps.length) html += stepRow('', action('frame', sc.nutbuoc));
       }
     }
     if (sc.type === 'contents') {
@@ -252,7 +358,7 @@ export function renderChatLesson(root, topic, options = {}) {
     if (['read', 'vidu'].includes(sc.type)) {
       const count = state.steps || 1;
       html += knowledgeHTML(sc, count);
-      if (live && count < (sc.steps?.length || 0)) html += action('step', 'Bước tiếp');
+      if (live && count < (sc.steps?.length || 0)) html += stepRow('', action('step', 'Bước tiếp ›'));
     }
     if (sc.type === 'tap' || sc.type === 'region') {
       const prompt = sc.tap || sc.region;
@@ -284,8 +390,8 @@ export function renderChatLesson(root, topic, options = {}) {
     if (sc.type === 'steps' && sc.frames) {
       const index = (state.steps || 1) - 1;
       html += tag('Hình từng bước') + bubble('Bước ' + (index + 1) + '/' + sc.frames.caps.length + '. ' + sc.frames.caps[index]);
-      if (live && index) html += action('back-frame', 'Bước trước');
-      if (live && index + 1 < sc.frames.caps.length) html += action('frame', 'Bước sau');
+      if (live) html += stepRow(index ? backAction('back-frame', 'Bước trước') : '',
+        index + 1 < sc.frames.caps.length ? action('frame', 'Bước sau ›') : '');
     }
     if (sc.type === 'slide') {
       html += state.correct ? feedback(sc.slide.after) : live ? action('slide', sc.slide.label, state.waiting) : '';
@@ -349,7 +455,7 @@ export function renderChatLesson(root, topic, options = {}) {
   const next = $('[data-next]'), recap = $('[data-recap]'), pip = $('.chat-pip');
   const toc = $('.chat-toc-pane'), summary = $('.chat-summary-pane'), toast = $('.chat-toast');
   const finished = $('.chat-finished'), progress = $('.chat-progress');
-  let pipFigure = null;
+  let pipFigure = null, pipInner = null, scrollAfterMath = false;
 
   function ready(sc, state) {
     if (sc.quiz || ['tap', 'region', 'slide'].includes(sc.type)) return !!state.correct;
@@ -388,8 +494,9 @@ export function renderChatLesson(root, topic, options = {}) {
     const figure = rows.at(-1)?.querySelector('.chat-figure');
     const above = figure && figure.getBoundingClientRect().bottom < feed.getBoundingClientRect().top + 5;
     pip.hidden = !above;
-    if (!above || figure === pipFigure) return;
+    if (!above || (figure === pipFigure && figure.chatInner === pipInner)) return;
     pipFigure = figure;
+    pipInner = figure.chatInner;
     const graphic = figure.querySelector('svg,img')?.cloneNode(true);
     pip.replaceChildren(document.createTextNode('Hình · chạm để xem'));
     if (!graphic) return;
@@ -402,12 +509,32 @@ export function renderChatLesson(root, topic, options = {}) {
   function render(index, focus) {
     const sc = screens[index], state = visits[index], row = rows[index];
     const column = row.querySelector('.chat-col');
-    clearMath(column);
-    column.innerHTML = blockHTML(sc, state, index === visits.length - 1 && !state.final);
-    if (sc.type === 'lab') options.bindLab?.(column);
-    typeset(column);
+    const html = blockHTML(sc, state, index === visits.length - 1 && !state.final);
+    if (sc.type === 'lab') {
+      // Mẫu minh họa tự gắn sự kiện; giữ cách vẽ lại toàn bộ như cũ.
+      clearMath(column);
+      column.innerHTML = html;
+      options.bindLab?.(column);
+      typeset(column);
+    } else {
+      const fresh = document.createElement('template');
+      fresh.innerHTML = html;
+      const { added, removed } = chatMorph(column, fresh.content, [], [], updatePip);
+      for (const node of removed) clearMath(node);
+      const waiting = added.filter(node => /\$|\\\(|\\\[/.test(node.chatInner || ''));
+      // Phần mới có công thức được vẽ ngoài dòng chảy (không chiếm chỗ, không đẩy nút bên dưới),
+      // vẽ xong mới vào chỗ của nó một lần, đúng kích thước cuối.
+      const width = column.clientWidth;
+      for (const node of waiting) Object.assign(node.style, { position: 'absolute', visibility: 'hidden', width: width + 'px' });
+      const show = () => {
+        for (const node of waiting) Object.assign(node.style, { position: '', visibility: '', width: '' });
+        if (waiting.length && rows.at(-1) === row && scrollAfterMath) scroll(column.lastElementChild);
+      };
+      Promise.all(added.map(typeset)).then(show, show);
+      if (waiting.length) setTimeout(show, 1200);
+    }
     if (focus) {
-      const replacement = column.querySelector(focus);
+      const replacement = focus.split('|').map(selector => column.querySelector(selector)).find(Boolean);
       (replacement || next).focus({ preventScroll: true });
     }
     updatePip();
@@ -454,6 +581,7 @@ export function renderChatLesson(root, topic, options = {}) {
   }
 
   function refresh({ scrollToEnd = false, focus } = {}) {
+    scrollAfterMath = scrollToEnd;
     render(visits.length - 1, focus);
     dock();
     save();
@@ -514,7 +642,7 @@ export function renderChatLesson(root, topic, options = {}) {
       const back = target.hasAttribute('data-back-frame');
       state.steps = (state.steps || (sc.type === 'act' ? 0 : 1)) + (back ? -1 : 1);
       if (sc.frames?.caps.length === state.steps) state.viewedFrames = true;
-      refresh({ scrollToEnd: true, focus: '[data-step],[data-frame],[data-back-frame]' });
+      refresh({ scrollToEnd: true, focus: back ? '[data-back-frame]|[data-frame]|[data-step]' : '[data-frame]|[data-step]|[data-back-frame]' });
     }
   }
 
