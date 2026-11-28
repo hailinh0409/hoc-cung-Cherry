@@ -99,7 +99,8 @@ function mathFit(el){
   });
 }
 const tex=s=>brOut(esc(s)).replace(/\\textbf\{([^}]*)\}/g,'<b>$1</b>').replace(/&quot;/g,'"');
-const typeset=el=>{if(window.__mjReady)MathJax.typesetPromise([el]).catch(()=>{}).then(()=>{sdLay(el);mathFit(el)});requestAnimationFrame(()=>sdLay(el));if(el&&el.querySelector&&el.querySelector('.sd-tw'))setTimeout(()=>sdLay(el),500)};
+// Trả về lời hứa để khung chat biết lúc công thức đã vẽ xong (hiện phần mới sau khi vẽ, không nhảy chữ).
+const typeset=el=>{let done;if(window.__mjReady)done=MathJax.typesetPromise([el]).catch(()=>{}).then(()=>{sdLay(el);mathFit(el)});requestAnimationFrame(()=>sdLay(el));if(el&&el.querySelector&&el.querySelector('.sd-tw'))setTimeout(()=>sdLay(el),500);return done};
 
 /* ---------- âm thanh & hiệu ứng ---------- */
 @@FX@@
