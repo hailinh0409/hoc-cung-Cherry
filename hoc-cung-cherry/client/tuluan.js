@@ -21,13 +21,18 @@ function tlText(value) {
     if (t === '\\\\') out += '<br>';
     else if (m[1] !== undefined) out += '<b>' + tlText(m[1]) + '</b>';
     else if (t.startsWith('$$') || t.startsWith('\\[')) out += '<span class="tl-eq">' + tlEsc(t) + '</span>';
-    else out += tlEsc(t);
+    else { // công thức trong dòng: dính liền dấu câu ngay sau nó để không xuống dòng trước dấu phẩy, dấu chấm
+      const p = /^[.,;:!?)]+/.exec(src.slice(m.index + t.length)), tail = p ? p[0] : '';
+      out += tail ? `<span class="tl-nb">${tlEsc(t)}${tlEsc(tail)}</span>` : tlEsc(t);
+      from = m.index + t.length + tail.length; continue;
+    }
     from = m.index + t.length;
   }
   return out + tlEsc(src.slice(from));
 }
 const tlLines = v => String(v ?? '').split(/\\\\/).map(s => s.trim()).filter(Boolean);
-const tlPara = v => tlLines(v).map(l => `<p>${tlText(l)}</p>`).join('');
+// Dòng chỉ có một công thức (kèm dấu câu) thì đặt riêng, căn giữa, cuộn ngang được nếu dài hơn màn hình
+const tlPara = v => tlLines(v).map(l => { const m = /^\$([^$]+)\$\s*([.,;:]?)$/.exec(l); return m ? `<p class="tl-eq">${tlEsc('$$' + m[1] + (m[2] ? '\\,' + m[2] : '') + '$$')}</p>` : `<p>${tlText(l)}</p>`; }).join('');
 // Trộn phương án cố định theo nội dung câu hỏi (cùng câu luôn cùng thứ tự)
 function tlShuffle(arr, seed) {
   let h = 2166136261; for (const c of String(seed)) h = Math.imul(h ^ c.charCodeAt(0), 16777619);

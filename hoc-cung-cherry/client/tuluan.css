@@ -1,7 +1,7 @@
 
 /* ---------- Chặng Tự luận: chat cùng Cherry (client/tuluan.js) ---------- */
 .tl{--tl-app:#fffaf2;--tl-ink:#14323a;--tl-mute:#5d747a;--tl-teal:#0f8a7c;--tl-teal-d:#0b6e63;--tl-line:#ece3d1;--tl-or:#f28c28;--tl-bl:#3b7be0;--tl-gr:#1f8a57;--tl-red:#c8323f;
-  position:relative;display:flex;flex-direction:column;height:100%;min-height:0;overflow:hidden;background:var(--tl-app);color:var(--tl-ink);font:16px/1.55 "Be Vietnam Pro",system-ui,sans-serif}
+  position:relative;display:flex;flex-direction:column;height:100%;min-height:0;overflow:hidden;background:var(--tl-app);color:var(--tl-ink);text-align:left;font:16px/1.55 "Be Vietnam Pro",system-ui,sans-serif}
 .tl *{box-sizing:border-box;min-width:0}
 .tl [hidden]{display:none!important}
 .tl :where(button){font:inherit;color:inherit;cursor:pointer}
@@ -87,3 +87,4 @@
 .tlbox{display:flex;gap:12px;align-items:center;border-radius:16px;padding:10px 12px;background:#fff7e8;border:2px solid #f6dcae;color:#5a3a00;margin:8px 0}
 .tlbox .chest{flex:none}
 .tl-preview{height:min(660px,72vh);margin:8px 0;border:1px solid #ece3d1;border-radius:14px;overflow:hidden}
+.tl-nb{white-space:nowrap}

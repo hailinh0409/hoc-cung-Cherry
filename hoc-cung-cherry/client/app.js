@@ -422,7 +422,7 @@ function journey(){show('journey');jdock();if(curK===ACC.khoi&&!ACC.teacher&&!P.
   if(!items.length){el.innerHTML=`<div class="empty dark"><div style="width:110px;margin:0 auto">${owlSVG}</div><p>Khối ${curK} chưa có bản đồ.</p></div>`;return}
   // Dùng phần trăm chiều ngang để đường đi và các nút cùng co giãn khi xoay máy.
   const W=100,BAN=86,STEP=112,TOP=210,BOT=90,HKH=96;
-  const H=BOT+TOP+items.reduce((s,x)=>s+(x.hk?HKH:x.ch&&!x.L?BAN+30:STEP),0);
+  const H=BOT+TOP+items.reduce((s,x)=>s+(x.hk?HKH:x.ch&&!x.L?BAN+30:x.tl?STEP+26:STEP),0);
   let y=H-BOT,pts=[],html='',deco='',cur=null,k=0,ni=0;
   const chStat=ch=>{const L=items.filter(x=>x.L&&x.L.ch===ch);const has=L.filter(x=>x.t);return {n:L.length,done:has.filter(x=>topicPassed(x.t)>0).length,st:has.reduce((s,x)=>s+topicStars(x.t),0),has:has.length}};
   items.forEach(x=>{
@@ -435,7 +435,7 @@ function journey(){show('journey');jdock();if(curK===ACC.khoi&&!ACC.teacher&&!P.
     if(x.tl){const n=x.tl.n,side=[.3,.7,.62,.38][ni++%4],x2=side*W,ny=y-STEP/2,S=tlStat(curK,n);pts.push([x2,ny]);
       html+=`<button class="tnode tlnode ${S.full?'done':'open'}${x2<W/2?' l':' r'}" data-tl="${n}" style="left:${x2}%;top:${ny}px"><span class="coin">${pencilSVG}</span><span class="tlab"><b>Tự luận</b><i>${S.total?`Đã làm trọn ${S.done}/${S.total} bài`:'Thầy đang soạn bài'}</i></span>${GV()&&S.draft?`<em class="hwn st">${S.draft} nháp</em>`:''}</button>`;
       if(S.need)html+=`<div class="tlchest" style="left:calc(${x2}% + ${x2<W/2?92:-92}px);top:${ny-6}px">${chestSVG(S.opened,44)}<small>${S.opened?'Đã mở':S.ready?'Mở được!':`${Math.min(S.done,S.need)}/${S.need}`}</small></div>`;
-      y-=STEP;return}
+      y-=STEP+26;return}
     const L=x.L,t=x.t,side=[.3,.7,.62,.38][ni++%4],x2=side*W,ny=y-STEP/2;pts.push([x2,ny]);
     const lab=`<span class="tlab"><b>${L.lt?L.title:L.num?'Bài '+L.num:'Bổ sung'}</b>${L.lt?'':`<i>${esc(t&&!L.num?t.title:L.title)}</i>`}</span>`;
     if(!t){const gv=GV()&&L.id;html+=`<${gv?'button':'div'} class="tnode ghost${x2<W/2?' l':' r'}"${gv?` data-gl="${esc(L.id)}"`:''} style="left:${x2}%;top:${ny}px"><span class="coin">${L.lt?L.coin:L.num||'?'}</span>${lab}${gv?'<em class="hwn st">+ Dán bài</em>':''}</${gv?'button':'div'}>`;y-=STEP;return}
@@ -1917,6 +1917,9 @@ function pushMine(){if(!DB||!ACC||ACC.teacher||DBSTATE!=='ok')return;wq=wq.then(
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&syncT){clearTimeout(syncT);syncT=null;pushMine()}});
 function mergeP(d){const m0=P.matches||0;
   if(d.thd)P.thd={...d.thd,...(P.thd||{})}; // bài đã học lý thuyết cùng Cherry (gộp hai máy)
+  // Tự luận (gộp hai máy): mỗi bài lấy bản tiến xa hơn (đã làm trọn > nhiều câu hơn); rương đã mở giữ lại
+  if(d.bm){P.bm=P.bm||{};const lv=e=>e?(tlDone(e)?1e3:0)+(Number(e.c)||0):-1;for(const [k,v] of Object.entries(d.bm))if(lv(v)>lv(P.bm[k]))P.bm[k]=v}
+  if(d.tlr)P.tlr={...d.tlr,...(P.tlr||{})};
   if(d.rev&&Object.keys(d.rev).length>Object.keys(P.rev||{}).length)P.rev=d.rev;
   if(d.saved&&Object.keys(d.saved).length>Object.keys(P.saved||{}).length)P.saved=d.saved;
   if(d.st&&(d.st.last_day||'')>(P.st.last_day||''))P.st=d.st;

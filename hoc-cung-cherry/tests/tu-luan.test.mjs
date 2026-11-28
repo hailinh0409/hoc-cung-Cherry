@@ -35,3 +35,10 @@ test('báo lỗi \\huong, \\goiy, \\kiemtra đặt sai chỗ hoặc thiếu', ()
   // bài mẫu cũ không có lệnh mới vẫn đọc được
   assert.deepEqual(parseGiaiMau('\\de{x}\\buocgiai{a}{b}{c}').errors, []);
 });
+
+test('giao diện: đếm số câu của bài (dùng cho "xong c/3 câu" và lưu tiến độ)', async () => {
+  const { tuLuanInfo } = await import('../client/tuluan.js');
+  const raw = fs.readFileSync(new URL('../../docs/tu-luan/mau-dai-so-viete.tex', import.meta.url), 'utf8');
+  assert.deepEqual({ ...tuLuanInfo(raw), errors: undefined }, { cau: 3, steps: 8, errors: undefined });
+  assert.equal(tuLuanInfo('\\chude{x}\\begin{giaimau}\\de{d}\\buocgiai{a}{b}{c}\\end{giaimau}').cau, 1);
+});
