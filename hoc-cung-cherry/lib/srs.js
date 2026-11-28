@@ -13,11 +13,17 @@ export function nextReview(row, ok, today = vnDay()) {
   if (!row) return { box: 1, due: addDays(today, INTERVALS[1]), in_notebook: false, nb_hits: 0, last_ok: today, wrong_count: 0 };
   if (row.last_ok === today) return null; // đúng nhiều lần trong cùng một ngày chỉ tính một lần
   const box = Math.min((row.box || 0) + 1, 5);
-  const nb_hits = row.in_notebook ? (row.nb_hits || 0) + 1 : 0;
-  return {
-    box, due: addDays(today, INTERVALS[box]), last_ok: today, wrong_count: row.wrong_count || 0,
-    nb_hits, in_notebook: row.in_notebook && nb_hits < 2, // đúng ở 2 ngày khác nhau thì ra khỏi sổ
-  };
+  // Câu đang ở sổ Câu sai: làm đúng lại chính câu đó (ở bản đồ, đề ôn tập) KHÔNG gạch khỏi sổ, vì có thể chỉ là nhớ đáp án.
+  // Chỉ làm đúng câu thay thế trong "Làm lại câu sai" mới gạch (redoResult).
+  if (row.in_notebook) return { ...row, box: row.box || 0, last_ok: today, wrong_count: row.wrong_count || 0 };
+  return { box, due: addDays(today, INTERVALS[box]), last_ok: today, wrong_count: row.wrong_count || 0, nb_hits: 0, in_notebook: false };
+}
+
+// Làm lại câu sai (thầy chốt 28/11/2026): học sinh làm một câu thay thế cùng bài; đúng 1 lần là câu gốc ra khỏi sổ.
+// Sai: câu gốc vẫn ở sổ, lần sau đổi câu thay thế khác; nếu bài hết câu mới thì câu gốc chỉ mở lại sau 1 ngày (due).
+export function redoResult(row, ok, today = vnDay()) {
+  if (ok) return { ...row, in_notebook: false, nb_hits: 1, box: Math.max(1, row.box || 0), due: addDays(today, INTERVALS[1]), last_ok: today };
+  return { ...row, in_notebook: true, nb_hits: 0, box: 0, due: addDays(today, 1), wrong_count: (row.wrong_count || 0) + 1 };
 }
 
 // Chuỗi ngày học: mỗi ngày đạt mục tiêu (qua 1 màn hoặc làm xong 1 lượt ôn) thì +1.

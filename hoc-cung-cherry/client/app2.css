@@ -432,3 +432,7 @@ textarea.code.light{background:#fff;color:#12313a;font:14px/1.5 "Be Vietnam Pro"
 /* Công thức dài (26/11/2026): mảnh công thức nối bằng <wbr> để xuống dòng ở dấu "="; dàn bước bằng <br class="mbr"> (mathFit) */
 .mchain>mjx-container{margin:0!important}
 .mhint{display:block;font-size:12px;color:#7a9399;margin-top:2px}
+/* Thi đấu: phương án vừa chọn (không lộ đúng/sai); xem lại bài làm */
+.opt.pick{box-shadow:0 0 0 4px #7c5cff,0 5px 0 #5a3fd6}
+.va.me{background:#ece7ff;color:#2d1f6b;font-weight:700}
+.rvq .stem{margin-top:6px}.rvq .row2 b.y{color:#0c6b3f}.rvq .row2 b.n{color:#a1202f}.rvq .srow{margin-top:8px}
