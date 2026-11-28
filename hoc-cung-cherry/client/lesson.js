@@ -56,12 +56,85 @@ function renderChatInApp(root,t,options={}){
 }
 function theoryTopics(k){return mapItems(k).map(item=>item.t).filter(hasTheory)}
 
-function theoryIndex(){
-  const topics=theoryTopics(curK);
-  overlay(`<h2>Lý thuyết lớp ${esc(curK)}</h2><div class="lesson-index">${topics.map((t,i)=>`<button type="button" class="btn alt" data-theory-topic="${i}">${esc(t.title)}</button>`).join('')}</div><button type="button" class="btn" id="theoryIndexClose">Về bản đồ</button>`);
-  $('#theoryIndexClose').onclick=closeOvl;
-  $$('#panel [data-theory-topic]').forEach(button=>button.onclick=()=>{closeOvl();theory(topics[Number(button.dataset.theoryTopic)])});
-}
+/* ---------- Lý thuyết (thầy duyệt 28/11/2026) ----------
+   - Bấm chặng trên bản đồ: bảng 3 lựa chọn Học từ đầu (chat với Cherry) / Tóm tắt lý thuyết / Làm bài luôn,
+     gợi ý theo tình trạng: chưa học thì gợi ý Học từ đầu, đã học thì gợi ý Làm bài luôn.
+   - "Đã học" (P.thd[mã bài] = ngày) chỉ đánh dấu khi học xong bài chat với Cherry (hoặc xem hết bài kiểu cũ).
+   - Mục Lý thuyết riêng (ô Lý thuyết ở màn khối): hàng chương ở trên, thẻ bài ở dưới, CHỈ có tóm tắt.
+     Học cùng Cherry chỉ có trên bản đồ. Bài chưa có lý thuyết: thẻ xám "Đang soạn". */
+const thDone=t=>!!(t&&P&&P.thd&&P.thd[t.id]);
+function markThDone(t){if(!t||!P||GV())return;P.thd=P.thd||{};if(P.thd[t.id])return;P.thd[t.id]=vnDay();save();syncMine()}
+// Biểu tượng riêng cho từng bài: kí hiệu Toán theo nội dung bài, màu theo phân môn
+const LGLYPH=[[/số hữu tỉ/,'ℚ'],[/số thực/,'ℝ'],[/số nguyên/,'ℤ'],[/chuyển vế/,'⇄'],[/thập phân vô hạn/,'0,(3)'],[/vô tỉ/,'√2'],[/căn bậc ba/,'∛'],[/căn/,'√'],
+  [/lôgarit/,'log'],[/hàm số mũ|số mũ thực/,'aˣ'],[/luỹ thừa|lũy thừa/,'xⁿ'],[/thứ tự thực hiện/,'( )'],[/thứ tự/,'<'],[/tập hợp/,'{ }'],[/cách ghi số/,'123'],
+  [/làm tròn|ước lượng|số gần đúng/,'≈'],[/số thập phân/,'0,5'],[/phân số/,'a/b'],[/tỉ lệ thức/,'a:b'],[/dãy tỉ số/,'=…='],[/tỉ lệ thuận/,'↗'],[/tỉ lệ nghịch/,'↘'],
+  [/tỉ số|phần trăm/,'%'],[/hằng đẳng thức/,'(a+b)²'],[/phân tích đa thức/,'A·B'],[/phân thức/,'A/B'],[/chia đa thức/,'P:Q'],[/nhân đa thức/,'P·Q'],
+  [/cộng và (phép )?trừ đa thức/,'P±Q'],[/đa thức|đơn thức/,'P(x)'],[/biểu thức/,'2x+1'],[/hệ (bất )?phương trình|hệ hai phương trình/,'{x,y}'],
+  [/bất phương trình|bất đẳng thức|tam thức/,'<'],[/phương trình lượng giác/,'sin x='],[/phương trình/,'x=?'],[/lượng giác/,'sin'],[/đạo hàm/,'f′'],
+  [/nguyên hàm|tích phân/,'∫'],[/giới hạn/,'lim'],[/liên tục/,'⌒'],[/tiệm cận/,'↦'],[/đơn điệu|cực trị|lớn nhất và giá trị nhỏ nhất/,'↗↘'],
+  [/cấp số cộng/,'+d'],[/cấp số nhân/,'×q'],[/dãy số/,'uₙ'],[/hàm số bậc hai/,'∪'],[/hàm số|đồ thị/,'f(x)'],[/quy tắc dấu ngoặc/,'−( )'],
+  [/chia hết|ước|bội/,'÷'],[/nguyên tố/,'2,3,5'],[/cộng|trừ/,'±'],[/nhân|chia/,'×÷'],[/vectơ/,'→'],[/toạ độ|tọa độ/,'Oxy'],[/mặt cầu|hình cầu/,'◯'],
+  [/đường tròn|hình tròn|cung|tiếp tuyến/,'◯'],[/conic/,'⬭'],[/tam giác vuông/,'◺'],[/tam giác cân|trung trực/,'△'],[/thứ nhất/,'c.c.c'],[/thứ hai và thứ ba/,'c.g.c'],
+  [/bằng nhau/,'≅'],[/đồng dạng|ta-lét|talet/,'∼'],[/hệ thức lượng/,'a,b,c'],[/trung tuyến|phân giác trong một|đường cao/,'G'],[/ba cạnh/,'a+b>c'],
+  [/góc và cạnh/,'A↔a'],[/tổng các góc/,'180°'],[/tam giác/,'△'],[/tiên đề/,'a∥b'],[/song song/,'∥'],[/vuông góc|đường xiên/,'⊥'],[/góc/,'∠'],
+  [/đoạn thẳng|đường thẳng|điểm|tia/,'•—•'],[/tứ giác|hình thang|bình hành|chữ nhật|hình thoi|hình vuông/,'▱'],[/đa giác/,'⬠'],[/đối xứng/,'⇋'],
+  [/hình chóp/,'▲'],[/lăng trụ/,'◭'],[/hình hộp|lập phương/,'▣'],[/hình trụ|hình nón/,'⬮'],[/khoảng cách/,'↔'],[/thể tích/,'V'],
+  [/hoán vị|tổ hợp|chỉnh hợp|quy tắc đếm/,'nCk'],[/nhị thức/,'(a+b)ⁿ'],[/xác suất|biến cố/,'⚂'],[/hình quạt/,'◔'],[/biểu đồ/,'▥'],
+  [/phương sai|độ lệch|phân tán|tứ phân vị|biến thiên/,'σ'],[/trung bình|trung vị|xu thế/,'x̄'],[/dữ liệu|số liệu|thống kê|mẫu/,'▦'],
+  [/định lí|chứng minh/,'⇒'],[/mệnh đề/,'p⇒q']];
+const PHANC={'dai-so':'#ff8a5c','hinh-hoc':'#2fb5c9','thong-ke':'#9a7cf2'};
+function lessonGlyph(L){const s=String(L&&L.title||'').toLowerCase();for(const [re,g] of LGLYPH)if(re.test(s))return g;return L&&L.num?String(L.num):'★'}
+function lessonIco(L,off){const g=lessonGlyph(L),c=PHANC[L&&L.ch&&L.ch.phan]||'#ff8a5c';
+  return `<span class="lico${g.length>3?' sm':''}${off?' off':''}" style="--c:${c}" aria-hidden="true">${esc(g)}</span>`}
+const lessonOfT=t=>lessonOf(t)||{num:0,title:t.title,ch:null};
+// Bảng 3 lựa chọn khi bấm chặng (học sinh)
+function lessonPick(t){const L=lessonOfT(t),route=routeTopics(t.khoi),i=route.findIndex(x=>x.id===t.id),q=hasQ(t),can=q&&(i<0||topicOpen(route,i)),done=thDone(t);
+  const o=(k,ic,b,sub,rec,dis)=>`<button type="button" class="lpick${rec?' rec':''}" data-k="${k}"${dis?' disabled':''}><i>${ic}</i><span><b>${b}</b><small>${sub}</small></span>${rec?'<em>Gợi ý</em>':''}</button>`;
+  const learn=o('learn','💬','Học từ đầu','Cherry dẫn em học từng bước, có thử ngay',!done),
+    sum=o('sum','📝','Tóm tắt lý thuyết','Đọc nhanh định nghĩa, quy tắc, công thức chính',false),
+    prac=o('prac','✏️','Làm bài luôn',can?'Vào luyện tập chặng này':q?'Qua bài trước để mở':'Bài này chưa có câu hỏi',done&&can,!can);
+  overlay(`<div class="lpk-top">${lessonIco(L)}<div><small>${L.num?'Bài '+L.num:''}${L.ch?' · Chương '+L.ch.n:''}</small><b>${esc(L.title||t.title)}</b></div></div>
+    <div class="lpk">${done&&can?prac+learn+sum:learn+sum+prac}</div>
+    <p class="tnote">${done?'Em đã học lý thuyết bài này cùng Cherry.':'Em chưa học bài này: nên học từ đầu. Nếu đã nắm chắc, em vẫn chọn được “Làm bài luôn”.'}</p>
+    <button type="button" class="btn alt" id="lpC">Đóng</button>`);
+  $('#lpC').onclick=closeOvl;
+  $$('#panel .lpick').forEach(b=>b.onclick=()=>{if(b.disabled)return;sfx.tap();closeOvl();const k=b.dataset.k;
+    if(k==='learn')theory(t);else if(k==='sum')thSummary(t,'map');else{curT=t;startLevel()}})}
+// Trang tóm tắt lý thuyết (không có chat). from: 'map' (bảng chọn) hoặc 'th' (mục Lý thuyết)
+function thSummary(t,from='th'){const body=$('#thBody'),L=lessonOfT(t),name=L.num?`Bài ${L.num}. ${L.title}`:t.title;
+  const route=routeTopics(t.khoi),i=route.findIndex(x=>x.id===t.id),can=hasQ(t)&&(i<0||topicOpen(route,i));
+  body._lectureDispose?.();body.classList.remove('lstep-host','chat-host');thT=null;curT=t;show('theory');
+  const back=()=>{sfx.tap();from==='th'?thIdx():journey()},practice=()=>{sfx.tap();curT=t;startLevel()},learn=()=>{sfx.tap();theory(t)};
+  const acts=from==='th'?[{label:'Mở trên bản đồ',onClick:()=>{sfx.tap();curK=t.khoi;journey();lessonPick(t)}},{label:'Về danh sách',alt:true,onClick:back}]
+    :[...(can?[{label:'Làm bài luôn',onClick:practice}]:[]),{label:'Học cùng Cherry',alt:can,onClick:learn}];
+  if(showsChat(t)){body.classList.add('chat-host');renderChatInApp(body,t,{summaryOnly:true,title:name,onClose:back,summaryActions:acts});return}
+  body.innerHTML=`<div class="thsum"><div class="thsum-top"><button type="button" class="ico" id="tsB" aria-label="Quay lại">${backIco}</button><div><small>Tóm tắt lý thuyết</small><b>${esc(name)}</b></div></div>
+    <div id="tsBody"></div><div class="thsum-btns">${acts.map((a,k)=>`<button type="button" class="btn${a.alt?' alt':''}" data-a="${k}">${esc(a.label)}</button>`).join('')}</div></div>`;
+  renderLessonSummary($('#tsBody'),t);typeset(body);$('#tsB').onclick=back;
+  $$('#thBody [data-a]').forEach(b=>b.onclick=()=>acts[+b.dataset.a].onClick())}
+// Mục Lý thuyết theo chương (thay bảng danh sách cũ)
+const thChap={};
+function theoryIndex(){thIdx()}
+function thIdx(){show('thidx');const k=curK,items=mapItems(k),chs=items.filter(x=>x.ch&&x.ch.n).map(x=>x.ch);
+  if(!chs.length){$('#thIdxBody').innerHTML='<div class="tbox"><p>Khối này chưa có danh mục bài.</p></div>';return}
+  const tOf=id=>{const it=items.find(x=>x.L&&x.L.id===id&&x.t);return it&&it.t};
+  // lần đầu mở: chương có bài đã soạn lý thuyết mà em chưa học cùng Cherry
+  let ci=thChap[k];if(ci==null||!chs[ci]){const todo=L=>{const t=L.id&&!L.lt&&tOf(L.id);return t&&hasTheory(t)&&!thDone(t)};
+    ci=Math.max(0,chs.findIndex(x=>currOf(k).some(L=>L.ch&&L.ch.n===x.n&&todo(L))))}
+  thChap[k]=ci;const c=chs[ci],ls=currOf(k).filter(L=>L.id&&!L.lt&&L.ch&&L.ch.n===c.n),hk2=currOf(k).findIndex(x=>x.hk);
+  const firstHK2=chs.findIndex(x=>currOf(k).findIndex(y=>y.ch&&y.ch.n===x.n&&!y.id)>hk2&&hk2>=0);
+  const PH={'dai-so':'Đại số','hinh-hoc':'Hình học','thong-ke':'Thống kê, xác suất'};
+  const roman=n=>['','I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII'][n]||n;
+  $('#thIdxBody').innerHTML=`<div class="thx-head"><h2>Lý thuyết lớp ${esc(k)}</h2><p>Tóm tắt lý thuyết từng bài. Học cùng Cherry ở các chặng trên bản đồ.</p></div>
+    <div class="thx-chaps" id="thxC">${chs.map((x,i)=>`${i===firstHK2&&i>0?'<span class="thx-hk">Học kì II</span>':''}<button type="button" class="thx-chap${i===ci?' on':''}" data-c="${i}" aria-label="Chương ${roman(x.n)}. ${esc(x.title)}"><b>${roman(x.n)}</b><span>${currOf(k).filter(L=>L.id&&!L.lt&&L.ch&&L.ch.n===x.n).length} bài</span></button>`).join('')}</div>
+    <div class="thx-ch"><h3>Chương ${roman(c.n)}. ${esc(c.title)}</h3><p>${PH[c.phan]||''} · ${ls.length} bài</p></div>
+    ${ls.map(L=>{const t=tOf(L.id),on=t&&hasTheory(t);
+      return on?`<button type="button" class="thx-card" data-l="${esc(L.id)}">${lessonIco(L)}<span class="thx-t"><small>Bài ${L.num}${thDone(t)?' · <i class="thx-ok">✓ đã học cùng Cherry</i>':''}</small><b>${esc(L.title)}</b></span><span class="thx-arr">›</span></button>`
+        :`<button type="button" class="thx-card off" data-off="1">${lessonIco(L,true)}<span class="thx-t"><small>Bài ${L.num} · <i>Đang soạn</i></small><b>${esc(L.title)}</b></span></button>`}).join('')}`;
+  const cs=$('#thxC'),onb=cs.querySelector('.on');if(onb)cs.scrollLeft=onb.offsetLeft-cs.offsetLeft-(cs.clientWidth-onb.clientWidth)/2;
+  $$('#thIdxBody [data-c]').forEach(b=>b.onclick=()=>{sfx.tap();thChap[k]=+b.dataset.c;thIdx()});
+  $$('#thIdxBody [data-l]').forEach(b=>b.onclick=()=>{sfx.tap();const t=tOf(b.dataset.l);if(t)thSummary(t,'th')});
+  $$('#thIdxBody [data-off]').forEach(b=>b.onclick=()=>{sfx.tap();toast('Bài này thầy đang soạn lý thuyết, em quay lại sau nhé.')})}
 
 const placeNames=['đơn vị','chục','trăm','nghìn','chục nghìn','trăm nghìn','triệu','chục triệu','trăm triệu','tỷ','chục tỷ','trăm tỷ'];
 const romanGroups=[['X',10],['IX',9],['V',5],['IV',4],['I',1]];

@@ -308,3 +308,30 @@
 .cat-slide{transition:transform 1.4s ease-in-out}
 .ls-toggles{grid-template-columns:repeat(auto-fit,minmax(min(100%,140px),1fr))}
 @media (prefers-reduced-motion:reduce){.cat-slide{transition:none}}
+/* ---- Lý thuyết: bảng 3 lựa chọn, mục Lý thuyết theo chương, trang tóm tắt (28/11/2026) ---- */
+.lico{flex:none;width:56px;height:56px;border-radius:16px;display:grid;place-items:center;font:800 19px/1 "Baloo 2",system-ui,sans-serif;color:#fff;background:var(--c);box-shadow:inset 0 -5px 0 #0003;letter-spacing:-.3px;text-align:center;padding:2px}
+.lico.sm{font-size:14px}.lico.off{filter:grayscale(1);opacity:.7}
+.lpk-top{display:flex;gap:12px;align-items:center;text-align:left;margin-bottom:6px}
+.lpk-top small{display:block;color:#5a7880;font-size:13px;font-weight:600}.lpk-top b{display:block;font:800 21px/1.15 "Baloo 2",system-ui,sans-serif}
+.lpick{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:12px 14px;margin-top:10px;border-radius:18px;background:#eef6f6;color:var(--cink);box-shadow:0 4px 0 #c9dcdc;min-height:64px}
+.lpick i{flex:none;width:40px;height:40px;border-radius:12px;display:grid;place-items:center;font-style:normal;font-size:20px;background:#fff}
+.lpick span{flex:1}.lpick b{display:block;font-size:16px}.lpick small{display:block;color:#5a7880;font-size:13px;line-height:1.35}
+.lpick.rec{background:var(--sun);box-shadow:0 5px 0 #c99a00}.lpick.rec small{color:#5c4400}
+.lpick em{align-self:flex-start;font-style:normal;font-size:11px;font-weight:800;background:#3a2a00;color:var(--sun);border-radius:99px;padding:2px 8px;white-space:nowrap}
+.lpick[disabled]{opacity:.5;cursor:not-allowed}
+.thx-head h2{font:800 26px/1.1 "Baloo 2",system-ui,sans-serif;margin:4px 0 2px}.thx-head p{margin:0;color:var(--mute);font-size:14px}
+.thx-chaps{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;padding:12px 2px 10px;scrollbar-width:none}
+.thx-chaps::-webkit-scrollbar{display:none}
+.thx-chap{flex:none;scroll-snap-align:center;width:84px;height:76px;border-radius:18px;background:#ffffff14;border:2px solid #ffffff22;color:var(--ink);display:flex;flex-direction:column;align-items:center;justify-content:center}
+.thx-chap b{font:800 27px/1 "Baloo 2",system-ui,sans-serif}.thx-chap span{font-size:11px;color:var(--mute);font-weight:600}
+.thx-chap.on{background:var(--sun);border-color:var(--sun);color:#3a2a00;box-shadow:0 5px 0 #c99a00}.thx-chap.on span{color:#5c4400}
+.thx-hk{flex:none;align-self:center;font-size:11px;color:var(--mute);writing-mode:vertical-rl;transform:rotate(180deg)}
+.thx-ch h3{font:800 23px/1.15 "Baloo 2",system-ui,sans-serif;margin:4px 0 2px;text-wrap:balance}.thx-ch p{margin:0 0 2px;color:var(--mute);font-size:14px}
+.thx-card{display:flex;align-items:center;gap:14px;width:100%;text-align:left;padding:13px;margin-top:12px;border-radius:20px;background:#ffffff12;border:1.5px solid #ffffff1f;color:var(--ink)}
+.thx-card.off{opacity:.55;border-style:dashed}
+.thx-t{flex:1}.thx-t small{display:block;color:var(--mute);font-size:12.5px;font-weight:600}.thx-t small i{font-style:normal}.thx-t b{display:block;font-size:16px;line-height:1.3}
+.thx-ok{color:#8ff0c4}.thx-arr{color:var(--mute);font-size:22px}
+.thsum{background:var(--card);color:var(--cink);border-radius:22px;padding:12px 14px 16px}
+.thsum-top{display:flex;gap:10px;align-items:center;margin-bottom:8px}.thsum-top .ico{background:#eef6f6;color:var(--cink)}
+.thsum-top small{display:block;color:#5a7880;font-size:12.5px;font-weight:600}.thsum-top b{font:800 19px/1.15 "Baloo 2",system-ui,sans-serif}
+.thsum-btns{display:grid;gap:8px;margin-top:12px}

@@ -309,6 +309,21 @@ export function renderChatLesson(root, topic, options = {}) {
     return html;
   }
 
+  // Chỉ trang Tóm tắt (phần Lý thuyết riêng, bảng chọn trên bản đồ): không chat, không đụng tiến độ học.
+  if (options.summaryOnly) {
+    const acts = options.summaryActions || [];
+    root.innerHTML = `<div class="cherry-chat chat-summary-page" role="region" aria-label="${chatEscape('Tóm tắt · ' + title)}">
+      <div class="chat-top">${options.onClose ? '<button class="chat-close" type="button" data-close aria-label="Đóng tóm tắt">×</button>' : ''}
+        <div class="chat-sumtitle"><small>Tóm tắt lý thuyết</small><b>${chatEscape(title)}</b></div></div>
+      <div class="chat-feed"><div class="chat-summary-inner">${summaryHTML()}</div></div>
+      ${acts.length ? `<div class="chat-dock">${acts.map((x, i) => `<button type="button" data-act="${i}"${x.alt ? ' class="chat-recap-button"' : ''}>${chatEscape(x.label)}</button>`).join('')}</div>` : ''}
+    </div>`;
+    const page = root.firstElementChild;
+    page.querySelector('[data-close]')?.addEventListener('click', () => options.onClose?.());
+    page.querySelectorAll('[data-act]').forEach(b => b.addEventListener('click', () => acts[+b.dataset.act].onClick?.()));
+    typeset(page);
+    return {};
+  }
   const turn = html => `<div class="chat-turn">${CHAT_AVATAR}<div class="chat-col">${html}</div></div>`;
   root.innerHTML = `<div class="cherry-chat" role="region" aria-label="${chatEscape(title)}">
     <div class="chat-top">
