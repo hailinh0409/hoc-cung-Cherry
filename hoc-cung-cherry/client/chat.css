@@ -95,3 +95,8 @@
 .chat-editor-preview,.chat-review-preview {height:min(660px,70vh);margin:8px 0;border:1px solid #ece3d1;border-radius:14px;overflow:hidden}
 #thChatDiagnostics button {display:block;width:100%;text-align:left;padding:6px 9px;white-space:normal}
 #thChatDiagnostics button.tnote {color:#755315;background:#fff5d4;border:1px solid #e8d197;border-radius:8px}
+/* Trang chỉ có Tóm tắt (phần Lý thuyết riêng) */
+.chat-sumtitle {flex:1;display:flex;flex-direction:column;line-height:1.2;padding-block:2px}
+.chat-sumtitle small {color:var(--chat-muted);font-size:12.5px;font-weight:600}
+.chat-sumtitle b {font:800 19px/1.15 "Baloo 2",system-ui,sans-serif}
+.chat-summary-page .chat-feed {padding-top:4px}

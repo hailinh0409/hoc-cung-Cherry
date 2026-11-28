@@ -36,7 +36,7 @@ const MPC=[['#ffe1d6','#ff7a59'],['#d8eeff','#2b9bd6'],['#e8e0ff','#8d7bff'],['#
 /* ---------- kho dữ liệu ---------- */
 let TOPICS=[],ACCS=[],ACCS_DEL=[],REPS=[],MOC={},BAI_CHAT_KHOI=[],PLAYERS=[],ASG=[],TEACHER=false,DBSTATE='loading',DB=null;
 let ACC=null,P=null,curK='',curPhan='',curT=null,profFrom='grades';
-const newP=()=>({xp:0,lp:0,matches:0,hist:[],st:{},best:{},score:{},pt:{},deh:{},rev:{},saved:{},wst:{},stats:{correct:0,maxCombo:0,levels:0,perfect:0,top:0,cleared:0,chests:0},own:{},eq:{},spent:0,dq:null,wk:{},season:'',seasons:[],fails:{},lvt:{},ccl:{},tut:0,follow:{},fseen:'',rseen:{},ach:{},avatar:0,nick:'',tlh:{}});
+const newP=()=>({xp:0,lp:0,matches:0,hist:[],st:{},best:{},score:{},pt:{},deh:{},rev:{},saved:{},wst:{},stats:{correct:0,maxCombo:0,levels:0,perfect:0,top:0,cleared:0,chests:0},own:{},eq:{},spent:0,dq:null,wk:{},season:'',seasons:[],fails:{},lvt:{},ccl:{},tut:0,follow:{},fseen:'',rseen:{},ach:{},avatar:0,nick:'',tlh:{},thd:{}});
 function fromDoc(d){const v=d.data()||{};const P=parseTopic(v.text);
   return {id:d.id,khoi:String(v.khoi||'?'),phan:PHAN[v.phan]?v.phan:'dai-so',title:v.title||P.title||d.id,status:v.trangthai||'nhap',order:Number(v.thutu)||0,levels:P.levels,errors:P.errors,nguon:v.nguon||'',chuong:v.chuong||'',raw:v.text||'',prev:v.banTruoc||'',upd:v.capnhat||'',theory:P.theory||null,lesson:P.lesson,chat:P.chat,chatValid:P.chatValid}}
 // \\ ngoài công thức = xuống dòng; trong $...$, $$...$$, \(...\), \[...\] giữ nguyên (cases, aligned, ma trận cần \\)
@@ -240,7 +240,7 @@ function msgBox(t,m){overlay(`<h2>${t}</h2><p>${m}</p><button class="btn" id="eo
 /* ---------- thanh trên cùng: avatar, tên, chuỗi, XP ---------- */
 function ubar(el){if(!ACC||!P){el.innerHTML='';return}
   const today=vnDay(),S=P.st||{},sk=liveStreak(S,today),learned=S.last_day===today,lv=level(P.xp),[a,b]=lvBounds(lv),id=$$('.scr.on')[0]?.id;
-  const back=['grades','anh','area','journey','ontap','redo','ranked','theory','tlde'].includes(id);
+  const back=['grades','anh','area','journey','ontap','redo','ranked','theory','tlde','thidx'].includes(id);
   const markup=`${back?`<button class="ico" data-back aria-label="Quay lại">${backIco}</button>`:''}
    <button class="me" data-me>${avatarOf(P,40)}<span><b>${esc(P.nick||ACC.name)}</b><small>Cấp ${lv} · ${P.xp} XP</small><i class="xpb"><i style="width:${Math.min(100,(P.xp-a)/(b-a)*100)}%"></i></i></span></button>
    <div class="stk${learned?'':' off'}" title="Chuỗi ngày học">${flame(!learned,26)}<b>${sk}</b><span class="shl">${shieldSVG.repeat(S.shields??1)}</span></div>`;
@@ -454,7 +454,7 @@ function journey(){show('journey');jdock();if(curK===ACC.khoi&&!ACC.teacher&&!P.
       $('#g1').onclick=()=>{closeOvl();curT=t;startLevel()};$('#g2').onclick=()=>{closeOvl();tOpts(t)};$('#g3').onclick=closeOvl;
       if($('#gTheory'))$('#gTheory').onclick=()=>{closeOvl();theory(t)};
       return}
-    if(hasTheory(t))return theory(t);
+    if(hasTheory(t))return lessonPick(t); // bảng 3 lựa chọn: Học từ đầu / Tóm tắt / Làm bài luôn
     if(!topicOpen(ts,j)){n.animate([{transform:'translate(-50%,-50%) translateX(-6px)'},{transform:'translate(-50%,-50%) translateX(6px)'},{transform:'translate(-50%,-50%)'}],{duration:300});
       return toast('Qua bài trước để mở bài này nhé.')}
     curT=t;startLevel()});
@@ -682,7 +682,7 @@ function theory(t,keep=false,version){
     body.classList.add('lstep-host','chat-host');
     renderChatInApp(body,t,{title:name,onClose:back,teacherEdit:edit,
       onOldVersion:GV()?()=>theory(t,true,'old'):undefined,
-      finish:canPractice?()=>{sfx.tap();curT=t;startLevel()}:back,
+      finish:canPractice?()=>{markThDone(t);sfx.tap();curT=t;startLevel()}:()=>{markThDone(t);back()},
       finishLabel:canPractice?'Vào làm bài':'Về bản đồ'});
     return;
   }
@@ -692,7 +692,7 @@ function theory(t,keep=false,version){
         <details class="ls-sum"><summary>Xem tóm tắt cả bài</summary><div class="ls-sumbody"></div></details>
         ${canPractice?'':`<p class="ls-end-note">${q?'Qua bài trước để mở lượt luyện tập.':'Bài này chưa có câu hỏi luyện tập.'}</p>`}
         <div class="ls-end-btns"><button type="button" class="ls-mini" id="thAgain">Xem lại từ đầu</button><button type="button" class="ls-mini" id="thBack">Về bản đồ</button></div>`;
-      renderLessonSummary(el.querySelector('.ls-sumbody'),t);
+      renderLessonSummary(el.querySelector('.ls-sumbody'),t);markThDone(t);
       $('#thAgain').onclick=api.again;$('#thBack').onclick=back;
       api.go.textContent=canPractice?(api.lecture?'Vào làm bài':'Luyện tập cả bài'):'Về bản đồ';
       api.go.onclick=canPractice?()=>{sfx.tap();curT=t;startLevel()}:back}});
@@ -1862,10 +1862,11 @@ let syncT=null,wq=Promise.resolve();
 function syncMine(){if(!DB||!ACC||ACC.teacher||DBSTATE!=='ok')return;clearTimeout(syncT);syncT=setTimeout(()=>{syncT=null;pushMine()},1200)}
 function pushMine(){if(!DB||!ACC||ACC.teacher||DBSTATE!=='ok')return;wq=wq.then(async()=>{const lim=addDays(vnDay(),-30),w={};for(const [k,v] of Object.entries(P.wst||{}))if(v.d>=lim)w[k]=v;
   const doc={name:ACC.name,khoi:ACC.khoi,nick:P.nick||'',avatar:P.avatar||0,xp:P.xp||0,lp:P.lp||0,matches:P.matches||0,hist:P.hist||[],st:P.st||{},stats:P.stats,ach:P.ach,
-    best:Object.fromEntries(Object.keys({...P.best,...P.score}).map(k=>[k,{st:P.best[k]||0,s:P.score[k]||0,t:P.pt[k]||null}])),deh:P.deh||{},rev:P.rev,saved:P.saved,wst:w,eq:P.eq||{},own:P.own||{},spent:P.spent||0,dq:P.dq,wk:P.wk||{},season:P.season||'',seasons:P.seasons||[],fails:P.fails||{},lvt:P.lvt||{},ccl:P.ccl||{},tut:P.tut||0,follow:P.follow||{},fseen:P.fseen||'',rseen:P.rseen||{},tlh:P.tlh||{},tier:tierMe(),shield:P.shield||0,tdh:P.tdh||[],pr:P.pr||null,prw:P.prw||[],prh:P.prh||[],capnhat:new Date().toISOString()};
+    best:Object.fromEntries(Object.keys({...P.best,...P.score}).map(k=>[k,{st:P.best[k]||0,s:P.score[k]||0,t:P.pt[k]||null}])),deh:P.deh||{},rev:P.rev,saved:P.saved,wst:w,eq:P.eq||{},own:P.own||{},spent:P.spent||0,dq:P.dq,wk:P.wk||{},season:P.season||'',seasons:P.seasons||[],fails:P.fails||{},lvt:P.lvt||{},ccl:P.ccl||{},tut:P.tut||0,follow:P.follow||{},fseen:P.fseen||'',rseen:P.rseen||{},tlh:P.tlh||{},thd:P.thd||{},tier:tierMe(),shield:P.shield||0,tdh:P.tdh||[],pr:P.pr||null,prw:P.prw||[],prh:P.prh||[],capnhat:new Date().toISOString()};
   await DB.doc('players/'+ACC.id).set(doc)}).catch(()=>{})}
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&syncT){clearTimeout(syncT);syncT=null;pushMine()}});
 function mergeP(d){const m0=P.matches||0;
+  if(d.thd)P.thd={...d.thd,...(P.thd||{})}; // bài đã học lý thuyết cùng Cherry (gộp hai máy)
   if(d.rev&&Object.keys(d.rev).length>Object.keys(P.rev||{}).length)P.rev=d.rev;
   if(d.saved&&Object.keys(d.saved).length>Object.keys(P.saved||{}).length)P.saved=d.saved;
   if(d.st&&(d.st.last_day||'')>(P.st.last_day||''))P.st=d.st;
@@ -1900,7 +1901,7 @@ function start(){started=true;const a=store.get('ltt:acc',null);
 $('#intro').onclick=()=>{sfx.win();start()};
 function refresh(){const on=$$('.scr.on')[0]?.id;
   if(curK===CHUYEN_TOAN&&((on==='ontap'&&!canOpenSpecial())||(on==='tlde'&&(!canOpenSpecial()||!TOPICS.some(t=>t.id===tlT?.id)))))return grades();
-  if(on==='login'&&!$('#lName')?.value)login();else if(on==='grades')refreshGrades();else if(on==='subj')subjects();else if(on==='shop')shop();else if(on==='friends'&&!$('#fq'))friends();else if(on==='area')area();else if(on==='journey')journey();else if(on==='theory'&&thT){const x=TOPICS.find(y=>y.id===thT.id);
+  if(on==='login'&&!$('#lName')?.value)login();else if(on==='grades')refreshGrades();else if(on==='subj')subjects();else if(on==='shop')shop();else if(on==='friends'&&!$('#fq'))friends();else if(on==='area')area();else if(on==='journey')journey();else if(on==='thidx')thIdx();else if(on==='theory'&&thT){const x=TOPICS.find(y=>y.id===thT.id);
     // Làm mới tự động (60 giây/lần, khi quay lại tab) không được vẽ lại trang lý thuyết nếu nội dung không đổi, để học sinh không bị nhảy về ý 1.
     if(x&&(showsChat(x,thVersion)!==!!$('#thBody .cherry-chat')||JSON.stringify(showsChat(x,thVersion)?x.chat:x.lesson||x.theory)!==JSON.stringify(showsChat(x,thVersion)?thT.chat:thT.lesson||thT.theory)))theory(x,true)}else if(on==='ontap')onTap();else if(on==='tlde'&&tlT){const x=TOPICS.find(y=>y.id===tlT.id);if(x)tlDe(x)}else if(on==='redo')redo();else if(on==='ranked')ranked();else if(on==='board')board();
 }
