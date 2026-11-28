@@ -1,0 +1,90 @@
+
+/* ---------- Chặng Tự luận: chat cùng Cherry (client/tuluan.js) ---------- */
+.tl{--tl-app:#fffaf2;--tl-ink:#14323a;--tl-mute:#5d747a;--tl-teal:#0f8a7c;--tl-teal-d:#0b6e63;--tl-line:#ece3d1;--tl-or:#f28c28;--tl-bl:#3b7be0;--tl-gr:#1f8a57;--tl-red:#c8323f;
+  position:relative;display:flex;flex-direction:column;height:100%;min-height:0;overflow:hidden;background:var(--tl-app);color:var(--tl-ink);text-align:left;font:16px/1.55 "Be Vietnam Pro",system-ui,sans-serif}
+.tl *{box-sizing:border-box;min-width:0}
+.tl [hidden]{display:none!important}
+.tl :where(button){font:inherit;color:inherit;cursor:pointer}
+.tl button:focus-visible,.tl input:focus-visible{outline:3px solid var(--tl-or);outline-offset:2px}
+.tl-top{display:flex;align-items:center;gap:6px;padding:max(10px,env(safe-area-inset-top)) 12px 4px;flex:none}
+.tl-x{border:0;background:none;font-size:26px;color:#8aa;width:38px;height:42px}
+.tl-prog{flex:1;height:12px;border-radius:9px;background:#ece4d4;overflow:hidden}.tl-prog b{display:block;height:100%;width:0;background:linear-gradient(90deg,#14a08f,#2bc48a);border-radius:9px;transition:width .3s}
+.tl-xp{font:800 16px "Baloo 2",sans-serif;color:#b06a00;padding:0 4px;white-space:nowrap}
+.tl-xp.pop{animation:tl-pop .35s}
+.tl-mini{border:0;background:#efe7d6;border-radius:12px;padding:8px 10px;font-weight:600;font-size:14px;min-height:42px}
+.tl-part{padding:0 16px 4px;font:700 14px/1.3 "Baloo 2",sans-serif;color:var(--tl-teal);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:none}
+.tl-body{flex:1;display:flex;flex-direction:column;min-height:0;position:relative}
+.tl-pin{flex:none;border-bottom:2px solid var(--tl-line);padding:2px 12px 6px;background:var(--tl-app)}
+.tl-pinbar{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--tl-mute)}
+.tl-pinbar button{border:0;background:none;color:var(--tl-teal-d);font-weight:600;font-size:13px;padding:6px;min-height:36px}
+.tl-pinfig{background:#fff;border-radius:14px;border:2px solid var(--tl-line);text-align:center}
+.tl-pinfig img,.tl-pinfig svg{display:block;width:auto;max-width:100%;max-height:26vh;margin:0 auto;transition:max-height .25s}
+.tl-pin.small .tl-pinfig img{max-height:84px}
+.tl-pin.flash .tl-pinfig{animation:tl-fl .7s}
+.tl-feed{flex:1;min-height:0;overflow-y:auto;padding:12px 14px 22px;display:flex;flex-direction:column;gap:10px;scroll-behavior:smooth;overscroll-behavior:contain;width:min(100%,640px);margin:0 auto}
+.tl-turn{display:grid;grid-template-columns:40px minmax(0,1fr);gap:8px;align-items:start}
+.tl-turn>.chat-avatar{width:40px;height:auto}
+.tl-col{display:flex;flex-direction:column;gap:8px;align-items:stretch}
+.tl-bub{background:#fff;border:2px solid var(--tl-line);border-radius:4px 16px 16px 16px;padding:9px 13px;align-self:flex-start;max-width:100%}
+.tl-bub.q{font-weight:600;font-size:17px}
+.tl-bub.ok{background:#e8f7ef;border-color:#bfe6d0;color:#11613c}
+.tl-bub.no{background:#fdecee;border-color:#f6c6cd;color:#8a1f2d}
+.tl-bub.hint{background:#fff7e8;border-color:#f6dcae}
+.tl-bub p,.tl-sol p,.tl-card p{margin:0 0 6px}.tl-bub p:last-child,.tl-sol p:last-child{margin:0}
+.tl-eq{display:block;text-align:center;overflow-x:auto;overflow-y:hidden;margin:4px 0}
+.tl mjx-container{font-size:104%!important}
+.tl mjx-container[display="true"]{margin:.35em 0!important;overflow-x:auto;overflow-y:hidden;max-width:100%}
+.tl-step{display:inline-block;border-radius:999px;padding:1px 10px;font-weight:700;font-size:13px;color:#fff;background:#d0700f;margin-bottom:4px}
+.tl-me-row{display:flex;justify-content:flex-end}
+.tl-me{background:var(--tl-teal);color:#fff;border-radius:16px 16px 4px 16px;padding:8px 14px;max-width:88%}
+.tl-card{background:#fff;border:2px solid var(--tl-line);border-radius:16px;padding:10px 14px}
+.tl-kind{display:inline-block;border-radius:999px;padding:1px 12px;font-weight:600;font-size:13px;color:#fff;background:#2a7fb8;margin-bottom:4px}
+.tl-figcard{background:#fff;border:2px solid var(--tl-line);border-radius:14px;padding:4px 6px;text-align:center}
+.tl-figcard img{display:block;max-width:100%;max-height:36vh;margin:0 auto}
+.tl-opts{display:grid;gap:9px}
+.tl-opt{border:2px solid var(--tl-line);background:#fff;border-radius:16px;padding:11px 14px;box-shadow:0 3px 0 var(--tl-line);min-height:52px;text-align:left}
+.tl-opt.sel{border-color:var(--tl-bl);background:#eef4ff}.tl-opt.ok{border-color:#2fa36b;background:#e8f7ef}.tl-opt.no{border-color:#e0475a;background:#fdecee}
+.tl-opt.off{opacity:.35;text-decoration:line-through}
+.tl-num input{width:100%;font:600 18px "Be Vietnam Pro",sans-serif;padding:12px 14px;border:2px solid var(--tl-bl);border-radius:14px;background:#fff;color:var(--tl-ink)}
+.tl-sol{background:#fffdf7;border:2px dashed #d6c9ab;border-radius:14px;padding:8px 12px}
+.tl-lb{display:block;font-size:13px;font-weight:700;color:#8a6420;margin-bottom:2px}
+.tl-sol details{margin-top:6px;font-size:15px}.tl-sol summary{cursor:pointer;color:var(--tl-teal-d);font-weight:600;min-height:32px}
+.tl-div{display:flex;align-items:center;gap:10px;margin:12px 0 0;color:var(--tl-teal-d);text-align:center}
+.tl-div::before,.tl-div::after{content:"";flex:1;height:2px;background:var(--tl-line)}
+.tl-div span{font:700 15px/1.25 "Baloo 2",sans-serif}
+.tl-dots{display:flex;gap:5px;padding:4px 2px}
+.tl-dots i{width:8px;height:8px;border-radius:50%;background:#b9ad92;animation:tl-bl 1s infinite ease-in-out}
+.tl-dots i:nth-child(2){animation-delay:.15s}.tl-dots i:nth-child(3){animation-delay:.3s}
+.tl-foot{flex:none;border-top:2px solid var(--tl-line);padding:10px 12px max(14px,env(safe-area-inset-bottom));display:flex;gap:8px;min-height:80px;align-items:center}
+.tl-go{flex:1;border:0;border-radius:16px;background:var(--tl-teal);color:#fff!important;font:800 17px/1.1 "Baloo 2",sans-serif;letter-spacing:.03em;min-height:54px;padding:4px 8px;box-shadow:0 4px 0 var(--tl-teal-d)}
+.tl-go:disabled{background:#e6dcc8;color:#7d7462!important;box-shadow:none}
+.tl-go.alt{background:#fff;color:#9a5c00!important;border:2px solid #f2c27a;box-shadow:0 4px 0 #f6dcae;flex:.85}
+.tl-sheet{position:absolute;inset:0;background:#0005;display:flex;align-items:flex-end;z-index:5}
+.tl-sheet>div{background:var(--tl-app);width:100%;border-radius:22px 22px 0 0;padding:16px 16px 22px;max-height:90%;overflow:auto}
+.tl-sheet h3{font:800 22px/1.2 "Baloo 2",sans-serif;margin:4px 0 10px}
+.tl-close{float:right;border:0;background:#efe7d6;border-radius:10px;width:44px;height:44px;font-size:20px}
+.tl-big{position:absolute;inset:0;background:var(--tl-app);z-index:6;display:flex;flex-direction:column;padding:12px}
+.tl-big .tl-close{align-self:flex-end}
+.tl-big img{flex:1;width:100%;height:100%;object-fit:contain;min-height:0}
+.tl-sheetsol h4{margin:10px 0 4px;font:800 17px "Baloo 2",sans-serif;color:var(--tl-teal-d)}
+.tl-ticks{list-style:none;padding:0;margin:4px 0}
+.tl-ticks label{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:2px solid var(--tl-line);cursor:pointer}
+.tl-ticks input{width:22px;height:22px;flex:none;accent-color:var(--tl-teal);margin-top:2px}
+@keyframes tl-fl{0%{box-shadow:0 0 0 4px #f28c2899}100%{box-shadow:0 0 0 0 transparent}}
+@keyframes tl-bl{0%,60%,100%{transform:none;opacity:.5}30%{transform:translateY(-4px);opacity:1}}
+@keyframes tl-pop{from{transform:scale(1.5)}to{transform:none}}
+@media (prefers-reduced-motion:reduce){.tl-feed{scroll-behavior:auto}.tl-dots i,.tl-pin.flash .tl-pinfig,.tl-xp.pop{animation:none}}
+/* Chặng Tự luận trên bản đồ + danh sách bài */
+.tnode.tlnode .coin{background:#fff3e0;color:#b85a1a}
+.tlchest{position:absolute;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:0;pointer-events:none;z-index:1}
+.tlchest small{font-size:11.5px;font-weight:700;color:#fffaf2;background:#0006;border-radius:8px;padding:1px 6px;white-space:nowrap}
+.tlrow{display:flex;gap:12px;align-items:center;width:100%;text-align:left;border:2px solid #ece3d1;background:#fff;color:#14323a;border-radius:16px;padding:10px 12px;margin-top:9px;min-height:62px}
+.tlrow.lock{opacity:.6}
+.tlno{flex:none;width:40px;height:40px;border-radius:12px;display:grid;place-items:center;font-weight:800;background:#fff3e0;color:#b85a1a}
+.tlrow.done .tlno{background:#1f8a57;color:#fff}
+.tltx{flex:1;line-height:1.3}.tltx small{display:block;color:#5d747a;font-size:13px}
+.tlnew{flex:none;font-size:12px;font-weight:700;background:#3b7be0;color:#fff;border-radius:8px;padding:2px 7px}
+.tlbox{display:flex;gap:12px;align-items:center;border-radius:16px;padding:10px 12px;background:#fff7e8;border:2px solid #f6dcae;color:#5a3a00;margin:8px 0}
+.tlbox .chest{flex:none}
+.tl-preview{height:min(660px,72vh);margin:8px 0;border:1px solid #ece3d1;border-radius:14px;overflow:hidden}
+.tl-nb{white-space:nowrap}

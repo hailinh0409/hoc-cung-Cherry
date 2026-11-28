@@ -1,0 +1,57 @@
+% Bài tự luận (chặng Tự luận, chat cùng Cherry), lớp 9 chương 6, sau Bài 20 (Định lí Viète).
+% Đã tự kiểm tra (sympy): Delta' = 2m-3; m = 4 cho x^2-10x+20 = 0, hai nghiệm 5 ± căn 5, cả hai cách gán x1, x2 đều cho vế trái 80 = 4.4.5;
+% m = 0 làm Delta' = -3 < 0 nên loại. T = (m-1)^2 + 1 nhỏ nhất trên m >= 3/2 tại m = 3/2, T = 5/4 (khi đó nghiệm kép 5/2, T = 25/4 - 5 = 5/4).
+% Kiến thức: Delta' (Bài 19), Viète (Bài 20), bất đẳng thức (Chương 2). Không dùng kiến thức ngoài chương trình.
+\chude{Phương trình bậc hai chứa tham số}
+\saubai{k9-b20}
+\begin{giaimau}
+\de{Cho phương trình $x^2-2(m+1)x+m^2+4=0$ $(1)$, với $m$ là tham số.\\
+a) Tìm $m$ để phương trình $(1)$ có nghiệm.\\
+b) Tìm $m$ để phương trình $(1)$ có hai nghiệm $x_1$, $x_2$ thỏa mãn $x_1^2+2(m+1)x_2=4m(m+1)$.\\
+c) Khi phương trình $(1)$ có hai nghiệm $x_1$, $x_2$, tìm giá trị nhỏ nhất của $T=x_1x_2-(x_1+x_2)$.}
+\cau{Câu a}{Tìm $m$ để phương trình $(1)$ có nghiệm.}
+\buocgiai{Tính $\Delta'$}{$\Delta'=(m+1)^2-(m^2+4)=2m-3$.}{Phương trình $ax^2+2b'x+c=0$ có $\Delta'=b'^2-ac$; ở đây $b'=-(m+1)$.}
+\huong{Hệ số của $x$ là số chẵn nên mình dùng $\Delta'=b'^2-ac$. Ở đây $a=1$, $b'=-(m+1)$, $c=m^2+4$.}
+\goiy{$b'$ bằng một nửa hệ số của $x$. Hệ số của $x$ là $-2(m+1)$ nên $b'=-(m+1)$.}
+\goiy{$(m+1)^2=m^2+2m+1$, rồi trừ đi $m^2+4$.}
+\kiemtra{$\Delta'$ bằng:}{$2m-3$}{$2m+5$}{$m^2+2m+1-m^2-4=2m-3$.}{Cộng nhầm dấu: phải là $m^2+2m+1-m^2-4$, tức là $1-4=-3$.}{$-2m-3$}{Có lẽ cậu khai triển $(m+1)^2$ thành $m^2-2m+1$? Phải là $m^2+2m+1$.}
+\buocgiai{Tìm điều kiện của $m$}{Phương trình $(1)$ có nghiệm khi và chỉ khi $\Delta'\ge 0$\\ $\Leftrightarrow 2m-3\ge 0\Leftrightarrow m\ge\dfrac{3}{2}$.}{Phương trình bậc hai có nghiệm khi $\Delta'\ge 0$ (kể cả nghiệm kép).}
+\huong{Phương trình có nghiệm khi $\Delta'\ge 0$. Chú ý đề hỏi “có nghiệm”, tức là tính cả nghiệm kép.}
+\goiy{Giải bất phương trình $2m-3\ge 0$.}
+\kiemtra{Phương trình $(1)$ có nghiệm khi:}{$m\ge\dfrac{3}{2}$}{$m>\dfrac{3}{2}$}{Có cả dấu bằng vì “có nghiệm” gồm cả nghiệm kép.}{Dấu $>$ dành cho “hai nghiệm phân biệt”. Đề hỏi “có nghiệm” nên lấy cả dấu bằng.}{$m\le\dfrac{3}{2}$}{$2m-3\ge 0\Leftrightarrow 2m\ge 3$; chia cho số dương $2$ thì giữ nguyên chiều.}
+\cau{Câu b}{Tìm $m$ để $x_1^2+2(m+1)x_2=4m(m+1)$.}
+\buocgiai{Viết hệ thức Viète}{Với $m\ge\dfrac{3}{2}$, phương trình $(1)$ có hai nghiệm $x_1$, $x_2$. Theo định lí Viète:\\ $x_1+x_2=2(m+1)$, $x_1x_2=m^2+4$.}{Định lí Viète: $x_1+x_2=-\dfrac{b}{a}$, $x_1x_2=\dfrac{c}{a}$.}
+\huong{Ghi điều kiện $m\ge\dfrac{3}{2}$ ở đầu, rồi viết tổng và tích hai nghiệm.}
+\goiy{Tổng hai nghiệm là $-\dfrac{b}{a}$, tích là $\dfrac{c}{a}$.}
+\goiy{$b=-2(m+1)$ nên $-\dfrac{b}{a}=2(m+1)$.}
+\kiemtra{$x_1+x_2$ bằng:}{$2(m+1)$}{$-2(m+1)$}{Và $x_1x_2=m^2+4$.}{Tổng là $-\dfrac{b}{a}$, mà $b=-2(m+1)$, nên tổng là $2(m+1)$.}{$m^2+4$}{$m^2+4$ là tích $x_1x_2$, không phải tổng.}
+\doan{Biểu thức có $x_1^2$ đứng riêng, không đối xứng. Cách nào khử được $x_1^2$?}{Dùng $x_1$ là nghiệm: $x_1^2=2(m+1)x_1-m^2-4$}{Giải hẳn $x_1$ bằng công thức nghiệm rồi bình phương}{Thay vào, biểu thức chỉ còn $x_1+x_2$, dùng được Viète.}{Làm được nhưng ra căn rất cồng kềnh, lại phải xét $x_1$ là nghiệm nào.}{Viết $x_1^2=(x_1+x_2)^2-x_2^2$}{Vẫn còn $x_2^2$ đứng riêng, chưa khử được gì.}
+\buocgiai{Thay $x_1^2$ bằng biểu thức bậc nhất}{Vì $x_1$ là nghiệm của $(1)$ nên $x_1^2=2(m+1)x_1-m^2-4$. Do đó\\ $x_1^2+2(m+1)x_2=2(m+1)(x_1+x_2)-m^2-4$.}{Một số là nghiệm thì thay vào phương trình được đẳng thức đúng.}
+\huong{Vì $x_1$ là nghiệm của $(1)$ nên $x_1^2-2(m+1)x_1+m^2+4=0$. Cậu chuyển vế để được $x_1^2$, rồi thay vào vế trái của điều kiện.}
+\goiy{$x_1^2=2(m+1)x_1-m^2-4$ (nhớ đổi dấu khi chuyển vế).}
+\goiy{Sau khi thay, gom $2(m+1)x_1+2(m+1)x_2$ thành $2(m+1)(x_1+x_2)$.}
+\kiemtra{Sau khi thay, vế trái $x_1^2+2(m+1)x_2$ bằng:}{$2(m+1)(x_1+x_2)-m^2-4$}{$2(m+1)(x_1+x_2)+m^2+4$}{Giờ chỉ còn tổng $x_1+x_2$.}{Chuyển $m^2+4$ sang vế phải phải đổi dấu: $x_1^2=2(m+1)x_1-m^2-4$.}{$2(m+1)x_1x_2-m^2-4$}{Đặt nhân tử chung $2(m+1)$ ra được tổng $x_1+x_2$, không phải tích.}
+\buocgiai{Đưa về phương trình ẩn $m$}{Thay $x_1+x_2=2(m+1)$, điều kiện trở thành\\ $4(m+1)^2-m^2-4=4m(m+1)$\\ $\Leftrightarrow 3m^2+8m=4m^2+4m\Leftrightarrow m^2-4m=0$.}{Thay tổng từ Viète, khai triển rồi chuyển vế.}
+\huong{Thay $x_1+x_2=2(m+1)$ vào, rồi rút gọn vế trái.}
+\goiy{$2(m+1)\cdot 2(m+1)=4(m+1)^2=4m^2+8m+4$.}
+\goiy{Trừ tiếp $m^2+4$.}
+\kiemtra{Vế trái rút gọn được:}{$3m^2+8m$}{$3m^2+8m+8$}{$4m^2+8m+4-m^2-4=3m^2+8m$.}{Kiểm tra lại: $+4$ và $-4$ triệt tiêu nhau.}{$4m^2+8m$}{Cậu quên trừ $m^2$ rồi.}
+\buocgiai{Giải và đối chiếu điều kiện}{$m^2-4m=0\Leftrightarrow m(m-4)=0\Leftrightarrow m=0$ hoặc $m=4$.\\ $m=0$ không thỏa mãn $m\ge\dfrac{3}{2}$ nên loại; $m=4$ thỏa mãn.\\ Vậy $m=4$.}{Giá trị tìm được phải thỏa mãn điều kiện có nghiệm ở câu a.}
+\huong{Giải $m^2-4m=0$, rồi đối chiếu với điều kiện $m\ge\dfrac{3}{2}$ ở câu a.}
+\goiy{$m^2-4m=m(m-4)$.}
+\goiy{Có hai giá trị, nhưng không phải giá trị nào cũng làm phương trình $(1)$ có nghiệm.}
+\kiemtra{Giá trị $m$ thỏa mãn đề bài là $m=\,?$}{=4}{$m=0$ bị loại vì không thỏa mãn $m\ge\dfrac{3}{2}$.}{0}{$m=0$ là nghiệm của $m^2-4m=0$ nhưng không thỏa mãn $m\ge\dfrac{3}{2}$ (khi đó $\Delta'=-3<0$, phương trình vô nghiệm). Phải loại!}
+\cau{Câu c}{Tìm giá trị nhỏ nhất của $T=x_1x_2-(x_1+x_2)$.}
+\buocgiai{Viết $T$ theo $m$}{Với $m\ge\dfrac{3}{2}$:\\ $T=m^2+4-2(m+1)=m^2-2m+2=(m-1)^2+1$.}{Thay tổng và tích từ Viète.}
+\huong{Thay tổng và tích từ Viète vào $T$, rồi viết thành một bình phương cộng một số.}
+\goiy{$T=m^2+4-2(m+1)$.}
+\goiy{$m^2-2m+2=(m-1)^2+1$.}
+\kiemtra{$T$ bằng:}{$m^2-2m+2$}{$m^2+2m+6$}{Viết được $T=(m-1)^2+1$.}{Dấu trừ trước ngoặc: $-(x_1+x_2)=-2(m+1)=-2m-2$.}{$m^2-2m+6$}{$-2(m+1)=-2m-2$, nên $4-2=2$ chứ không phải $6$.}
+\doan{Từ $T=(m-1)^2+1\ge 1$, có kết luận được giá trị nhỏ nhất của $T$ là $1$ không?}{Không, vì dấu bằng cần $m=1$, mà $m=1$ không thỏa mãn $m\ge\dfrac{3}{2}$}{Có, vì $(m-1)^2\ge 0$ với mọi $m$}{Khi $m=1$ phương trình vô nghiệm, nên $T$ không bao giờ bằng $1$.}{Bất đẳng thức đúng, nhưng giá trị nhỏ nhất phải đạt được. $m=1$ làm phương trình vô nghiệm.}{Không, vì $T$ không có giá trị nhỏ nhất}{$T$ vẫn có giá trị nhỏ nhất, chỉ là không phải $1$.}
+\buocgiai{Tìm giá trị nhỏ nhất khi $m\ge\dfrac{3}{2}$}{Với $m\ge\dfrac{3}{2}$ thì $m-1\ge\dfrac{1}{2}>0$ nên $(m-1)^2\ge\dfrac{1}{4}$, suy ra $T\ge\dfrac{5}{4}$.\\ Dấu bằng xảy ra khi $m=\dfrac{3}{2}$ (thỏa mãn).\\ Vậy giá trị nhỏ nhất của $T$ là $\dfrac{5}{4}$, khi $m=\dfrac{3}{2}$.}{Hai số không âm, số lớn hơn thì bình phương lớn hơn.}
+\huong{Khi $m\ge\dfrac{3}{2}$ thì $m-1\ge\dfrac{1}{2}>0$. Hai vế không âm nên bình phương được.}
+\goiy{$(m-1)^2\ge\left(\dfrac{1}{2}\right)^2=\dfrac{1}{4}$.}
+\goiy{Cộng thêm $1$ vào hai vế.}
+\kiemtra{Giá trị nhỏ nhất của $T$ bằng bao nhiêu? (nhập phân số a/b hoặc số thập phân)}{=5/4}{Đạt được khi $m=\dfrac{3}{2}$.}{1}{$T=1$ chỉ khi $m=1$, mà $m=1$ không thỏa mãn $m\ge\dfrac{3}{2}$. Hãy tính $T$ tại $m$ nhỏ nhất có thể, tức là $m=\dfrac{3}{2}$.}
+\nhanxet{Hai chỗ hay mất điểm: quên loại $m=0$ ở câu b và kết luận giá trị nhỏ nhất bằng $1$ ở câu c.\\ Cả hai đều do quên đối chiếu điều kiện $m\ge\dfrac{3}{2}$.}
+\end{giaimau}

@@ -1273,6 +1273,96 @@ textarea.code.light{background:#fff;color:#12313a;font:14px/1.5 "Be Vietnam Pro"
 .chat-step-row .chat-action {flex:1}
 .chat-step-row .chat-back {flex:0 0 auto;padding-inline:14px;border-color:var(--chat-line);color:var(--chat-muted)!important;font-weight:600!important}
 
+/* ---------- Chặng Tự luận: chat cùng Cherry (client/tuluan.js) ---------- */
+.tl{--tl-app:#fffaf2;--tl-ink:#14323a;--tl-mute:#5d747a;--tl-teal:#0f8a7c;--tl-teal-d:#0b6e63;--tl-line:#ece3d1;--tl-or:#f28c28;--tl-bl:#3b7be0;--tl-gr:#1f8a57;--tl-red:#c8323f;
+  position:relative;display:flex;flex-direction:column;height:100%;min-height:0;overflow:hidden;background:var(--tl-app);color:var(--tl-ink);text-align:left;font:16px/1.55 "Be Vietnam Pro",system-ui,sans-serif}
+.tl *{box-sizing:border-box;min-width:0}
+.tl [hidden]{display:none!important}
+.tl :where(button){font:inherit;color:inherit;cursor:pointer}
+.tl button:focus-visible,.tl input:focus-visible{outline:3px solid var(--tl-or);outline-offset:2px}
+.tl-top{display:flex;align-items:center;gap:6px;padding:max(10px,env(safe-area-inset-top)) 12px 4px;flex:none}
+.tl-x{border:0;background:none;font-size:26px;color:#8aa;width:38px;height:42px}
+.tl-prog{flex:1;height:12px;border-radius:9px;background:#ece4d4;overflow:hidden}.tl-prog b{display:block;height:100%;width:0;background:linear-gradient(90deg,#14a08f,#2bc48a);border-radius:9px;transition:width .3s}
+.tl-xp{font:800 16px "Baloo 2",sans-serif;color:#b06a00;padding:0 4px;white-space:nowrap}
+.tl-xp.pop{animation:tl-pop .35s}
+.tl-mini{border:0;background:#efe7d6;border-radius:12px;padding:8px 10px;font-weight:600;font-size:14px;min-height:42px}
+.tl-part{padding:0 16px 4px;font:700 14px/1.3 "Baloo 2",sans-serif;color:var(--tl-teal);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:none}
+.tl-body{flex:1;display:flex;flex-direction:column;min-height:0;position:relative}
+.tl-pin{flex:none;border-bottom:2px solid var(--tl-line);padding:2px 12px 6px;background:var(--tl-app)}
+.tl-pinbar{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--tl-mute)}
+.tl-pinbar button{border:0;background:none;color:var(--tl-teal-d);font-weight:600;font-size:13px;padding:6px;min-height:36px}
+.tl-pinfig{background:#fff;border-radius:14px;border:2px solid var(--tl-line);text-align:center}
+.tl-pinfig img,.tl-pinfig svg{display:block;width:auto;max-width:100%;max-height:26vh;margin:0 auto;transition:max-height .25s}
+.tl-pin.small .tl-pinfig img{max-height:84px}
+.tl-pin.flash .tl-pinfig{animation:tl-fl .7s}
+.tl-feed{flex:1;min-height:0;overflow-y:auto;padding:12px 14px 22px;display:flex;flex-direction:column;gap:10px;scroll-behavior:smooth;overscroll-behavior:contain;width:min(100%,640px);margin:0 auto}
+.tl-turn{display:grid;grid-template-columns:40px minmax(0,1fr);gap:8px;align-items:start}
+.tl-turn>.chat-avatar{width:40px;height:auto}
+.tl-col{display:flex;flex-direction:column;gap:8px;align-items:stretch}
+.tl-bub{background:#fff;border:2px solid var(--tl-line);border-radius:4px 16px 16px 16px;padding:9px 13px;align-self:flex-start;max-width:100%}
+.tl-bub.q{font-weight:600;font-size:17px}
+.tl-bub.ok{background:#e8f7ef;border-color:#bfe6d0;color:#11613c}
+.tl-bub.no{background:#fdecee;border-color:#f6c6cd;color:#8a1f2d}
+.tl-bub.hint{background:#fff7e8;border-color:#f6dcae}
+.tl-bub p,.tl-sol p,.tl-card p{margin:0 0 6px}.tl-bub p:last-child,.tl-sol p:last-child{margin:0}
+.tl-eq{display:block;text-align:center;overflow-x:auto;overflow-y:hidden;margin:4px 0}
+.tl mjx-container{font-size:104%!important}
+.tl mjx-container[display="true"]{margin:.35em 0!important;overflow-x:auto;overflow-y:hidden;max-width:100%}
+.tl-step{display:inline-block;border-radius:999px;padding:1px 10px;font-weight:700;font-size:13px;color:#fff;background:#d0700f;margin-bottom:4px}
+.tl-me-row{display:flex;justify-content:flex-end}
+.tl-me{background:var(--tl-teal);color:#fff;border-radius:16px 16px 4px 16px;padding:8px 14px;max-width:88%}
+.tl-card{background:#fff;border:2px solid var(--tl-line);border-radius:16px;padding:10px 14px}
+.tl-kind{display:inline-block;border-radius:999px;padding:1px 12px;font-weight:600;font-size:13px;color:#fff;background:#2a7fb8;margin-bottom:4px}
+.tl-figcard{background:#fff;border:2px solid var(--tl-line);border-radius:14px;padding:4px 6px;text-align:center}
+.tl-figcard img{display:block;max-width:100%;max-height:36vh;margin:0 auto}
+.tl-opts{display:grid;gap:9px}
+.tl-opt{border:2px solid var(--tl-line);background:#fff;border-radius:16px;padding:11px 14px;box-shadow:0 3px 0 var(--tl-line);min-height:52px;text-align:left}
+.tl-opt.sel{border-color:var(--tl-bl);background:#eef4ff}.tl-opt.ok{border-color:#2fa36b;background:#e8f7ef}.tl-opt.no{border-color:#e0475a;background:#fdecee}
+.tl-opt.off{opacity:.35;text-decoration:line-through}
+.tl-num input{width:100%;font:600 18px "Be Vietnam Pro",sans-serif;padding:12px 14px;border:2px solid var(--tl-bl);border-radius:14px;background:#fff;color:var(--tl-ink)}
+.tl-sol{background:#fffdf7;border:2px dashed #d6c9ab;border-radius:14px;padding:8px 12px}
+.tl-lb{display:block;font-size:13px;font-weight:700;color:#8a6420;margin-bottom:2px}
+.tl-sol details{margin-top:6px;font-size:15px}.tl-sol summary{cursor:pointer;color:var(--tl-teal-d);font-weight:600;min-height:32px}
+.tl-div{display:flex;align-items:center;gap:10px;margin:12px 0 0;color:var(--tl-teal-d);text-align:center}
+.tl-div::before,.tl-div::after{content:"";flex:1;height:2px;background:var(--tl-line)}
+.tl-div span{font:700 15px/1.25 "Baloo 2",sans-serif}
+.tl-dots{display:flex;gap:5px;padding:4px 2px}
+.tl-dots i{width:8px;height:8px;border-radius:50%;background:#b9ad92;animation:tl-bl 1s infinite ease-in-out}
+.tl-dots i:nth-child(2){animation-delay:.15s}.tl-dots i:nth-child(3){animation-delay:.3s}
+.tl-foot{flex:none;border-top:2px solid var(--tl-line);padding:10px 12px max(14px,env(safe-area-inset-bottom));display:flex;gap:8px;min-height:80px;align-items:center}
+.tl-go{flex:1;border:0;border-radius:16px;background:var(--tl-teal);color:#fff!important;font:800 17px/1.1 "Baloo 2",sans-serif;letter-spacing:.03em;min-height:54px;padding:4px 8px;box-shadow:0 4px 0 var(--tl-teal-d)}
+.tl-go:disabled{background:#e6dcc8;color:#7d7462!important;box-shadow:none}
+.tl-go.alt{background:#fff;color:#9a5c00!important;border:2px solid #f2c27a;box-shadow:0 4px 0 #f6dcae;flex:.85}
+.tl-sheet{position:absolute;inset:0;background:#0005;display:flex;align-items:flex-end;z-index:5}
+.tl-sheet>div{background:var(--tl-app);width:100%;border-radius:22px 22px 0 0;padding:16px 16px 22px;max-height:90%;overflow:auto}
+.tl-sheet h3{font:800 22px/1.2 "Baloo 2",sans-serif;margin:4px 0 10px}
+.tl-close{float:right;border:0;background:#efe7d6;border-radius:10px;width:44px;height:44px;font-size:20px}
+.tl-big{position:absolute;inset:0;background:var(--tl-app);z-index:6;display:flex;flex-direction:column;padding:12px}
+.tl-big .tl-close{align-self:flex-end}
+.tl-big img{flex:1;width:100%;height:100%;object-fit:contain;min-height:0}
+.tl-sheetsol h4{margin:10px 0 4px;font:800 17px "Baloo 2",sans-serif;color:var(--tl-teal-d)}
+.tl-ticks{list-style:none;padding:0;margin:4px 0}
+.tl-ticks label{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:2px solid var(--tl-line);cursor:pointer}
+.tl-ticks input{width:22px;height:22px;flex:none;accent-color:var(--tl-teal);margin-top:2px}
+@keyframes tl-fl{0%{box-shadow:0 0 0 4px #f28c2899}100%{box-shadow:0 0 0 0 transparent}}
+@keyframes tl-bl{0%,60%,100%{transform:none;opacity:.5}30%{transform:translateY(-4px);opacity:1}}
+@keyframes tl-pop{from{transform:scale(1.5)}to{transform:none}}
+@media (prefers-reduced-motion:reduce){.tl-feed{scroll-behavior:auto}.tl-dots i,.tl-pin.flash .tl-pinfig,.tl-xp.pop{animation:none}}
+/* Chặng Tự luận trên bản đồ + danh sách bài */
+.tnode.tlnode .coin{background:#fff3e0;color:#b85a1a}
+.tlchest{position:absolute;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:0;pointer-events:none;z-index:1}
+.tlchest small{font-size:11.5px;font-weight:700;color:#fffaf2;background:#0006;border-radius:8px;padding:1px 6px;white-space:nowrap}
+.tlrow{display:flex;gap:12px;align-items:center;width:100%;text-align:left;border:2px solid #ece3d1;background:#fff;color:#14323a;border-radius:16px;padding:10px 12px;margin-top:9px;min-height:62px}
+.tlrow.lock{opacity:.6}
+.tlno{flex:none;width:40px;height:40px;border-radius:12px;display:grid;place-items:center;font-weight:800;background:#fff3e0;color:#b85a1a}
+.tlrow.done .tlno{background:#1f8a57;color:#fff}
+.tltx{flex:1;line-height:1.3}.tltx small{display:block;color:#5d747a;font-size:13px}
+.tlnew{flex:none;font-size:12px;font-weight:700;background:#3b7be0;color:#fff;border-radius:8px;padding:2px 7px}
+.tlbox{display:flex;gap:12px;align-items:center;border-radius:16px;padding:10px 12px;background:#fff7e8;border:2px solid #f6dcae;color:#5a3a00;margin:8px 0}
+.tlbox .chest{flex:none}
+.tl-preview{height:min(660px,72vh);margin:8px 0;border:1px solid #ece3d1;border-radius:14px;overflow:hidden}
+.tl-nb{white-space:nowrap}
+
 .gvlink{margin-top:4px;font-size:13px;color:#7a9399;text-decoration:underline;align-self:center}
 .figmiss{display:inline-block;padding:6px 10px;border-radius:8px;background:#fff3c4;color:#7a5a00;font-size:13px}
 img.fig{display:block;max-width:100%;height:auto;margin:8px auto;background:#fff;border-radius:8px}
@@ -1696,6 +1786,11 @@ function hinhBuocErrors(raw) {
 //   \begin{sodo} \nut{cấp}{nội dung}{ghi chú} … \end{sodo}                       sơ đồ phân tích đi lên, cấp 1 là gốc
 //   \nhanxet{…}
 //   \end{giaimau}
+// Chặng Tự luận (chat cùng Cherry) dùng thêm ba lệnh tùy chọn, đặt NGAY SAU một \buocgiai và gắn vào bước đó:
+//   \huong{lời Cherry nêu hướng làm bước này}            không có thì Cherry chỉ nêu mục tiêu
+//   \goiy{gợi ý}  (1–3 lần)                            học sinh bấm "Tớ bí rồi"; không có thì dùng {vì sao} làm gợi ý
+//   \kiemtra{câu hỏi}{đúng}{sai}{vì sao đúng}{vì sao sai}[{sai 2}{vì sao sai 2}]   câu hỏi nhỏ sau khi học sinh viết xong bước
+//   hoặc \kiemtra{câu hỏi}{=đáp số}{vì sao đúng}[{đáp số sai}{vì sao sai}…]       học sinh nhập đáp số (số nguyên, thập phân, phân số)
 // Hình: mỗi màn một khung. Khung = gmFrame(tikz, k, s): đã hiện tới bước k, tô sáng bước s (0 = không tô).
 // Phần tô sáng được vẽ sau cùng, phần còn lại mờ đi; phần chưa hiện vẫn vẽ trong suốt nên mọi khung cùng kích thước.
 const GIAIMAU = /\\begin\{giaimau\}([\s\S]*?)\\end\{giaimau\}/g;
@@ -1724,7 +1819,7 @@ function parseGiaiMau(raw, guide = false) {
   if (pics.length > 1) errors.push(`Bài giải mẫu chỉ có một hình tikzpicture (đang có ${pics.length}); phần thay đổi theo bước dùng \\hien{k}{…} và \\sang{k}{…}`);
   const rest = pics.reduce((x, p) => x.replace(p, ''), body);
   const items = []; let de = '', n = 0, m;
-  const re = /\\(de|cau|doan|buocgiai|nhanxet)\b|\\begin\{sodo\}/g;
+  const re = /\\(de|cau|doan|buocgiai|nhanxet|huong|goiy|kiemtra)\b|\\begin\{sodo\}/g;
   while ((m = re.exec(rest))) {
     const k = m[1];
     if (!k) {
@@ -1737,9 +1832,33 @@ function parseGiaiMau(raw, guide = false) {
       items.push({ k: 'sodo', nodes, done: n });
       re.lastIndex = end + 10; continue;
     }
-    const want = { de: 1, cau: 2, buocgiai: 3, nhanxet: 1 }[k];
+    const want = { de: 1, cau: 2, buocgiai: 3, nhanxet: 1, huong: 1 }[k];
     const [a, at] = gmArgs(rest, re.lastIndex, want); re.lastIndex = at;
     if (k === 'de') { de = a[0] || ''; continue; }
+    if (k === 'huong' || k === 'goiy' || k === 'kiemtra') {
+      const st = items[items.length - 1];
+      if (guide) { errors.push(`Hướng dẫn tự luận không dùng \\${k}`); continue; }
+      if (!st || st.k !== 'buocgiai') { errors.push(`\\${k} phải đứng ngay sau một \\buocgiai`); continue; }
+      if (k === 'huong') { if (st.lead) errors.push(`Bước ${st.n}: chỉ một \\huong`); st.lead = a[0] || ''; if (!st.lead) errors.push(`Bước ${st.n}: \\huong để trống`); continue; }
+      if (k === 'goiy') { (st.hints = st.hints || []).push(a.join(' ')); if (!a[0]) errors.push(`Bước ${st.n}: \\goiy để trống`); if (st.hints.length > 3) errors.push(`Bước ${st.n}: tối đa 3 \\goiy`); continue; }
+      if (st.check) { errors.push(`Bước ${st.n}: chỉ một \\kiemtra`); continue; }
+      if (/^=/.test(a[1] || '')) {
+        const num = v => { const x = String(v).replace(/\s|\$/g, '').replace(',', '.'), f = /^(-?\d+(?:\.\d+)?)\/(\d+(?:\.\d+)?)$/.exec(x); return f ? Number(f[1]) / Number(f[2]) : (x === '' ? NaN : Number(x)); };
+        const ans = a[1].slice(1).trim(), wrong = [];
+        if (a.length < 3 || a.length % 2 === 0) errors.push(`Bước ${st.n}: \\kiemtra nhập số cần {câu hỏi}{=đáp số}{vì sao đúng}, thêm đáp số sai thì thêm từng cặp {đáp số sai}{vì sao sai}`);
+        for (let i = 3; i + 1 < a.length; i += 2) { wrong.push({ v: num(a[i]), t: a[i], ex: a[i + 1] }); if (!Number.isFinite(num(a[i]))) errors.push(`Bước ${st.n}: \\kiemtra có đáp số sai "${a[i]}" không phải số`); }
+        if (!Number.isFinite(num(ans))) errors.push(`Bước ${st.n}: \\kiemtra đáp số "${ans}" phải là số nguyên, số thập phân hoặc phân số a/b`);
+        st.check = { type: 'num', q: a[0] || '', ans: num(ans), ansText: ans, ex: a[2] || '', wrong };
+      } else {
+        if (a.length < 5 || a.length % 2 === 0) errors.push(`Bước ${st.n}: \\kiemtra cần {câu hỏi}{đúng}{sai}{vì sao đúng}{vì sao sai}, thêm đáp án sai thì thêm từng cặp {sai}{vì sao} (đang có ${a.length} cặp ngoặc)`);
+        const opts = [{ t: a[1] || '', ok: true, ex: a[3] || '' }, { t: a[2] || '', ok: false, ex: a[4] || '' }];
+        for (let i = 5; i + 1 < a.length; i += 2) opts.push({ t: a[i], ok: false, ex: a[i + 1] });
+        if (opts.some(o => !o.t || !o.ex)) errors.push(`Bước ${st.n}: \\kiemtra có đáp án hoặc lời giải thích để trống`);
+        st.check = { type: 'mc', q: a[0] || '', opts };
+      }
+      if (!st.check.q) errors.push(`Bước ${st.n}: \\kiemtra thiếu câu hỏi`);
+      continue;
+    }
     if (k === 'doan') {
       if (a.length < 5 || a.length % 2 === 0) errors.push(`\\doan cần {câu hỏi}{đúng}{sai}{vì sao đúng}{vì sao sai}, thêm đáp án sai thì thêm từng cặp {sai}{vì sao} (đang có ${a.length} cặp ngoặc)`);
       const opts = [{ t: a[1] || '', ok: true, ex: a[3] || '' }, { t: a[2] || '', ok: false, ex: a[4] || '' }];
@@ -2857,7 +2976,7 @@ const canOpenSpecial = () => GV() || specialAccess;
 const gradeTiles = () => canOpenSpecial() ? [...GRADES, SPECIAL_GRADE] : GRADES;
 // Học sinh chỉ vào được khối của mình (và Chuyên Toán nếu được mở); các khối khác hiện màu xám, có khoá. Giáo viên vào mọi khối.
 const gradeLocked = k => !GV() && !!ACC && !!ACC.khoi && k !== CHUYEN_TOAN && k !== ACC.khoi;
-const PHAN={'dai-so':{name:'Đại số',c:'#3aa8e0',d:'#2584b8'},'hinh-hoc':{name:'Hình học',c:'#2fb787',d:'#1f8a63'},'thong-ke':{name:'Thống kê & Xác suất',c:'#ff9f1c',d:'#d97f00'},'on-tap':{name:'Ôn tập',c:'#8d7bff',d:'#6a57e0'},'thi-dau':{name:'Kho Thi đấu',c:'#ef3b55',d:'#c22a40'},'bai-mau':{name:'Bài mẫu',c:'#ff7a59',d:'#d9573a'}};
+const PHAN={'dai-so':{name:'Đại số',c:'#3aa8e0',d:'#2584b8'},'hinh-hoc':{name:'Hình học',c:'#2fb787',d:'#1f8a63'},'thong-ke':{name:'Thống kê & Xác suất',c:'#ff9f1c',d:'#d97f00'},'on-tap':{name:'Ôn tập',c:'#8d7bff',d:'#6a57e0'},'thi-dau':{name:'Kho Thi đấu',c:'#ef3b55',d:'#c22a40'},'bai-mau':{name:'Tự luận',c:'#ff7a59',d:'#d9573a'}};
 const TIERS=[{n:'Đồng',lp:0,c:'#c08457',d:'#8a5a33'},{n:'Bạc',lp:100,c:'#c3ced6',d:'#8a9aa6'},{n:'Vàng',lp:200,c:'#ffd23f',d:'#c99a08'},{n:'Bạch Kim',lp:350,c:'#4fd1c5',d:'#2a9d93'},
   {n:'Kim Cương',lp:500,c:'#6aa8ff',d:'#3f78d6'},{n:'Cao Thủ',lp:700,c:'#b36bff',d:'#8442d6'},{n:'Đại Cao Thủ',lp:900,c:'#ff5d6c',d:'#c8323f'},{n:'Thách Đấu',lp:1200,c:'#ffb800',d:'#b97f00'}];
 const tierOf=lp=>{let t=0;TIERS.forEach((x,i)=>{if((lp||0)>=x.lp)t=i});return t}; // chỉ dùng cho dữ liệu cũ (chưa có bậc riêng)
@@ -3195,7 +3314,7 @@ const GV=()=>TEACHER&&!!ACC&&!!ACC.teacher;
 const bestOf=(t,i)=>(P&&P.best[key(t,i)])||0;
 const isDe=t=>t.phan==='on-tap';
 const isKho=t=>t.phan==='thi-dau'; // Kho Thi đấu theo chương: không hiện trên bản đồ, chỉ dùng cho Thi đấu
-const isBM=t=>t.phan==='bai-mau'; // Bài mẫu theo chương (lời giải từng bước): mở từ biển tên chương, không hiện như chặng
+const isBM=t=>t.phan==='bai-mau'; // Bài tự luận theo chương (lời giải từng bước, chat cùng Cherry): nằm trong chặng Tự luận cuối chương
 /* chương của một chủ đề (số chương SGK) và mốc Thi đấu "đã học hết chương N" của khối; null = chưa gắn chương */
 const CURC={},currC=k=>CURC[k]||(CURC[k]=currOf(k));
 const chapsOf=k=>currC(k).filter(c=>c.hk||c.ch&&!c.id);
@@ -3410,11 +3529,11 @@ const palm=(x,y,f)=>`<svg class="deco" style="left:${x};top:${y}px${f?';transfor
 const xmark=(x,y)=>`<svg class="deco" style="left:${x};top:${y}px" width="26" height="26" viewBox="0 0 24 24"><path d="M5 5l14 14M19 5L5 19" stroke="#c0392b" stroke-width="3.5" stroke-linecap="round"/></svg>`;
 const wave=(x,y)=>`<svg class="deco" style="left:${x};top:${y}px" width="44" height="14" viewBox="0 0 44 14"><path d="M2 8q5-6 10 0t10 0 10 0 10 0" stroke="#5aa6b8" stroke-width="2.4" fill="none" stroke-linecap="round"/></svg>`;
 const flag=(y,txt)=>`<div class="hkflag" style="top:${y}px"><svg width="40" height="52" viewBox="0 0 40 52"><path d="M6 50V4" stroke="#6e3c16" stroke-width="3.5" stroke-linecap="round"/><path d="M7 5h26l-6 8 6 8H7z" fill="#ef3b55"/></svg><b>${txt}</b></div>`;
-function journey(){show('journey');jdock();if(curK===ACC.khoi&&!ACC.teacher&&!P.tut)setTimeout(tutorial,400);const items=mapItems(curK),ts=items.filter(x=>x.t&&hasQ(x.t)).map(x=>x.t),el=$('#tmap');
+function journey(){show('journey');jdock();if(curK===ACC.khoi&&!ACC.teacher&&!P.tut)setTimeout(tutorial,400);const items=withTL(curK,mapItems(curK)),ts=items.filter(x=>x.t&&hasQ(x.t)).map(x=>x.t),el=$('#tmap');
   if(!items.length){el.innerHTML=`<div class="empty dark"><div style="width:110px;margin:0 auto">${owlSVG}</div><p>Khối ${curK} chưa có bản đồ.</p></div>`;return}
   // Dùng phần trăm chiều ngang để đường đi và các nút cùng co giãn khi xoay máy.
   const W=100,BAN=86,STEP=112,TOP=210,BOT=90,HKH=96;
-  const H=BOT+TOP+items.reduce((s,x)=>s+(x.hk?HKH:x.ch&&!x.L?BAN+30:STEP),0);
+  const H=BOT+TOP+items.reduce((s,x)=>s+(x.hk?HKH:x.ch&&!x.L?BAN+30:x.tl?STEP+26:STEP),0);
   let y=H-BOT,pts=[],html='',deco='',cur=null,k=0,ni=0;
   const chStat=ch=>{const L=items.filter(x=>x.L&&x.L.ch===ch);const has=L.filter(x=>x.t);return {n:L.length,done:has.filter(x=>topicPassed(x.t)>0).length,st:has.reduce((s,x)=>s+topicStars(x.t),0),has:has.length}};
   items.forEach(x=>{
@@ -3422,8 +3541,12 @@ function journey(){show('journey');jdock();if(curK===ACC.khoi&&!ACC.teacher&&!P.
     if(x.ch&&!x.L){const c=x.ch,by=y-BAN/2,odd=k++%2,ph=PHAN[c.phan]||PHAN['dai-so'],S=chStat(c);pts.push([W/2,by]);
       deco+=(odd?palm('calc(100% - 60px)',by-80,1):palm('8px',by-84))+wave(odd?'20px':'calc(100% - 70px)',by+34);
       html+=`<div class="plank${S.has?'':' wait'}${GV()&&c.n?' gv':''}" style="top:${by}px;--c:${ph.c}"><span class="ptag">${ph.name}</span>${c.n?`<span class="cno">Chương ${c.n}</span>`:''}${GV()&&c.n?`<button type="button" class="pgem" data-chn="${c.n}">✦ Soạn bằng Gemini</button>`:''}<b>${esc(c.title)}</b>
-        <span class="pinfo">${S.has?`${star(1)} ${S.st}/${S.has*3} · đã qua ${S.done}/${S.n} bài`:'Sắp mở · đang chờ câu hỏi'}${c.n&&(GV()||bmOf(curK,c.n).length)?`<button type="button" class="pbm" data-bm="${c.n}">${bookSVG} Bài mẫu${bmOf(curK,c.n).length?' · '+bmOf(curK,c.n).length:''}</button>`:''}</span></div>`;
+        <span class="pinfo">${S.has?`${star(1)} ${S.st}/${S.has*3} · đã qua ${S.done}/${S.n} bài`:'Sắp mở · đang chờ câu hỏi'}</span></div>`;
       y-=BAN+30;return}
+    if(x.tl){const n=x.tl.n,side=[.3,.7,.62,.38][ni++%4],x2=side*W,ny=y-STEP/2,S=tlStat(curK,n);pts.push([x2,ny]);
+      html+=`<button class="tnode tlnode ${S.full?'done':'open'}${x2<W/2?' l':' r'}" data-tl="${n}" style="left:${x2}%;top:${ny}px"><span class="coin">${pencilSVG}</span><span class="tlab"><b>Tự luận</b><i>${S.total?`Đã làm trọn ${S.done}/${S.total} bài`:'Thầy đang soạn bài'}</i></span>${GV()&&S.draft?`<em class="hwn st">${S.draft} nháp</em>`:''}</button>`;
+      if(S.need)html+=`<div class="tlchest" style="left:calc(${x2}% + ${x2<W/2?92:-92}px);top:${ny-6}px">${chestSVG(S.opened,44)}<small>${S.opened?'Đã mở':S.ready?'Mở được!':`${Math.min(S.done,S.need)}/${S.need}`}</small></div>`;
+      y-=STEP+26;return}
     const L=x.L,t=x.t,side=[.3,.7,.62,.38][ni++%4],x2=side*W,ny=y-STEP/2;pts.push([x2,ny]);
     const lab=`<span class="tlab"><b>${L.lt?L.title:L.num?'Bài '+L.num:'Bổ sung'}</b>${L.lt?'':`<i>${esc(t&&!L.num?t.title:L.title)}</i>`}</span>`;
     if(!t){const gv=GV()&&L.id;html+=`<${gv?'button':'div'} class="tnode ghost${x2<W/2?' l':' r'}"${gv?` data-gl="${esc(L.id)}"`:''} style="left:${x2}%;top:${ny}px"><span class="coin">${L.lt?L.coin:L.num||'?'}</span>${lab}${gv?'<em class="hwn st">+ Dán bài</em>':''}</${gv?'button':'div'}>`;y-=STEP;return}
@@ -3452,7 +3575,7 @@ function journey(){show('journey');jdock();if(curK===ACC.khoi&&!ACC.teacher&&!P.
       return toast('Qua bài trước để mở bài này nhé.')}
     curT=t;startLevel()});
   $$('#tmap .pgem').forEach(b=>b.onclick=e=>{e.stopPropagation();sfx.tap();chapterTools(+b.dataset.chn)});
-  $$('#tmap .pbm').forEach(b=>b.onclick=e=>{e.stopPropagation();sfx.tap();bmList(+b.dataset.bm)});
+  $$('#tmap .tnode[data-tl]').forEach(b=>b.onclick=()=>{sfx.tap();bmList(+b.dataset.tl)});
   $$('#tmap .tnode.thy').forEach(b=>b.onclick=()=>{sfx.tap();const t=TOPICS.find(x=>x.id===b.dataset.th);if(!t)return;
     if(GV()){overlay(`<h2 style="font-size:24px">${esc(t.title)}</h2><p>Bài này mới có lý thuyết, chưa có câu hỏi.</p><button class="btn" id="g1">Xem lý thuyết</button><button class="btn alt" id="g2">Cài đặt & sửa</button><button class="btn alt" id="g3">Đóng</button>`);
       $('#g1').onclick=()=>{closeOvl();theory(t)};$('#g2').onclick=()=>{closeOvl();tOpts(t)};$('#g3').onclick=closeOvl;return}
@@ -3495,42 +3618,86 @@ const bmOpen=t=>GV()||bmNeed(t).ts.every(x=>topicPassed(x)>0);
 const bmLockText=t=>{const {L}=bmNeed(t);return L?`Mở khi em qua ${lessonName(L)}`:'Mở khi em qua hết các bài của chương'};
 // Yêu cầu soạn một bài mẫu cho Gemini (giống docs/soan-bai-mau.txt), có sẵn chương, mã bài và quy trình kiểm tra
 function bmAsk(k,n){const ch=(chapsOf(k).find(c=>c.ch&&c.ch.n===n)||{}).ch,ls=currOf(k).filter(c=>c.id&&c.ch&&c.ch.n===n&&!c.lt);
-  return [`Soạn MỘT bài mẫu (lời giải từng bước) cho Chương ${n}. ${ch?ch.title:''}, Toán ${k}, SGK Kết nối tri thức, cho app Học cùng Cherry.`,
+  return [`Soạn MỘT bài tự luận cho chặng Tự luận của Chương ${n}. ${ch?ch.title:''}, Toán ${k}, SGK Kết nối tri thức, app Học cùng Cherry.`,
+  'Học sinh giải cùng Cherry kiểu chat: mỗi bước Cherry nêu mục tiêu và hướng, học sinh viết vào vở (bí thì xin gợi ý), trả lời một câu kiểm tra nhỏ, rồi so vở với dòng trình bày mẫu. App không chấm vở.',
   'Các bài trong chương (mã bài: tên bài):',...ls.map(L=>`- ${L.id}: ${lessonName(L)}`),'',
-  'Đề bài thầy chọn (nếu trống thì tự chọn một bài tự luận nhiều bước, mức thi vào 10 hoặc học sinh giỏi, chỉ dùng kiến thức đã học):','[DÁN ĐỀ BÀI Ở ĐÂY]','',
-  'Kết quả: trả đúng MỘT khối mã gồm \\chude{Tên bài mẫu ngắn}, \\saubai{mã bài cuối cùng mà lời giải dùng tới} và MỘT khối \\begin{giaimau} … \\end{giaimau}: \\de{đề}, một hình TikZ nếu là bài hình (\\hien{k}{…} hiện từ bước k, \\phu{a}{b}{…} nét phụ chỉ ở bước a→b, \\sang{k}{…} tô cam ở bước k, bên trong \\sang chỉ \\draw/\\fill không ghi màu), \\cau{Câu 1}{yêu cầu}, \\doan{câu hỏi}{đúng}{sai}{vì sao đúng}{vì sao sai}[{sai 2}{vì sao sai 2}], \\buocgiai{mục tiêu}{lời giải, mỗi dòng một \\\\}{vì sao}, \\begin{sodo} \\nut{cấp}{nội dung}{ghi chú} … \\end{sodo} cho câu khó nhất, \\nhanxet{…}. Bước đếm từ 1 trong cả bài. Ngoài $…$ chỉ viết chữ thường. Cú pháp đầy đủ: docs/gemini-skill-soan-bai.md mục 3.9 trong repo hailinh0409/hoc-cung-Cherry.','',
-  'QUY TRÌNH SUY LUẬN VÀ KIỂM TRA (BẮT BUỘC, suy nghĩ chậm và kỹ, kiểm tra từng chỗ trước khi trả):',
+  'Đề bài thầy chọn (nếu trống thì tự chọn một bài tự luận 2–3 câu sát Luyện tập chung, câu cuối phân loại theo mức độ hiểu bài, không "tính mẹo"; chỉ dùng kiến thức đã học):','[DÁN ĐỀ BÀI Ở ĐÂY]','',
+  ...TL_SYNTAX,'',...TL_CHECKLIST].join('\n')}
+// Cú pháp và quy trình kiểm tra cho người soạn (giống docs/tu-luan/yeu-cau-gemini.md)
+const TL_SYNTAX=['KẾT QUẢ: trả đúng MỘT khối mã, không giải thích xen giữa:',
+  '\\chude{Tên bài ngắn}',
+  '\\saubai{mã bài cuối cùng mà lời giải dùng tới, ví dụ k9-b16}',
+  '\\begin{giaimau}',
+  '\\de{đề bài, các câu cách nhau bằng \\\\}',
+  '(bài hình: MỘT hình \\begin{tikzpicture}…\\end{tikzpicture}; \\hien{k}{…} hiện từ bước k, \\phu{a}{b}{…} nét phụ chỉ ở bước a→b, \\sang{k}{…} tô cam phần bước k dùng, bên trong \\sang chỉ \\draw/\\fill không ghi màu)',
+  '\\cau{Câu a}{yêu cầu của câu}',
+  '\\doan{câu hỏi đoán hướng}{đúng}{sai}{vì sao đúng}{vì sao sai}[{sai 2}{vì sao sai 2}]   (1 câu ở bước then chốt của câu khó)',
+  '\\buocgiai{mục tiêu ngắn}{dòng trình bày trong vở, mỗi dòng một \\\\}{vì sao: tên định lí/tính chất}',
+  '\\huong{lời Cherry nêu hướng làm bước này, 1–2 câu, xưng tớ gọi cậu, KHÔNG nói đáp án}',
+  '\\goiy{gợi ý 1}  \\goiy{gợi ý 2}   (1–2 gợi ý, gợi ý sau rõ hơn gợi ý trước)',
+  '\\kiemtra{câu hỏi kiểm tra kết quả bước}{đúng}{sai}{vì sao đúng}{vì sao sai}[{sai 2}{vì sao sai 2}]',
+  '   hoặc nhập số: \\kiemtra{câu hỏi}{=đáp số}{vì sao đúng}[{đáp số sai hay gặp}{vì sao sai}]  (đáp số: số nguyên, thập phân hoặc phân số a/b)',
+  '… (lặp \\buocgiai + \\huong + \\goiy + \\kiemtra cho mọi bước; bước rất dễ có thể bỏ \\kiemtra)',
+  '\\nhanxet{chỗ hay mất điểm, chỗ phân loại}',
+  '\\end{giaimau}',
+  'Quy ước: bước đếm từ 1 trong cả bài; ngoài $…$ chỉ viết chữ thường; công thức chính của dòng trình bày viết trong $…$ (dài thì xuống dòng bằng \\\\ trước dấu =); không dùng sơ đồ đi lên.'];
+const TL_CHECKLIST=['QUY TRÌNH SUY LUẬN VÀ KIỂM TRA (BẮT BUỘC, suy nghĩ chậm và kỹ):',
   '1. Giải trọn bài ra nháp trước; giải lại bằng cách thứ hai hoặc thử lại (thay số, tính bằng Python nếu có). Hai cách phải khớp.',
   '2. Sát chương trình: chỉ dùng kiến thức SGK Kết nối tri thức đã học đến bài ở \\saubai; không dùng kiến thức lớp trên hay chương sau. Kí hiệu, cách gọi theo SGK.',
-  '3. Logic từng bước: mỗi bước suy ra được từ giả thiết và bước trước; không nhảy bước, không dùng điều cần chứng minh, không dựa vào "nhìn hình". "Vì sao?" nêu đúng tên định lý/tính chất. Điều kiện nêu và kiểm tra đúng chỗ.',
-  '4. \\doan: 1–2 câu mỗi ý, đặt trước bước then chốt. Đáp án đúng thật sự dẫn tới lời giải; đáp án sai thật sự không đi được ở bước đó (không lấy một hướng khác cũng đúng); phản hồi nói đúng lỗi.',
-  '5. Sơ đồ: mỗi ô con (cùng căn cứ) đủ để suy ra ô cha; khớp với các bước giải.',
-  '6. Hình: TÍNH tọa độ cho đúng mọi giả thiết (tiếp điểm, vuông góc, trung điểm, giao điểm), không ước lượng; hình không gợi ý sai; mỗi \\sang{k} tô đúng phần bước k dùng; số bước trong \\hien, \\phu, \\sang khớp số \\buocgiai. Hình rộng 5–7 cm, nhãn ngắn không đè nhau.',
-  '7. Số liệu gọn, thỏa điều kiện, đã thử lại vào đề.',
-  '8. Đọc lại như một học sinh trung bình khá; sửa chỗ khó hiểu, thiếu bước.',
-  '9. Sau khối mã: mục "Đã tự kiểm tra" (cách thứ hai/phép thử, phép tính kiểm tra hình, kiến thức dùng thuộc bài nào) và ghi rõ chỗ chưa chắc.'].join('\n')}
-function bmList(n){const k=curK,ch=(chapsOf(k).find(c=>c.ch&&c.ch.n===n)||{}).ch,list=bmOf(k,n);P.bm=P.bm||{};
-  overlay(`<h2 style="font-size:22px">Bài mẫu · Chương ${n}</h2><p class="tnote">${esc(ch?ch.title:'')}<br>Lời giải từng bước: em đoán hướng giải, xem từng bước và vì sao.</p>
-    <div class="bmlist">${list.map((t,i)=>{const open=bmOpen(t),seen=P.bm[t.id];
-      return `<button type="button" class="bmrow${open?'':' lock'}" data-i="${i}"><span class="bmno">${open?(seen?'✓':i+1):lockSVG}</span><span class="bmtx"><b>${esc(t.title)}</b><small>${open?(seen?`Đã xem${seen.n?` · đoán đúng ngay ${seen.f}/${seen.n}`:''}`:'Chưa xem'):esc(bmLockText(t))}</small></span>${GV()&&t.status!=='giao'?`<em class="bmst">${({nhap:'Nháp',an:'Đã ẩn'})[t.status]||t.status}</em>`:''}</button>`}).join('')||'<p class="tnote">Chương này chưa có bài mẫu.</p>'}</div>
-    ${GV()?'<button class="btn" id="bmAdd">+ Dán bài mẫu</button><button class="btn alt" id="bmAsk">Sao chép yêu cầu cho Gemini</button>':''}<button class="btn alt" id="bmX">Đóng</button>`);
+  '3. Logic từng bước: mỗi bước suy ra được từ giả thiết và bước trước; không nhảy bước, không dùng điều cần chứng minh, không dựa vào "nhìn hình". Điều kiện nêu và đối chiếu đúng chỗ.',
+  '4. \\huong chỉ chỉ hướng, không lộ dòng trình bày. \\kiemtra hỏi KẾT QUẢ của chính bước đó (học sinh vừa viết xong); đáp án sai là lỗi học sinh hay mắc thật; lời giải thích nói đúng lỗi đó.',
+  '5. \\doan: đáp án đúng thật sự dẫn tới lời giải; đáp án sai thật sự không đi được ở bước đó.',
+  '6. Hình: TÍNH tọa độ cho đúng mọi giả thiết (tiếp điểm, vuông góc, trung điểm, giao điểm), không ước lượng; mỗi \\sang{k} tô đúng phần bước k dùng; số bước trong \\hien, \\phu, \\sang khớp số \\buocgiai. Hình rộng 5–7 cm, nhãn không đè nhau.',
+  '7. Đọc lại như một học sinh trung bình: mỗi bước một ý, câu ngắn; sửa chỗ khó hiểu, thiếu bước.',
+  '8. Sau khối mã: mục "Đã tự kiểm tra" (cách thứ hai/phép thử, phép tính kiểm tra hình, kiến thức dùng thuộc bài nào) và ghi rõ chỗ chưa chắc.'];
+/* ---------- Chặng Tự luận (thầy duyệt 28/11/2026) ----------
+   Bài tự luận = chủ đề Bài mẫu (phan 'bai-mau', chuong 'k<khối>-c<chương>'), giải kiểu chat cùng Cherry (client/tuluan.js).
+   Chặng đứng ngay sau bài cuối của chương (sau Luyện tập chung), trước chương mới; bên cạnh có rương nhỏ.
+   - Không khóa đường đi: bỏ qua chặng vẫn sang chương mới, chỉ không có quà.
+   - Rương mở khi làm trọn 2 bài bất kỳ (chương có 1 bài thì làm trọn bài đó). Rương đã mở không bị lấy lại khi thầy thêm bài.
+   - Không có điểm; giáo viên chỉ thấy đánh dấu đã làm (Theo dõi khối).
+   Tiến độ: P.bm[mã] = {d, f, n, c: số câu đã xong, x: đã làm trọn}; bản cũ chỉ có {d, f, n} (đã xem hết) cũng tính là làm trọn.
+   Rương: P.tlr['k<khối>-c<chương>'] = ngày mở. */
+const TL_NEED=2,TL_CHEST_XP=50;
+const pencilSVG='<svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><rect x="4" y="3" width="13" height="18" rx="2" fill="#fff" stroke="#b85a1a" stroke-width="1.6"/><path d="M7 8h7M7 11h7M7 14h4" stroke="#b85a1a" stroke-width="1.5" stroke-linecap="round"/><path d="M14.5 19.5l6-9 1.8 1.2-6 9-2.3.9z" fill="#ffb703" stroke="#8a4a10" stroke-width="1.2" stroke-linejoin="round"/></svg>';
+const tlDone=e=>!!e&&(e.x===true||(e.c===undefined&&!!e.d));
+const tlLive=(k,n)=>bmOf(k,n).filter(t=>t.status==='giao'&&!t.errors.length);
+function tlStat(k,n,p=P){const all=bmOf(k,n),live=tlLive(k,n),bm=(p&&p.bm)||{},done=live.filter(t=>tlDone(bm[t.id])).length,need=Math.min(TL_NEED,live.length),key=`k${k}-c${n}`,opened=!!(p&&p.tlr&&p.tlr[key]);
+  return {total:live.length,done,need,full:need>0&&done>=live.length,ready:need>0&&done>=need&&!opened,opened,key,draft:all.length-live.length}}
+// Chèn chặng Tự luận sau bài cuối của mỗi chương (trước cờ hết học kì hoặc chương sau); học sinh chỉ thấy khi chương có bài đã duyệt
+function withTL(k,items){const out=[];let ch=null;const flush=()=>{if(ch&&ch.n&&(GV()||tlLive(k,ch.n).length))out.push({tl:ch});ch=null};
+  for(const x of items){if(x.hk||(x.ch&&!x.L)){flush();if(x.ch&&!x.L)ch=x.ch}out.push(x)}flush();return out}
+function tlChest(n){const S=tlStat(curK,n);if(!S.ready||GV())return;P.tlr=P.tlr||{};P.tlr[S.key]=vnDay();addXP(TL_CHEST_XP);save();syncMine();sfx.win();
+  overlay(`${chestSVG(true,110)}<h2>Rương Tự luận!</h2><p>Em đã làm trọn ${S.need} bài tự luận của Chương ${n}. Em nhận được <b>+${TL_CHEST_XP} XP</b>!</p><button class="btn" id="tlOk">Tuyệt quá!</button>`);
+  $('#tlOk').onclick=()=>{closeOvl();journey();setTimeout(()=>bmList(n),50)}}
+function bmList(n){const k=curK,ch=(chapsOf(k).find(c=>c.ch&&c.ch.n===n)||{}).ch,list=bmOf(k,n),S=tlStat(k,n);P.bm=P.bm||{};
+  const row=(t,i)=>{const open=bmOpen(t),e=P.bm[t.id],ok=tlDone(e),c=tuLuanInfo(t.raw).cau,part=e&&!ok&&e.c?`Đang làm · xong ${e.c}/${c} câu`:'';
+    return `<button type="button" class="tlrow${open?'':' lock'}${ok?' done':''}" data-i="${i}"><span class="tlno">${open?(ok?'✓':'TL'+(i+1)):lockSVG}</span><span class="tltx"><b>${esc(t.title)}</b><small>${open?(ok?'Đã làm trọn':part||`Chưa làm · ${c} câu`):esc(bmLockText(t))}</small></span>${GV()&&t.status!=='giao'?`<em class="bmst">${({nhap:'Nháp',an:'Đã ẩn'})[t.status]||t.status}</em>`:!GV()&&!ok&&S.opened?'<em class="tlnew">Mới</em>':''}</button>`};
+  overlay(`<h2 style="font-size:22px">Tự luận · Chương ${n}</h2><p class="tnote">${esc(ch?ch.title:'')}<br>Giải cùng Cherry từng bước, em <b>viết lời giải vào vở</b>. Có thể bỏ qua để sang chương mới.</p>
+    ${S.need?`<div class="tlbox">${chestSVG(S.opened,46)}<span>${S.opened?'Em đã mở rương của chặng này.':S.ready?'<b>Mở rương thưởng được rồi!</b>':`Làm trọn <b>${S.need} bài</b> để mở rương · đã xong ${Math.min(S.done,S.need)}/${S.need}`}</span></div>${S.ready&&!GV()?'<button class="btn" id="tlOpen">Mở rương</button>':''}`:''}
+    <div class="bmlist">${list.map(row).join('')||'<p class="tnote">Chương này chưa có bài tự luận.</p>'}</div>
+    ${GV()?'<button class="btn" id="bmAdd">+ Dán bài tự luận</button><button class="btn alt" id="bmAsk">Sao chép yêu cầu cho Gemini</button>':''}<button class="btn alt" id="bmX">Đóng</button>`);
   $('#bmX').onclick=closeOvl;
+  $('#tlOpen')&&($('#tlOpen').onclick=()=>tlChest(n));
   $('#bmAdd')&&($('#bmAdd').onclick=()=>{sfx.tap();bmPaste(n)});
   $('#bmAsk')&&($('#bmAsk').onclick=async()=>{sfx.tap();try{await navigator.clipboard.writeText(bmAsk(k,n));toast('Đã chép yêu cầu. Thầy dán vào Gemini, thêm đề bài nếu muốn.')}catch(e){overlay(`<h2 style="font-size:20px">Sao chép yêu cầu</h2><p class="tnote">Máy không cho chép tự động. Thầy giữ ngón tay để chọn và chép.</p><textarea class="code" readonly>${esc(bmAsk(k,n))}</textarea><button class="btn alt" id="bmB">Quay lại</button>`);$('#bmB').onclick=()=>bmList(n)}});
-  $$('#panel .bmrow').forEach(b=>b.onclick=()=>{const t=list[+b.dataset.i];sfx.tap();
+  $$('#panel .tlrow').forEach(b=>b.onclick=()=>{const t=list[+b.dataset.i];sfx.tap();
     if(!bmOpen(t))return toast(esc(bmLockText(t)));
     if(GV()){overlay(`<h2 style="font-size:22px">${esc(t.title)}</h2>${t.errors.length?`<div class="err">${t.errors.map(esc).join('<br>')}</div>`:''}<button class="btn" id="bm1">Xem thử</button><button class="btn alt" id="bm2">Sửa nội dung</button><button class="btn alt" id="bm3">Duyệt, ẩn, đổi chương</button><button class="btn alt" id="bm4">Quay lại</button>`);
       $('#bm1').onclick=()=>{closeOvl();bmShow(t,n)};$('#bm2').onclick=()=>bmPaste(n,t);$('#bm3').onclick=()=>tOpts(t);$('#bm4').onclick=()=>bmList(n);return}
     closeOvl();bmShow(t,n)})}
-function bmShow(t,n){thT=null;curT=t;show('theory');
+function bmShow(t,n){thT=null;curT=t;show('theory');const body=$('#thBody');body._lectureDispose?.();body.classList.remove('lstep-host');body.classList.add('chat-host');
   const back=()=>{sfx.tap();journey();setTimeout(()=>bmList(n),50)};
-  renderLessonMaterial($('#thBody'),{...t,theory:bmItems(t.raw)},{title:t.title,doneTitle:'Xong bài mẫu!',onClose:back,teacherEdit:GV()?()=>bmPaste(n,t):null,
-    finish:(el,st,api)=>{if(!GV()){P.bm=P.bm||{};P.bm[t.id]={d:new Date().toISOString(),f:st.first,n:st.quiz};save();syncMine()}
-      el.innerHTML=`<p class="ls-end-name">${esc(t.title)}</p><div class="ls-end-btns"><button type="button" class="ls-mini" id="bmAgain">Xem lại từ đầu</button></div>`;
-      $('#bmAgain').onclick=api.again;api.go.textContent='Về danh sách bài mẫu';api.go.onclick=back}})}
+  P.bm=P.bm||{};const e=P.bm[t.id],done=tlDone(e);
+  const keep=(c,x)=>{if(GV())return;const o=P.bm[t.id]||{};P.bm[t.id]={...o,d:new Date().toISOString(),c:Math.max(Number(o.c)||0,c),x:!!(x||tlDone(o))};save();syncMine()};
+  renderTuLuan(body,t,{studentName:GV()?'An':ACC?.name,teacher:GV(),figImg:gmImg,start:done?0:(e&&e.c)||0,firstTime:!done,
+    sfx:{tap:()=>sfx.tap(),ok:()=>sfx.ok(),no:()=>sfx.no()},
+    onProgress:(c,tot)=>keep(c,c>=tot),
+    onFinish:st=>{if(GV())return;const o=P.bm[t.id]||{};P.bm[t.id]={...o,f:st.first,n:st.n,c:tuLuanInfo(t.raw).cau,x:true};if(st.xp>0)addXP(st.xp);save();syncMine()},
+    onClose:back})}
 // Giáo viên dán bài mẫu mới (hoặc sửa bài đã có): kiểm tra, xem trước từng bước, lưu ở trạng thái Nháp
 function bmPaste(n,t0){const k=curK;
-  overlay(`<h2 style="font-size:22px">${t0?'Sửa bài mẫu':'Dán bài mẫu'} · Chương ${n}</h2><p class="tnote">Gồm <code>\\chude{Tên bài mẫu}</code>, <code>\\saubai{k${k}-b7}</code> (mở cho học sinh khi qua bài đó; bỏ dòng này thì mở khi qua hết chương) và khối <code>\\begin{giaimau}…\\end{giaimau}</code>. Hình TikZ tự hiện sau khoảng 15 phút.</p>
+  overlay(`<h2 style="font-size:22px">${t0?'Sửa bài tự luận':'Dán bài tự luận'} · Chương ${n}</h2><p class="tnote">Gồm <code>\\chude{Tên bài}</code>, <code>\\saubai{k${k}-b7}</code> (mở cho học sinh khi qua bài đó; bỏ dòng này thì mở khi qua hết chương) và khối <code>\\begin{giaimau}…\\end{giaimau}</code>; sau mỗi <code>\\buocgiai</code> có thể thêm <code>\\huong</code>, <code>\\goiy</code>, <code>\\kiemtra</code>. Hình TikZ tự hiện sau khoảng 15 phút.</p>
     <textarea class="code" id="bmT" spellcheck="false" placeholder="\\chude{…}">${t0?esc(t0.raw):''}</textarea><button class="btn" id="bmChk">Kiểm tra và xem trước</button><div id="bmOut"></div><button class="btn alt" id="bmX">Hủy</button>`);
   $('#bmX').onclick=()=>t0?bmShow(t0,n):bmList(n);
   $('#bmChk').onclick=()=>{const text=cleanPaste($('#bmT').value),out=$('#bmOut'),P2=parseTopic(text),errs=[...P2.errors];
@@ -3538,12 +3705,12 @@ function bmPaste(n,t0){const k=curK;
     if(!bmItems(text).length)errs.unshift('Chưa có khối \\begin{giaimau}…\\end{giaimau}.');
     const after=bmAfter(text);if(after&&!currOf(k).some(c=>c.id===after))errs.push(`\\saubai{${after}}: khối ${k} không có bài mã này (mã dạng k${k}-b7).`);
     if(errs.length){out.innerHTML=`<div class="err">${errs.map(esc).join('<br>')}</div>`;return}
-    out.innerHTML=`<p class="tnote">Không có lỗi. Xem thử bên dưới (hình chưa dịch thì hiện "Hình chưa dịch").</p><div class="lesson-material"></div><button class="btn" id="bmSave">${t0?'Lưu thay đổi':'Lưu bài mẫu (Nháp)'}</button>`;
-    renderLessonMaterial(out.querySelector('.lesson-material'),{khoi:k,chuong:'',title:P2.title,theory:bmItems(text)},{title:P2.title});
+    out.innerHTML=`<p class="tnote">Không có lỗi. Chạy thử bên dưới như học sinh (hình chưa dịch thì hiện "Hình chưa dịch").</p><div class="tl-preview"></div><button class="btn" id="bmSave">${t0?'Lưu thay đổi':'Lưu bài tự luận (Nháp)'}</button>`;
+    renderTuLuan(out.querySelector('.tl-preview'),{title:P2.title,raw:text},{studentName:'An',teacher:true,figImg:gmImg,doneLabel:'Xong xem thử'});
     $('#bmSave').onclick=async()=>{$('#bmSave').disabled=true;
       try{if(t0)await DB.doc('topics/'+t0.id).update({text,capnhat:new Date().toISOString()});
-        else await DB.collection('topics').doc().set({title:P2.title,khoi:k,phan:'bai-mau',chuong:`k${k}-c${n}`,text,thutu:(bmOf(k,n).length+1)*10,nguon:'Dán bài mẫu (giáo viên)'});
-        closeOvl();sfx.ok();toast(t0?'Đã lưu bài mẫu.':'Đã lưu bài mẫu ở trạng thái Nháp. Thầy mở lại để Duyệt cho học sinh.');journey()}
+        else await DB.collection('topics').doc().set({title:P2.title,khoi:k,phan:'bai-mau',chuong:`k${k}-c${n}`,text,thutu:(bmOf(k,n).length+1)*10,nguon:'Dán bài tự luận (giáo viên)'});
+        closeOvl();sfx.ok();toast(t0?'Đã lưu bài tự luận.':'Đã lưu bài tự luận ở trạng thái Nháp. Thầy mở lại để Duyệt cho học sinh.');journey()}
       catch(e){$('#bmSave').disabled=false;out.insertAdjacentHTML('beforeend',`<div class="err">${esc(e&&e.message||'Lỗi kết nối')}</div>`)}}}}
 
 /* ---------- Soạn bằng Gemini theo chương (giáo viên) ----------
@@ -5870,6 +6037,238 @@ function renderChatLesson(root, topic, options = {}) {
   return { restart, showSummary };
 }
 
+
+/* ---------- Chặng Tự luận: giải bài tự luận cùng Cherry kiểu chat (thầy duyệt 28/11/2026, bản thử 1) ----------
+   Nội dung là khối \begin{giaimau} của chủ đề Bài mẫu (cú pháp ở lib/latex.js), thêm \huong, \goiy, \kiemtra sau mỗi \buocgiai.
+   Mỗi bước: Cherry nêu mục tiêu và hướng → học sinh viết vào vở (bí thì xin gợi ý) → câu kiểm tra nhỏ (2 lần thử)
+   → hiện dòng trình bày mẫu để so với vở. Hình ghim trên cùng (thu nhỏ/phóng to được), phần đang dùng tô cam.
+   Sơ đồ đi lên trong giaimau được bỏ qua (thầy chọn không dùng). Công thức không cắt, không thu nhỏ.
+   options: studentName, figImg(code)→html, typeset(node), start (số câu đã xong, để làm tiếp), firstTime (lần đầu làm trọn → có ⭐),
+            onProgress(soCauXong, tongSoCau), onFinish({xp, first, n}), onClose(), sfx {tap, ok, no}, teacher */
+const TL_PRAISE = ['Chuẩn luôn!', 'Đúng rồi!', 'Giỏi quá!', 'Chính xác!'];
+const TL_CHECKS = ['Sau mỗi kết luận có ghi lý do (tính chất, định lí nào)', 'Điểm, đoạn vẽ thêm có câu “Gọi …” trước khi dùng', 'Điều kiện (nếu có) được ghi và đối chiếu', 'Cuối mỗi câu có câu kết luận “Vậy …”'];
+const tlEsc = v => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+// Chữ có công thức: thoát HTML ngoài công thức, giữ nguyên $…$, $$…$$, \[…\] cho MathJax; \\ xuống dòng; \textbf{…} in đậm
+function tlText(value) {
+  const src = String(value ?? '');
+  const re = /\$\$[\s\S]*?\$\$|\\\[[\s\S]*?\\\]|\$(?:\\.|[^$\\])*\$|\\textbf\s*\{([^{}]*)\}|\\\\/g;
+  let out = '', from = 0;
+  for (const m of src.matchAll(re)) {
+    out += tlEsc(src.slice(from, m.index));
+    const t = m[0];
+    if (t === '\\\\') out += '<br>';
+    else if (m[1] !== undefined) out += '<b>' + tlText(m[1]) + '</b>';
+    else if (t.startsWith('$$') || t.startsWith('\\[')) out += '<span class="tl-eq">' + tlEsc(t) + '</span>';
+    else { // công thức trong dòng: dính liền dấu câu ngay sau nó để không xuống dòng trước dấu phẩy, dấu chấm
+      const p = /^[.,;:!?)]+/.exec(src.slice(m.index + t.length)), tail = p ? p[0] : '';
+      out += tail ? `<span class="tl-nb">${tlEsc(t)}${tlEsc(tail)}</span>` : tlEsc(t);
+      from = m.index + t.length + tail.length; continue;
+    }
+    from = m.index + t.length;
+  }
+  return out + tlEsc(src.slice(from));
+}
+const tlLines = v => String(v ?? '').split(/\\\\/).map(s => s.trim()).filter(Boolean);
+// Dòng chỉ có một công thức (kèm dấu câu) thì đặt riêng, căn giữa, cuộn ngang được nếu dài hơn màn hình
+const tlPara = v => tlLines(v).map(l => { const m = /^\$([^$]+)\$\s*([.,;:]?)$/.exec(l); return m ? `<p class="tl-eq">${tlEsc('$$' + m[1] + (m[2] ? '\\,' + m[2] : '') + '$$')}</p>` : `<p>${tlText(l)}</p>`; }).join('');
+// Trộn phương án cố định theo nội dung câu hỏi (cùng câu luôn cùng thứ tự)
+function tlShuffle(arr, seed) {
+  let h = 2166136261; for (const c of String(seed)) h = Math.imul(h ^ c.charCodeAt(0), 16777619);
+  const a = arr.map((x, i) => ({ x, i })); for (let i = a.length - 1; i > 0; i--) { h = Math.imul(h ^ i, 16777619); const j = (h >>> 0) % (i + 1); [a[i], a[j]] = [a[j], a[i]]; }
+  return a;
+}
+const tlNum = v => { const x = String(v).replace(/\s/g, '').replace(',', '.').replace(/^[a-zA-Z]+=/, ''); const f = /^(-?\d+(?:\.\d+)?)\/(\d+(?:\.\d+)?)$/.exec(x); return f ? Number(f[1]) / Number(f[2]) : x === '' ? NaN : Number(x); };
+const tlSame = (a, b) => Number.isFinite(a) && Math.abs(a - b) < 1e-9;
+function tuLuanSource(raw) { const m = [...String(raw || '').matchAll(GIAIMAU)][0]; return m ? m[1] : ''; }
+function tuLuanInfo(raw) { const g = parseGiaiMau(tuLuanSource(raw)); return { cau: Math.max(1, g.items.filter(x => x.k === 'cau').length), steps: g.steps, errors: g.errors }; }
+
+function renderTuLuan(root, topic, options = {}) {
+  const run = (root._tlRun = (root._tlRun || 0) + 1), alive = () => { if (root._tlRun !== run) throw 'tl-abort'; };
+  const g = parseGiaiMau(tuLuanSource(topic.raw)), name = String(options.studentName || '').trim().split(/\s+/).at(-1) || 'cậu';
+  const figOf = code => (code && options.figImg ? options.figImg(code) : '');
+  const sfx = options.sfx || {};
+  const avatar = typeof CHAT_AVATAR === 'string' ? CHAT_AVATAR : '';
+  const cauItems = g.items.filter(x => x.k === 'cau'), nCau = Math.max(1, cauItems.length);
+  const totStep = {}; { let c = 0; for (const it of g.items) { if (it.k === 'cau') c++; if (it.k === 'buocgiai') totStep[c] = (totStep[c] || 0) + 1; } }
+  root.innerHTML = `<div class="tl">
+    <div class="tl-top"><button type="button" class="tl-x" aria-label="Thoát">×</button><div class="tl-prog" aria-label="Tiến độ"><b></b></div><span class="tl-xp">⭐ 0</span><button type="button" class="tl-mini" data-de>Đề</button><button type="button" class="tl-mini" data-sol>Lời giải</button></div>
+    <div class="tl-part">${tlEsc(topic.title || 'Bài tự luận')}</div>
+    <div class="tl-body"><div class="tl-pin" hidden><div class="tl-pinbar"><span>Hình vẽ · phần đang dùng tô cam</span><span><button type="button" data-small>Thu nhỏ</button><button type="button" data-big>Phóng to</button></span></div><div class="tl-pinfig"></div></div>
+    <div class="tl-feed" aria-live="polite"></div></div>
+    <div class="tl-foot"></div></div>`;
+  const $q = s => root.querySelector(s);
+  const feed = $q('.tl-feed'), foot = $q('.tl-foot'), pin = $q('.tl-pin'), pinFig = $q('.tl-pinfig');
+  let xp = 0, last = '', curFig = '', first = 0, nGuess = 0;
+  const lines = [];
+  const typeset = node => {
+    if (options.typeset) return Promise.resolve(options.typeset(node)).then(scroll);
+    const M = globalThis.MathJax;
+    if (M && M.typesetPromise && (globalThis.__mjReady || M.startup?.document)) return M.typesetPromise([node]).then(scroll).catch(() => {});
+    setTimeout(() => node.isConnected && typeset(node), 300);
+  };
+  const scroll = () => { feed.scrollTop = feed.scrollHeight; };
+  const sleep = ms => new Promise(r => setTimeout(r, ms)).then(alive);
+  const setXP = n => { xp = Math.max(0, xp + n); const e = $q('.tl-xp'); e.textContent = '⭐ ' + xp; if (n) { e.classList.remove('pop'); void e.offsetWidth; e.classList.add('pop'); } };
+  function turn(who) {
+    const d = document.createElement('div');
+    if (who === 'me') { d.className = 'tl-me-row'; feed.appendChild(d); last = 'me'; return d; }
+    const cont = last === 'c'; d.className = 'tl-turn'; d.innerHTML = (cont ? '<span></span>' : avatar) + '<div class="tl-col"></div>';
+    feed.appendChild(d); last = 'c'; return d.querySelector('.tl-col');
+  }
+  async function cherry(html, cls = '') {
+    const col = turn('c'), b = document.createElement('div'); b.className = 'tl-bub'; b.innerHTML = '<div class="tl-dots"><i></i><i></i><i></i></div>';
+    col.appendChild(b); scroll();
+    await sleep(Math.min(850, 280 + html.replace(/<[^>]+>|\$[^$]*\$/g, 'xx').length * 4));
+    b.className = 'tl-bub ' + cls; b.innerHTML = html; typeset(b); scroll(); return b;
+  }
+  function block(html) { const col = turn('c'), d = document.createElement('div'); d.innerHTML = html; col.appendChild(d); typeset(d); scroll(); return d; }
+  function me(html) { const r = turn('me'); r.innerHTML = `<div class="tl-me">${html}</div>`; typeset(r); scroll(); }
+  function divider(t) { const d = document.createElement('div'); d.className = 'tl-div'; d.innerHTML = `<span>${t}</span>`; feed.appendChild(d); last = ''; }
+  function buttons(list) {
+    return new Promise(res => {
+      foot.innerHTML = '';
+      list.forEach((b, k) => { const e = document.createElement('button'); e.type = 'button'; e.className = 'tl-go' + (b.alt ? ' alt' : ''); e.innerHTML = b.t;
+        e.onclick = () => { if (root._tlRun !== run) return; sfx.tap?.(); foot.innerHTML = ''; res(k); }; foot.appendChild(e); });
+    });
+  }
+  function askMC(opts, dis) {
+    return new Promise(res => {
+      let pick = null; const col = turn('c'), box = document.createElement('div'); box.className = 'tl-opts';
+      const btn = document.createElement('button'); btn.type = 'button'; btn.className = 'tl-go'; btn.textContent = 'Kiểm tra'; btn.disabled = true;
+      opts.forEach(({ x, i }) => { const e = document.createElement('button'); e.type = 'button'; e.className = 'tl-opt'; e.innerHTML = tlText(x.t); e.dataset.i = i;
+        if (dis.has(i)) { e.disabled = true; e.classList.add('off'); }
+        e.onclick = () => { if (box.dataset.done) return; box.querySelectorAll('.tl-opt').forEach(y => y.classList.toggle('sel', y === e)); pick = i; btn.disabled = false; };
+        box.appendChild(e); });
+      col.appendChild(box); typeset(box); scroll(); foot.innerHTML = '';
+      btn.onclick = () => { if (root._tlRun !== run || pick == null) return; box.dataset.done = 1; box.querySelectorAll('.tl-opt').forEach(y => { y.disabled = true; });
+        foot.innerHTML = ''; res({ i: pick, el: box.querySelector(`[data-i="${pick}"]`) }); };
+      foot.appendChild(btn);
+    });
+  }
+  function askNum() {
+    return new Promise(res => {
+      const col = turn('c'), w = document.createElement('div'); w.className = 'tl-num';
+      w.innerHTML = '<input inputmode="decimal" autocomplete="off" placeholder="Nhập đáp số, ví dụ 3/2" aria-label="Đáp số">'; col.appendChild(w); scroll();
+      const inp = w.querySelector('input'), btn = document.createElement('button'); btn.type = 'button'; btn.className = 'tl-go'; btn.textContent = 'Kiểm tra'; btn.disabled = true; foot.innerHTML = '';
+      inp.oninput = () => { btn.disabled = !inp.value.trim(); };
+      const go = () => { if (root._tlRun !== run || !inp.value.trim()) return; inp.disabled = true; foot.innerHTML = ''; res({ raw: inp.value.trim(), v: tlNum(inp.value) }); };
+      btn.onclick = go; inp.onkeydown = e => { if (e.key === 'Enter') go(); }; foot.appendChild(btn);
+      setTimeout(() => inp.focus({ preventScroll: true }), 60);
+    });
+  }
+  // Câu hỏi (đoán hướng hoặc kiểm tra bước): 2 lần thử, sai thì giải thích theo đúng đáp án đã chọn
+  async function check(c, gain, label = '') {
+    await cherry(label + tlText(c.q), 'q');
+    const dis = new Set(), order = c.type === 'mc' ? tlShuffle(c.opts, c.q) : null;
+    for (let a = 0; a < 2; a++) {
+      if (c.type === 'mc') {
+        const r = await askMC(order, dis), o = c.opts[r.i]; me(tlText(o.t));
+        if (o.ok) { r.el.classList.add('ok'); sfx.ok?.(); setXP(gain[a]); await cherry(`✔ ${TL_PRAISE[(xp >> 1) % 4]} ${tlText(o.ex)}`, 'ok'); return a === 0; }
+        r.el.classList.add('no'); sfx.no?.(); dis.add(r.i); await cherry('✘ ' + tlText(o.ex), 'no');
+      } else {
+        const r = await askNum(); me(tlEsc(r.raw));
+        if (tlSame(r.v, c.ans)) { sfx.ok?.(); setXP(gain[a]); await cherry(`✔ ${TL_PRAISE[(xp >> 1) % 4]} ${tlText(c.ex)}`, 'ok'); return a === 0; }
+        sfx.no?.(); const w = c.wrong.find(x => tlSame(r.v, x.v));
+        await cherry('✘ ' + (w ? tlText(w.ex) : 'Chưa đúng. Cậu xem lại bước này trong vở nhé.'), 'no');
+      }
+      if (a === 0) await cherry('Cậu thử lại một lần nữa nhé.');
+    }
+    if (c.type === 'mc') { const r = c.opts.find(o => o.ok); await cherry(`Đáp án đúng là: ${tlText(r.t)}. ${tlText(r.ex)}`); }
+    else await cherry(`Đáp án đúng là ${tlText(c.ansText)}. ${tlText(c.ex)}`);
+    return false;
+  }
+  function setFig(code) {
+    if (!g.tikz || !code || code === curFig) return; curFig = code; pinFig.innerHTML = figOf(code);
+    if (!pin.hidden) { pin.classList.remove('flash'); void pin.offsetWidth; pin.classList.add('flash'); }
+  }
+  const solCard = (body, why) => `<div class="tl-sol"><span class="tl-lb">✍️ Trình bày trong vở</span>${tlPara(body)}${why ? `<details><summary>Vì sao?</summary><p>${tlText(why)}</p></details>` : ''}</div>`;
+  function sheetSol() {
+    if (!lines.length) return '<p>Chưa có bước nào.</p>';
+    let h = '', cur = null; for (const l of lines) { if (l.cau !== cur) { cur = l.cau; if (cur) h += `<h4>${tlText(cur)}</h4>`; } h += tlPara(l.body); } return `<div class="tl-sheetsol">${h}</div>`;
+  }
+  function sheet(title, html) {
+    const s = document.createElement('div'); s.className = 'tl-sheet'; s.innerHTML = `<div><button type="button" class="tl-close" aria-label="Đóng">×</button><h3>${title}</h3>${html}</div>`;
+    s.onclick = e => { if (e.target === s || e.target.closest('.tl-close')) s.remove(); }; root.querySelector('.tl').appendChild(s); typeset(s);
+  }
+  $q('.tl-x').onclick = () => { root._tlRun++; options.onClose?.(); };
+  $q('[data-de]').onclick = () => sheet('Đề bài', `<div>${tlText(g.de)}</div>${g.full ? `<div class="tl-figcard">${figOf(g.full)}</div>` : ''}`);
+  $q('[data-sol]').onclick = () => sheet('Tờ lời giải', sheetSol());
+  $q('[data-small]').onclick = e => { const s = pin.classList.toggle('small'); e.target.textContent = s ? 'Phóng vừa' : 'Thu nhỏ'; };
+  $q('[data-big]').onclick = () => { const d = document.createElement('div'); d.className = 'tl-big'; d.innerHTML = `<button type="button" class="tl-close" aria-label="Đóng">×</button>${figOf(curFig)}`;
+    d.querySelector('.tl-close').onclick = () => d.remove(); root.querySelector('.tl').appendChild(d); };
+
+  async function play(start) {
+    const bar = $q('.tl-prog b');
+    await cherry(`Chào ${tlEsc(name)}! Hôm nay tụi mình giải bài này cùng nhau nhé. Cậu đọc kỹ đề trước đã.`);
+    block(`<div class="tl-card"><span class="tl-kind">Đề bài</span><div>${tlText(g.de)}</div></div>`);
+    if (g.full) block(`<div class="tl-figcard">${figOf(g.full)}</div>`);
+    if (start > 0 && start < nCau) {
+      await cherry(`Lần trước cậu đã làm xong ${start}/${nCau} câu. Mình làm tiếp nhé?`);
+      if (await buttons([{ t: `Làm tiếp ${tlEsc(cauItems[start]?.title || '')}` }, { t: 'Làm lại từ đầu', alt: 1 }])) start = 0;
+      me(start ? 'Làm tiếp thôi!' : 'Làm lại từ đầu!');
+    } else {
+      start = 0;
+      await cherry('Mỗi bước, tớ nêu hướng làm, cậu <b>viết vào vở</b>, rồi tớ hỏi một câu nhỏ để kiểm tra. Bí thì bấm “Tớ bí rồi” nhé.');
+      await buttons([{ t: 'Tớ đọc đề xong rồi' }]); me('Tớ đọc đề xong rồi!');
+    }
+    let c = 0, cauName = '', no = 0;
+    for (let i = 0; i < g.items.length; i++) {
+      const it = g.items[i]; bar.style.width = (i / g.items.length * 100) + '%';
+      if (it.k === 'cau') { if (c > 0 && c > start) options.onProgress?.(c, nCau); c++; cauName = it.title; no = 0; }
+      if (c - 1 < start && cauItems.length) { if (it.k === 'buocgiai') lines.push({ cau: cauName, body: it.body }); continue; } // câu đã xong lần trước
+      if (it.k === 'cau') {
+        divider(tlText(it.title)); $q('.tl-part').innerHTML = tlEsc(topic.title || '') + ' · ' + tlText(it.title); typeset($q('.tl-part'));
+        setFig(it.frame);
+        if (g.tikz && pin.hidden) { pin.hidden = false; await cherry('Tớ ghim hình lên trên cùng rồi. Đến bước nào, phần đang dùng sẽ sáng màu cam. Cần chỗ đọc rộng hơn thì bấm “Thu nhỏ”.'); }
+        await cherry(`<b>${tlText(it.title)}.</b> ${tlText(it.body)}`); await sleep(200);
+      } else if (it.k === 'doan') {
+        setFig(it.frame); nGuess++;
+        if (await check({ type: 'mc', q: it.q, opts: it.opts }, [5, 2], '🤔 <b>Đoán thử:</b> ')) first++;
+      } else if (it.k === 'nhanxet') {
+        await cherry(`<b>Nhận xét.</b> ${tlPara(it.body)}`);
+      } else if (it.k === 'buocgiai') {
+        no++; setFig(it.frame);
+        if (g.tikz && pin.hidden) pin.hidden = false;
+        await cherry(`<span class="tl-step">Bước ${no}${totStep[c] ? '/' + totStep[c] : ''}</span><br><b>${tlText(it.goal)}</b>${it.lead ? `<p>${tlText(it.lead)}</p>` : ''}`);
+        await cherry('Cậu viết bước này vào vở nhé. Xong thì bấm <b>Tớ viết xong</b>.');
+        const ladder = it.hints && it.hints.length ? it.hints : (it.why ? [it.why] : []);
+        let h = 0, shown = false;
+        for (;;) {
+          const opts = [{ t: 'Tớ viết xong ✍️' }];
+          if (h < ladder.length) opts.push({ t: h ? 'Vẫn bí · −2⭐' : 'Tớ bí rồi · −2⭐', alt: 1 }); else opts.push({ t: 'Cho tớ xem bước này', alt: 1 });
+          const k = await buttons(opts);
+          if (k === 0) { me('Tớ viết xong rồi!'); break; }
+          if (h >= ladder.length) { me('Cho tớ xem bước này'); shown = true; break; }
+          me(h ? 'Vẫn bí…' : 'Tớ bí rồi…'); setXP(-2);
+          await cherry(`💡 <b>Gợi ý ${h + 1}:</b> ${tlText(ladder[h])}`, 'hint'); h++;
+        }
+        lines.push({ cau: cauName, body: it.body });
+        if (shown) {
+          await cherry('Không sao, bước này trình bày thế này nhé. Cậu chép vào vở rồi đọc lại xem vì sao lại viết như vậy:');
+          block(solCard(it.body, it.why)); await buttons([{ t: 'Tớ chép xong rồi' }]); me('Tớ chép xong rồi!'); continue;
+        }
+        if (it.check) await check(it.check, [10, 4]);
+        else { setXP(3); await cherry('Bước này không có câu hỏi, cậu được +3⭐ vì đã tự viết.'); }
+        await cherry('Cậu so vở của mình với cách trình bày này nhé:');
+        block(solCard(it.body, it.why)); await buttons([{ t: 'Tiếp tục' }]);
+      }
+    }
+    bar.style.width = '100%'; divider('Hoàn thành'); if (g.full) setFig(g.full);
+    const firstTime = options.firstTime !== false && !options.teacher;
+    options.onProgress?.(nCau, nCau);
+    options.onFinish?.({ xp: firstTime ? xp : 0, first, n: nGuess });
+    await cherry(firstTime ? `Xong cả bài rồi, ${tlEsc(name)}! Cậu được <b>⭐ ${xp}</b>.` : `Xong cả bài rồi, ${tlEsc(name)}! Bài này cậu đã làm trọn trước đây nên lần này không cộng thêm ⭐ nhé.`);
+    await cherry('Đây là lời giải hoàn chỉnh, cậu so từng dòng với vở nhé:');
+    block(`<div class="tl-card"><span class="tl-kind">Lời giải</span>${sheetSol()}</div>`);
+    await cherry('Trước khi gấp vở, cậu tự kiểm lại theo danh sách này:');
+    block(`<div class="tl-card"><span class="tl-kind">Tự kiểm vở</span><ul class="tl-ticks">${TL_CHECKS.map(x => `<li><label><input type="checkbox">${tlEsc(x)}</label></li>`).join('')}</ul></div>`);
+    const k = await buttons([{ t: options.doneLabel || 'Về chặng Tự luận' }, { t: 'Làm lại từ đầu', alt: 1 }]);
+    if (k === 0) { root._tlRun++; options.onClose?.(); } else renderTuLuan(root, topic, { ...options, start: 0, firstTime: false });
+  }
+  play(Math.max(0, Math.min(Number(options.start) || 0, nCau))).catch(e => { if (e !== 'tl-abort') console.error(e); });
+  return { dispose() { root._tlRun++; } };
+}
+
 const THK={dinhnghia:['Định nghĩa','#3aa8e0'],quytac:['Quy tắc','#2fb787'],congthuc:['Công thức','#ffb703'],dinhly:['Định lý','#8d7bff'],tinhchat:['Tính chất','#8d7bff'],luuy:['Lưu ý','#ef3b55'],vidu:['Ví dụ','#7a9399']};
 function theoryHTML(items){let nv=0;return (items||[]).map(it=>{const [n,c]=THK[it.k]||['',  '#7a9399'];
   if(it.k==='hinhbuoc')return `<div class="thc hbwrap">${tex(it.body)}</div>`;
@@ -6970,10 +7369,11 @@ function track(){show('track');$('#trTitle').textContent='Theo dõi khối '+cur
   const A=ASG.filter(a=>a.khoi===kh).sort((a,b)=>(a.created||'').localeCompare(b.created||'')).slice(-6);
   const ptOf=v=>k=>{const b=v.best&&v.best[k];return b&&b.st>0?(b.t||'1970'):null};
   const agg={};for(const v of st)for(const [k,w] of Object.entries(v.wst||{})){if(!w.d||w.d<addDays(today,-14))continue;const g=agg[k]||(agg[k]={n:0,w:0,who:0});g.n+=w.n;g.w+=w.w;if(w.w)g.who++}
+  const tlAll=TOPICS.filter(t=>t.khoi===kh&&isBM(t)&&t.status==='giao'&&!t.errors.length),tlOf=v=>tlAll.filter(t=>tlDone((v.bm||{})[t.id])).length; // Tự luận: chỉ đánh dấu đã làm, không điểm
   const hard=Object.entries(agg).filter(([k,g])=>g.n>=3&&g.w>0&&ix[k]).sort((a,b)=>b[1].w/b[1].n-a[1].w/a[1].n||b[1].w-a[1].w).slice(0,8);
-  $('#trk').innerHTML=`<div class="tbox"><div class="scrollx"><table class="trk"><thead><tr><th>Học sinh</th><th>Chuỗi</th><th>Rank</th>${A.map(a=>`<th>${esc(((TOPICS.find(t=>t.id===a.topicId)||{}).title||'?').slice(0,14))}<div class="th2">${a.due?fmtDue(a.due):'không hạn'}</div></th>`).join('')}<th>Câu sai</th></tr></thead>
-    <tbody>${st.map(v=>`<tr><td class="nm"><button class="lnk" data-rp="${v.id}">${esc(v.name||'?')}</button>${v.mau?' <small>(mẫu)</small>':''}</td><td>${liveStreak(v.st||{},today)||'—'}</td><td>${TIERS[tierP(v)].n}<div class="th2">${progTxt(tierP(v),v)}</div></td>${A.map(a=>{const s=asgStatus(a,ptOf(v));const c=s.complete?(s.late?'late':'ok'):s.overdue?'miss':'part';return `<td class="cell ${c}">${s.complete?(s.late?'Muộn':'✓'):s.passed+'/'+s.need}</td>`}).join('')}<td>${Object.values(v.rev||{}).filter(r=>r.in_notebook).length}</td></tr>`).join('')}</tbody></table></div>
-    ${st.length?'':'<p>Chưa có học sinh khối này chơi.</p>'}<p class="tnote">✓ đúng hạn · Muộn: xong sau hạn · a/b: đã qua a trên b màn · đỏ: quá hạn chưa xong. Bấm tên học sinh để tạo báo cáo gửi phụ huynh.</p></div>
+  $('#trk').innerHTML=`<div class="tbox"><div class="scrollx"><table class="trk"><thead><tr><th>Học sinh</th><th>Chuỗi</th><th>Rank</th>${A.map(a=>`<th>${esc(((TOPICS.find(t=>t.id===a.topicId)||{}).title||'?').slice(0,14))}<div class="th2">${a.due?fmtDue(a.due):'không hạn'}</div></th>`).join('')}<th>Câu sai</th>${tlAll.length?`<th>Tự luận<div class="th2">${tlAll.length} bài</div></th>`:''}</tr></thead>
+    <tbody>${st.map(v=>`<tr><td class="nm"><button class="lnk" data-rp="${v.id}">${esc(v.name||'?')}</button>${v.mau?' <small>(mẫu)</small>':''}</td><td>${liveStreak(v.st||{},today)||'—'}</td><td>${TIERS[tierP(v)].n}<div class="th2">${progTxt(tierP(v),v)}</div></td>${A.map(a=>{const s=asgStatus(a,ptOf(v));const c=s.complete?(s.late?'late':'ok'):s.overdue?'miss':'part';return `<td class="cell ${c}">${s.complete?(s.late?'Muộn':'✓'):s.passed+'/'+s.need}</td>`}).join('')}<td>${Object.values(v.rev||{}).filter(r=>r.in_notebook).length}</td>${tlAll.length?`<td class="cell ${tlOf(v)?'ok':''}">${tlOf(v)?'✓ '+tlOf(v):'—'}${Object.keys(v.tlr||{}).length?` · 🎁${Object.keys(v.tlr).length}`:''}</td>`:''}</tr>`).join('')}</tbody></table></div>
+    ${st.length?'':'<p>Chưa có học sinh khối này chơi.</p>'}<p class="tnote">✓ đúng hạn · Muộn: xong sau hạn · a/b: đã qua a trên b màn · đỏ: quá hạn chưa xong. Tự luận: ✓ số bài đã làm trọn, 🎁 số rương đã mở (không có điểm). Bấm tên học sinh để tạo báo cáo gửi phụ huynh.</p></div>
    ${deScores(kh,st)}
    ${teacherExtra(kh,st,ix)}
    <h2 class="sect">Câu khối ${kh} sai nhiều nhất (14 ngày)</h2>
@@ -7211,6 +7611,9 @@ function pushMine(){if(!DB||!ACC||ACC.teacher||DBSTATE!=='ok')return;wq=wq.then(
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&syncT){clearTimeout(syncT);syncT=null;pushMine()}});
 function mergeP(d){const m0=P.matches||0;
   if(d.thd)P.thd={...d.thd,...(P.thd||{})}; // bài đã học lý thuyết cùng Cherry (gộp hai máy)
+  // Tự luận (gộp hai máy): mỗi bài lấy bản tiến xa hơn (đã làm trọn > nhiều câu hơn); rương đã mở giữ lại
+  if(d.bm){P.bm=P.bm||{};const lv=e=>e?(tlDone(e)?1e3:0)+(Number(e.c)||0):-1;for(const [k,v] of Object.entries(d.bm))if(lv(v)>lv(P.bm[k]))P.bm[k]=v}
+  if(d.tlr)P.tlr={...d.tlr,...(P.tlr||{})};
   if(d.rev&&Object.keys(d.rev).length>Object.keys(P.rev||{}).length)P.rev=d.rev;
   if(d.saved&&Object.keys(d.saved).length>Object.keys(P.saved||{}).length)P.saved=d.saved;
   if(d.st&&(d.st.last_day||'')>(P.st.last_day||''))P.st=d.st;

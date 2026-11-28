@@ -327,6 +327,8 @@ Tính $({{a}}{{+b}})^2$.
 
 ### 3.9 Bài giải mẫu từng bước, Bài mẫu theo chương, hướng dẫn tự luận
 
+> **Cập nhật 28/11/2026:** Bài mẫu theo chương nay là **bài của chặng Tự luận** trên bản đồ (chat cùng Cherry, sau bài cuối chương). Khi soạn bài cho chặng này, sau mỗi `\buocgiai` thêm `\huong{…}`, `\goiy{…}`, `\kiemtra{…}` và không dùng sơ đồ. Yêu cầu soạn đầy đủ để chép: `docs/tu-luan/yeu-cau-gemini.md`.
+
 Ba chỗ dùng cùng một cú pháp: **ví dụ dài trong lý thuyết** (khối `giaimau` đặt trong `lythuyet`), **Bài mẫu theo chương** (chủ đề riêng, mở từ biển tên chương), **gợi ý từng bước cho đề Ôn tập tự luận** (khối `huongdan` trong `extl`). App tự chia thành từng màn: đề bài → yêu cầu từng câu → học sinh đoán hướng → từng bước giải (mục tiêu, các dòng, "Vì sao?") → sơ đồ phân tích đi lên → nhận xét. Hình ghim ở trên, phần đang dùng tô cam theo từng bước.
 
 **Cú pháp `giaimau`** (mẫu đầy đủ: `docs/mau/giaimau-tiep-tuyen.tex`):
