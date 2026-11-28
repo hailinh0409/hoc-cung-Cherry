@@ -105,8 +105,8 @@ function thSummary(t,from='th'){const body=$('#thBody'),L=lessonOfT(t),name=L.nu
   const route=routeTopics(t.khoi),i=route.findIndex(x=>x.id===t.id),can=hasQ(t)&&(i<0||topicOpen(route,i));
   body._lectureDispose?.();body.classList.remove('lstep-host','chat-host');thT=null;curT=t;show('theory');
   const back=()=>{sfx.tap();from==='th'?thIdx():journey()},practice=()=>{sfx.tap();curT=t;startLevel()},learn=()=>{sfx.tap();theory(t)};
-  const acts=from==='th'?[{label:'Mở chặng trên bản đồ',onClick:()=>{sfx.tap();curK=t.khoi;journey();lessonPick(t)}},{label:'Về danh sách bài',alt:true,onClick:back}]
-    :[...(can?[{label:'Làm bài luôn',onClick:practice}]:[]),{label:'Học từ đầu cùng Cherry',alt:can,onClick:learn}];
+  const acts=from==='th'?[{label:'Mở trên bản đồ',onClick:()=>{sfx.tap();curK=t.khoi;journey();lessonPick(t)}},{label:'Về danh sách',alt:true,onClick:back}]
+    :[...(can?[{label:'Làm bài luôn',onClick:practice}]:[]),{label:'Học cùng Cherry',alt:can,onClick:learn}];
   if(showsChat(t)){body.classList.add('chat-host');renderChatInApp(body,t,{summaryOnly:true,title:name,onClose:back,summaryActions:acts});return}
   body.innerHTML=`<div class="thsum"><div class="thsum-top"><button type="button" class="ico" id="tsB" aria-label="Quay lại">${backIco}</button><div><small>Tóm tắt lý thuyết</small><b>${esc(name)}</b></div></div>
     <div id="tsBody"></div><div class="thsum-btns">${acts.map((a,k)=>`<button type="button" class="btn${a.alt?' alt':''}" data-a="${k}">${esc(a.label)}</button>`).join('')}</div></div>`;
