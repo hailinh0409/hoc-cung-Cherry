@@ -436,3 +436,4 @@ textarea.code.light{background:#fff;color:#12313a;font:14px/1.5 "Be Vietnam Pro"
 .opt.pick{box-shadow:0 0 0 4px #7c5cff,0 5px 0 #5a3fd6}
 .va.me{background:#ece7ff;color:#2d1f6b;font-weight:700}
 .rvq .stem{margin-top:6px}.rvq .row2 b.y{color:#0c6b3f}.rvq .row2 b.n{color:#a1202f}.rvq .srow{margin-top:8px}
+#subjBody > .foot .btn{flex:1 1 40%}

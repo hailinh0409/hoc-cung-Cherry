@@ -15,7 +15,7 @@ export async function POST(req) {
   const note = String(b.note || '').replace(/\s+/g, ' ').trim().slice(0, 300);
   if (!KIND.includes(kind) || !qkey || !slug) return fail('Thiếu thông tin câu hỏi');
   let snap = b.snap && typeof b.snap === 'object' ? b.snap : {};
-  if (JSON.stringify(snap).length > 12000) snap = { stem: String(snap.stem || '').slice(0, 3000), title: snap.title, level: snap.level, ans: snap.ans, ok: snap.ok, cut: true };
+  if (JSON.stringify(snap).length > 12000) snap = { stem: String(snap.stem || '').slice(0, 3000), title: snap.title, level: snap.level, ans: snap.ans, my: snap.my, ok: snap.ok, cut: true };
   if (hoi) snap = { ...snap, hoi: true }; else delete snap.hoi;
   const db = admin();
   const { data: t } = await db.from('ltt_topics').select('id').eq('slug', slug).maybeSingle();
