@@ -6,6 +6,8 @@ Khi Claude tiếp quản phần lý thuyết, đọc [Bàn giao lý thuyết tư
 
 **Lý thuyết kiểu chat với Cherry (thầy duyệt 27/11/2026, thay cho giao diện bài giảng có hình ghim):** kế hoạch và việc cho Codex: [docs/bai-chat/ke-hoach.md](docs/bai-chat/ke-hoach.md); cú pháp khối `baichat`: [docs/bai-chat/cu-phap.md](docs/bai-chat/cu-phap.md); bài mẫu: [docs/bai-chat/k7-chuyen-ve.tex](docs/bai-chat/k7-chuyen-ve.tex). Phân công: Codex viết mã, Gemini soạn bài, Claude chỉ đạo và duyệt.
 
+**Chặng Tự luận trên bản đồ (thầy duyệt 28/11/2026):** bài tự luận giải cùng Cherry kiểu chat, nằm sau bài cuối mỗi chương, rương mở khi làm trọn 2 bài. Bài là chủ đề Bài mẫu (`giaimau` + `\huong`, `\goiy`, `\kiemtra`). Yêu cầu soạn để chép cho Gemini: [docs/tu-luan/yeu-cau-gemini.md](docs/tu-luan/yeu-cau-gemini.md); bàn giao: [docs/tien-do/claude-tu-luan-chat.md](docs/tien-do/claude-tu-luan-chat.md).
+
 **Bài giảng kiểu mới (thầy duyệt 26/11/2026):** lý thuyết có Mở đầu → Mục lục → các Phần → Kết bài, hình chung theo phần, chạm thử trên hình. Kế hoạch và các việc cho người viết mã: [docs/bai-giang/ke-hoach.md](docs/bai-giang/ke-hoach.md); cú pháp soạn: [docs/bai-giang/cu-phap.md](docs/bai-giang/cu-phap.md); bài mẫu Toán 7 Bài 9: [docs/bai-giang/k7-b9-bai-giang.tex](docs/bai-giang/k7-b9-bai-giang.tex).
 
 Chủ dự án: **thầy Phan Hải Linh** (GitHub `hailinh0409`). Thầy là người duy nhất gộp (merge) vào `main`.

@@ -19,7 +19,7 @@ const canOpenSpecial = () => GV() || specialAccess;
 const gradeTiles = () => canOpenSpecial() ? [...GRADES, SPECIAL_GRADE] : GRADES;
 // Học sinh chỉ vào được khối của mình (và Chuyên Toán nếu được mở); các khối khác hiện màu xám, có khoá. Giáo viên vào mọi khối.
 const gradeLocked = k => !GV() && !!ACC && !!ACC.khoi && k !== CHUYEN_TOAN && k !== ACC.khoi;
-const PHAN={'dai-so':{name:'Đại số',c:'#3aa8e0',d:'#2584b8'},'hinh-hoc':{name:'Hình học',c:'#2fb787',d:'#1f8a63'},'thong-ke':{name:'Thống kê & Xác suất',c:'#ff9f1c',d:'#d97f00'},'on-tap':{name:'Ôn tập',c:'#8d7bff',d:'#6a57e0'},'thi-dau':{name:'Kho Thi đấu',c:'#ef3b55',d:'#c22a40'},'bai-mau':{name:'Bài mẫu',c:'#ff7a59',d:'#d9573a'}};
+const PHAN={'dai-so':{name:'Đại số',c:'#3aa8e0',d:'#2584b8'},'hinh-hoc':{name:'Hình học',c:'#2fb787',d:'#1f8a63'},'thong-ke':{name:'Thống kê & Xác suất',c:'#ff9f1c',d:'#d97f00'},'on-tap':{name:'Ôn tập',c:'#8d7bff',d:'#6a57e0'},'thi-dau':{name:'Kho Thi đấu',c:'#ef3b55',d:'#c22a40'},'bai-mau':{name:'Tự luận',c:'#ff7a59',d:'#d9573a'}};
 const TIERS=[{n:'Đồng',lp:0,c:'#c08457',d:'#8a5a33'},{n:'Bạc',lp:100,c:'#c3ced6',d:'#8a9aa6'},{n:'Vàng',lp:200,c:'#ffd23f',d:'#c99a08'},{n:'Bạch Kim',lp:350,c:'#4fd1c5',d:'#2a9d93'},
   {n:'Kim Cương',lp:500,c:'#6aa8ff',d:'#3f78d6'},{n:'Cao Thủ',lp:700,c:'#b36bff',d:'#8442d6'},{n:'Đại Cao Thủ',lp:900,c:'#ff5d6c',d:'#c8323f'},{n:'Thách Đấu',lp:1200,c:'#ffb800',d:'#b97f00'}];
 const tierOf=lp=>{let t=0;TIERS.forEach((x,i)=>{if((lp||0)>=x.lp)t=i});return t}; // chỉ dùng cho dữ liệu cũ (chưa có bậc riêng)
@@ -203,7 +203,7 @@ const GV=()=>TEACHER&&!!ACC&&!!ACC.teacher;
 const bestOf=(t,i)=>(P&&P.best[key(t,i)])||0;
 const isDe=t=>t.phan==='on-tap';
 const isKho=t=>t.phan==='thi-dau'; // Kho Thi đấu theo chương: không hiện trên bản đồ, chỉ dùng cho Thi đấu
-const isBM=t=>t.phan==='bai-mau'; // Bài mẫu theo chương (lời giải từng bước): mở từ biển tên chương, không hiện như chặng
+const isBM=t=>t.phan==='bai-mau'; // Bài tự luận theo chương (lời giải từng bước, chat cùng Cherry): nằm trong chặng Tự luận cuối chương
 /* chương của một chủ đề (số chương SGK) và mốc Thi đấu "đã học hết chương N" của khối; null = chưa gắn chương */
 const CURC={},currC=k=>CURC[k]||(CURC[k]=currOf(k));
 const chapsOf=k=>currC(k).filter(c=>c.hk||c.ch&&!c.id);
@@ -418,7 +418,7 @@ const palm=(x,y,f)=>`<svg class="deco" style="left:${x};top:${y}px${f?';transfor
 const xmark=(x,y)=>`<svg class="deco" style="left:${x};top:${y}px" width="26" height="26" viewBox="0 0 24 24"><path d="M5 5l14 14M19 5L5 19" stroke="#c0392b" stroke-width="3.5" stroke-linecap="round"/></svg>`;
 const wave=(x,y)=>`<svg class="deco" style="left:${x};top:${y}px" width="44" height="14" viewBox="0 0 44 14"><path d="M2 8q5-6 10 0t10 0 10 0 10 0" stroke="#5aa6b8" stroke-width="2.4" fill="none" stroke-linecap="round"/></svg>`;
 const flag=(y,txt)=>`<div class="hkflag" style="top:${y}px"><svg width="40" height="52" viewBox="0 0 40 52"><path d="M6 50V4" stroke="#6e3c16" stroke-width="3.5" stroke-linecap="round"/><path d="M7 5h26l-6 8 6 8H7z" fill="#ef3b55"/></svg><b>${txt}</b></div>`;
-function journey(){show('journey');jdock();if(curK===ACC.khoi&&!ACC.teacher&&!P.tut)setTimeout(tutorial,400);const items=mapItems(curK),ts=items.filter(x=>x.t&&hasQ(x.t)).map(x=>x.t),el=$('#tmap');
+function journey(){show('journey');jdock();if(curK===ACC.khoi&&!ACC.teacher&&!P.tut)setTimeout(tutorial,400);const items=withTL(curK,mapItems(curK)),ts=items.filter(x=>x.t&&hasQ(x.t)).map(x=>x.t),el=$('#tmap');
   if(!items.length){el.innerHTML=`<div class="empty dark"><div style="width:110px;margin:0 auto">${owlSVG}</div><p>Khối ${curK} chưa có bản đồ.</p></div>`;return}
   // Dùng phần trăm chiều ngang để đường đi và các nút cùng co giãn khi xoay máy.
   const W=100,BAN=86,STEP=112,TOP=210,BOT=90,HKH=96;
@@ -430,8 +430,12 @@ function journey(){show('journey');jdock();if(curK===ACC.khoi&&!ACC.teacher&&!P.
     if(x.ch&&!x.L){const c=x.ch,by=y-BAN/2,odd=k++%2,ph=PHAN[c.phan]||PHAN['dai-so'],S=chStat(c);pts.push([W/2,by]);
       deco+=(odd?palm('calc(100% - 60px)',by-80,1):palm('8px',by-84))+wave(odd?'20px':'calc(100% - 70px)',by+34);
       html+=`<div class="plank${S.has?'':' wait'}${GV()&&c.n?' gv':''}" style="top:${by}px;--c:${ph.c}"><span class="ptag">${ph.name}</span>${c.n?`<span class="cno">Chương ${c.n}</span>`:''}${GV()&&c.n?`<button type="button" class="pgem" data-chn="${c.n}">✦ Soạn bằng Gemini</button>`:''}<b>${esc(c.title)}</b>
-        <span class="pinfo">${S.has?`${star(1)} ${S.st}/${S.has*3} · đã qua ${S.done}/${S.n} bài`:'Sắp mở · đang chờ câu hỏi'}${c.n&&(GV()||bmOf(curK,c.n).length)?`<button type="button" class="pbm" data-bm="${c.n}">${bookSVG} Bài mẫu${bmOf(curK,c.n).length?' · '+bmOf(curK,c.n).length:''}</button>`:''}</span></div>`;
+        <span class="pinfo">${S.has?`${star(1)} ${S.st}/${S.has*3} · đã qua ${S.done}/${S.n} bài`:'Sắp mở · đang chờ câu hỏi'}</span></div>`;
       y-=BAN+30;return}
+    if(x.tl){const n=x.tl.n,side=[.3,.7,.62,.38][ni++%4],x2=side*W,ny=y-STEP/2,S=tlStat(curK,n);pts.push([x2,ny]);
+      html+=`<button class="tnode tlnode ${S.full?'done':'open'}${x2<W/2?' l':' r'}" data-tl="${n}" style="left:${x2}%;top:${ny}px"><span class="coin">${pencilSVG}</span><span class="tlab"><b>Tự luận</b><i>${S.total?`Đã làm trọn ${S.done}/${S.total} bài`:'Thầy đang soạn bài'}</i></span>${GV()&&S.draft?`<em class="hwn st">${S.draft} nháp</em>`:''}</button>`;
+      if(S.need)html+=`<div class="tlchest" style="left:calc(${x2}% + ${x2<W/2?92:-92}px);top:${ny-6}px">${chestSVG(S.opened,44)}<small>${S.opened?'Đã mở':S.ready?'Mở được!':`${Math.min(S.done,S.need)}/${S.need}`}</small></div>`;
+      y-=STEP;return}
     const L=x.L,t=x.t,side=[.3,.7,.62,.38][ni++%4],x2=side*W,ny=y-STEP/2;pts.push([x2,ny]);
     const lab=`<span class="tlab"><b>${L.lt?L.title:L.num?'Bài '+L.num:'Bổ sung'}</b>${L.lt?'':`<i>${esc(t&&!L.num?t.title:L.title)}</i>`}</span>`;
     if(!t){const gv=GV()&&L.id;html+=`<${gv?'button':'div'} class="tnode ghost${x2<W/2?' l':' r'}"${gv?` data-gl="${esc(L.id)}"`:''} style="left:${x2}%;top:${ny}px"><span class="coin">${L.lt?L.coin:L.num||'?'}</span>${lab}${gv?'<em class="hwn st">+ Dán bài</em>':''}</${gv?'button':'div'}>`;y-=STEP;return}
@@ -460,7 +464,7 @@ function journey(){show('journey');jdock();if(curK===ACC.khoi&&!ACC.teacher&&!P.
       return toast('Qua bài trước để mở bài này nhé.')}
     curT=t;startLevel()});
   $$('#tmap .pgem').forEach(b=>b.onclick=e=>{e.stopPropagation();sfx.tap();chapterTools(+b.dataset.chn)});
-  $$('#tmap .pbm').forEach(b=>b.onclick=e=>{e.stopPropagation();sfx.tap();bmList(+b.dataset.bm)});
+  $$('#tmap .tnode[data-tl]').forEach(b=>b.onclick=()=>{sfx.tap();bmList(+b.dataset.tl)});
   $$('#tmap .tnode.thy').forEach(b=>b.onclick=()=>{sfx.tap();const t=TOPICS.find(x=>x.id===b.dataset.th);if(!t)return;
     if(GV()){overlay(`<h2 style="font-size:24px">${esc(t.title)}</h2><p>Bài này mới có lý thuyết, chưa có câu hỏi.</p><button class="btn" id="g1">Xem lý thuyết</button><button class="btn alt" id="g2">Cài đặt & sửa</button><button class="btn alt" id="g3">Đóng</button>`);
       $('#g1').onclick=()=>{closeOvl();theory(t)};$('#g2').onclick=()=>{closeOvl();tOpts(t)};$('#g3').onclick=closeOvl;return}
@@ -503,42 +507,86 @@ const bmOpen=t=>GV()||bmNeed(t).ts.every(x=>topicPassed(x)>0);
 const bmLockText=t=>{const {L}=bmNeed(t);return L?`Mở khi em qua ${lessonName(L)}`:'Mở khi em qua hết các bài của chương'};
 // Yêu cầu soạn một bài mẫu cho Gemini (giống docs/soan-bai-mau.txt), có sẵn chương, mã bài và quy trình kiểm tra
 function bmAsk(k,n){const ch=(chapsOf(k).find(c=>c.ch&&c.ch.n===n)||{}).ch,ls=currOf(k).filter(c=>c.id&&c.ch&&c.ch.n===n&&!c.lt);
-  return [`Soạn MỘT bài mẫu (lời giải từng bước) cho Chương ${n}. ${ch?ch.title:''}, Toán ${k}, SGK Kết nối tri thức, cho app Học cùng Cherry.`,
+  return [`Soạn MỘT bài tự luận cho chặng Tự luận của Chương ${n}. ${ch?ch.title:''}, Toán ${k}, SGK Kết nối tri thức, app Học cùng Cherry.`,
+  'Học sinh giải cùng Cherry kiểu chat: mỗi bước Cherry nêu mục tiêu và hướng, học sinh viết vào vở (bí thì xin gợi ý), trả lời một câu kiểm tra nhỏ, rồi so vở với dòng trình bày mẫu. App không chấm vở.',
   'Các bài trong chương (mã bài: tên bài):',...ls.map(L=>`- ${L.id}: ${lessonName(L)}`),'',
-  'Đề bài thầy chọn (nếu trống thì tự chọn một bài tự luận nhiều bước, mức thi vào 10 hoặc học sinh giỏi, chỉ dùng kiến thức đã học):','[DÁN ĐỀ BÀI Ở ĐÂY]','',
-  'Kết quả: trả đúng MỘT khối mã gồm \\chude{Tên bài mẫu ngắn}, \\saubai{mã bài cuối cùng mà lời giải dùng tới} và MỘT khối \\begin{giaimau} … \\end{giaimau}: \\de{đề}, một hình TikZ nếu là bài hình (\\hien{k}{…} hiện từ bước k, \\phu{a}{b}{…} nét phụ chỉ ở bước a→b, \\sang{k}{…} tô cam ở bước k, bên trong \\sang chỉ \\draw/\\fill không ghi màu), \\cau{Câu 1}{yêu cầu}, \\doan{câu hỏi}{đúng}{sai}{vì sao đúng}{vì sao sai}[{sai 2}{vì sao sai 2}], \\buocgiai{mục tiêu}{lời giải, mỗi dòng một \\\\}{vì sao}, \\begin{sodo} \\nut{cấp}{nội dung}{ghi chú} … \\end{sodo} cho câu khó nhất, \\nhanxet{…}. Bước đếm từ 1 trong cả bài. Ngoài $…$ chỉ viết chữ thường. Cú pháp đầy đủ: docs/gemini-skill-soan-bai.md mục 3.9 trong repo hailinh0409/hoc-cung-Cherry.','',
-  'QUY TRÌNH SUY LUẬN VÀ KIỂM TRA (BẮT BUỘC, suy nghĩ chậm và kỹ, kiểm tra từng chỗ trước khi trả):',
+  'Đề bài thầy chọn (nếu trống thì tự chọn một bài tự luận 2–3 câu sát Luyện tập chung, câu cuối phân loại theo mức độ hiểu bài, không "tính mẹo"; chỉ dùng kiến thức đã học):','[DÁN ĐỀ BÀI Ở ĐÂY]','',
+  ...TL_SYNTAX,'',...TL_CHECKLIST].join('\n')}
+// Cú pháp và quy trình kiểm tra cho người soạn (giống docs/tu-luan/yeu-cau-gemini.md)
+const TL_SYNTAX=['KẾT QUẢ: trả đúng MỘT khối mã, không giải thích xen giữa:',
+  '\\chude{Tên bài ngắn}',
+  '\\saubai{mã bài cuối cùng mà lời giải dùng tới, ví dụ k9-b16}',
+  '\\begin{giaimau}',
+  '\\de{đề bài, các câu cách nhau bằng \\\\}',
+  '(bài hình: MỘT hình \\begin{tikzpicture}…\\end{tikzpicture}; \\hien{k}{…} hiện từ bước k, \\phu{a}{b}{…} nét phụ chỉ ở bước a→b, \\sang{k}{…} tô cam phần bước k dùng, bên trong \\sang chỉ \\draw/\\fill không ghi màu)',
+  '\\cau{Câu a}{yêu cầu của câu}',
+  '\\doan{câu hỏi đoán hướng}{đúng}{sai}{vì sao đúng}{vì sao sai}[{sai 2}{vì sao sai 2}]   (1 câu ở bước then chốt của câu khó)',
+  '\\buocgiai{mục tiêu ngắn}{dòng trình bày trong vở, mỗi dòng một \\\\}{vì sao: tên định lí/tính chất}',
+  '\\huong{lời Cherry nêu hướng làm bước này, 1–2 câu, xưng tớ gọi cậu, KHÔNG nói đáp án}',
+  '\\goiy{gợi ý 1}  \\goiy{gợi ý 2}   (1–2 gợi ý, gợi ý sau rõ hơn gợi ý trước)',
+  '\\kiemtra{câu hỏi kiểm tra kết quả bước}{đúng}{sai}{vì sao đúng}{vì sao sai}[{sai 2}{vì sao sai 2}]',
+  '   hoặc nhập số: \\kiemtra{câu hỏi}{=đáp số}{vì sao đúng}[{đáp số sai hay gặp}{vì sao sai}]  (đáp số: số nguyên, thập phân hoặc phân số a/b)',
+  '… (lặp \\buocgiai + \\huong + \\goiy + \\kiemtra cho mọi bước; bước rất dễ có thể bỏ \\kiemtra)',
+  '\\nhanxet{chỗ hay mất điểm, chỗ phân loại}',
+  '\\end{giaimau}',
+  'Quy ước: bước đếm từ 1 trong cả bài; ngoài $…$ chỉ viết chữ thường; công thức chính của dòng trình bày viết trong $…$ (dài thì xuống dòng bằng \\\\ trước dấu =); không dùng sơ đồ đi lên.'];
+const TL_CHECKLIST=['QUY TRÌNH SUY LUẬN VÀ KIỂM TRA (BẮT BUỘC, suy nghĩ chậm và kỹ):',
   '1. Giải trọn bài ra nháp trước; giải lại bằng cách thứ hai hoặc thử lại (thay số, tính bằng Python nếu có). Hai cách phải khớp.',
   '2. Sát chương trình: chỉ dùng kiến thức SGK Kết nối tri thức đã học đến bài ở \\saubai; không dùng kiến thức lớp trên hay chương sau. Kí hiệu, cách gọi theo SGK.',
-  '3. Logic từng bước: mỗi bước suy ra được từ giả thiết và bước trước; không nhảy bước, không dùng điều cần chứng minh, không dựa vào "nhìn hình". "Vì sao?" nêu đúng tên định lý/tính chất. Điều kiện nêu và kiểm tra đúng chỗ.',
-  '4. \\doan: 1–2 câu mỗi ý, đặt trước bước then chốt. Đáp án đúng thật sự dẫn tới lời giải; đáp án sai thật sự không đi được ở bước đó (không lấy một hướng khác cũng đúng); phản hồi nói đúng lỗi.',
-  '5. Sơ đồ: mỗi ô con (cùng căn cứ) đủ để suy ra ô cha; khớp với các bước giải.',
-  '6. Hình: TÍNH tọa độ cho đúng mọi giả thiết (tiếp điểm, vuông góc, trung điểm, giao điểm), không ước lượng; hình không gợi ý sai; mỗi \\sang{k} tô đúng phần bước k dùng; số bước trong \\hien, \\phu, \\sang khớp số \\buocgiai. Hình rộng 5–7 cm, nhãn ngắn không đè nhau.',
-  '7. Số liệu gọn, thỏa điều kiện, đã thử lại vào đề.',
-  '8. Đọc lại như một học sinh trung bình khá; sửa chỗ khó hiểu, thiếu bước.',
-  '9. Sau khối mã: mục "Đã tự kiểm tra" (cách thứ hai/phép thử, phép tính kiểm tra hình, kiến thức dùng thuộc bài nào) và ghi rõ chỗ chưa chắc.'].join('\n')}
-function bmList(n){const k=curK,ch=(chapsOf(k).find(c=>c.ch&&c.ch.n===n)||{}).ch,list=bmOf(k,n);P.bm=P.bm||{};
-  overlay(`<h2 style="font-size:22px">Bài mẫu · Chương ${n}</h2><p class="tnote">${esc(ch?ch.title:'')}<br>Lời giải từng bước: em đoán hướng giải, xem từng bước và vì sao.</p>
-    <div class="bmlist">${list.map((t,i)=>{const open=bmOpen(t),seen=P.bm[t.id];
-      return `<button type="button" class="bmrow${open?'':' lock'}" data-i="${i}"><span class="bmno">${open?(seen?'✓':i+1):lockSVG}</span><span class="bmtx"><b>${esc(t.title)}</b><small>${open?(seen?`Đã xem${seen.n?` · đoán đúng ngay ${seen.f}/${seen.n}`:''}`:'Chưa xem'):esc(bmLockText(t))}</small></span>${GV()&&t.status!=='giao'?`<em class="bmst">${({nhap:'Nháp',an:'Đã ẩn'})[t.status]||t.status}</em>`:''}</button>`}).join('')||'<p class="tnote">Chương này chưa có bài mẫu.</p>'}</div>
-    ${GV()?'<button class="btn" id="bmAdd">+ Dán bài mẫu</button><button class="btn alt" id="bmAsk">Sao chép yêu cầu cho Gemini</button>':''}<button class="btn alt" id="bmX">Đóng</button>`);
+  '3. Logic từng bước: mỗi bước suy ra được từ giả thiết và bước trước; không nhảy bước, không dùng điều cần chứng minh, không dựa vào "nhìn hình". Điều kiện nêu và đối chiếu đúng chỗ.',
+  '4. \\huong chỉ chỉ hướng, không lộ dòng trình bày. \\kiemtra hỏi KẾT QUẢ của chính bước đó (học sinh vừa viết xong); đáp án sai là lỗi học sinh hay mắc thật; lời giải thích nói đúng lỗi đó.',
+  '5. \\doan: đáp án đúng thật sự dẫn tới lời giải; đáp án sai thật sự không đi được ở bước đó.',
+  '6. Hình: TÍNH tọa độ cho đúng mọi giả thiết (tiếp điểm, vuông góc, trung điểm, giao điểm), không ước lượng; mỗi \\sang{k} tô đúng phần bước k dùng; số bước trong \\hien, \\phu, \\sang khớp số \\buocgiai. Hình rộng 5–7 cm, nhãn không đè nhau.',
+  '7. Đọc lại như một học sinh trung bình: mỗi bước một ý, câu ngắn; sửa chỗ khó hiểu, thiếu bước.',
+  '8. Sau khối mã: mục "Đã tự kiểm tra" (cách thứ hai/phép thử, phép tính kiểm tra hình, kiến thức dùng thuộc bài nào) và ghi rõ chỗ chưa chắc.'];
+/* ---------- Chặng Tự luận (thầy duyệt 28/11/2026) ----------
+   Bài tự luận = chủ đề Bài mẫu (phan 'bai-mau', chuong 'k<khối>-c<chương>'), giải kiểu chat cùng Cherry (client/tuluan.js).
+   Chặng đứng ngay sau bài cuối của chương (sau Luyện tập chung), trước chương mới; bên cạnh có rương nhỏ.
+   - Không khóa đường đi: bỏ qua chặng vẫn sang chương mới, chỉ không có quà.
+   - Rương mở khi làm trọn 2 bài bất kỳ (chương có 1 bài thì làm trọn bài đó). Rương đã mở không bị lấy lại khi thầy thêm bài.
+   - Không có điểm; giáo viên chỉ thấy đánh dấu đã làm (Theo dõi khối).
+   Tiến độ: P.bm[mã] = {d, f, n, c: số câu đã xong, x: đã làm trọn}; bản cũ chỉ có {d, f, n} (đã xem hết) cũng tính là làm trọn.
+   Rương: P.tlr['k<khối>-c<chương>'] = ngày mở. */
+const TL_NEED=2,TL_CHEST_XP=50;
+const pencilSVG='<svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><rect x="4" y="3" width="13" height="18" rx="2" fill="#fff" stroke="#b85a1a" stroke-width="1.6"/><path d="M7 8h7M7 11h7M7 14h4" stroke="#b85a1a" stroke-width="1.5" stroke-linecap="round"/><path d="M14.5 19.5l6-9 1.8 1.2-6 9-2.3.9z" fill="#ffb703" stroke="#8a4a10" stroke-width="1.2" stroke-linejoin="round"/></svg>';
+const tlDone=e=>!!e&&(e.x===true||(e.c===undefined&&!!e.d));
+const tlLive=(k,n)=>bmOf(k,n).filter(t=>t.status==='giao'&&!t.errors.length);
+function tlStat(k,n,p=P){const all=bmOf(k,n),live=tlLive(k,n),bm=(p&&p.bm)||{},done=live.filter(t=>tlDone(bm[t.id])).length,need=Math.min(TL_NEED,live.length),key=`k${k}-c${n}`,opened=!!(p&&p.tlr&&p.tlr[key]);
+  return {total:live.length,done,need,full:need>0&&done>=live.length,ready:need>0&&done>=need&&!opened,opened,key,draft:all.length-live.length}}
+// Chèn chặng Tự luận sau bài cuối của mỗi chương (trước cờ hết học kì hoặc chương sau); học sinh chỉ thấy khi chương có bài đã duyệt
+function withTL(k,items){const out=[];let ch=null;const flush=()=>{if(ch&&ch.n&&(GV()||tlLive(k,ch.n).length))out.push({tl:ch});ch=null};
+  for(const x of items){if(x.hk||(x.ch&&!x.L)){flush();if(x.ch&&!x.L)ch=x.ch}out.push(x)}flush();return out}
+function tlChest(n){const S=tlStat(curK,n);if(!S.ready||GV())return;P.tlr=P.tlr||{};P.tlr[S.key]=vnDay();addXP(TL_CHEST_XP);save();syncMine();sfx.win();
+  overlay(`${chestSVG(true,110)}<h2>Rương Tự luận!</h2><p>Em đã làm trọn ${S.need} bài tự luận của Chương ${n}. Em nhận được <b>+${TL_CHEST_XP} XP</b>!</p><button class="btn" id="tlOk">Tuyệt quá!</button>`);
+  $('#tlOk').onclick=()=>{closeOvl();journey();setTimeout(()=>bmList(n),50)}}
+function bmList(n){const k=curK,ch=(chapsOf(k).find(c=>c.ch&&c.ch.n===n)||{}).ch,list=bmOf(k,n),S=tlStat(k,n);P.bm=P.bm||{};
+  const row=(t,i)=>{const open=bmOpen(t),e=P.bm[t.id],ok=tlDone(e),c=tuLuanInfo(t.raw).cau,part=e&&!ok&&e.c?`Đang làm · xong ${e.c}/${c} câu`:'';
+    return `<button type="button" class="tlrow${open?'':' lock'}${ok?' done':''}" data-i="${i}"><span class="tlno">${open?(ok?'✓':'TL'+(i+1)):lockSVG}</span><span class="tltx"><b>${esc(t.title)}</b><small>${open?(ok?'Đã làm trọn':part||`Chưa làm · ${c} câu`):esc(bmLockText(t))}</small></span>${GV()&&t.status!=='giao'?`<em class="bmst">${({nhap:'Nháp',an:'Đã ẩn'})[t.status]||t.status}</em>`:!GV()&&!ok&&S.opened?'<em class="tlnew">Mới</em>':''}</button>`};
+  overlay(`<h2 style="font-size:22px">Tự luận · Chương ${n}</h2><p class="tnote">${esc(ch?ch.title:'')}<br>Giải cùng Cherry từng bước, em <b>viết lời giải vào vở</b>. Có thể bỏ qua để sang chương mới.</p>
+    ${S.need?`<div class="tlbox">${chestSVG(S.opened,46)}<span>${S.opened?'Em đã mở rương của chặng này.':S.ready?'<b>Mở rương thưởng được rồi!</b>':`Làm trọn <b>${S.need} bài</b> để mở rương · đã xong ${Math.min(S.done,S.need)}/${S.need}`}</span></div>${S.ready&&!GV()?'<button class="btn" id="tlOpen">Mở rương</button>':''}`:''}
+    <div class="bmlist">${list.map(row).join('')||'<p class="tnote">Chương này chưa có bài tự luận.</p>'}</div>
+    ${GV()?'<button class="btn" id="bmAdd">+ Dán bài tự luận</button><button class="btn alt" id="bmAsk">Sao chép yêu cầu cho Gemini</button>':''}<button class="btn alt" id="bmX">Đóng</button>`);
   $('#bmX').onclick=closeOvl;
+  $('#tlOpen')&&($('#tlOpen').onclick=()=>tlChest(n));
   $('#bmAdd')&&($('#bmAdd').onclick=()=>{sfx.tap();bmPaste(n)});
   $('#bmAsk')&&($('#bmAsk').onclick=async()=>{sfx.tap();try{await navigator.clipboard.writeText(bmAsk(k,n));toast('Đã chép yêu cầu. Thầy dán vào Gemini, thêm đề bài nếu muốn.')}catch(e){overlay(`<h2 style="font-size:20px">Sao chép yêu cầu</h2><p class="tnote">Máy không cho chép tự động. Thầy giữ ngón tay để chọn và chép.</p><textarea class="code" readonly>${esc(bmAsk(k,n))}</textarea><button class="btn alt" id="bmB">Quay lại</button>`);$('#bmB').onclick=()=>bmList(n)}});
-  $$('#panel .bmrow').forEach(b=>b.onclick=()=>{const t=list[+b.dataset.i];sfx.tap();
+  $$('#panel .tlrow').forEach(b=>b.onclick=()=>{const t=list[+b.dataset.i];sfx.tap();
     if(!bmOpen(t))return toast(esc(bmLockText(t)));
     if(GV()){overlay(`<h2 style="font-size:22px">${esc(t.title)}</h2>${t.errors.length?`<div class="err">${t.errors.map(esc).join('<br>')}</div>`:''}<button class="btn" id="bm1">Xem thử</button><button class="btn alt" id="bm2">Sửa nội dung</button><button class="btn alt" id="bm3">Duyệt, ẩn, đổi chương</button><button class="btn alt" id="bm4">Quay lại</button>`);
       $('#bm1').onclick=()=>{closeOvl();bmShow(t,n)};$('#bm2').onclick=()=>bmPaste(n,t);$('#bm3').onclick=()=>tOpts(t);$('#bm4').onclick=()=>bmList(n);return}
     closeOvl();bmShow(t,n)})}
-function bmShow(t,n){thT=null;curT=t;show('theory');
+function bmShow(t,n){thT=null;curT=t;show('theory');const body=$('#thBody');body._lectureDispose?.();body.classList.remove('lstep-host');body.classList.add('chat-host');
   const back=()=>{sfx.tap();journey();setTimeout(()=>bmList(n),50)};
-  renderLessonMaterial($('#thBody'),{...t,theory:bmItems(t.raw)},{title:t.title,doneTitle:'Xong bài mẫu!',onClose:back,teacherEdit:GV()?()=>bmPaste(n,t):null,
-    finish:(el,st,api)=>{if(!GV()){P.bm=P.bm||{};P.bm[t.id]={d:new Date().toISOString(),f:st.first,n:st.quiz};save();syncMine()}
-      el.innerHTML=`<p class="ls-end-name">${esc(t.title)}</p><div class="ls-end-btns"><button type="button" class="ls-mini" id="bmAgain">Xem lại từ đầu</button></div>`;
-      $('#bmAgain').onclick=api.again;api.go.textContent='Về danh sách bài mẫu';api.go.onclick=back}})}
+  P.bm=P.bm||{};const e=P.bm[t.id],done=tlDone(e);
+  const keep=(c,x)=>{if(GV())return;const o=P.bm[t.id]||{};P.bm[t.id]={...o,d:new Date().toISOString(),c:Math.max(Number(o.c)||0,c),x:!!(x||tlDone(o))};save();syncMine()};
+  renderTuLuan(body,t,{studentName:GV()?'An':ACC?.name,teacher:GV(),figImg:gmImg,start:done?0:(e&&e.c)||0,firstTime:!done,
+    sfx:{tap:()=>sfx.tap(),ok:()=>sfx.ok(),no:()=>sfx.no()},
+    onProgress:(c,tot)=>keep(c,c>=tot),
+    onFinish:st=>{if(GV())return;const o=P.bm[t.id]||{};P.bm[t.id]={...o,f:st.first,n:st.n,c:tuLuanInfo(t.raw).cau,x:true};if(st.xp>0)addXP(st.xp);save();syncMine()},
+    onClose:back})}
 // Giáo viên dán bài mẫu mới (hoặc sửa bài đã có): kiểm tra, xem trước từng bước, lưu ở trạng thái Nháp
 function bmPaste(n,t0){const k=curK;
-  overlay(`<h2 style="font-size:22px">${t0?'Sửa bài mẫu':'Dán bài mẫu'} · Chương ${n}</h2><p class="tnote">Gồm <code>\\chude{Tên bài mẫu}</code>, <code>\\saubai{k${k}-b7}</code> (mở cho học sinh khi qua bài đó; bỏ dòng này thì mở khi qua hết chương) và khối <code>\\begin{giaimau}…\\end{giaimau}</code>. Hình TikZ tự hiện sau khoảng 15 phút.</p>
+  overlay(`<h2 style="font-size:22px">${t0?'Sửa bài tự luận':'Dán bài tự luận'} · Chương ${n}</h2><p class="tnote">Gồm <code>\\chude{Tên bài}</code>, <code>\\saubai{k${k}-b7}</code> (mở cho học sinh khi qua bài đó; bỏ dòng này thì mở khi qua hết chương) và khối <code>\\begin{giaimau}…\\end{giaimau}</code>; sau mỗi <code>\\buocgiai</code> có thể thêm <code>\\huong</code>, <code>\\goiy</code>, <code>\\kiemtra</code>. Hình TikZ tự hiện sau khoảng 15 phút.</p>
     <textarea class="code" id="bmT" spellcheck="false" placeholder="\\chude{…}">${t0?esc(t0.raw):''}</textarea><button class="btn" id="bmChk">Kiểm tra và xem trước</button><div id="bmOut"></div><button class="btn alt" id="bmX">Hủy</button>`);
   $('#bmX').onclick=()=>t0?bmShow(t0,n):bmList(n);
   $('#bmChk').onclick=()=>{const text=cleanPaste($('#bmT').value),out=$('#bmOut'),P2=parseTopic(text),errs=[...P2.errors];
@@ -546,12 +594,12 @@ function bmPaste(n,t0){const k=curK;
     if(!bmItems(text).length)errs.unshift('Chưa có khối \\begin{giaimau}…\\end{giaimau}.');
     const after=bmAfter(text);if(after&&!currOf(k).some(c=>c.id===after))errs.push(`\\saubai{${after}}: khối ${k} không có bài mã này (mã dạng k${k}-b7).`);
     if(errs.length){out.innerHTML=`<div class="err">${errs.map(esc).join('<br>')}</div>`;return}
-    out.innerHTML=`<p class="tnote">Không có lỗi. Xem thử bên dưới (hình chưa dịch thì hiện "Hình chưa dịch").</p><div class="lesson-material"></div><button class="btn" id="bmSave">${t0?'Lưu thay đổi':'Lưu bài mẫu (Nháp)'}</button>`;
-    renderLessonMaterial(out.querySelector('.lesson-material'),{khoi:k,chuong:'',title:P2.title,theory:bmItems(text)},{title:P2.title});
+    out.innerHTML=`<p class="tnote">Không có lỗi. Chạy thử bên dưới như học sinh (hình chưa dịch thì hiện "Hình chưa dịch").</p><div class="tl-preview"></div><button class="btn" id="bmSave">${t0?'Lưu thay đổi':'Lưu bài tự luận (Nháp)'}</button>`;
+    renderTuLuan(out.querySelector('.tl-preview'),{title:P2.title,raw:text},{studentName:'An',teacher:true,figImg:gmImg,doneLabel:'Xong xem thử'});
     $('#bmSave').onclick=async()=>{$('#bmSave').disabled=true;
       try{if(t0)await DB.doc('topics/'+t0.id).update({text,capnhat:new Date().toISOString()});
-        else await DB.collection('topics').doc().set({title:P2.title,khoi:k,phan:'bai-mau',chuong:`k${k}-c${n}`,text,thutu:(bmOf(k,n).length+1)*10,nguon:'Dán bài mẫu (giáo viên)'});
-        closeOvl();sfx.ok();toast(t0?'Đã lưu bài mẫu.':'Đã lưu bài mẫu ở trạng thái Nháp. Thầy mở lại để Duyệt cho học sinh.');journey()}
+        else await DB.collection('topics').doc().set({title:P2.title,khoi:k,phan:'bai-mau',chuong:`k${k}-c${n}`,text,thutu:(bmOf(k,n).length+1)*10,nguon:'Dán bài tự luận (giáo viên)'});
+        closeOvl();sfx.ok();toast(t0?'Đã lưu bài tự luận.':'Đã lưu bài tự luận ở trạng thái Nháp. Thầy mở lại để Duyệt cho học sinh.');journey()}
       catch(e){$('#bmSave').disabled=false;out.insertAdjacentHTML('beforeend',`<div class="err">${esc(e&&e.message||'Lỗi kết nối')}</div>`)}}}}
 
 /* ---------- Soạn bằng Gemini theo chương (giáo viên) ----------
@@ -1627,10 +1675,11 @@ function track(){show('track');$('#trTitle').textContent='Theo dõi khối '+cur
   const A=ASG.filter(a=>a.khoi===kh).sort((a,b)=>(a.created||'').localeCompare(b.created||'')).slice(-6);
   const ptOf=v=>k=>{const b=v.best&&v.best[k];return b&&b.st>0?(b.t||'1970'):null};
   const agg={};for(const v of st)for(const [k,w] of Object.entries(v.wst||{})){if(!w.d||w.d<addDays(today,-14))continue;const g=agg[k]||(agg[k]={n:0,w:0,who:0});g.n+=w.n;g.w+=w.w;if(w.w)g.who++}
+  const tlAll=TOPICS.filter(t=>t.khoi===kh&&isBM(t)&&t.status==='giao'&&!t.errors.length),tlOf=v=>tlAll.filter(t=>tlDone((v.bm||{})[t.id])).length; // Tự luận: chỉ đánh dấu đã làm, không điểm
   const hard=Object.entries(agg).filter(([k,g])=>g.n>=3&&g.w>0&&ix[k]).sort((a,b)=>b[1].w/b[1].n-a[1].w/a[1].n||b[1].w-a[1].w).slice(0,8);
-  $('#trk').innerHTML=`<div class="tbox"><div class="scrollx"><table class="trk"><thead><tr><th>Học sinh</th><th>Chuỗi</th><th>Rank</th>${A.map(a=>`<th>${esc(((TOPICS.find(t=>t.id===a.topicId)||{}).title||'?').slice(0,14))}<div class="th2">${a.due?fmtDue(a.due):'không hạn'}</div></th>`).join('')}<th>Câu sai</th></tr></thead>
-    <tbody>${st.map(v=>`<tr><td class="nm"><button class="lnk" data-rp="${v.id}">${esc(v.name||'?')}</button>${v.mau?' <small>(mẫu)</small>':''}</td><td>${liveStreak(v.st||{},today)||'—'}</td><td>${TIERS[tierP(v)].n}<div class="th2">${progTxt(tierP(v),v)}</div></td>${A.map(a=>{const s=asgStatus(a,ptOf(v));const c=s.complete?(s.late?'late':'ok'):s.overdue?'miss':'part';return `<td class="cell ${c}">${s.complete?(s.late?'Muộn':'✓'):s.passed+'/'+s.need}</td>`}).join('')}<td>${Object.values(v.rev||{}).filter(r=>r.in_notebook).length}</td></tr>`).join('')}</tbody></table></div>
-    ${st.length?'':'<p>Chưa có học sinh khối này chơi.</p>'}<p class="tnote">✓ đúng hạn · Muộn: xong sau hạn · a/b: đã qua a trên b màn · đỏ: quá hạn chưa xong. Bấm tên học sinh để tạo báo cáo gửi phụ huynh.</p></div>
+  $('#trk').innerHTML=`<div class="tbox"><div class="scrollx"><table class="trk"><thead><tr><th>Học sinh</th><th>Chuỗi</th><th>Rank</th>${A.map(a=>`<th>${esc(((TOPICS.find(t=>t.id===a.topicId)||{}).title||'?').slice(0,14))}<div class="th2">${a.due?fmtDue(a.due):'không hạn'}</div></th>`).join('')}<th>Câu sai</th>${tlAll.length?`<th>Tự luận<div class="th2">${tlAll.length} bài</div></th>`:''}</tr></thead>
+    <tbody>${st.map(v=>`<tr><td class="nm"><button class="lnk" data-rp="${v.id}">${esc(v.name||'?')}</button>${v.mau?' <small>(mẫu)</small>':''}</td><td>${liveStreak(v.st||{},today)||'—'}</td><td>${TIERS[tierP(v)].n}<div class="th2">${progTxt(tierP(v),v)}</div></td>${A.map(a=>{const s=asgStatus(a,ptOf(v));const c=s.complete?(s.late?'late':'ok'):s.overdue?'miss':'part';return `<td class="cell ${c}">${s.complete?(s.late?'Muộn':'✓'):s.passed+'/'+s.need}</td>`}).join('')}<td>${Object.values(v.rev||{}).filter(r=>r.in_notebook).length}</td>${tlAll.length?`<td class="cell ${tlOf(v)?'ok':''}">${tlOf(v)?'✓ '+tlOf(v):'—'}${Object.keys(v.tlr||{}).length?` · 🎁${Object.keys(v.tlr).length}`:''}</td>`:''}</tr>`).join('')}</tbody></table></div>
+    ${st.length?'':'<p>Chưa có học sinh khối này chơi.</p>'}<p class="tnote">✓ đúng hạn · Muộn: xong sau hạn · a/b: đã qua a trên b màn · đỏ: quá hạn chưa xong. Tự luận: ✓ số bài đã làm trọn, 🎁 số rương đã mở (không có điểm). Bấm tên học sinh để tạo báo cáo gửi phụ huynh.</p></div>
    ${deScores(kh,st)}
    ${teacherExtra(kh,st,ix)}
    <h2 class="sect">Câu khối ${kh} sai nhiều nhất (14 ngày)</h2>
