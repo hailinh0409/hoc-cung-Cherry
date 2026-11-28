@@ -122,7 +122,8 @@ function q2Check(q){const S=G.q2,wrong=[];let ok=0,tot=0,right='';S.mark={};
       S.mark[s.key]=good?'ok':'no';if(good){ok++;return}if(!B.trap)hl.add('c'+B.nid);
       wrong.push(B.trap?`Căn cứ <span class="q2b">${tex(B.t)}</span> chưa đúng.${B.why?' '+tex(B.why):''}`:`Căn cứ <span class="q2b">${tex(B.t)}</span> đặt nhầm chỗ (ô này cần: ${tex(exp)}). Chỗ đúng của nó được tô viền vàng.`)});
     G.ansTxt=S.slots.map(s=>'ô '+s.key+': '+q2Blk(S.fill[s.key]).t).join('; ');right=sdFull(q,hl)}
-  const all=ok===tot;G.done=true;G.frac=tot?ok/tot:0;$('#qc').classList.add('lock');q2Draw();
+  const all=ok===tot;G.done=true;G.frac=tot?ok/tot:0;$('#qc').classList.add('lock');if(G.mode==='rank')S.mark={}; // Thi đấu: không tô đúng/sai trong trận
+  q2Draw();
   result(all,$('#q2a'),all?'':whyBox(wrong)+`<div class="q2r">Đúng ${ok}/${tot} ${q.type==='exsx'?'dòng':'ô'}${G.mode==='rank'&&ok?` · được ${Math.round(100*G.frac)}% điểm câu`:''}. ${q.type==='exsx'?'Lời giải đúng:':'Sơ đồ đúng:'}</div>${right}`)}
 function sxRight(q){const runs={};q.steps.forEach((s,i)=>{if(s.g)(runs[s.g]=runs[s.g]||[]).push(i+1)});
   return `<ol class="sx-sol">${q.steps.map((s,i)=>`<li><div class="sx-ln full"><span class="n">${i+1}</span><span class="t">${tex(s.t)}</span></div></li>`).join('')}</ol>`+

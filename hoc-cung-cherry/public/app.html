@@ -707,6 +707,11 @@ textarea.code.light{background:#fff;color:#12313a;font:14px/1.5 "Be Vietnam Pro"
 /* Công thức dài (26/11/2026): mảnh công thức nối bằng <wbr> để xuống dòng ở dấu "="; dàn bước bằng <br class="mbr"> (mathFit) */
 .mchain>mjx-container{margin:0!important}
 .mhint{display:block;font-size:12px;color:#7a9399;margin-top:2px}
+/* Thi đấu: phương án vừa chọn (không lộ đúng/sai); xem lại bài làm */
+.opt.pick{box-shadow:0 0 0 4px #7c5cff,0 5px 0 #5a3fd6}
+.va.me{background:#ece7ff;color:#2d1f6b;font-weight:700}
+.rvq .stem{margin-top:6px}.rvq .row2 b.y{color:#0c6b3f}.rvq .row2 b.n{color:#a1202f}.rvq .srow{margin-top:8px}
+#subjBody > .foot .btn{flex:1 1 40%}
 
 /* Chiều rộng nội dung theo từng màn, nền app luôn phủ hết khung nhìn. */
 @media (min-width: 600px) {
@@ -2687,11 +2692,17 @@ function nextReview(row, ok, today = vnDay()) {
   if (!row) return { box: 1, due: addDays(today, INTERVALS[1]), in_notebook: false, nb_hits: 0, last_ok: today, wrong_count: 0 };
   if (row.last_ok === today) return null; // đúng nhiều lần trong cùng một ngày chỉ tính một lần
   const box = Math.min((row.box || 0) + 1, 5);
-  const nb_hits = row.in_notebook ? (row.nb_hits || 0) + 1 : 0;
-  return {
-    box, due: addDays(today, INTERVALS[box]), last_ok: today, wrong_count: row.wrong_count || 0,
-    nb_hits, in_notebook: row.in_notebook && nb_hits < 2, // đúng ở 2 ngày khác nhau thì ra khỏi sổ
-  };
+  // Câu đang ở sổ Câu sai: làm đúng lại chính câu đó (ở bản đồ, đề ôn tập) KHÔNG gạch khỏi sổ, vì có thể chỉ là nhớ đáp án.
+  // Chỉ làm đúng câu thay thế trong "Làm lại câu sai" mới gạch (redoResult).
+  if (row.in_notebook) return { ...row, box: row.box || 0, last_ok: today, wrong_count: row.wrong_count || 0 };
+  return { box, due: addDays(today, INTERVALS[box]), last_ok: today, wrong_count: row.wrong_count || 0, nb_hits: 0, in_notebook: false };
+}
+
+// Làm lại câu sai (thầy chốt 28/11/2026): học sinh làm một câu thay thế cùng bài; đúng 1 lần là câu gốc ra khỏi sổ.
+// Sai: câu gốc vẫn ở sổ, lần sau đổi câu thay thế khác; nếu bài hết câu mới thì câu gốc chỉ mở lại sau 1 ngày (due).
+function redoResult(row, ok, today = vnDay()) {
+  if (ok) return { ...row, in_notebook: false, nb_hits: 1, box: Math.max(1, row.box || 0), due: addDays(today, INTERVALS[1]), last_ok: today };
+  return { ...row, in_notebook: true, nb_hits: 0, box: 0, due: addDays(today, 1), wrong_count: (row.wrong_count || 0) + 1 };
 }
 
 // Chuỗi ngày học: mỗi ngày đạt mục tiêu (qua 1 màn hoặc làm xong 1 lượt ôn) thì +1.
@@ -3262,14 +3273,14 @@ function subjects(){show('subj');
     ${GV()?'':`<button class="mon shopm" id="sShop" style="animation-delay:${Object.keys(MON).length*.1}s"><span class="shav">${avatarOf(P,64)}</span><b>Cửa hàng<small>Ví ${bal()} XP · đã sưu tầm ${Object.keys(P.own||{}).length}/${ITEMS.length}</small></b><span>Mua sắm ›</span></button>`}</div>
    ${GV()||typeof pushCard!=='function'?'':pushCard()}
    ${GV()?'':`<button class="frtile" id="sFr"><span class="frava">${followingOf(P).slice(0,4).map(id=>avatarOf(PLAYERS.find(x=>x.id===id),34)).join('')||avatarOf(P,34)}</span><span><b>Bạn bè</b><small>${followingOf(P).length} đang theo dõi · ${followersOf(ACC.id).length} người theo dõi</small></span>${newFollowers()?`<i class="dot">${newFollowers()} mới</i>`:'<i class="go">›</i>'}</button>`}
-   ${GV()?`<div class="foot"><button class="btn alt" id="sBank">Ngân hàng câu hỏi</button><button class="btn alt" id="sRep">Câu báo lỗi${REPS.some(r=>!r.done)?` (${repGroups(false).length}) ●`:''}</button><button class="btn alt" id="sAcc">Tài khoản học sinh${ACCS.some(a=>a.reset)?' ●':''}</button><button class="btn alt" id="sOut">Thoát</button></div>`:`<div class="foot"><button class="btn alt" id="sOut">Đăng xuất</button></div>`}`;
+   ${GV()?`<div class="foot"><button class="btn alt" id="sBank">Ngân hàng câu hỏi</button><button class="btn alt" id="sRep">Câu báo lỗi${repGroups(false).length?` (${repGroups(false).length}) ●`:''}</button><button class="btn alt" id="sHoi">Câu học sinh hỏi${repGroups(false,true).length?` (${repGroups(false,true).length}) ●`:''}</button><button class="btn alt" id="sAcc">Tài khoản học sinh${ACCS.some(a=>a.reset)?' ●':''}</button><button class="btn alt" id="sOut">Thoát</button></div>`:`<div class="foot"><button class="btn alt" id="sOut">Đăng xuất</button></div>`}`;
   $$('#subjBody .mon').forEach(b=>b.onclick=()=>{const m=b.dataset.m;
     if(!hasMon(m)){sfx.no();b.animate([{transform:'translateX(-6px)'},{transform:'translateX(6px)'},{transform:'none'}],{duration:300});return toast(`Em chưa đăng kí môn ${MON[m]?MON[m].n:m}. Em hỏi thầy để đăng kí nhé.`)}
     sfx.tap();m==='toan'?grades():anh()});
   if(typeof bindPushCard==='function')bindPushCard();
   $('#sShop')&&($('#sShop').onclick=()=>{sfx.tap();shopFrom='subj';shop()});
   $('#sFr')&&($('#sFr').onclick=()=>{sfx.tap();frTab=newFollowers()?'followers':'feed';friends()});
-  $('#sAcc')&&($('#sAcc').onclick=()=>{sfx.tap();accounts()});$('#sRep')&&($('#sRep').onclick=()=>{sfx.tap();reportsPage()});$('#sBank')&&($('#sBank').onclick=()=>{sfx.tap();bank()});$('#sOut').onclick=()=>{sfx.tap();logout()}}
+  $('#sAcc')&&($('#sAcc').onclick=()=>{sfx.tap();accounts()});$('#sRep')&&($('#sRep').onclick=()=>{sfx.tap();reportsPage()});$('#sHoi')&&($('#sHoi').onclick=()=>{sfx.tap();reportsPage(true)});$('#sBank')&&($('#sBank').onclick=()=>{sfx.tap();bank()});$('#sOut').onclick=()=>{sfx.tap();logout()}}
 function anh(){show('anh');$('#anhBody').innerHTML=`<div class="empty"><div style="width:130px;margin:0 auto">${owlSVG}</div><h2 style="margin-top:8px">Tiếng Anh</h2><p>Bản đồ môn Tiếng Anh đang được chuẩn bị. Cherry sẽ báo em khi mở nhé!</p></div>`}
 
 function gradeCounts(g) {
@@ -3312,7 +3323,7 @@ function asgStatus(a,ptOf){const t=TOPICS.find(x=>x.id===a.topicId);const need=M
 function dueLabel(a,s){if(s.complete)return s.late?'Xong (muộn)':'Đã xong';if(!a.due)return 'Không hạn';if(s.overdue)return 'Quá hạn';const h=(Date.parse(a.due)-Date.now())/36e5;return h<24?`Còn ${Math.max(1,Math.round(h))} giờ`:`Còn ${Math.ceil(h/24)} ngày`}
 const myPt=k=>(P.pt&&P.pt[k])||(P.best[k]>0?'1970':null);
 const asgFor=t=>ASG.filter(a=>a.topicId===t.id&&a.khoi===t.khoi).sort((a,b)=>(a.due||'9').localeCompare(b.due||'9'))[0];
-function counts(){const ix=qIndex();let nb=0;for(const [k,r] of Object.entries(P.rev||{}))if(ix[k]&&r.in_notebook)nb++;return {nb,saved:Object.keys(P.saved||{}).length}}
+function counts(){return {nb:nbList().length,saved:Object.keys(P.saved||{}).length}}
 // Khu vực khối = bản đồ kho báu (các mục khác thu gọn thành biểu tượng nhỏ ở góc bản đồ)
 function area(){if(gradeLocked(curK))curK=ACC.khoi;if(curK===CHUYEN_TOAN)return onTap();journey()}
 let JOPEN='';
@@ -5825,13 +5836,26 @@ function tOpts(t){overlay(`<h2 style="font-size:26px">${esc(t.title)}</h2><div c
 /* ---------- làm lại câu sai + câu đã lưu ---------- */
 let redoTab='sai';
 function qIndex(){const ix={};for(const t of TOPICS){if(!visible(t)||t.khoi!==(ACC?.khoi||curK))continue;t.levels.forEach((l,li)=>l.qs.forEach(q=>{ix[q.key]={q,t,li}}))}return ix}
-function redo(){show('redo');const ix=qIndex(),wr=Object.entries(P.rev||{}).filter(([k,r])=>ix[k]&&r.in_notebook),sv=Object.entries(P.saved||{}).sort((a,b)=>b[1].at.localeCompare(a[1].at));
-  const byT={};wr.forEach(([k])=>{const t=ix[k].t.title;byT[t]=(byT[t]||0)+1});
-  $('#redoBody').innerHTML=`<div class="phead" style="--c:#ff7a59;--d:#e85a3a"><b>Làm lại câu sai</b><span>Đúng lại ở 2 ngày khác nhau thì câu được gạch khỏi danh sách.${ACC&&!ACC.teacher?` Còn <b>${nbOpen()}</b> câu chưa làm lại đúng lần nào${P.rlock?` (Thi đấu đang khóa đến khi còn không quá ${NB_UNLOCK} câu)`:''}.`:''}</span></div>
+// Sổ Câu sai: chỉ câu của Bản đồ kho báu và Ôn tập (câu Kho Thi đấu không vào, để không lộ đáp án kho Thi đấu)
+function nbList(ix=qIndex()){return Object.entries(P.rev||{}).filter(([k,r])=>ix[k]&&r.in_notebook&&!isKho(ix[k].t))}
+/* Làm lại câu sai bằng câu thay thế (thầy chốt 28/11/2026): không đưa lại đúng câu đã sai.
+   Thứ tự: câu khác cùng bài, cùng mức em chưa gặp → cùng mức em chưa làm đúng → cùng bài ở mức cao hơn, rồi mức thấp hơn (cũng chưa gặp / chưa đúng)
+   → câu gốc nếu có tham số (đổi số) → đường cùng: câu gốc (đảo phương án), chỉ mở lại sau 1 ngày. */
+function pickTwin(k,ix,used,today=vnDay()){const {q,t,li}=ix[k],r=P.rev[k]||{},n=t.levels.length;
+  // 0: em chưa gặp; 1: đã gặp nhưng chưa làm đúng lần nào (và không đang nằm trong Câu sai); -1: không dùng
+  const rk=x=>{if(x.key===k||used.has(x.key)||x.type==='extl')return -1;const v=P.rev[x.key],w=P.wst[x.key];if(!v&&!w)return 0;
+    if(v&&(v.in_notebook||v.last_ok))return -1;return w&&w.n>0&&w.w<w.n?-1:1};
+  const order=[li,...Array.from({length:n},(_,i)=>i).filter(i=>i>li),...Array.from({length:n},(_,i)=>n-1-i).filter(i=>i<li)];
+  for(const want of [0,1])for(const L of order){const c=shuffle(t.levels[L].qs.filter(x=>rk(x)===want));if(c.length)return {q:c[0],t,li:L,twin:true}}
+  if(q.params||!r.due||r.due<=today)return {q,t,li,twin:false};
+  return null}
+function redo(){show('redo');const ix=qIndex(),wr=nbList(ix),sv=Object.entries(P.saved||{}).sort((a,b)=>b[1].at.localeCompare(a[1].at));
+  const byT={};wr.forEach(([k])=>{const t=ix[k].t.title;byT[t]=(byT[t]||0)+1});const used=new Set(),wait=wr.filter(([k])=>{const x=pickTwin(k,ix,used);if(x)used.add(x.q.key);return !x}).length,ready=wr.length-wait;
+  $('#redoBody').innerHTML=`<div class="phead" style="--c:#ff7a59;--d:#e85a3a"><b>Làm lại câu sai</b><span>Mỗi câu sai được thay bằng một câu khác cùng bài để em luyện cách làm, không phải nhớ đáp án. Làm đúng 1 lần là câu được gạch khỏi danh sách.${ACC&&!ACC.teacher&&P.rlock?` Thi đấu đang khóa đến khi còn không quá ${NB_UNLOCK} câu.`:''}</span></div>
    <div class="seg"><button data-tab="sai" class="${redoTab==='sai'?'on':''}">Câu sai (${wr.length})</button><button data-tab="luu" class="${redoTab==='luu'?'on':''}">Đã lưu (${sv.length})</button></div>
-   ${redoTab==='sai'?(wr.length?`<button class="btn big" id="rGo">Làm lại ${Math.min(10,wr.length)} câu</button><div class="tbox">${Object.entries(byT).map(([t,n])=>`<div class="row2"><span>${esc(t)}</span><b>${n} câu</b></div>`).join('')}</div>`
+   ${redoTab==='sai'?(wr.length?`${ready?`<button class="btn big" id="rGo">Làm lại ${Math.min(10,ready)} câu</button>`:''}${wait?`<p class="tnote2">${wait} câu (bài đã hết câu mới) mở lại vào ngày mai.</p>`:''}<div class="tbox">${Object.entries(byT).map(([t,n])=>`<div class="row2"><span>${esc(t)}</span><b>${n} câu</b></div>`).join('')}</div>`
       :`<div class="empty"><div style="width:90px;margin:0 auto">${owlSVG}</div><p>Chưa có câu sai nào cần làm lại. Giỏi lắm!</p></div>`)
-    :(sv.length?sv.map(([id,s])=>`<button class="svcard" data-sv="${id}"><span class="tag tt">${esc(s.title)}</span><div class="stem clamp">${tex(s.q.stem)}</div><small>Lưu ${new Date(s.at).toLocaleDateString('vi-VN')}</small></button>`).join('')
+    :(sv.length?sv.map(([id,s])=>`<button class="svcard" data-sv="${id}"><span class="tag tt">${s.td?'Thi đấu · ':''}${esc(s.title)}</span>${s.td?` ${s.ok?'✅':'❌'}${s.asked?' · đã hỏi thầy':''}`:''}<div class="stem clamp">${tex(s.q.stem)}</div><small>Lưu ${new Date(s.at).toLocaleDateString('vi-VN')}</small></button>`).join('')
       :`<div class="empty"><p>Chưa lưu câu nào. Khi làm bài, bấm nút ${bookmark(false)} để lưu câu cùng lời giải.</p></div>`)}`;
   typeset($('#redoBody'));
   $$('#redoBody [data-tab]').forEach(b=>b.onclick=()=>{sfx.tap();redoTab=b.dataset.tab;redo()});
@@ -5845,7 +5869,7 @@ function answerHTML(q){
   if(q.type==='extl')return `<div class="va">Tự luận: học sinh làm vào vở${q.hints?` · ${q.hints.length} gợi ý`:' · chưa có gợi ý'}</div>`;
   if(q.type==='exfb')return `<div class="va y">Đáp số: ${tex(q.ans.join(' hoặc '))}</div>`+(q.traps||[]).map(x=>`<div class="va">Nếu ghi ${tex(x.a)}${w(x.why)}</div>`).join('');
   return q.pairs.map((p,i)=>`<div class="va"><span class="mdot" style="background:${MPC[i%MPC.length][1]}"></span>${tex(p[0])} ⟶ ${tex(p[1])}</div>`).join('')}
-function viewSaved(id){const s=P.saved[id];if(!s)return;
+function viewSaved(id){const s=P.saved[id];if(!s)return;if(s.td)return viewTd(id);
   overlay(`<div class="viewq"><span class="tag tt">${esc(s.title)}</span><div class="stem">${tex(s.q.stem)}</div><div class="vans">${answerHTML(s.q)}</div>
     ${s.q.hints?s.q.hints.map((h,i)=>`<div class="vh"><b>Gợi ý ${i+1}.</b> ${tex(h)}</div>`).join(''):''}${s.q.sol?`<div class="sol"><b>Lời giải.</b> ${tex(s.q.sol)}</div>`:''}</div>
     <button class="btn" id="vT">Làm thử lại</button><button class="btn alt" id="vD">Bỏ lưu</button><button class="btn alt" id="vC">Đóng</button>`);
@@ -5857,13 +5881,11 @@ function viewSaved(id){const s=P.saved[id];if(!s)return;
    (còn bài thầy giao chưa xong thì làm trước). Thách Đấu xếp hạng bằng điểm phong độ. */
 const hwLeft=()=>ACC&&!ACC.teacher?ASG.filter(a=>a.khoi===ACC.khoi&&TOPICS.some(t=>t.id===a.topicId)&&!asgStatus(a,myPt).complete):[];
 const promoLeft=()=>PROMO_PER_DAY-(P.pr&&P.pr.d===vnDay()?P.pr.n||0:0);
-const promoWrong=()=>(P.prw||[]).filter(k=>{const r=(P.rev||{})[k];return r&&r.in_notebook&&!(r.nb_hits>0)});
 function ranked(){show('ranked');const t=tierMe(),T=TIERS[t],N=TIERS[t+1],lp=P.lp||0,lk=rankLock(),SO=seasonOf(),full=barFull(t,lp),pc=barPct(t,lp);
-  const hw=full?hwLeft():[],pw=full?promoWrong():[],left=promoLeft();
+  const hw=full?hwLeft():[],left=promoLeft();
   const act=lk?`<div class="tbox rlock"><b>Thi đấu đang tạm khóa</b><div>Em còn <b>${lk} câu sai</b> chưa làm lại đúng. Làm lại đến khi còn không quá <b>${NB_UNLOCK} câu</b> là mở lại Thi đấu (còn ${lk-NB_UNLOCK} câu nữa): hiểu chắc bài cũ thì thi đấu mới lên hạng bền.</div></div><button class="btn big co" id="rFix">Làm lại câu sai (${lk})</button>`
     :!full?`<button class="btn big" id="rPlay">Vào trận</button>`
     :hw.length?`<div class="tbox rlock"><b>Làm xong bài thầy giao trước nhé</b><div>Thanh tiến trình đã đầy! Em còn <b>${hw.length} bài</b> thầy giao chưa xong: ${hw.slice(0,3).map(a=>esc((TOPICS.find(x=>x.id===a.topicId)||{}).title||'?')).join(', ')}${hw.length>3?'…':''}. Làm xong là được thi lên ${N.n}.</div></div><button class="btn big co" id="rHw">Đến Hành trình</button>`
-    :pw.length?`<div class="tbox rlock"><b>Làm lại câu sai của bài kiểm tra trước</b><div>Em còn <b>${pw.length} câu</b> sai ở lần thi trước chưa làm lại đúng. Làm lại xong là được thi tiếp.</div></div><button class="btn big co" id="rPw">Làm lại ${pw.length} câu</button>`
     :left<=0?`<div class="tbox rlock"><b>Hết lượt thi hôm nay</b><div>Mỗi ngày được thi thăng hạng ${PROMO_PER_DAY} lần. Mai em thi tiếp nhé!</div></div>`
     :`<button class="btn big" id="rPromo">Làm bài kiểm tra lên ${N.n}</button><p class="tnote2">Còn ${left} lượt thi hôm nay.</p>`;
   $('#rankedBody').innerHTML=`<div class="rcard" style="--c:${T.c};--d:${T.d}">${emblem(t,110)}<h2>${T.n}</h2>
@@ -5874,18 +5896,63 @@ function ranked(){show('ranked');const t=tierMe(),T=TIERS[t],N=TIERS[t+1],lp=P.l
    <p class="tnote2">${esc(SO.name)}, còn ${SO.left} ngày.</p>
    <div class="tbox rules"><b>Luật thi đấu</b>
     <div>• Dưới Thách Đấu: thắng trận thì thanh tiến trình tăng, thua thì giảm. <b>Đầy thanh thì phải làm bài kiểm tra thăng hạng</b> mới được đánh tiếp; còn bài thầy giao chưa xong thì làm trước. Tụt dưới đầu thanh thì xuống bậc dưới (5 trận đầu sau khi lên bậc được bảo vệ).</div>
-    <div>• Bài kiểm tra thăng hạng: ${PROMO_N} câu khó hơn bậc hiện tại, ít nhất một nửa không phải trắc nghiệm chọn đáp án. Lên ${N?N.n:'bậc trên'} cần đạt ${Math.round(promoPass(Math.min(TOP,t+1))*100)}% điểm bài${promoNeed3(Math.min(TOP,t+1))?' và đúng ít nhất 2 câu mức 3':''} (bậc càng cao càng khó). Mỗi ngày thi tối đa ${PROMO_PER_DAY} lần. Trượt: thanh lùi ${PROMO_FAIL} điểm và phải làm lại các câu sai.</div>
+    <div>• Bài kiểm tra thăng hạng: ${PROMO_N} câu khó hơn bậc hiện tại, ít nhất một nửa không phải trắc nghiệm chọn đáp án. Lên ${N?N.n:'bậc trên'} cần đạt ${Math.round(promoPass(Math.min(TOP,t+1))*100)}% điểm bài${promoNeed3(Math.min(TOP,t+1))?' và đúng ít nhất 2 câu mức 3':''} (bậc càng cao càng khó). Mỗi ngày thi tối đa ${PROMO_PER_DAY} lần. Trượt: thanh lùi ${PROMO_FAIL} điểm.</div>
     <div>• Thách Đấu: xếp hạng bằng <b>điểm phong độ</b> = trung bình ${PD_N} trận gần nhất, đánh nhiều không tăng điểm, chỉ đánh tốt mới tăng.</div>
     <div>• Mỗi mùa ${SEASON_DAYS} ngày. Sang mùa mới mọi người <b>tụt ${SEASON_DROP} bậc</b>, thành tích mùa cũ lưu ở trang cá nhân.</div>
-    <div>• Có hơn ${NB_LOCK} câu sai chưa làm lại đúng thì tạm khóa Thi đấu; làm lại đến khi còn không quá ${NB_UNLOCK} câu là mở lại.</div>
-    <div>• Mỗi trận 10 câu của khối ${ACC.khoi}, không có gợi ý. Bậc ${T.n}: ${(RANK_BY_TIER[t]||RANK_PICK).map((n,i)=>n?n+' câu mức '+(i+1):'').filter(Boolean).join(', ')}. Bậc càng cao câu càng khó.</div>${mocOf(ACC.khoi)?`<div>• Đang thi kiến thức ${chRange(mocOf(ACC.khoi))} (đến chương ${esc(chapTitle(ACC.khoi,mocOf(ACC.khoi)))}). Khoảng một nửa số câu thuộc chương mới học nhất.</div>`:''}<div>• Câu đã gặp ở trận trước sẽ không ra lại; câu cùng dạng thì được đổi số.</div><div>• Thời gian tính cho cả trận (khoảng 30 giây mỗi câu mức 1, 45 giây mức 2, 60 giây mức 3, 90 giây mức 4, cộng lại). Em tự chia thời gian: câu dễ làm nhanh, câu khó nghĩ lâu hơn. Đồng hồ dừng khi em đọc lời giải.</div><div>• Câu chưa chọn đáp án có thể bấm <b>Bỏ qua, làm sau</b>; câu đó được xếp xuống cuối trận. Hết giờ thì các câu chưa làm tính là sai.</div><div>• Điểm trận chủ yếu tính theo số câu đúng (câu càng khó càng nhiều điểm). <b>Trả lời sai bị trừ 1/3 điểm câu đó</b>, nên chọn bừa không có lợi; chưa chắc thì bỏ qua làm sau. Hết giờ mà chưa trả lời thì không bị trừ. Xong sớm được thưởng thêm tối đa ${Math.round(RANK_SPEED*100)}% điểm trận. Bậc ${T.n} cần đạt ${Math.round(rankTarget(t)*100)}% điểm trận tối đa thì thanh mới tăng; bậc càng cao mức chuẩn càng cao.</div><div>• Thưởng chính xác: đúng 10/10 câu +6, 9/10 +4, 8/10 +2.</div><div>• Câu sắp xếp lời giải, sơ đồ: đúng một phần được điểm theo số dòng/ô đúng.</div></div>
-   <button class="btn alt" id="rBoard">Bảng xếp hạng</button>
+    <div>• <b>Trong trận không hiện đúng/sai và đáp án.</b> Nộp bài xong em xem lại được câu nào đúng, câu nào sai (không có đáp án), lưu câu và bấm <b>Hỏi thầy</b> nếu cần thầy giải thích. Câu sai trong Thi đấu không vào Làm lại câu sai.</div>
+    <div>• Có hơn ${NB_LOCK} câu sai (ở Hành trình, Ôn tập) chưa làm lại thì tạm khóa Thi đấu; làm lại đến khi còn không quá ${NB_UNLOCK} câu là mở lại.</div>
+    <div>• Mỗi trận 10 câu của khối ${ACC.khoi}, không có gợi ý. Bậc ${T.n}: ${(RANK_BY_TIER[t]||RANK_PICK).map((n,i)=>n?n+' câu mức '+(i+1):'').filter(Boolean).join(', ')}. Bậc càng cao câu càng khó.</div>${mocOf(ACC.khoi)?`<div>• Đang thi kiến thức ${chRange(mocOf(ACC.khoi))} (đến chương ${esc(chapTitle(ACC.khoi,mocOf(ACC.khoi)))}). Khoảng một nửa số câu thuộc chương mới học nhất.</div>`:''}<div>• Câu đã gặp ở trận trước sẽ không ra lại; câu cùng dạng thì được đổi số.</div><div>• Thời gian tính cho cả trận (khoảng 30 giây mỗi câu mức 1, 45 giây mức 2, 60 giây mức 3, 90 giây mức 4, cộng lại). Em tự chia thời gian: câu dễ làm nhanh, câu khó nghĩ lâu hơn.</div><div>• Câu chưa chọn đáp án có thể bấm <b>Bỏ qua, làm sau</b>; câu đó được xếp xuống cuối trận. Hết giờ thì các câu chưa làm tính là sai.</div><div>• Điểm trận chủ yếu tính theo số câu đúng (câu càng khó càng nhiều điểm). <b>Trả lời sai bị trừ 1/3 điểm câu đó</b>, nên chọn bừa không có lợi; chưa chắc thì bỏ qua làm sau. Hết giờ mà chưa trả lời thì không bị trừ. Xong sớm được thưởng thêm tối đa ${Math.round(RANK_SPEED*100)}% điểm trận. Bậc ${T.n} cần đạt ${Math.round(rankTarget(t)*100)}% điểm trận tối đa thì thanh mới tăng; bậc càng cao mức chuẩn càng cao.</div><div>• Thưởng chính xác: đúng 10/10 câu +6, 9/10 +4, 8/10 +2.</div><div>• Câu sắp xếp lời giải, sơ đồ: đúng một phần được điểm theo số dòng/ô đúng.</div></div>
+   <button class="btn alt" id="rBoard">Bảng xếp hạng</button>${rankLast()?`<button class="btn alt" id="rLast">Xem lại bài làm gần nhất</button>`:''}
    ${(P.prh||[]).length?`<h2 class="sect">Bài kiểm tra thăng hạng</h2><div class="tbox">${P.prh.slice(-4).reverse().map(h=>`<div class="row2"><span>${new Date(h.at).toLocaleString('vi-VN',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})} · lên ${TIERS[h.to].n} · ${h.pc}%</span><b class="${h.ok?'y':'n'}">${h.ok?'Đạt':'Chưa đạt'}</b></div>`).join('')}</div>`:''}
    ${(P.hist||[]).length?`<h2 class="sect">Trận gần đây</h2><div class="tbox">${P.hist.slice(-6).reverse().map(h=>`<div class="row2"><span>${new Date(h.at).toLocaleString('vi-VN',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})} · ${h.c}/${h.n} câu · ${h.s} điểm trận</span><b class="${h.d>=0?'y':'n'}">${h.d>=0?'+':''}${h.d}</b></div>`).join('')}</div>`:''}`;
   $('#rPlay')&&($('#rPlay').onclick=()=>{sfx.tap();startRank()});$('#rFix')&&($('#rFix').onclick=()=>{sfx.tap();redoTab='sai';redo()});
-  $('#rHw')&&($('#rHw').onclick=()=>{sfx.tap();curK=ACC.khoi;journey()});$('#rPw')&&($('#rPw').onclick=()=>{sfx.tap();startRedoKeys(promoWrong())});
+  $('#rHw')&&($('#rHw').onclick=()=>{sfx.tap();curK=ACC.khoi;journey()});
   $('#rPromo')&&($('#rPromo').onclick=()=>{sfx.tap();startPromo()});
-  $('#rBoard').onclick=()=>{sfx.tap();boardT=null;board()}}
+  $('#rBoard').onclick=()=>{sfx.tap();boardT=null;board()};$('#rLast')&&($('#rLast').onclick=()=>{sfx.tap();rankReview()})}
+/* ---------- Thi đấu: xem lại bài làm sau khi nộp (thầy chốt 28/11/2026) ----------
+   Chỉ hiện câu nào đúng, câu nào sai và em đã chọn gì; KHÔNG hiện đáp án đúng, KHÔNG hiện lời giải.
+   Câu đúng/sai nhiều ý chấm cả câu (đúng hết mới ✅), không chấm từng ý. Bài làm gần nhất lưu trên máy (không gửi lên máy chủ). */
+const RLK=()=>'ltt:rlast:'+(ACC&&ACC.id||'');
+function rankKeep(name){if(!G.log)return;store.set(RLK(),{name,at:new Date().toISOString(),log:G.log})}
+const rankLast=()=>{const v=store.get(RLK(),null);return v&&Array.isArray(v.log)&&v.log.length?v:null};
+let rvOnlyWrong=false;
+// Phần em đã trả lời, không lộ đáp án: trắc nghiệm hiện các phương án và tô phương án em chọn; dạng khác hiện câu trả lời của em
+function myAnsHTML(q,ans){if(ans==null)return '<div class="va">Em chưa trả lời câu này.</div>';
+  if(q.type==='ex')return (q.opts||[]).map((o,i)=>`<div class="va${o.t===ans?' me':''}">${'ABCDEF'[i]}. ${tex(o.t)}${o.t===ans?' <b>← em chọn</b>':''}</div>`).join('');
+  if(q.type==='extf'){const a=String(ans).split('; ');return (q.items||[]).map((o,i)=>`<div class="va">${'abcdef'[i]}) ${tex(o.t)} — em chọn <b>${esc((a[i]||'').replace(/^[a-f]\) /,''))}</b></div>`).join('')}
+  if(q.type==='exfb')return `<div class="va me">Em ghi: <b>${tex(String(ans))}</b></div>`;
+  return `<div class="va me">Em trả lời: ${String(ans).split('; ').map(x=>tex(x)).join('<br>')}</div>`}
+const okMark=x=>x.ok?'<b class="y">✅ Đúng</b>':x.part?'<b class="n">❌ Đúng một phần</b>':x.ans==null?'<b class="n">❌ Chưa làm</b>':'<b class="n">❌ Sai</b>';
+function rankReview(){const L=rankLast();if(!L)return ranked();show('redo');const nOk=L.log.filter(x=>x.ok).length;
+  const rows=L.log.map((x,i)=>({x,i})).filter(({x})=>!rvOnlyWrong||!x.ok);
+  $('#redoBody').innerHTML=`<div class="phead" style="--c:#7c5cff;--d:#5a3fd6"><b>Xem lại bài làm</b><span>${esc(L.name)} · ${new Date(L.at).toLocaleString('vi-VN',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})} · ${nOk}/${L.log.length} câu đúng. Thi đấu không hiện đáp án: câu nào chưa hiểu, em lưu lại rồi bấm Hỏi thầy.</span></div>
+   <div class="seg"><button data-rw="0" class="${rvOnlyWrong?'':'on'}">Tất cả (${L.log.length})</button><button data-rw="1" class="${rvOnlyWrong?'on':''}">Chỉ câu sai (${L.log.length-nOk})</button></div>
+   ${rows.length?rows.map(({x,i})=>`<div class="tbox rvq"><div class="row2"><b>Câu ${i+1}</b>${okMark(x)}</div><span class="tag tt">${esc(x.q.title||'')}</span>
+     <div class="stem">${tex(x.q.stem)}</div><div class="vans">${myAnsHTML(x.q,x.ans)}</div>
+     <div class="srow"><button class="btn alt sv" data-rs="${i}">${bookmark(tdSaved(x.q))} ${tdSaved(x.q)?'Đã lưu':'Lưu câu này'}</button></div></div>`).join('')
+     :'<div class="empty"><p>Em đúng hết, không có câu sai nào. Giỏi lắm!</p></div>'}
+   <button class="btn" id="rvB">Về thi đấu</button>`;
+  typeset($('#redoBody'));
+  $$('#redoBody [data-rw]').forEach(b=>b.onclick=()=>{sfx.tap();rvOnlyWrong=b.dataset.rw==='1';rankReview()});
+  $$('#redoBody [data-rs]').forEach(b=>b.onclick=()=>{sfx.tap();const x=L.log[+b.dataset.rs];tdToggle(x);b.innerHTML=bookmark(tdSaved(x.q))+' '+(tdSaved(x.q)?'Đã lưu':'Lưu câu này')});
+  $('#rvB').onclick=()=>{sfx.tap();ranked()}}
+// Câu Thi đấu đã lưu: giữ cả câu (để gửi thầy khi Hỏi thầy) nhưng giao diện học sinh không bao giờ hiện đáp án, lời giải.
+const tdEntry=q=>Object.entries(P.saved||{}).find(([,s])=>s.td&&s.k===q.key&&s.q.stem===q.stem);
+const tdSaved=q=>!!tdEntry(q);
+function tdToggle(x){const ex=tdEntry(x.q);if(ex){delete P.saved[ex[0]];save();syncMine();return}
+  if(Object.keys(P.saved||{}).length>=60)return toast('Đã lưu tối đa 60 câu. Em bỏ bớt câu cũ nhé.');
+  P.saved[(x.q.key||'q')+'-'+Date.now().toString(36)]={k:x.q.key,title:x.q.title||'',q:x.q,td:1,ok:x.ok,part:x.part,ans:x.ans,at:new Date().toISOString()};
+  save();syncMine();toast(`${bookmark(true)}<span>Đã lưu vào <b>Làm lại câu sai › Đã lưu</b>. Mở câu đó để bấm <b>Hỏi thầy</b>.</span>`)}
+function viewTd(id){const s=P.saved[id];if(!s)return;
+  overlay(`<div class="viewq"><span class="tag tt">Thi đấu · ${esc(s.title)}</span><div class="row2" style="margin-top:6px"><span></span>${okMark(s)}</div><div class="stem">${tex(s.q.stem)}</div><div class="vans">${myAnsHTML(s.q,s.ans)}</div>
+    <p class="tnote">Câu Thi đấu không kèm đáp án. ${s.asked?'Em đã hỏi thầy câu này, thầy sẽ chữa trên lớp.':'Chưa hiểu thì bấm <b>Hỏi thầy</b>, thầy sẽ giải thích.'}</p>
+    ${s.asked?'':`<textarea class="name ta" id="hqN" maxlength="300" placeholder="Em vướng ở đâu? (không bắt buộc)"></textarea>`}</div>
+    ${s.asked?'':'<button class="btn" id="hqS">Hỏi thầy</button>'}<button class="btn alt" id="vD">Bỏ lưu</button><button class="btn alt" id="vC">Đóng</button>`);
+  $('#vC').onclick=closeOvl;$('#vD').onclick=()=>{delete P.saved[id];save();syncMine();closeOvl();redo()};
+  $('#hqS')&&($('#hqS').onclick=async()=>{const b=$('#hqS');if(b.disabled)return;sfx.tap();b.disabled=true;b.textContent='Đang gửi…';
+    const {raw,...q}=s.q,snap={...q,my:s.ans,ok:s.ok,thidau:1}; // my: câu trả lời của em (ans là đáp số đúng của câu điền số)
+    try{await DB.collection('reports').doc().set({tid:q.tid,qkey:q.key,kind:'khac',hoi:true,note:$('#hqN').value,snap});s.asked=new Date().toISOString();save();syncMine();closeOvl();sfx.ok();toast('Đã gửi câu hỏi cho thầy. Thầy sẽ giải thích cho em!');redo()}
+    catch(e){b.disabled=false;b.textContent='Hỏi thầy';toast(esc(e.message||'Chưa gửi được, em thử lại.'))}})}
 /* Thi đấu: không lặp câu với cùng một người chơi.
    P.rseen[key] = "số trận|mã đề đã ra" — ưu tiên câu chưa gặp; câu có tham số gặp lại thì bắt buộc đổi số;
    câu cố định đã gặp chỉ dùng khi kho cạn, và lấy câu gặp lâu nhất. */
@@ -5933,7 +6000,7 @@ function promoPicks(to){const R=rankPools(ACC.khoi),picks=rankMix(R,promoMix(to)
   for(let i=0;i<picks.length&&picks.filter(nonMC).length<need;i++){if(nonMC(picks[i]))continue;const li=picks[i].li;
     const c=(R.all[li]||[]).filter(x=>nonMC(x)&&!used.has(x.q.key)).sort((a,b)=>rankRank(a)-rankRank(b))[0];if(c){used.add(c.q.key);picks[i]=c}}
   return {R,picks:picks.sort((a,b)=>a.li-b.li)}}
-function startPromo(){const t=tierMe(),to=t+1;if(to>TOP||rankLock()||!barFull(t,P.lp)||hwLeft().length||promoWrong().length||promoLeft()<=0)return ranked();
+function startPromo(){const t=tierMe(),to=t+1;if(to>TOP||rankLock()||!barFull(t,P.lp)||hwLeft().length||promoLeft()<=0)return ranked();
   const {R,picks}=promoPicks(to);if(R.all.reduce((s,p)=>s+p.length,0)<4)return msgBox('Chưa đủ câu hỏi','Khối này cần thêm chủ đề đã giao để làm bài kiểm tra.');
   let qs;try{qs=picks.map(x=>rankInst(x))}catch(e){return msgBox('Câu hỏi lỗi',esc(e.message))}
   newG('rank',qs,{used:0,promo:{from:t,to},ok3:0,wk:[]});G.tot=qs.reduce((a,q)=>a+qLim(q),0);hud();show('play');$('#stage').innerHTML='';$('#dock').innerHTML='';$('#modeLbl').textContent='Thăng hạng';
@@ -5945,17 +6012,15 @@ function promoFinish(nOk,tm){const {from,to}=G.promo,mx=G.qs.reduce((s,q)=>s+RAN
   P.matches=(P.matches||0)+1;P.pr={d:today,n:(P.pr&&P.pr.d===today?P.pr.n||0:0)+1};
   P.prh=[...(P.prh||[]),{at:new Date().toISOString(),from,to,pc:r.pc,ok:r.pass,c:nOk,n:G.qs.length,ok3:G.ok3||0,n3}].slice(-20);
   if(r.pass){P.tier=to;P.lp=Math.max(P.lp||0,TIER_LP[to]);P.shield=SHIELD;P.prw=[];if(to===TOP)P.tdh=[]}
-  else{P.lp=Math.max(TIER_LP[from],(P.lp||0)-PROMO_FAIL);P.prw=[...new Set(G.wk||[])]}
+  else P.lp=Math.max(TIER_LP[from],(P.lp||0)-PROMO_FAIL);
   const s=bumpStreak();save();syncMine();checkAch();if(r.pass){sfx.win();confetti(200,.3)}
   overlay(`${emblem(r.pass?to:from,90)}<h2>${r.pass?'Lên '+T.n+'!':'Chưa đạt'}</h2>
     <div class="lpd ${r.pass?'up':'down'}">${r.pc}%</div><p>Cần ${Math.round(promoPass(to)*100)}%${r.need3?` và ${r.need3} câu mức 3 đúng (em đúng ${G.ok3||0})`:''}</p>
     <div class="stat"><div><b>${nOk}/${G.qs.length}</b>câu đúng</div>${tm}</div>
-    <p style="font-size:14px">${r.pass?`Chúc mừng em! 5 trận tới em được bảo vệ, không bị tụt bậc.`:`Thanh tiến trình lùi ${PROMO_FAIL} điểm. ${P.prw.length?`Làm lại đúng ${P.prw.length} câu sai, `:''}đánh thêm trận cho đầy thanh rồi thi lại nhé.`}</p>${streakLine(s)}
-    <button class="btn" id="r3">Về thi đấu</button>${r.pass?'<button class="btn alt" id="r2">Bảng xếp hạng</button>':''}`);
+    <p style="font-size:14px">${r.pass?`Chúc mừng em! 5 trận tới em được bảo vệ, không bị tụt bậc.`:`Thanh tiến trình lùi ${PROMO_FAIL} điểm. Xem lại câu sai, đánh thêm trận cho đầy thanh rồi thi lại nhé.`}</p>${streakLine(s)}
+    <button class="btn alt" id="rRv">Xem lại bài làm (${nOk} đúng · ${G.qs.length-nOk} sai)</button><button class="btn" id="r3">Về thi đấu</button>${r.pass?'<button class="btn alt" id="r2">Bảng xếp hạng</button>':''}`);
+  rankKeep('Bài kiểm tra lên '+T.n);$('#rRv').onclick=()=>{closeOvl();rankReview()};
   $('#r3').onclick=()=>{closeOvl();ranked()};$('#r2')&&($('#r2').onclick=()=>{closeOvl();boardT=null;board()})}
-function startRedoKeys(keys){const ix=qIndex();let items;try{items=shuffle(keys.filter(k=>ix[k]).map(k=>{const {q,t,li}=ix[k];return inst(q,{tid:t.id,level:li,title:t.title})}))}catch(err){return msgBox('Câu hỏi lỗi',esc(err.message))}
-  if(!items.length){P.prw=[];save();return ranked()}
-  newG('so',items,{});hud();show('play');$('#stage').innerHTML='';$('#dock').innerHTML='';renderQ()}
 let boardT=null,boardTab='rank',boardK='mine';
 function board(){show('board');const me=ACC.id,ses=seasonName();
   const meDoc={...(PLAYERS.find(p=>p.id===me)||{}),id:me,name:ACC.name,khoi:ACC.khoi,nick:P.nick,avatar:P.avatar,eq:P.eq,lp:P.lp||0,tier:tierMe(),tdh:P.tdh||[],wk:P.wk,season:P.season,matches:P.matches};
@@ -6040,8 +6105,8 @@ const titleOf=p=>{const id=p&&p.eq&&p.eq.title;return id&&ITEM[id]?ITEM[id].name
 function checkSeason(){const s=seasonName();if(!P.season){P.season=s;return}if(P.season===s)return;
   const old=tierMe();P.seasons=[...(P.seasons||[]),{s:P.season,lp:P.lp||0,t:old}].slice(-12);const S=seasonStart(old);P.tier=S.tier;P.lp=S.lp;P.shield=0;P.tdh=[];P.prw=[];P.season=s;
   setTimeout(()=>msgBox(`${s} bắt đầu!`,`Mùa trước em đạt <b>${TIERS[old].n}</b>, đã lưu vào trang cá nhân. Sang mùa mới mọi người tụt ${SEASON_DROP} bậc: em bắt đầu ở <b>${TIERS[S.tier].n}</b>. Mỗi mùa kéo dài ${SEASON_DAYS} ngày.`),800)}
-/* Thi đấu: câu sai chưa làm lại đúng lần nào. Quá NB_LOCK câu thì khóa; khóa rồi làm lại đến khi còn ≤ NB_UNLOCK câu mới mở lại. */
-function nbOpen(){const ix=qIndex();return Object.entries(P.rev||{}).filter(([k,r])=>ix[k]&&r.in_notebook&&!(r.nb_hits>0)).length}
+/* Thi đấu: số câu đang ở Câu sai (chỉ câu Bản đồ và Ôn tập). Quá NB_LOCK câu thì khóa; khóa rồi làm lại đến khi còn ≤ NB_UNLOCK câu mới mở lại. */
+function nbOpen(){return nbList().length}
 function rankLock(){if(!ACC||ACC.teacher)return 0;const n=nbOpen();if(n>NB_LOCK)P.rlock=1;else if(n<=NB_UNLOCK&&P.rlock){P.rlock=0;save()}return P.rlock?n:0}
 
 /* ---------- âm thanh ---------- */
@@ -6239,14 +6304,17 @@ function startLevel(i=0){const t=curT,items=buildMan(t),L=lessonOf(t);
   overlay(`<div class="lvlcard"><p style="margin:0">${L&&L.ch?'Chương '+L.ch.n+' · '+esc(L.ch.title):esc(t.title)}</p><div class="num">${L?(L.lt?L.coin:L.num):'★'}</div><h2 style="font-size:26px">${esc(L?(L.title):t.title)}</h2>
     <p>${items.length} câu, khó dần: ${cnt[0]} nhận biết · ${cnt[1]} thông hiểu · ${cnt[2]} vận dụng<br>3 tim, hết tim vẫn được hồi để làm tiếp.</p><button class="btn" id="go">Bắt đầu</button>${hasTheory(t)?`<button class="btn alt thbtn" id="th">${bookSVG} Xem lý thuyết</button>`:''}</div>`);
   $('#go').onclick=()=>{sfx.tap();closeOvl();renderQ()};$('#th')&&($('#th').onclick=()=>{sfx.tap();openTheoryReview(t)})}
-function startReview(){const ix=qIndex();const e=Object.entries(P.rev||{}).filter(([k,r])=>ix[k]&&r.in_notebook).sort((a,b)=>(a[1].nb_hits>0)-(b[1].nb_hits>0)||a[1].due.localeCompare(b[1].due)).slice(0,10);
-  if(!e.length)return msgBox('Làm lại câu sai','Chưa có câu sai nào cần làm lại.');
-  let items;try{items=shuffle(e.map(([k])=>{const {q,t,li}=ix[k];return inst(q,{tid:t.id,level:li,title:t.title})}))}catch(err){return msgBox('Câu hỏi lỗi',esc(err.message))}
+function startReview(){const ix=qIndex(),used=new Set(),picks=[];
+  for(const [k] of nbList(ix).sort((a,b)=>String(a[1].due).localeCompare(String(b[1].due)))){if(picks.length>=10)break;const x=pickTwin(k,ix,used);if(!x)continue;used.add(x.q.key);picks.push([k,x])}
+  if(!picks.length)return msgBox('Làm lại câu sai','Chưa có câu sai nào làm lại được hôm nay.');
+  let items;try{items=shuffle(picks.map(([k,{q,t,li}])=>inst(q,{tid:t.id,level:li,title:t.title,_of:k})))}catch(err){return msgBox('Câu hỏi lỗi',esc(err.message))}
   newG('so',items,{});hud();show('play');$('#stage').innerHTML='';$('#dock').innerHTML='';renderQ()}
 function hud(){$('#progB').style.width=(G.k/G.qs.length*100)+'%';
   $('#hearts').innerHTML=G.hearts>50?'':[0,1,2].map(i=>heart.replace('<svg',`<svg class="${i<G.hearts?'':'lost'}"`)).join('');
-  const nsk=G.mode==='rank'?G.qs.slice(G.k).filter(x=>x._sk).length:0;$('#qnum').textContent=`Câu ${Math.min(G.k+1,G.qs.length)}/${G.qs.length}`+(nsk?` · ${nsk} câu làm sau`:'');$('#score').textContent=G.score+' điểm';
-  $('#combo').textContent=G.combo>=2?`Chuỗi đúng ×${G.combo}`:''}
+  const nsk=G.mode==='rank'?G.qs.slice(G.k).filter(x=>x._sk).length:0;$('#qnum').textContent=`Câu ${Math.min(G.k+1,G.qs.length)}/${G.qs.length}`+(nsk?` · ${nsk} câu làm sau`:'');
+  // Thi đấu: trong trận không lộ đúng/sai (điểm, chuỗi đúng chỉ hiện sau khi nộp bài)
+  const RK=G.mode==='rank';$('#score').textContent=RK?'':G.score+' điểm';
+  $('#combo').textContent=!RK&&G.combo>=2?`Chuỗi đúng ×${G.combo}`:''}
 function isSaved(q){return Object.values(P.saved||{}).some(s=>s.k===q.key&&s.q.stem===q.stem)}
 function toggleSave(q,btn){const ex=Object.entries(P.saved||{}).find(([,s])=>s.k===q.key&&s.q.stem===q.stem);
   if(ex)delete P.saved[ex[0]];else{if(Object.keys(P.saved).length>=60)return toast('Đã lưu tối đa 60 câu. Em bỏ bớt câu cũ nhé.');
@@ -6257,8 +6325,9 @@ function renderQ(){hud();const q=cur();const st=$('#stage');$('#dock').innerHTML
   const reviewButton=$('#playTheory');reviewButton.hidden=!hasTheory(reviewTopic);
   reviewButton.onclick=reviewButton.hidden?null:()=>{sfx.tap();openTheoryReview(reviewTopic)};
   const nh=['man','so','one'].includes(G.mode)&&q.hints?q.hints.length:0;
-  let h=`<div class="card${G.twin?' twin':''}" id="qc"><div class="ctop"><span class="tag">${G.twin?'Câu tương tự':TYPE[q.type]}</span>${G.mode!=='man'?`<span class="tag tt">${esc(q.title)}</span>`:''}
-    ${G.mode==='rank'&&q._sk?'<span class="tag tt">Câu làm sau</span>':''}${G.mode==='rank'&&G.k<G.qs.length-1?'<button class="hintbtn" id="skipB">Bỏ qua, làm sau</button>':''}${nh?`<button class="hintbtn" id="hintB">Gợi ý (${nh})${G.mode==='man'?' · −30 điểm':''}</button>`:''}${GV()&&q.tid?`<button class="savebtn" id="editB" aria-label="Sửa câu này">✎</button>`:''}<button class="savebtn" id="saveB" aria-label="Lưu câu hỏi">${bookmark(isSaved(q))}</button></div>
+  const RK=G.mode==='rank',saveBtn=RK?'':`<button class="savebtn" id="saveB" aria-label="Lưu câu hỏi">${bookmark(isSaved(q))}</button>`;
+  let h=`<div class="card${G.twin?' twin':''}" id="qc"><div class="ctop"><span class="tag">${G.twin?'Câu tương tự':TYPE[q.type]}</span>${G.mode!=='man'?`<span class="tag tt">${esc(q.title)}</span>`:''}${G.mode==='so'&&q._of&&q.key!==q._of?'<span class="tag tt">Câu mới cùng bài</span>':''}
+    ${G.mode==='rank'&&q._sk?'<span class="tag tt">Câu làm sau</span>':''}${G.mode==='rank'&&G.k<G.qs.length-1?'<button class="hintbtn" id="skipB">Bỏ qua, làm sau</button>':''}${nh?`<button class="hintbtn" id="hintB">Gợi ý (${nh})${G.mode==='man'?' · −30 điểm':''}</button>`:''}${GV()&&q.tid?`<button class="savebtn" id="editB" aria-label="Sửa câu này">✎</button>`:''}${saveBtn}</div>
     <div class="stem">${tex(q.stem)}</div><div class="hints" id="hintsBox" style="display:none"></div>`;
   if(q.type==='ex'){G.opts=shuffle(q.opts);h+=`<div class="opts">${G.opts.map((o,i)=>`<button class="opt" data-i="${i}" style="animation-delay:${.08*i+.1}s"><span class="k">${'ABCDEF'[i]}</span><span class="ot">${tex(o.t)}</span></button>`).join('')}</div>`}
   if(q.type==='extf'){G.tf=q.items.map(()=>null);h+=`<div class="tf">${q.items.map((it,i)=>`<div class="tfrow" style="animation-delay:${.07*i}s"><div class="lbl"><b>${'abcdef'[i]})</b> ${tex(it.t)}</div><div class="tfb"><button class="t" data-i="${i}" data-v="1">Đ</button><button class="f" data-i="${i}" data-v="0">S</button></div></div>`).join('')}</div>`}
@@ -6270,7 +6339,7 @@ function renderQ(){hud();const q=cur();const st=$('#stage');$('#dock').innerHTML
   if(isQ2(q))h+=`<div id="q2a"></div>`;
   st.innerHTML=h+'</div>';typeset(st);if(isQ2(q)){q2Init(q);q2Draw()}
   $('#editB')&&($('#editB').onclick=()=>{const t=TOPICS.find(x=>x.id===q.tid);if(!t)return;const bs=qBlocks(t.raw),b=bs.findIndex(x=>!x.man&&parseOne(x.raw).q?.key===q.key);if(b<0)return toast('Không tìm thấy câu này trong chủ đề (có thể đã được sửa).');editQ(t,b)});
-  $('#saveB').onclick=e=>{sfx.tap();toggleSave(q,e.currentTarget)};
+  $('#saveB')&&($('#saveB').onclick=e=>{sfx.tap();toggleSave(q,e.currentTarget)});
   $('#skipB')&&($('#skipB').onclick=()=>{if(G.done)return;sfx.tap();pauseTimer();const x=G.qs.splice(G.k,1)[0];x._sk=1;G.qs.push(x);renderQ()});
   if(nh)$('#hintB').onclick=()=>{if(G.done)return;sfx.tap();G.hu=Math.min(G.hu+1,nh);G.htot=(G.htot||0)+1;const box=$('#hintsBox');box.style.display='';
     box.innerHTML=q.hints.slice(0,G.hu).map((x,i)=>`<div><b>Gợi ý ${i+1}.</b> ${tex(x)}</div>`).join('');typeset(box);
@@ -6292,20 +6361,20 @@ function pauseTimer(){clearInterval(TM);if(G&&G.qt0){G.used+=Date.now()-G.qt0;G.
 function startTimer(q){clearInterval(TM);G.qt0=Date.now();
   const tick=()=>{const left=timeLeft();$('#timerB').style.width=(left/G.tot*100)+'%';$('#timer').classList.toggle('low',left<30000);$('#modeLbl').textContent=fmtT(left);
     if(left<=0&&!G.done){clearInterval(TM);G.done=true;G.timeUp=true;G.ansTxt='(hết giờ, chưa trả lời)';$('#qc').classList.add('lock');
-      const rest=G.qs.length-G.k-1;result(false,null,(rest>0?`Còn ${rest} câu chưa làm, tính là sai.`:'')+'<div class="vans">'+answerHTML(cur())+'</div>',true)}};tick();TM=setInterval(tick,200)}
+      result(false,null,'',true)}};tick();TM=setInterval(tick,200)}
 const whyBox=xs=>xs.length?`<div class="loi"><b>Vì sao chưa đúng?</b>${xs.map(x=>`<div>${x}</div>`).join('')}</div>`:'';
 function answerMC(b){if(G.done)return;G.done=true;const o=G.opts[+b.dataset.i];G.ansTxt=o.t;$('#qc').classList.add('lock');
-  const okI=G.opts.findIndex(x=>x.ok);$$('#qc .opt')[okI].classList.add('ok');
-  if(!o.ok)b.classList.add('no');result(o.ok,b,o.ok?'':whyBox(o.why?[tex(o.why)]:[])+`Đáp án đúng: <b>${'ABCDEF'[okI]}</b>. ${tex(G.opts[okI].t)}`)}
+  const okI=G.opts.findIndex(x=>x.ok);if(G.mode==='rank')b.classList.add('pick');else{$$('#qc .opt')[okI].classList.add('ok');
+  if(!o.ok)b.classList.add('no')}result(o.ok,b,o.ok?'':whyBox(o.why?[tex(o.why)]:[])+`Đáp án đúng: <b>${'ABCDEF'[okI]}</b>. ${tex(G.opts[okI].t)}`)}
 function checkTF(){G.done=true;const q=cur();$('#qc').classList.add('lock');const rows=$$('#qc .tfrow');let all=true;
-  q.items.forEach((it,i)=>{const ok=G.tf[i]===it.ok;all=all&&ok;rows[i].classList.add(ok?'ok':'no')});G.ansTxt=q.items.map((it,i)=>`${'abcdef'[i]}) ${G.tf[i]?'Đúng':'Sai'}`).join('; ');
+  q.items.forEach((it,i)=>{const ok=G.tf[i]===it.ok;all=all&&ok;if(G.mode!=='rank')rows[i].classList.add(ok?'ok':'no')});G.ansTxt=q.items.map((it,i)=>`${'abcdef'[i]}) ${G.tf[i]?'Đúng':'Sai'}`).join('; ');
   const ws=q.items.map((it,i)=>G.tf[i]!==it.ok&&it.why?`<b>${'abcdef'[i]})</b> ${tex(it.why)}`:'').filter(Boolean);
   result(all,$('#tchk'),all?'':whyBox(ws)+'Đáp án đúng: '+q.items.map((it,i)=>`<b>${'abcdef'[i]}) ${it.ok?'Đúng':'Sai'}</b>`).join(' &nbsp; '))}
 const norm=s=>s.replace(/\s/g,'').replace(/−/g,'-').replace(/,/g,'.');
 function val(s){s=norm(s);if(/^-?\d+(\.\d+)?\/-?\d+(\.\d+)?$/.test(s)){const [a,b]=s.split('/').map(Number);return b?a/b:NaN}return /^-?\d*\.?\d+$/.test(s)?Number(s):NaN}
 function same(a,b){const x=val(a),y=val(b);return !isNaN(x)&&!isNaN(y)?Math.abs(x-y)<1e-9:norm(a)===norm(b)}
 function keyIn(k){const ab=$('#ab');if(!ab||G.done)return;sfx.tap();
-  if(k==='OK'){if(!G.typed)return;G.done=true;G.ansTxt=G.typed;const q=cur();const ok=q.ans.some(a=>same(G.typed,a));ab.classList.add(ok?'ok':'no');
+  if(k==='OK'){if(!G.typed)return;G.done=true;G.ansTxt=G.typed;const q=cur();const ok=q.ans.some(a=>same(G.typed,a));if(G.mode!=='rank')ab.classList.add(ok?'ok':'no');
     const tr=!ok&&(q.traps||[]).find(x=>same(G.typed,x.a));
     result(ok,ab,ok?'':whyBox(tr?[tex(tr.why)]:[])+`Đáp số đúng: <b>${tex(q.ans[0])}</b>`);return}
   if(k==='⌫')G.typed=G.typed.slice(0,-1);else if(G.typed.length<12)G.typed+=k;ab.textContent=G.typed}
@@ -6318,7 +6387,7 @@ function paintMatch(){const it=$$('#stage .mi');it.forEach(e=>{e.classList.remov
   if(G.sel!=null)L[G.sel].classList.add('sel');
   Object.keys(G.link).map(Number).sort((a,b)=>a-b).forEach((l,n)=>{const [bg,bd]=MPC[n%MPC.length];[L[l],R[G.link[l]]].forEach(e=>{e.style.background=bg;e.style.boxShadow=`0 4px 0 ${bd}55,inset 0 0 0 3px ${bd}`})})}
 function checkMatch(){G.done=true;G.ansTxt=G.L.map((x,l)=>x.t+' ⟶ '+(G.link[l]!=null?G.R[G.link[l]].t:'?')).join('; ');$('#qc').classList.add('lock');const it=$$('#stage .mi');const L=it.filter(e=>e.dataset.s==='L'),R=it.filter(e=>e.dataset.s==='R');let all=true;
-  Object.entries(G.link).forEach(([l,r])=>{const ok=G.L[l].i===G.R[r].i;all=all&&ok;[L[l],R[r]].forEach(e=>{e.style.boxShadow='';e.classList.add(ok?'ok':'no')})});
+  Object.entries(G.link).forEach(([l,r])=>{const ok=G.L[l].i===G.R[r].i;all=all&&ok;if(G.mode!=='rank')[L[l],R[r]].forEach(e=>{e.style.boxShadow='';e.classList.add(ok?'ok':'no')})});
   result(all,$('#mchk'),all?'':'Cách nối đúng:'+G.L.map((x,i)=>`<div class="va"><span class="mdot" style="background:${MPC[i%MPC.length][1]}"></span>${tex(x.t)} ⟶ ${tex(G.R.find(y=>y.i===x.i).t)}</div>`).join(''))}
 
 /* ---------- dạng mới: Sắp xếp lời giải (exsx) và Sơ đồ phân tích đi lên (exsd) ----------
@@ -6445,7 +6514,8 @@ function q2Check(q){const S=G.q2,wrong=[];let ok=0,tot=0,right='';S.mark={};
       S.mark[s.key]=good?'ok':'no';if(good){ok++;return}if(!B.trap)hl.add('c'+B.nid);
       wrong.push(B.trap?`Căn cứ <span class="q2b">${tex(B.t)}</span> chưa đúng.${B.why?' '+tex(B.why):''}`:`Căn cứ <span class="q2b">${tex(B.t)}</span> đặt nhầm chỗ (ô này cần: ${tex(exp)}). Chỗ đúng của nó được tô viền vàng.`)});
     G.ansTxt=S.slots.map(s=>'ô '+s.key+': '+q2Blk(S.fill[s.key]).t).join('; ');right=sdFull(q,hl)}
-  const all=ok===tot;G.done=true;G.frac=tot?ok/tot:0;$('#qc').classList.add('lock');q2Draw();
+  const all=ok===tot;G.done=true;G.frac=tot?ok/tot:0;$('#qc').classList.add('lock');if(G.mode==='rank')S.mark={}; // Thi đấu: không tô đúng/sai trong trận
+  q2Draw();
   result(all,$('#q2a'),all?'':whyBox(wrong)+`<div class="q2r">Đúng ${ok}/${tot} ${q.type==='exsx'?'dòng':'ô'}${G.mode==='rank'&&ok?` · được ${Math.round(100*G.frac)}% điểm câu`:''}. ${q.type==='exsx'?'Lời giải đúng:':'Sơ đồ đúng:'}</div>${right}`)}
 function sxRight(q){const runs={};q.steps.forEach((s,i)=>{if(s.g)(runs[s.g]=runs[s.g]||[]).push(i+1)});
   return `<ol class="sx-sol">${q.steps.map((s,i)=>`<li><div class="sx-ln full"><span class="n">${i+1}</span><span class="t">${tex(s.t)}</span></div></li>`).join('')}</ol>`+
@@ -6456,9 +6526,11 @@ function q2Answer(q){const w=x=>x?`<div class="vw">↳ ${tex(x)}</div>`:'';
   return q.type==='exsx'?sxRight(q)+bad(q.bad,'Khối sai'):sdFull(q,null)+bad(q.bad,'Mệnh đề sai')+bad(q.badc,'Căn cứ sai')}
 
 // Ghi nhận: lịch ôn / câu sai / thống kê / XP
+// Thi đấu: không ghi vào lịch ôn / Câu sai (câu sai Thi đấu không vào Làm lại câu sai).
+// Làm lại câu sai: q._of là câu sai gốc, q là câu thay thế; kết quả ghi cho câu gốc (đúng 1 lần là ra khỏi Câu sai).
 function recordQ(q,ok){if(!q.key)return;const today=vnDay();
-  const prev=P.rev[q.key],nx=nextReview(prev||null,ok,today);if(nx){if(prev&&prev.in_notebook&&!nx.in_notebook)P.stats.cleared++;P.rev[q.key]={...nx,tid:q.tid,level:q.level}}
-  else if(ok&&prev&&prev.in_notebook&&!prev.nb_hits)P.rev[q.key]={...prev,nb_hits:1}; // đã đúng trước đó trong ngày rồi sai: làm lại đúng vẫn tính là đã sửa
+  if(G.mode==='so'&&q._of){const o=P.rev[q._of];if(o&&o.in_notebook){const r=redoResult(o,ok,today);if(!r.in_notebook)P.stats.cleared++;P.rev[q._of]=r}}
+  else if(G.mode!=='rank'){const prev=P.rev[q.key],nx=nextReview(prev||null,ok,today);if(nx)P.rev[q.key]={...nx,tid:q.tid,level:q.level}}
   const w=P.wst[q.key]||{n:0,w:0,tid:q.tid};w.n++;if(!ok)w.w++;w.d=today;P.wst[q.key]=w;
   if(ok){P.stats.correct++;addXP(G.mode==='rank'?5:10);wkE().c++;qev('dung10');if(G.mode==='so')qev('sua3')}save();syncMine()}
 function bumpStreak(){const nx=nextStreak(P.st||{},vnDay());if(!nx)return null;const {shieldUsed,...p}=nx;P.st=p;save();syncMine();return nx}
@@ -6487,6 +6559,7 @@ function reportQ(q,btn,extra){sfx.tap();let kind='';
     catch(e){s.disabled=false;s.textContent='Gửi cho thầy';const er=$('#rpE');er.style.display='';er.textContent=e.message||'Chưa gửi được, em thử lại.'}}}
 function result(ok,el,why,timeout){if(G.mode==='rank')pauseTimer();else clearInterval(TM);const q=cur();recordQ(q,ok);
   if(G.promo){if(ok&&(q.level||0)>=2)G.ok3++;if(!ok&&q.key)G.wk.push(q.key)}
+  if(G.mode==='rank')return rankAnswered(q,ok,timeout);
   if(G.twin){const healed=ok&&G.mode==='man'&&G.hearts<3;if(healed)G.hearts++;hud();ok?(sfx.ok(),confetti(40,.45)):sfx.no();$('#dock').innerHTML='';
     const sh=sheetOpen(ok,ok?(healed?'Đúng rồi! Hồi 1 tim':'Đúng rồi!'):'Chưa đúng rồi',why,q,`<button class="btn ${ok?'':'co'}" id="nx">${G.over?'Xem kết quả':'Câu tiếp theo'}</button>`);
     $('#nx').onclick=()=>{sfx.tap();sh.classList.remove('on');G.twin=null;G.over?finish():renderQ()};return}
@@ -6507,6 +6580,15 @@ function result(ok,el,why,timeout){if(G.mode==='rank')pauseTimer();else clearInt
     `${canTwin?`<button class="btn" id="tw">Thử câu tương tự${G.hearts<3?' (đúng được hồi 1 tim)':''}</button>`:''}<button class="btn ${ok?'':'co'}" id="nx">${out?'Tiếp tục':G.over?(G.mode==='man'?'Hoàn thành màn':'Xem kết quả'):'Câu tiếp theo'}</button>`);
   if(canTwin)$('#tw').onclick=()=>{sfx.tap();G.twinUsed[wi]=1;try{G.twin=inst(q.raw,{tid:q.tid,level:q.level,title:q.title})}catch(e){return}sh.classList.remove('on');renderQ()};
   $('#nx').onclick=()=>{sfx.tap();sh.classList.remove('on');G.needRevive?revive():G.over?finish():renderQ()}}
+/* Thi đấu: chấm thầm, không hiện đúng/sai, đáp án hay lời giải; ghi lại bài làm để xem sau khi nộp. */
+function rankAnswered(q,ok,timeout){const lv=Math.min(3,q.level||0);let pts=0;
+  if(ok){G.combo++;P.stats.maxCombo=Math.max(P.stats.maxCombo,G.combo);qev('chuoi5',G.combo,true);pts=RANK_PTS[lv]}
+  else{G.combo=0;G.miss++;pts=G.frac>0?Math.round(RANK_PTS[lv]*G.frac):timeout?0:-wrongPenalty(RANK_PTS[lv])}
+  G.score+=pts;(G.log||(G.log=[])).push(rankLogOf(q,ok,timeout?null:G.ansTxt));G.k++;
+  if(G.timeUp){G.qs.slice(G.k).forEach(x=>G.log.push(rankLogOf(x,false,null)));G.miss+=G.qs.length-G.k;G.k=G.qs.length}
+  $('#dock').innerHTML='';hud();checkAch();G.over=G.k>=G.qs.length;if(!G.timeUp)sfx.tap();
+  setTimeout(()=>{if(G.mode!=='rank')return;G.over?finish():renderQ()},G.timeUp?0:300)}
+const rankLogOf=(q,ok,ans)=>{const {raw,...x}=q;return {q:x,ok:!!ok,part:!ok&&ans!=null&&G.frac>0&&G.frac<1,ans}};
 function revive(){overlay(`<div style="width:96px;margin:0 auto">${owlSVG}</div><h2>Hết tim rồi!</h2><p>Không sao, Cherry hồi lại 3 tim để em làm tiếp từ câu sau. Qua màn kiểu này được tối đa 1 sao.</p><button class="btn" id="rv1">Hồi 3 tim, làm tiếp</button><button class="btn alt" id="rv2">Chơi lại từ đầu</button><button class="btn alt" id="rv3">Về bản đồ</button>`);
   $('#rv1').onclick=()=>{closeOvl();G.hearts=3;G.revived=true;G.needRevive=false;hud();G.over?finish():renderQ()};$('#rv2').onclick=()=>{closeOvl();startLevel(G.i)};$('#rv3').onclick=()=>{closeOvl();journey()}}
 
@@ -6524,7 +6606,8 @@ function finish(){clearInterval(TM);const sec=Math.round((Date.now()-G.t0)/1000)
       ${full?`<p class="tnote">Thanh tiến trình đã đầy: làm bài kiểm tra để lên <b>${TIERS[t1+1].n}</b>.</p>`:''}${t1<t0?`<p class="tnote">Thanh tiến trình tụt dưới mốc ${TIERS[t0].n}. Đầy thanh lại thì thi để lên lại nhé.</p>`:''}
       <div class="stat"><div><b>${G.score}</b>điểm trận</div><div><b>${nOk}/${G.qs.length}</b>câu đúng</div>${tm}</div>
       <p style="font-size:14px">${sb?`Xong sớm, thưởng thời gian <b>+${sb}</b> điểm trận. `:''}${RD.bonus?`Thưởng chính xác <b>+${RD.bonus}</b>. `:''}</p>${streakLine(s)}
-      ${rankLock()?`<p class="tnote">Em đang có hơn ${NB_LOCK} câu sai chưa làm lại. Làm lại đến khi còn không quá ${NB_UNLOCK} câu để mở lại Thi đấu.</p><button class="btn" id="r4">Làm lại câu sai</button>`:full?'<button class="btn" id="r3b">Làm bài kiểm tra</button>':'<button class="btn" id="r1">Trận nữa</button>'}<button class="btn alt" id="r2">Bảng xếp hạng</button><button class="btn alt" id="r3">Về thi đấu</button>`);
+      ${rankLock()?`<p class="tnote">Em đang có hơn ${NB_LOCK} câu sai chưa làm lại. Làm lại đến khi còn không quá ${NB_UNLOCK} câu để mở lại Thi đấu.</p><button class="btn" id="r4">Làm lại câu sai</button>`:full?'<button class="btn" id="r3b">Làm bài kiểm tra</button>':'<button class="btn" id="r1">Trận nữa</button>'}<button class="btn alt" id="rRv">Xem lại bài làm (${nOk} đúng · ${G.qs.length-nOk} sai)</button><button class="btn alt" id="r2">Bảng xếp hạng</button><button class="btn alt" id="r3">Về thi đấu</button>`);
+    rankKeep('Trận đấu');$('#rRv').onclick=()=>{closeOvl();rankReview()};
     $('#r1')&&($('#r1').onclick=()=>{closeOvl();startRank()});$('#r3b')&&($('#r3b').onclick=()=>{closeOvl();ranked()});$('#r4')&&($('#r4').onclick=()=>{closeOvl();redoTab='sai';redo()});$('#r2').onclick=()=>{closeOvl();boardT=null;board()};$('#r3').onclick=()=>{closeOvl();ranked()};return}
   if(G.mode==='de'){qev('de');const t=G.t,k=key(t,0),pc=Math.round(nOk/G.qs.length*100),st=pc>=90?3:pc>=70?2:pc>=50?1:0;
     if(st>(P.best[k]||0)||P.best[k]==null)P.best[k]=Math.max(st,P.best[k]||0);if(pc>(P.score[k]??-1))P.score[k]=pc;P.pt[k]=P.pt[k]||new Date().toISOString();
@@ -6581,22 +6664,28 @@ function accounts(){show('track');$('#trTitle').textContent='Tài khoản học 
   $$('#trk [data-restore]').forEach(b=>b.onclick=async()=>{const a=ACCS_DEL.find(x=>x.id===b.dataset.restore);if(!a||b.disabled)return;b.disabled=true;
     try{await DB.doc('accounts/'+a.id).update({restore:true});toast(`Đã khôi phục tài khoản của ${esc(a.name)}`)}catch(e){b.disabled=false;msgBox('Chưa khôi phục được',esc(e.message))}})}
 /* báo lỗi câu hỏi: nhóm theo câu (nhiều bạn báo cùng một câu) */
-function repGroups(done){const m=new Map();for(const r of REPS.filter(x=>!!x.done===done)){const k=r.tid+'|'+r.qkey;if(!m.has(k))m.set(k,[]);m.get(k).push(r)}return [...m.values()]}
+// hoi=true: câu Thi đấu học sinh bấm "Hỏi thầy" (snap.hoi); còn lại là báo lỗi câu hỏi. Nhóm theo câu, sắp theo số em hỏi/báo.
+const isHoi=r=>!!(r.snap&&r.snap.hoi);
+function repGroups(done,hoi=false){const m=new Map();for(const r of REPS.filter(x=>!!x.done===done&&isHoi(x)===hoi)){const k=r.tid+'|'+r.qkey;if(!m.has(k))m.set(k,[]);m.get(k).push(r)}return [...m.values()]}
 const vnTime=s=>{const d=new Date(s);return isNaN(d)?'':d.toLocaleString('vi-VN',{hour:'2-digit',minute:'2-digit',day:'2-digit',month:'2-digit'})};
-function reportsPage(){show('track');$('#trTitle').textContent='Câu báo lỗi';const open=repGroups(false),done=repGroups(true);
+function reportsPage(hoi=false){show('track');$('#trTitle').textContent=hoi?'Câu học sinh hỏi':'Câu báo lỗi';const open=repGroups(false,hoi).sort((a,b)=>hoi?b.length-a.length:0),done=repGroups(true,hoi);
   const card=(g,gi)=>{const r0=g[0],s=r0.snap||{},t=TOPICS.find(x=>x.id===r0.tid),cnt={};g.forEach(r=>cnt[r.kind]=(cnt[r.kind]||0)+1);let ans='';try{ans=answerHTML(s)}catch(e){}
     return `<div class="tbox rpc"><div class="rph"><b>${esc(t?t.title:s.title||r0.tid)}</b><small>${[t?`Khối ${esc(t.khoi)}`:'',s.level!=null?`Mức ${s.level+1}`:''].filter(Boolean).join(' · ')}</small></div>
-      <div class="rpchips">${Object.entries(cnt).map(([k,n])=>`<span class="chip late">${REPK[k]||k}${n>1?` ×${n}`:''}</span>`).join('')}</div>
+      <div class="rpchips">${hoi?`<span class="chip late">Thi đấu · ${g.length} em hỏi</span>`:Object.entries(cnt).map(([k,n])=>`<span class="chip late">${REPK[k]||k}${n>1?` ×${n}`:''}</span>`).join('')}</div>
       <div class="stem">${tex(s.stem||'')}</div>${ans?`<div class="vans">${ans}</div>`:''}${s.sol?`<details><summary>Lời giải</summary><div class="sol">${tex(s.sol)}</div></details>`:''}
-      <div class="rpwho">${g.map(r=>`<div><b>${esc(r.name)}</b>${r.khoi?` · khối ${esc(r.khoi)}`:''} · <small>${vnTime(r.at)}</small>${r.snap&&r.snap.ans!=null?`<br><small>Em trả lời: ${tex(String(r.snap.ans))}${r.snap.ok===true?' (đúng)':r.snap.ok===false?' (sai)':''}</small>`:''}${r.note?`<div class="rpn">“${esc(r.note)}”</div>`:''}</div>`).join('')}</div>
-      <div class="rpbt"><button class="btn sm" data-rq="${gi}">✎ Sửa câu này</button><button class="btn sm alt" data-rd="${gi}">✓ Đã xử lý</button></div></div>`};
-  $('#trk').innerHTML=(open.length?`<div class="tbox"><b>Học sinh báo ${open.length} câu</b><p class="tnote">Bấm <b>Sửa câu này</b> để sửa, xong bấm <b>Đã xử lý</b>. Câu không có lỗi cũng bấm <b>Đã xử lý</b>.</p></div>`+open.map(card).join('')
+      <div class="rpwho">${g.map(r=>`<div><b>${esc(r.name)}</b>${r.khoi?` · khối ${esc(r.khoi)}`:''} · <small>${vnTime(r.at)}</small>${r.snap&&(r.snap.my??(Array.isArray(r.snap.ans)?null:r.snap.ans))!=null?`<br><small>Em trả lời: ${tex(String(r.snap.my??r.snap.ans))}${r.snap.ok===true?' (đúng)':r.snap.ok===false?' (sai)':''}</small>`:''}${r.note?`<div class="rpn">“${esc(r.note)}”</div>`:''}</div>`).join('')}</div>
+      <div class="rpbt">${hoi?'':`<button class="btn sm" data-rq="${gi}">✎ Sửa câu này</button>`}<button class="btn sm alt" data-rd="${gi}">✓ ${hoi?'Đã chữa':'Đã xử lý'}</button></div></div>`};
+  $('#trk').innerHTML=hoi?(open.length?`<div class="tbox"><b>Học sinh hỏi ${open.length} câu Thi đấu</b><p class="tnote">Câu nhiều em hỏi nhất ở trên cùng. Học sinh không xem được đáp án câu Thi đấu, nên thầy chữa trên lớp rồi bấm <b>Đã chữa</b>.</p></div>`+open.map(card).join('')
+    :`<div class="tbox"><b>Chưa có em nào hỏi.</b><p class="tnote">Sau trận Thi đấu, học sinh lưu câu chưa hiểu rồi bấm <b>Hỏi thầy</b>. Câu được hỏi sẽ hiện ở đây.</p></div>`)+
+    (done.length?`<details class="tbox adel"><summary><b>Đã chữa gần đây (${done.length})</b></summary>${done.map((g,gi)=>{const r0=g[0],t=TOPICS.find(x=>x.id===r0.tid);
+      return `<div class="row2"><span>${esc(t?t.title:r0.tid)}<br><small>${esc(String((r0.snap||{}).stem||'').replace(/\$/g,'').slice(0,70))}… · ${g.length} em hỏi</small></span><button class="btn sm alt" data-ro="${gi}">Mở lại</button></div>`}).join('')}</details>`:'')
+   :(open.length?`<div class="tbox"><b>Học sinh báo ${open.length} câu</b><p class="tnote">Bấm <b>Sửa câu này</b> để sửa, xong bấm <b>Đã xử lý</b>. Câu không có lỗi cũng bấm <b>Đã xử lý</b>.</p></div>`+open.map(card).join('')
     :`<div class="tbox"><b>Chưa có câu nào bị báo lỗi.</b><p class="tnote">Học sinh bấm <b>Báo lỗi</b> ở bảng kết quả sau mỗi câu (hoặc dưới mỗi câu tự luận). Câu được báo sẽ hiện ở đây.</p></div>`)+
     (done.length?`<details class="tbox adel"><summary><b>Đã xử lý gần đây (${done.length})</b></summary>${done.map((g,gi)=>{const r0=g[0],t=TOPICS.find(x=>x.id===r0.tid);
       return `<div class="row2"><span>${esc(t?t.title:r0.tid)}<br><small>${esc(String((r0.snap||{}).stem||'').replace(/\$/g,'').slice(0,70))}… · ${g.length} lượt báo</small></span><button class="btn sm alt" data-ro="${gi}">Mở lại</button></div>`}).join('')}</details>`:'');
   typeset($('#trk'));$('#trBack').onclick=()=>{sfx.tap();subjects()};
   const act=async(g,action,msg,b)=>{if(b.disabled)return;b.disabled=true;try{await DB.doc('reports/'+g[0].id).update({action,ids:g.map(r=>r.id)});toast(msg)}catch(e){b.disabled=false;msgBox('Chưa lưu được',esc(e.message))}};
-  $$('#trk [data-rd]').forEach(b=>b.onclick=()=>{sfx.tap();act(open[+b.dataset.rd],'done','Đã đánh dấu xử lý xong',b)});
+  $$('#trk [data-rd]').forEach(b=>b.onclick=()=>{sfx.tap();act(open[+b.dataset.rd],'done',hoi?'Đã đánh dấu đã chữa':'Đã đánh dấu xử lý xong',b)});
   $$('#trk [data-ro]').forEach(b=>b.onclick=()=>{sfx.tap();act(done[+b.dataset.ro],'reopen','Đã mở lại',b)});
   $$('#trk [data-rq]').forEach(b=>b.onclick=()=>{sfx.tap();const r0=open[+b.dataset.rq][0],t=TOPICS.find(x=>x.id===r0.tid);if(!t)return toast('Không tìm thấy bài này (có thể đã bị xoá).');
     const bs=qBlocks(t.raw),i=bs.findIndex(x=>!x.man&&parseOne(x.raw).q?.key===r0.qkey);
@@ -6926,7 +7015,7 @@ async function loadAll(force = false) {
 function softRefresh(){const on=$$('.scr.on')[0]?.id;if($('#ovl').classList.contains('on')||on==='play')return;
   if(BANKON&&!QE&&on==='track'){if(document.activeElement&&document.activeElement.id==='bkQ')return;return bank(true)}
   if(QE&&on==='track'){const t=TOPICS.find(x=>x.id===QE);if(t)qedit(t);return}
-  if(on==='track'&&$('#trTitle').textContent.startsWith('Tài khoản'))return accounts();if(on==='track'&&$('#trTitle').textContent.startsWith('Câu báo lỗi'))return reportsPage();if(on==='track'&&$('#trTitle').textContent.startsWith('Theo dõi'))return track();refresh()}
+  if(on==='track'&&$('#trTitle').textContent.startsWith('Tài khoản'))return accounts();if(on==='track'&&$('#trTitle').textContent.startsWith('Câu báo lỗi'))return reportsPage();if(on==='track'&&$('#trTitle').textContent.startsWith('Câu học sinh hỏi'))return reportsPage(true);if(on==='track'&&$('#trTitle').textContent.startsWith('Theo dõi'))return track();refresh()}
 const after=p=>p.then(r=>{lastPlayers=0;loadAll().then(softRefresh).catch(()=>{});return r});
 DB={doc:path=>{const i=path.indexOf('/'),c=path.slice(0,i),id=path.slice(i+1);return {
     update:v=>c==='settings'?after(api('/api/admin/settings',{action:id==='chat'?CHAT_SETTING_KEY:'moc',...v})):c==='reports'?after(api('/api/admin/report',v)):c==='topics'?after(api('/api/admin/topic',{id,...v})):c==='accounts'?after(v.restore?api('/api/admin/accounts',{action:'restore',id}):v.mon?api('/api/admin/accounts',{action:'mon',id,mon:v.mon}):('ph' in v)&&v.isDefault?api('/api/admin/accounts',{action:'reset',id}):Promise.resolve()):Promise.resolve(),
