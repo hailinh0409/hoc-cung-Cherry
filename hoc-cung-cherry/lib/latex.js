@@ -87,6 +87,11 @@ export function hinhBuocErrors(raw) {
 //   \begin{sodo} \nut{cấp}{nội dung}{ghi chú} … \end{sodo}                       sơ đồ phân tích đi lên, cấp 1 là gốc
 //   \nhanxet{…}
 //   \end{giaimau}
+// Chặng Tự luận (chat cùng Cherry) dùng thêm ba lệnh tùy chọn, đặt NGAY SAU một \buocgiai và gắn vào bước đó:
+//   \huong{lời Cherry nêu hướng làm bước này}            không có thì Cherry chỉ nêu mục tiêu
+//   \goiy{gợi ý}  (1–3 lần)                            học sinh bấm "Tớ bí rồi"; không có thì dùng {vì sao} làm gợi ý
+//   \kiemtra{câu hỏi}{đúng}{sai}{vì sao đúng}{vì sao sai}[{sai 2}{vì sao sai 2}]   câu hỏi nhỏ sau khi học sinh viết xong bước
+//   hoặc \kiemtra{câu hỏi}{=đáp số}{vì sao đúng}[{đáp số sai}{vì sao sai}…]       học sinh nhập đáp số (số nguyên, thập phân, phân số)
 // Hình: mỗi màn một khung. Khung = gmFrame(tikz, k, s): đã hiện tới bước k, tô sáng bước s (0 = không tô).
 // Phần tô sáng được vẽ sau cùng, phần còn lại mờ đi; phần chưa hiện vẫn vẽ trong suốt nên mọi khung cùng kích thước.
 export const GIAIMAU = /\\begin\{giaimau\}([\s\S]*?)\\end\{giaimau\}/g;
@@ -115,7 +120,7 @@ export function parseGiaiMau(raw, guide = false) {
   if (pics.length > 1) errors.push(`Bài giải mẫu chỉ có một hình tikzpicture (đang có ${pics.length}); phần thay đổi theo bước dùng \\hien{k}{…} và \\sang{k}{…}`);
   const rest = pics.reduce((x, p) => x.replace(p, ''), body);
   const items = []; let de = '', n = 0, m;
-  const re = /\\(de|cau|doan|buocgiai|nhanxet)\b|\\begin\{sodo\}/g;
+  const re = /\\(de|cau|doan|buocgiai|nhanxet|huong|goiy|kiemtra)\b|\\begin\{sodo\}/g;
   while ((m = re.exec(rest))) {
     const k = m[1];
     if (!k) {
@@ -128,9 +133,33 @@ export function parseGiaiMau(raw, guide = false) {
       items.push({ k: 'sodo', nodes, done: n });
       re.lastIndex = end + 10; continue;
     }
-    const want = { de: 1, cau: 2, buocgiai: 3, nhanxet: 1 }[k];
+    const want = { de: 1, cau: 2, buocgiai: 3, nhanxet: 1, huong: 1 }[k];
     const [a, at] = gmArgs(rest, re.lastIndex, want); re.lastIndex = at;
     if (k === 'de') { de = a[0] || ''; continue; }
+    if (k === 'huong' || k === 'goiy' || k === 'kiemtra') {
+      const st = items[items.length - 1];
+      if (guide) { errors.push(`Hướng dẫn tự luận không dùng \\${k}`); continue; }
+      if (!st || st.k !== 'buocgiai') { errors.push(`\\${k} phải đứng ngay sau một \\buocgiai`); continue; }
+      if (k === 'huong') { if (st.lead) errors.push(`Bước ${st.n}: chỉ một \\huong`); st.lead = a[0] || ''; if (!st.lead) errors.push(`Bước ${st.n}: \\huong để trống`); continue; }
+      if (k === 'goiy') { (st.hints = st.hints || []).push(a.join(' ')); if (!a[0]) errors.push(`Bước ${st.n}: \\goiy để trống`); if (st.hints.length > 3) errors.push(`Bước ${st.n}: tối đa 3 \\goiy`); continue; }
+      if (st.check) { errors.push(`Bước ${st.n}: chỉ một \\kiemtra`); continue; }
+      if (/^=/.test(a[1] || '')) {
+        const num = v => { const x = String(v).replace(/\s|\$/g, '').replace(',', '.'), f = /^(-?\d+(?:\.\d+)?)\/(\d+(?:\.\d+)?)$/.exec(x); return f ? Number(f[1]) / Number(f[2]) : (x === '' ? NaN : Number(x)); };
+        const ans = a[1].slice(1).trim(), wrong = [];
+        if (a.length < 3 || a.length % 2 === 0) errors.push(`Bước ${st.n}: \\kiemtra nhập số cần {câu hỏi}{=đáp số}{vì sao đúng}, thêm đáp số sai thì thêm từng cặp {đáp số sai}{vì sao sai}`);
+        for (let i = 3; i + 1 < a.length; i += 2) { wrong.push({ v: num(a[i]), t: a[i], ex: a[i + 1] }); if (!Number.isFinite(num(a[i]))) errors.push(`Bước ${st.n}: \\kiemtra có đáp số sai "${a[i]}" không phải số`); }
+        if (!Number.isFinite(num(ans))) errors.push(`Bước ${st.n}: \\kiemtra đáp số "${ans}" phải là số nguyên, số thập phân hoặc phân số a/b`);
+        st.check = { type: 'num', q: a[0] || '', ans: num(ans), ansText: ans, ex: a[2] || '', wrong };
+      } else {
+        if (a.length < 5 || a.length % 2 === 0) errors.push(`Bước ${st.n}: \\kiemtra cần {câu hỏi}{đúng}{sai}{vì sao đúng}{vì sao sai}, thêm đáp án sai thì thêm từng cặp {sai}{vì sao} (đang có ${a.length} cặp ngoặc)`);
+        const opts = [{ t: a[1] || '', ok: true, ex: a[3] || '' }, { t: a[2] || '', ok: false, ex: a[4] || '' }];
+        for (let i = 5; i + 1 < a.length; i += 2) opts.push({ t: a[i], ok: false, ex: a[i + 1] });
+        if (opts.some(o => !o.t || !o.ex)) errors.push(`Bước ${st.n}: \\kiemtra có đáp án hoặc lời giải thích để trống`);
+        st.check = { type: 'mc', q: a[0] || '', opts };
+      }
+      if (!st.check.q) errors.push(`Bước ${st.n}: \\kiemtra thiếu câu hỏi`);
+      continue;
+    }
     if (k === 'doan') {
       if (a.length < 5 || a.length % 2 === 0) errors.push(`\\doan cần {câu hỏi}{đúng}{sai}{vì sao đúng}{vì sao sai}, thêm đáp án sai thì thêm từng cặp {sai}{vì sao} (đang có ${a.length} cặp ngoặc)`);
       const opts = [{ t: a[1] || '', ok: true, ex: a[3] || '' }, { t: a[2] || '', ok: false, ex: a[4] || '' }];
